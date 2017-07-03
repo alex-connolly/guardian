@@ -1,0 +1,36 @@
+
+main(){
+
+    // loop over a range (inclusive, exclusive)
+    for i in 0...5 {
+
+    }
+
+    // jumps of two
+    for i := 0; i < 50; i+=2 {
+
+    }
+
+    // simple condition
+    for i < 50 {
+
+    }
+
+    // iterate through an array
+    for a in {"Hello", "World"} {
+
+    }
+
+    for k, v in {"Hi":5, "You":6} {
+
+    }
+
+    for i, a in {"Hello", "World"} {
+
+    }
+
+    for true {
+
+    }
+
+}

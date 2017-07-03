@@ -1,0 +1,25 @@
+
+import "sync"
+
+const threads = 2
+var total = 0
+var mutex sync.Mutex
+
+main(){
+    // generate 50,000 random integers from 1 - 100
+    sync.InitMutex(@mutex)
+    rands := rand.GenerateIntArray(1, 100, 50000)
+    for i := 0...threads {
+        go sum(index, data)
+    }
+}
+
+sum(int index, [int] data) {
+    partial := 0
+    for index < len(data); index += threads {
+        partial += data[index]
+    }
+    sync.lock(@mutex)
+    total += partial
+    sync.unlock(@mutex)
+}

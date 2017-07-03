@@ -1,0 +1,20 @@
+
+contract Adder {
+
+    int x, y
+
+    constructor(int x, y){
+        this.x, this.y = x, y
+    }
+
+    add() int {
+        int r = x + y;
+        if r < x && r < y {
+            terminate("Addition has overflowed")
+        }
+    }
+
+    terminate(string err){
+        io.Printf("%s", err)
+    }
+}

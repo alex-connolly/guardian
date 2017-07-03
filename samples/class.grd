@@ -1,0 +1,33 @@
+
+interface Noisy {
+    makeNoise() string
+}
+
+
+
+
+abstract class Animal is Noisy {
+
+    abstract getName() string {
+
+    }
+
+}
+
+// must implement the interface
+class Dog {
+
+    getName() string {
+        return "Dog"
+    }
+
+    makeNoise() string {
+        return "Woof!"
+    }
+
+}
+
+main(){
+    d := construct(Dog)
+    io.Printf("%s: %s", d.getName(), d.makeNoise())
+}

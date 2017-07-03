@@ -1,0 +1,18 @@
+
+const x = 5
+
+const hello = "This is a string!"
+
+// array of constant structs
+const dogs = [Dog]{
+    Dog{"Buffy"},
+    Dog{"Fido"}
+}
+
+// array of constant pointers
+const dogs = [@Dog] {
+    @Dog{"Buffy"},
+    @Dog{"Fido"}
+}
+
+const y = 5.5
