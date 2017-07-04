@@ -26,7 +26,6 @@ enum token_type {
 	TKN_XOR, // ^
 	TKN_SHL, // <<
 	TKN_SHR, // >>
-	TKN_AND_NOT, // &^
 
 	TKN_ADD_ASSIGN, // +=
 	TKN_SUB_ASSIGN, // -=
@@ -39,10 +38,9 @@ enum token_type {
 	TKN_XOR_ASSIGN, // ^=
 	TKN_SHL_ASSIGN, // <<=
 	TKN_SHR_ASSIGN, // >>=
-	TKN_AND_NOT_ASSIGN, // &^=
 
-	TKN_LAND,  // &&
-	TKN_LOR, // ||
+	TKN_LOGICAL_AND,  // &&
+	TKN_LOGICAL_OR, // ||
 	TKN_ARROW, // <-
 	TKN_INC, // ++
 	TKN_DEC, // --
@@ -119,7 +117,6 @@ int get_precedence(enum token_type type){
         case TKN_MUL_ASSIGN:
         case TKN_DIV_ASSIGN:
         case TKN_AND_ASSIGN:
-        case TKN_AND_NOT_ASSIGN:
         case TKN_OR_ASSIGN:
         case TKN_XOR_ASSIGN:
         case TKN_SHR_ASSIGN:
