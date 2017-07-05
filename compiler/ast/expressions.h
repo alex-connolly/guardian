@@ -1,6 +1,14 @@
 
 #include "base.h"
 
+CREATE_NODE(basic_literal)();
+CREATE_NODE(paren_expr)();
+CREATE_NODE(function_literal)();
+CREATE_NODE(composite_literal)();
+CREATE_NODE(index_expr)();
+CREATE_NODE(generic_param)();
+CREATE_NODE(slice_expr)();
+
 struct basic_literal_node {
     size_t position;
     struct token token;
@@ -29,6 +37,12 @@ struct index_expr_node {
     size_t left_pos;
     struct expression_node* index;
     size_t right_pos;
+};
+
+struct generic_param_node {
+    size_t left_pos; // position of <
+    size_t right_pos; // position of >
+    struct expression_node* generic;
 };
 
 struct slice_expr_node {

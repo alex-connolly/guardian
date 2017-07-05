@@ -76,3 +76,25 @@ PROCESS(builtin_operator){
         case ')': SET_TYPE_RETURN(TKN_BRACKET_CLOSE);
     }
 }
+
+int digit_value(char value){
+
+}
+
+// adapted from the Go compiler
+void process_mantissa(int base){
+    for (digit_value(LEXER_CURRENT) < base){
+        LEXER_NEXT;
+    }
+}
+
+PROCESS(number){
+    NEW_TOKEN;
+
+decimal:
+
+exponent:
+    if (sh == 'e' || sh == 'E') {
+
+    }
+}

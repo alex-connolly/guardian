@@ -1,6 +1,12 @@
 
 #include "base.h"
 
+CREATE_NODE(type)();
+CREATE_NODE(value)();
+CREATE_NODE(import)();
+CREATE_NODE(gen_decl)();
+CREATE_NODE(func_decl)();
+
 struct type_node {
     struct comment_node* doc;
     const char* identifier;
