@@ -28,3 +28,26 @@ CREATE_NODE(return_stat)(struct expression_node** results){
 
     RETURN_NODE(node);
 }
+
+CREATE_NODE(if_stat)(struct statement_node* init, struct expression_node* cond,
+    struct block_stat_node* body, struct block_stat_node* else_branch){
+
+    NEW_NODE(node, if_stat);
+
+    node->init = init;
+    node->cond = cond;
+    node->body = body;
+    node->else_branch = else_branch;
+    SET_BASE(node, NODE_IF_STAT);
+
+    RETURN_NODE(node);
+}
+
+CREATE_NODE(branch_stat)(const char* identifier){
+    NEW_NODE(node, branch_stat);
+
+    node->identifier = identifier;
+    SET_BASE(node, NODE_BRANCH_STAT);
+
+    RETURN_NODE(node);
+}

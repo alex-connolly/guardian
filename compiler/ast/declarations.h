@@ -1,11 +1,12 @@
 
 #include "ast.h"
 
-CREATE_NODE(type)();
-CREATE_NODE(value)();
-CREATE_NODE(import)();
-CREATE_NODE(gen_decl)();
-CREATE_NODE(func_decl)();
+CREATE_NODE(type)(const char* identifier, struct expression_node* type);
+CREATE_NODE(value)(struct array* vars, struct expression_node* type, struct array* values);
+CREATE_NODE(import)(const char* tag, const char* path);
+CREATE_NODE(interface_decl)(const char* identifier, struct block_stat_node* body, bool is_abstract);
+CREATE_NODE(func_decl)(struct func_sig_node* type, struct block_stat_node* body);
+CREATE_NODE(class_decl)(const char* identifier, struct block_stat_node* body, bool is_abstract, bool is_contract);
 
 struct type_node {
     const char* identifier;
@@ -13,22 +14,29 @@ struct type_node {
 };
 
 struct value_node {
-    const char** names;
+    struct array* names;
     struct expression_node* type;
-    struct expression_node** values;
+    struct array* values;
 };
 
 struct import_node {
-    const char* name;
+    const char* tag;
     const char* path;
 };
 
-struct gen_decl_node {
-    struct token token;
-    struct spec_node** specs;
+struct interface_decl_node {
+    const char* identifier;
+    struct block_stat_node* body; // func_sig_nodes
 };
 
 struct func_decl_node {
     struct func_sig_node* type;
     struct block_stat_node* body;
+};
+
+struct class_decl_node {
+    const char* identifier;
+    bool is_abstract;
+    bool is_contract;
+    struct block_stat_node* body; // methods/variables etc
 };
