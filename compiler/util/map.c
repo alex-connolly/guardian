@@ -5,6 +5,10 @@ int basic_hash(void* key){
     return 0;
 }
 
+void map_free(struct map* map){
+    free(map);
+}
+
 struct map* map_create(size_t key_size, size_t value_size){
     struct map* map = malloc(sizeof(struct map));
     map->size = 0;

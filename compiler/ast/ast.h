@@ -15,13 +15,13 @@ struct node {
 };
 
 struct field_node {
-    struct node* base;
+    struct node base;
     const char** names;
     struct expression_node* type;
     const char* tag;
 };
 
 struct field_list_node {
-    struct node* base;
+    struct node base;
     struct field_node** list;
 };
