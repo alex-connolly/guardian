@@ -17,7 +17,7 @@ CREATE_NODE(variable_decl)(struct array* vars, struct expression_node* type, str
     node->vars = vars;
     node->type = type;
     node->values = values;
-    SET_BASE(node, NODE_VALUE_DECL);
+    SET_BASE(node, NODE_VARIABLE_DECL);
 
     RETURN_NODE(node);
 }

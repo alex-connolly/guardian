@@ -108,7 +108,7 @@ enum token_type {
 };
 
 // precedence order taken from Swift
-// number are immaterial --> only order is of concern
+// numbers are immaterial --> only order is of concern
 // no overloaded operators allowed for now (probably ever)
 int get_precedence(enum token_type type){
     switch (type){

@@ -51,3 +51,15 @@ CREATE_NODE(branch_stat)(const char* identifier){
 
     RETURN_NODE(node);
 }
+
+CREATE_NODE(case_clause)(struct array* cases, struct block_stat_node* block){
+
+    NEW_NODE(node, block_stat);
+
+    node->cases = cases;
+    node->block = block;
+
+    SET_BASE(node, NODE_CASE_CLAUSE);
+
+    RETURN_NODE(node);
+}
