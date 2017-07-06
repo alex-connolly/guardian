@@ -319,3 +319,14 @@ PARSE(return_stat){
     }
     return_stat_node_create(list);
 }
+
+PARSE(type_name){
+    // box or a.box
+    const char* identifier = parse_identifier(parser);
+    const char* resolved = NULL;
+    if (CURRENT_TOKEN == TKN_DOT){
+        PARSER_NEXT;
+         resolved = parser_resolve(parser, identifier);
+
+    }
+}

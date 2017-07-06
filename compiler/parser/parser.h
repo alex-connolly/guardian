@@ -6,6 +6,7 @@
 
 struct parser {
     struct token current;
+    struct scope* scope;
 };
 
 struct parser* parser_create();
