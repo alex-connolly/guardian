@@ -57,12 +57,12 @@ enum token_type {
 	TKN_DEFINE, // :=
 	TKN_ELLIPSIS, // ...
 
-	TKN_BRACKET_OPEN, // (
-    TKN_BRACKET_CLOSE, // )
-	TKN_SQUARE_OPEN, // [
-    TKN_SQUARE_CLOSE, // ]
-	TKN_BRACE_OPEN, // {
-    TKN_BRACE_CLOSE, // }
+	TKN_OPEN_PAREN, // (
+    TKN_CLOSE_PAREN, // )
+	TKN_OPEN_SQUARE, // [
+    TKN_CLOSE_SQUARE, // ]
+	TKN_OPEN_BRACE, // {
+    TKN_CLOSE_BRACE, // }
 
 	TKN_COMMA,  // ,
 	TKN_DOT, // .
@@ -76,7 +76,8 @@ enum token_type {
 	TKN_CASE,
 	TKN_CHAN,
 	TKN_CONST,
-
+	TKN_ABSTRACT,
+	TKN_CONTRACT,
 
 	TKN_DEFAULT,
 	TKN_DEFER,
@@ -153,8 +154,8 @@ int get_precedence(enum token_type type){
         case TKN_SHR:
             return 9;
         case TKN_DOT:
-        case TKN_BRACKET_OPEN:
-        case TKN_SQUARE_OPEN:
+        case TKN_OPEN_PAREN:
+        case TKN_OPEN_SQUARE:
             return 10;
         default:
             return 0;

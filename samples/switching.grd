@@ -1,0 +1,30 @@
+
+main(){
+
+    string_switch("house")
+
+    empty_switch(10)
+
+
+
+}
+
+string_switch(string x){
+    switch x {
+        case "house":
+            break
+        case "rat":
+            break
+        case "me":
+            break
+    }
+}
+
+empty_switch(int x){
+    switch {
+    case x > 5:
+        break
+    case x < 5:
+        break
+    }
+}

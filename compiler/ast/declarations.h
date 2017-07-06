@@ -1,5 +1,5 @@
 
-#include "base.h"
+#include "ast.h"
 
 CREATE_NODE(type)();
 CREATE_NODE(value)();
@@ -24,15 +24,12 @@ struct value_node {
 };
 
 struct import_node {
-    struct comment_node* doc;
     const char* name;
     const char* path;
-    struct comment_node* comment;
     size_t end_position;
 };
 
 struct gen_decl_node {
-    struct comment_node* doc;
     size_t token_position;
     struct token token;
     size_t left_paren_position;
@@ -41,8 +38,6 @@ struct gen_decl_node {
 };
 
 struct func_decl_node {
-    struct comment_node* doc;
-    const char* identifier;
-    struct func_type_node* type;
+    struct func_sig_node* type;
     struct block_stat_node* body;
 };
