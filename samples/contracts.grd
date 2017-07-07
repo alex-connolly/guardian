@@ -1,5 +1,5 @@
 
-contract Adder {
+contract class Adder {
 
     int x, y
 

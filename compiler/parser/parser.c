@@ -330,3 +330,20 @@ PARSE(type_name){
 
     }
 }
+
+PARSE(map_type){
+    REQUIRE_NEXT(TKN_MAP);
+    REQUIRE_NEXT(TKN_SQUARE_OPEN);
+    struct node* key = parse_type_name(parser);
+    REQUIRE_NEXT(TKN_SQUARE_CLOSE);
+    struct node* value = parse_type_name(parser);
+    map_type_node_create(key, value);
+}
+
+PARSE(chan_type){
+
+}
+
+PARSE(block_stat){
+    
+}

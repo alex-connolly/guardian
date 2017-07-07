@@ -1,0 +1,47 @@
+name = "GuardianVM"
+author = "ender"
+
+sources = ["ops.c"]
+
+instruction("ADD"){
+    push = 1
+    pop = 2
+    execute = opAdd
+    fuel = FUEL_LOWEST
+}
+
+instruction("SUB"){
+    push = 1
+    pop = 2
+    execute = opSub
+    fuel = FUEL_LOWEST
+}
+
+instruction("MUL"){
+    push = 1
+    pop = 2
+    execute = opMul
+    fuel = FUEL_LOWEST
+}
+
+instruction("MOD"){
+    description = "Returns the remainder of an integer division"
+    push = 1
+    pop = 2
+    execute = opMod
+    fuel = FUEL_LOWEST
+}
+
+instruction("RUN"){
+    description = "Launches a new pseudo-thread"
+    push = 1
+    pop = 2
+    execute = opRun
+}
+
+instruction("PUSH"){
+    description = "Pushes a block of memory onto the stack"
+    parameters = ["size"]
+    push = 1
+    execute = opPush
+}
