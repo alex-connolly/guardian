@@ -1,0 +1,17 @@
+
+contract NameService {
+
+    main(){
+        key, value := params(0), params(32)
+        if storage(key) {
+            // there is already data stored with this key
+            terminate("This name is already taken")
+        }
+        store(key, value)
+    }
+
+    terminate(msg string){
+        log(msg)
+    }
+
+}

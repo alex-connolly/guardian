@@ -16,3 +16,14 @@ const dogs = [@Dog] {
 }
 
 const y = 5.5
+
+// bases
+
+const (
+    b2(100) // 4
+    b8(100) // 8
+    b10(100) // 200
+    b16(100) // 8
+    b36(100) // ?
+    // b37(100) --> max base is 36, compile error
+)

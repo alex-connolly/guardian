@@ -1,0 +1,15 @@
+greater(int a, b) int {
+    if a > b {
+        return 0
+    } else {
+        return 1
+    }
+}
+
+PUSH 1
+PUSH 1
+JUMPI
+LEQ
+PUSH
+RETURN
+PUSH 

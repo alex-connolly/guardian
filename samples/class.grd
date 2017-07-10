@@ -17,8 +17,10 @@ abstract class Animal is Noisy {
 // must implement the interface
 class Dog {
 
-    getName() string {
-        return "Dog"
+    string name
+
+    constructor(string name){
+        this.name = name
     }
 
     makeNoise() string {
@@ -27,7 +29,16 @@ class Dog {
 
 }
 
+class Pupper inherits Dog {
+
+    makeNoise() string {
+        return "woof..."
+    }
+}
+
 main(){
-    d := construct(Dog)
+    d := Dog("Cookie")
     io.Printf("%s: %s", d.getName(), d.makeNoise())
+    p := Pupper("Biscuit")
+    io.Printf("%s: %s", p.getName(), p.makeNoise())
 }
