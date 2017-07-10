@@ -1,5 +1,7 @@
 package lexer
 
+import "fmt"
+
 // lexer copied over in part from my efp
 
 // TokenType denotes the type of a token
@@ -9,6 +11,7 @@ const (
 	TknValue = iota
 	TknNumber
 	TknString
+	TknCharacter
 	TknComment
 	TknAlias
 	TknAssign       // =
@@ -27,6 +30,12 @@ const (
 	TknXor          // ^
 	TknShl          // <<
 	TknShr          // >>
+	TknAdd          // +
+	TknSub          // -
+	TknStar         // *
+	TknDiv          // /
+	TknMod          // %
+	TknAddress      // @
 
 	TknAddAssign // +=
 	TknSubAssign // -=
@@ -49,19 +58,17 @@ const (
 	TknEql // ==
 	TknLss // <
 	TknGtr // >
-	TknNOT // !
+	TknNot // !
 
-	TknNEQ      // !=
-	TknLEQ      // <=
-	TknGEQ      // >=
-	TknDEFINE   // :=
-	TknELLIPSIS // ...
+	TknNeq      // !=
+	TknLeq      // <=
+	TknGeq      // >=
+	TknDefine   // :=
+	TknEllipsis // ...
 
-	TknCOMMA     //
-	TknDOT       // .
-	TknSEMICOLON // ;
-	TknCOLON     // :
-	TknTERNARY   // ?
+	TknDot       // .
+	TknSemicolon // ;
+	TknTernary   // ?
 
 	TknBreak
 	TknContinue
@@ -74,9 +81,6 @@ const (
 	TknConst
 	TknVar
 
-	TknConst
-	TknVar
-
 	TknRun
 	TknDefer
 
@@ -85,14 +89,6 @@ const (
 	TknExclusive
 	TknDefault
 	TknFallthrough
-
-	TknExclusive
-	TknExclusive
-	TknDefault
-
-	TknAbstract
-
-	TknFor
 
 	TknFor
 	TknFunc
@@ -108,6 +104,8 @@ const (
 
 	TknPackage
 	TknReturn
+
+	TknNone
 )
 
 func getProtoTokens() []protoToken {
@@ -179,7 +177,7 @@ func getProtoTokens() []protoToken {
 	}
 }
 
-func processFixed(tkn tokenType) processorFunc {
+func processFixed(tkn TokenType) processorFunc {
 	return func(l *lexer) (t token) {
 		// start and end don't matter
 		t.tkntype = tkn
@@ -188,33 +186,44 @@ func processFixed(tkn tokenType) processorFunc {
 	}
 }
 
-func isIdentifier(b []byte) bool {
-	return ('A' <= b[0] && b[0] <= 'Z') || ('a' <= b[0] && b[0] <= 'z') || ('0' <= b[0] && b[0] <= '9') || (b[0] == '_')
+func isIdentifier(l *lexer) bool {
+	return ('A' <= l.current() && l.current() <= 'Z') ||
+		('a' <= l.current() && l.current() <= 'z') ||
+		('0' <= l.current() && l.current() <= '9') ||
+		(l.current() == '_')
 }
 
-func isNumber(b []byte) bool {
-	return ('0' <= b[0] && b[0] <= '9')
+func isNumber(l *lexer) bool {
+	return ('0' <= l.current() && l.current() <= '9')
 }
 
-func isString(b []byte) bool {
-	return ((b[0] == '"') || (b[0] == '\''))
+func isString(l *lexer) bool {
+	return ((l.current() == '"') || (l.current() == '\''))
 }
 
-func isWhitespace(b []byte) bool {
-	return (b[0] == ' ') || (b[0] == '\t')
+func isWhitespace(l *lexer) bool {
+	return (l.current() == ' ') || (l.current() == '\t')
 }
 
-func isNewLine(b []byte) bool {
-	return (b[0] == '\n')
+func isNewLine(l *lexer) bool {
+	return (l.current() == '\n')
+}
+
+func isCharacter(l *lexer) bool {
+	return (l.current() == '\'')
 }
 
 func is(a string) isFunc {
-	return func(b []byte) bool {
-		return string(b) == a
+	return func(l *lexer) bool {
+		if l.offset+len(a) > len(l.buffer) {
+			return false
+		}
+		fmt.Printf("cmp %s to %s\n", string(l.buffer[l.offset:l.offset+len(a)]), a)
+		return string(l.buffer[l.offset:l.offset+len(a)]) == a
 	}
 }
 
-type isFunc func([]byte) bool
+type isFunc func(*lexer) bool
 type processorFunc func(*lexer) token
 
 type protoToken struct {
@@ -224,7 +233,7 @@ type protoToken struct {
 }
 
 type token struct {
-	tkntype tokenType
+	tkntype TokenType
 	start   int
 	end     int
 }

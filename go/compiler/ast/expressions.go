@@ -1,5 +1,7 @@
 package ast
 
+import "axia/guardian/go/compiler/lexer"
+
 // BinaryExpressionNode ...
 type BinaryExpressionNode struct {
 	Left, Right Node
