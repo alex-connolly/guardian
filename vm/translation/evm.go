@@ -23,7 +23,7 @@ func Translate(instructions []firevm.InstructionBlock) []EVMInstruction {
 			}
 			break
 		case "SUB", "DIV", "MOD", "COINBASE", "TIMESTAMP", "NUMBER", "DIFFICULTY",
-				"POP":
+			"POP":
 			// operations with the same EVM opcode
 			evms = append(evms, evm(instructions[i].opcode))
 		case "PUSH":
@@ -69,7 +69,6 @@ func Translate(instructions []firevm.InstructionBlock) []EVMInstruction {
 		case "FUELLIMIT":
 			evms = append(evms, evm("GASLIMIT"))
 			break
-		case
 		}
 	}
 	return evms
