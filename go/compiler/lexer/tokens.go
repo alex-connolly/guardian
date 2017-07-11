@@ -1,7 +1,5 @@
 package lexer
 
-import "fmt"
-
 // lexer copied over in part from my efp
 
 // TokenType denotes the type of a token
@@ -113,66 +111,64 @@ const (
 	TknNone
 )
 
+// TODO: protoToken{"Operator", isOperator, processOperator}
+// TODO: benchmark recognising that a token is an op and then sorting from there
+
 func getProtoTokens() []protoToken {
 	return []protoToken{
-		protoToken{"Open Square Bracket", is("["), processFixed(TknOpenSquare)},
-		protoToken{"Close Square Bracket", is("]"), processFixed(TknCloseSquare)},
-		protoToken{"Open Bracket", is("("), processFixed(TknOpenBracket)},
-		protoToken{"Close Bracket", is(")"), processFixed(TknCloseBracket)},
-		protoToken{"Open Brace", is("{"), processFixed(TknOpenBrace)},
-		protoToken{"Close Brace", is("}"), processFixed(TknCloseBrace)},
-		protoToken{"Open Corner", is("<"), processFixed(TknOpenCorner)},
-		protoToken{"Close Corner", is(">"), processFixed(TknCloseCorner)},
-		protoToken{"Assignment", is("="), processFixed(TknAssign)},
-		protoToken{"Add", is("+"), processFixed(TknAdd)},
-		protoToken{"Sub", is("-"), processFixed(TknSub)},
-		protoToken{"Star", is("*"), processFixed(TknStar)},
-		protoToken{"Div", is("/"), processFixed(TknDiv)},
-		protoToken{"Mod", is("%"), processFixed(TknMod)},
-		protoToken{"Not", is("!"), processFixed(TknNot)},
-		protoToken{"Comma", is(","), processFixed(TknComma)},
-		protoToken{"Colon", is(":"), processFixed(TknColon)},
-		protoToken{"Or", is("|"), processFixed(TknOr)},
-		protoToken{"Address", is("@"), processFixed(TknAddress)},
+		createFixed("contract", TknContract),
+		createFixed("class", TknClass),
+		createFixed("interface", TknInterface),
+		createFixed("abstract", TknAbstract),
+		createFixed("inherits", TknInherits),
 
-		protoToken{"KW: Contract", is("contract"), processFixed(TknContract)},
-		protoToken{"KW: Class", is("class"), processFixed(TknClass)},
-		protoToken{"KW: Interface", is("interface"), processFixed(TknInterface)},
-		protoToken{"KW: Abstract", is("abstract"), processFixed(TknAbstract)},
-		protoToken{"KW: Inherits", is("inherits"), processFixed(TknInherits)},
+		createFixed("const", TknConst),
+		createFixed("var", TknVar),
 
-		protoToken{"KW: Const", is("const"), processFixed(TknConst)},
-		protoToken{"KW: Var", is("var"), processFixed(TknVar)},
+		createFixed("run", TknRun),
+		createFixed("defer", TknDefer),
 
-		protoToken{"KW: Run", is("run"), processFixed(TknRun)},
-		protoToken{"KW: Defer", is("defer"), processFixed(TknDefer)},
+		createFixed("switch", TknSwitch),
+		createFixed("case", TknCase),
+		createFixed("exclusive", TknExclusive),
+		createFixed("default", TknDefault),
+		createFixed("fallthrough", TknFallthrough),
+		createFixed("break", TknBreak),
+		createFixed("continue", TknContinue),
 
-		protoToken{"KW: Switch", is("switch"), processFixed(TknSwitch)},
-		protoToken{"KW: Case", is("case"), processFixed(TknCase)},
-		protoToken{"KW: Exclusive", is("exclusive"), processFixed(TknExclusive)},
-		protoToken{"KW: Default", is("default"), processFixed(TknDefault)},
-		protoToken{"KW: Fallthrough", is("fallthrough"), processFixed(TknFallthrough)},
-		protoToken{"KW: Break", is("break"), processFixed(TknBreak)},
-		protoToken{"KW: Continue", is("continue"), processFixed(TknContinue)},
+		createFixed("if", TknIf),
+		createFixed("else if", TknElseIf),
+		createFixed("default", TknElse),
 
-		protoToken{"KW: If", is("if"), processFixed(TknIf)},
-		protoToken{"KW: Else If", is("else if"), processFixed(TknElseIf)},
-		protoToken{"KW: Else", is("default"), processFixed(TknElse)},
+		createFixed("for", TknFor),
+		createFixed("func", TknFunc),
+		createFixed("goto", TknGoto),
+		createFixed("import", TknImport),
+		createFixed("is", TknIs),
+		createFixed("as", TknAs),
+		createFixed("type", TknType),
+		createFixed("typeof", TknTypeOf),
 
-		protoToken{"KW: For", is("for"), processFixed(TknFor)},
-		protoToken{"KW: Func", is("func"), processFixed(TknFunc)},
-		protoToken{"KW: Goto", is("goto"), processFixed(TknGoto)},
-		protoToken{"KW: Import", is("import"), processFixed(TknImport)},
-		protoToken{"KW: Is", is("is"), processFixed(TknIs)},
-		protoToken{"KW: As", is("as"), processFixed(TknAs)},
-		protoToken{"KW: Type", is("type"), processFixed(TknType)},
-		protoToken{"KW: Typeof", is("typeof"), processFixed(TknTypeOf)},
+		createFixed("in", TknIn),
+		createFixed("map", TknMap),
 
-		protoToken{"KW: In", is("in"), processFixed(TknIn)},
-		protoToken{"KW: Map", is("map"), processFixed(TknMap)},
+		createFixed("package", TknPackage),
+		createFixed("return", TknReturn),
 
-		protoToken{"KW: Package", is("package"), processFixed(TknPackage)},
-		protoToken{"KW: Return", is("return"), processFixed(TknReturn)},
+		createFixed("+", TknAdd),
+		createFixed("-", TknSub),
+		createFixed("/", TknDiv),
+		createFixed("*", TknStar),
+		createFixed("%", TknMod),
+		createFixed("@", TknAddress),
+		createFixed("{", TknOpenBrace),
+		createFixed("}", TknCloseBrace),
+		createFixed("<", TknOpenCorner),
+		createFixed(">", TknCloseCorner),
+		createFixed("[", TknOpenSquare),
+		createFixed("]", TknCloseSquare),
+		createFixed("(", TknOpenBracket),
+		createFixed(")", TknCloseBracket),
 
 		protoToken{"New Line", isNewLine, processNewLine},
 		protoToken{"Whitespace", isWhitespace, processIgnored},
@@ -183,13 +179,21 @@ func getProtoTokens() []protoToken {
 	}
 }
 
-func processFixed(tkn TokenType) processorFunc {
+func processFixed(len int, tkn TokenType) processorFunc {
 	return func(l *lexer) (t Token) {
 		// start and end don't matter
 		t.Type = tkn
-		l.offset++
+		l.offset += len
 		return t
 	}
+}
+
+func isOperator(l *lexer) bool {
+	switch l.buffer[l.offset] {
+	case '+', '-', '*', '/':
+		return true
+	}
+	return false
 }
 
 func isIdentifier(l *lexer) bool {
@@ -224,9 +228,13 @@ func is(a string) isFunc {
 		if l.offset+len(a) > len(l.buffer) {
 			return false
 		}
-		fmt.Printf("cmp %s to %s\n", string(l.buffer[l.offset:l.offset+len(a)]), a)
+		//	fmt.Printf("cmp %s to %s\n", string(l.buffer[l.offset:l.offset+len(a)]), a)
 		return string(l.buffer[l.offset:l.offset+len(a)]) == a
 	}
+}
+
+func createFixed(kw string, tkn TokenType) protoToken {
+	return protoToken{"KW: " + kw, is(kw), processFixed(len(kw), tkn)}
 }
 
 type isFunc func(*lexer) bool

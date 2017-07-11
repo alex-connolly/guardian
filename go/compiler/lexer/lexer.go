@@ -97,6 +97,7 @@ func processNumber(l *lexer) (t Token) {
 	return t
 }
 
+// TODO: handle errors etc
 func processCharacter(l *lexer) (t Token) {
 	t.start = l.offset
 	t.end = l.offset + 2
@@ -138,6 +139,7 @@ func processString(l *lexer) Token {
 		t.end++
 		b2 = l.nextByte()
 		if l.isEOF() {
+			l.errors = append(l.errors, "String literal not closed")
 			t.end += 2
 			return *t
 		}

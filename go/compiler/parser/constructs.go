@@ -12,6 +12,7 @@ func getPrimaryConstructs() []construct {
 		construct{"contract declaration", isContractDeclaration, parseContractDeclaration},
 		construct{"interface declaration", isInterfaceDeclaration, parseInterfaceDeclaration},
 		construct{"func declaration", isFuncDeclaration, parseFuncDeclaration},
+		construct{"type declaration", isTypeDeclaration, parseTypeDeclaration},
 
 		construct{"if statement", isIfStatement, parseIfStatement},
 		construct{"for statement", isForStatement, parseForStatement},

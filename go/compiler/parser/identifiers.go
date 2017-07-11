@@ -5,7 +5,7 @@ import (
 )
 
 func isClassDeclaration(p *parser) bool {
-	if p.index+2 < len(p.tokens) {
+	if p.index+1 < len(p.tokens) {
 		return p.current().Type == lexer.TknClass ||
 			(p.current().Type == lexer.TknAbstract && p.token(1).Type == lexer.TknClass)
 	}
@@ -13,7 +13,7 @@ func isClassDeclaration(p *parser) bool {
 }
 
 func isInterfaceDeclaration(p *parser) bool {
-	if p.index+2 < len(p.tokens) {
+	if p.index+1 < len(p.tokens) {
 		return p.current().Type == lexer.TknInterface ||
 			(p.current().Type == lexer.TknAbstract && p.token(1).Type == lexer.TknInterface)
 	}
@@ -21,7 +21,7 @@ func isInterfaceDeclaration(p *parser) bool {
 }
 
 func isContractDeclaration(p *parser) bool {
-	if p.index+2 < len(p.tokens) {
+	if p.index+1 < len(p.tokens) {
 		return p.current().Type == lexer.TknContract ||
 			(p.current().Type == lexer.TknAbstract && p.token(1).Type == lexer.TknContract)
 	}
@@ -33,6 +33,10 @@ func isFuncDeclaration(p *parser) bool {
 		return p.current().Type == lexer.TknIdentifier && p.token(1).Type == lexer.TknOpenBracket
 	}
 	return false
+}
+
+func isTypeDeclaration(p *parser) bool {
+	return p.current().Type == lexer.TknType
 }
 
 func isForStatement(p *parser) bool {
@@ -77,7 +81,7 @@ func (p *parser) isCallExpression() bool {
 
 func (p *parser) isMapLiteral() bool {
 	// map[key]value{}
-	return p.current().Type == lexer.TknMap && p.token(5).Type == lexer.TknOpenBrace
+	return p.current().Type == lexer.TknMap
 }
 
 func (p *parser) isArrayLiteral() bool {
@@ -90,5 +94,8 @@ func (p *parser) isLiteral() bool {
 }
 
 func (p *parser) isCompositeLiteral() bool {
-	return false
+	if p.index+1 > len(p.tokens) {
+		return false
+	}
+	return (p.current().Type == lexer.TknIdentifier) && (p.token(1).Type == lexer.TknOpenBrace)
 }
