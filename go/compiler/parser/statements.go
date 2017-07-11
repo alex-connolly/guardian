@@ -5,12 +5,12 @@ import (
 	"axia/guardian/go/compiler/lexer"
 )
 
-func (p *parser) parseReturnStatement() {
+func parseReturnStatement(p *parser) {
 
 	p.parseRequired(lexer.TknReturn)
 
 	if p.parseOptional(lexer.TknOpenBracket) {
-		var tuple []Node
+		var tuple []ast.Node
 		tuple = append(tuple, p.parseExpression())
 		for p.parseOptional(lexer.TknComma) {
 			tuple = append(tuple, p.parseExpression())
@@ -21,9 +21,9 @@ func (p *parser) parseReturnStatement() {
 	p.scope.Validate(ast.ReturnStatement)
 }
 
-func (p *parser) parseAssignmentStatement() {
+func parseAssignmentStatement(p *parser) {
 
-	var assigned []Node
+	var assigned []ast.Node
 	assigned = append(assigned, p.parseExpression())
 	for p.parseOptional(lexer.TknComma) {
 		assigned = append(assigned, p.parseExpression())
@@ -31,7 +31,7 @@ func (p *parser) parseAssignmentStatement() {
 
 	p.parseRequired(lexer.TknAssign)
 
-	var to []Node
+	var to []ast.Node
 	to = append(to, p.parseExpression())
 	for p.parseOptional(lexer.TknComma) {
 		to = append(to, p.parseExpression())
@@ -39,14 +39,29 @@ func (p *parser) parseAssignmentStatement() {
 
 	p.scope.Validate(ast.AssignmentStatement)
 
-	p.scope.Declare("Assignment", ast.AssignmentStatement{
-		assigned: assigned,
-		to:       to,
+	p.scope.Declare("Assignment", ast.AssignmentStatementNode{
+		Left:  assigned,
+		Right: to,
 	})
 }
 
-func (p *parser) parseIfStatement() {
+func parseIfStatement(p *parser) {
 
 	p.parseRequired(lexer.TknIf)
-	p := p.parseExpression
+	//one := p.parseExpression()
+
+}
+
+func parseForStatement(p *parser) {
+
+	p.parseRequired(lexer.TknFor)
+
+}
+
+func parseCaseStatement(p *parser) {
+
+}
+
+func parseSwitchStatement(p *parser) {
+
 }

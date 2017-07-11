@@ -1,8 +1,56 @@
 package parser
 
-import "axia/guardian/go/compiler/ast"
+import (
+	"axia/guardian/go/compiler/ast"
+	"axia/guardian/go/compiler/lexer"
+)
 
-func (p *parser) parseBinaryExpression() {
+func (p *parser) parseExpression() ast.Node {
+	switch {
+	case p.isUnaryExpression():
+		return p.parseUnaryExpression()
+	case p.isBinaryExpression():
+		return p.parseBinaryExpression()
+	case p.isCallExpression():
+		return p.parseCallExpression()
+	case p.isLiteral():
+		return p.parseLiteralExpression()
+	case p.isCompositeLiteral():
+		return p.parseCompositeLiteralExpression()
+	case p.isArrayLiteral():
+		return p.parseArrayLiteral()
+	case p.isMapLiteral():
+		return p.parseMapLiteral()
+	default:
+		p.addError("Required expression, not found.")
+		return nil
+	}
+}
+
+func (p *parser) parseCallExpression() ast.Node {
+
+	name := p.parseIdentifier()
+
+	p.parseRequired(lexer.TknOpenBracket)
+
+	var args []ast.Node
+	if !p.parseOptional(lexer.TknCloseBracket) {
+		args = append(args, p.parseExpression())
+		for p.parseOptional(lexer.TknComma) {
+			args = append(args, p.parseExpression())
+		}
+		p.parseRequired(lexer.TknCloseBracket)
+	}
+
+	p.validate(ast.CallExpression)
+
+	return ast.CallExpressionNode{
+		Name:      name,
+		Arguments: args,
+	}
+}
+
+func (p *parser) parseBinaryExpression() ast.Node {
 
 	left := p.parseExpression()
 
@@ -11,32 +59,31 @@ func (p *parser) parseBinaryExpression() {
 
 	right := p.parseExpression()
 
-	p.scope.Validate(ast.BinaryExpressionNode)
+	p.validate(ast.BinaryExpression)
 
-	p.scope.Declare("expression", ast.BinaryExpressionNode{
-		left:  left,
-		op:    op,
-		right: right,
-	})
-
+	return ast.BinaryExpressionNode{
+		Left:     left,
+		Operator: op,
+		Right:    right,
+	}
 }
 
-func (p *parser) parseUnaryExpression() {
+func (p *parser) parseUnaryExpression() ast.Node {
 
 	op := p.current().Type
 	p.next()
 
 	operand := p.parseExpression()
 
-	p.scope.Validate(ast.UnaryExpressionNode)
+	p.validate(ast.UnaryExpression)
 
-	p.scope.Declare("expression", ast.UnaryExpressionNode{
-		op:      op,
-		operand: operand,
-	})
+	return ast.UnaryExpressionNode{
+		Operator: op,
+		Operand:  operand,
+	}
 }
 
-func (p *parser) parseIndexExpression() {
+func (p *parser) parseIndexExpression() ast.Node {
 
 	expr := p.parseExpression()
 
@@ -44,19 +91,61 @@ func (p *parser) parseIndexExpression() {
 
 	index := p.parseExpression()
 
-	p.parseRequired(lexer.TknClosedSquare)
+	p.parseRequired(lexer.TknCloseSquare)
 
-	p.scope.Validate(ast.IndexExpressionNode)
+	p.validate(ast.IndexExpression)
 
-	p.scope.Declare("expression", ast.IndexExpressionNode{
-		expr:  expr,
-		index: index,
-	})
+	return ast.IndexExpressionNode{
+		Expression: expr,
+		Index:      index,
+	}
 }
 
-func (p *parser) parseLiteralExpression() {
+func (p *parser) parseSliceExpression() ast.Node {
 
-	p.scope.Validate(ast.LiteralExpressionNode)
+	expr := p.parseExpression()
 
-	p.scope.Declare("expression", ast.LiteralExpressionNode{})
+	p.parseRequired(lexer.TknOpenSquare)
+
+	var low, high ast.Node
+
+	first := p.parseExpression()
+
+	if p.parseOptional(lexer.TknColon) {
+
+	} else {
+		p.parseRequired(lexer.TknColon)
+		low = first
+	}
+
+	p.validate(ast.SliceExpression)
+
+	return ast.SliceExpressionNode{
+		Expression: expr,
+		Low:        low,
+		High:       high,
+	}
+}
+
+func (p *parser) parseLiteralExpression() ast.Node {
+
+	p.validate(ast.Literal)
+
+	return ast.LiteralNode{}
+}
+
+func (p *parser) parseCompositeLiteralExpression() ast.Node {
+
+	p.validate(ast.CompositeLiteral)
+
+	return ast.CompositeLiteralNode{}
+
+}
+
+func (p *parser) parseArrayLiteral() ast.Node {
+	return ast.ArrayLiteralNode{}
+}
+
+func (p *parser) parseMapLiteral() ast.Node {
+	return ast.MapLiteralNode{}
 }

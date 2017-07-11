@@ -4,24 +4,31 @@ package ast
 type NodeType int
 
 const (
-	ContractDeclaration = iota
+	ContractDeclaration NodeType = iota
 	ClassDeclaration
 	FuncDeclaration
+	InterfaceDeclaration
+	TypeDeclaration
+	ArrayType
+	MapType
 
 	Literal
 	CompositeLiteral
+	MapLiteral
+	ArrayLiteral
 	BinaryExpression
 	UnaryExpression
 	GenericExpression
 	SliceExpression
 	IndexExpression
+	CallExpression
 
 	AssignmentStatement
 	ReturnStatement
 	BranchStatement
 	IfStatement
 	SwitchStatement
-	CaseClause
+	CaseStatement
 	BlockStatement
 	ForStatement
 )

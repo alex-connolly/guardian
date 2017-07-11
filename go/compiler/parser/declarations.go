@@ -1,8 +1,11 @@
 package parser
 
-import "axia/guardian/go/compiler/ast"
+import (
+	"axia/guardian/go/compiler/ast"
+	"axia/guardian/go/compiler/lexer"
+)
 
-func (p *parser) parseInterfaceDeclaration() {
+func parseInterfaceDeclaration(p *parser) {
 
 	abstract := p.parseOptional(lexer.TknAbstract)
 	p.parseRequired(lexer.TknInterface)
@@ -14,13 +17,13 @@ func (p *parser) parseInterfaceDeclaration() {
 
 	p.parseRequired(lexer.TknOpenBrace)
 
-	p.scope.Declare(ast.InterfaceDeclarationNode{
-		identifier: identifier,
-		isAbstract: abstract,
+	p.scope.Declare("", ast.InterfaceDeclarationNode{
+		Identifier: identifier,
+		IsAbstract: abstract,
 	})
 }
 
-func (p *parser) parseClassDeclaration() {
+func parseClassDeclaration(p *parser) {
 
 	abstract := p.parseOptional(lexer.TknAbstract)
 	p.parseRequired(lexer.TknClass)
@@ -36,13 +39,13 @@ func (p *parser) parseClassDeclaration() {
 
 	p.parseRequired(lexer.TknOpenBrace)
 
-	p.scope.Declare(ast.ClassDeclarationNode{
-		identifier: identifier,
-		isAbstract: abstract,
+	p.scope.Declare("", ast.ClassDeclarationNode{
+		Identifier: identifier,
+		IsAbstract: abstract,
 	})
 }
 
-func (p *parser) parseClassDeclaration() {
+func parseContractDeclaration(p *parser) {
 
 	abstract := p.parseOptional(lexer.TknAbstract)
 	p.parseRequired(lexer.TknContract)
@@ -58,13 +61,21 @@ func (p *parser) parseClassDeclaration() {
 
 	p.parseRequired(lexer.TknOpenBrace)
 
-	p.scope.Declare(ast.ContractDeclarationNode{
-		identifier: identifier,
-		isAbstract: abstract,
+	p.scope.Declare("", ast.ContractDeclarationNode{
+		Identifier: identifier,
+		IsAbstract: abstract,
 	})
 }
 
-func (p *parser) parseFuncDeclaration() {
+func (p *parser) parseParameters() []ast.Node {
+	return nil
+}
+
+func (p *parser) parseResults() []ast.Node {
+	return nil
+}
+
+func parseFuncDeclaration(p *parser) {
 
 	abstract := p.parseOptional(lexer.TknAbstract)
 	identifier := p.parseIdentifier()
@@ -75,34 +86,61 @@ func (p *parser) parseFuncDeclaration() {
 
 	p.parseRequired(lexer.TknOpenBrace)
 
-	valid := p.scope.Validate(ast.FuncDeclarationNode)
+	p.validate(ast.FuncDeclaration)
 
-	if !valid {
-		p.error("")
-	}
-	// declare anyway
 	p.scope.Declare("func", ast.FuncDeclarationNode{
-		identifier: identifier,
-		parameters: params,
-		results:    results,
-		isAbstract: abstract,
+		Identifier: identifier,
+		Parameters: params,
+		Results:    results,
+		IsAbstract: abstract,
 	})
 }
 
-func (p *parser) parseTypeDeclaration() {
+func parseTypeDeclaration(p *parser) {
 
 	p.parseRequired(lexer.TknType)
 	identifier := p.parseIdentifier()
 
-	oldType := p.parseType()
+	//oldType := p.parseType()
 
-	valid := p.scope.Validate(ast.TypeDeclarationNode)
-
-	if !valid {
-		p.error("")
-	}
+	p.validate(ast.TypeDeclaration)
 
 	p.scope.Declare("type", ast.TypeDeclarationNode{
-		identifier: identifier,
+		Identifier: identifier,
+	})
+}
+
+func parseMapType(p *parser) {
+
+	p.parseRequired(lexer.TknMap)
+	p.parseRequired(lexer.TknOpenSquare)
+
+	key := p.parseType()
+
+	p.parseRequired(lexer.TknCloseSquare)
+
+	value := p.parseType()
+
+	p.validate(ast.MapType)
+
+	p.scope.Declare("", ast.MapTypeNode{
+		Key:   key,
+		Value: value,
+	})
+}
+
+func parseArrayType(p *parser) {
+	p.parseRequired(lexer.TknOpenSquare)
+
+	typ := p.parseExpression()
+	//var max ast.Node
+
+	if p.parseOptional(lexer.TknColon) {
+		//	max = p.parseExpression()
+	}
+	p.validate(ast.ArrayType)
+
+	p.scope.Declare("", ast.ArrayTypeNode{
+		Value: typ,
 	})
 }

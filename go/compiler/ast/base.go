@@ -3,7 +3,7 @@ package ast
 // Node interface for storage in AST
 type Node interface {
 	Type() NodeType
-	Validate(string, NodeType)
+	Validate(NodeType) bool
 	Declare(string, Node)
 }
 

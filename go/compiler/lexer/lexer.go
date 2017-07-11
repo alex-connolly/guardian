@@ -5,7 +5,7 @@ type lexer struct {
 	offset int
 	line   int
 	column int
-	tokens []token
+	Tokens []Token
 	errors []string
 }
 
@@ -17,8 +17,8 @@ func (l *lexer) next() {
 	for _, pt := range getProtoTokens() {
 		if pt.identifier(l) {
 			t := pt.process(l)
-			if t.tkntype != TknNone {
-				l.tokens = append(l.tokens, t)
+			if t.Type != TknNone {
+				l.Tokens = append(l.Tokens, t)
 			} else {
 				l.offset++
 			}
@@ -30,7 +30,7 @@ func (l *lexer) next() {
 		if l.errors == nil {
 			l.errors = make([]string, 0)
 		}
-		l.errors = append(l.errors, "Unrecognised token.")
+		l.errors = append(l.errors, "Unrecognised Token.")
 		l.offset++
 	}
 	l.next()
@@ -40,9 +40,9 @@ func (l *lexer) isEOF() bool {
 	return l.offset >= len(l.buffer)
 }
 
-// creates a new string from the token's value
+// creates a new string from the Token's value
 // TODO: escaped characters
-func (l *lexer) tokenString(t token) string {
+func (l *lexer) TokenString(t Token) string {
 	data := make([]byte, t.end-t.start)
 	copy(data, l.buffer[t.start:t.end])
 	return string(data)
@@ -54,38 +54,39 @@ func (l *lexer) nextByte() byte {
 	return b
 }
 
-func lexString(str string) *lexer {
-	return lex([]byte(str))
+func LexString(str string) ([]Token, []string) {
+	return Lex([]byte(str))
 }
 
 func (l *lexer) current() byte {
 	return l.buffer[l.offset]
 }
 
-func lex(bytes []byte) *lexer {
+// Lex ...
+func Lex(bytes []byte) ([]Token, []string) {
 	l := new(lexer)
 	l.buffer = bytes
 	l.next()
-	return l
+	return l.Tokens, l.errors
 }
 
-func processNewLine(l *lexer) token {
+func processNewLine(l *lexer) Token {
 	l.line++
-	return token{
-		tkntype: TknNone,
+	return Token{
+		Type: TknNone,
 	}
 }
 
-func processIgnored(l *lexer) token {
-	return token{
-		tkntype: TknNone,
+func processIgnored(l *lexer) Token {
+	return Token{
+		Type: TknNone,
 	}
 }
 
-func processNumber(l *lexer) (t token) {
+func processNumber(l *lexer) (t Token) {
 	t.start = l.offset
 	t.end = l.offset
-	t.tkntype = TknNumber
+	t.Type = TknNumber
 	for '0' <= l.buffer[l.offset] && l.buffer[l.offset] <= '9' {
 		l.offset++
 		t.end++
@@ -96,19 +97,19 @@ func processNumber(l *lexer) (t token) {
 	return t
 }
 
-func processCharacter(l *lexer) (t token) {
+func processCharacter(l *lexer) (t Token) {
 	t.start = l.offset
 	t.end = l.offset + 2
-	t.tkntype = TknCharacter
+	t.Type = TknCharacter
 	return t
 }
 
-func processIdentifier(l *lexer) token {
+func processIdentifier(l *lexer) Token {
 
-	t := new(token)
+	t := new(Token)
 	t.start = l.offset
 	t.end = l.offset
-	t.tkntype = TknValue
+	t.Type = TknIdentifier
 	if l.isEOF() {
 		return *t
 	}
@@ -123,14 +124,14 @@ func processIdentifier(l *lexer) token {
 	return *t
 }
 
-// processes a string sequence to create a new token.
-func processString(l *lexer) token {
+// processes a string sequence to create a new Token.
+func processString(l *lexer) Token {
 	// the start - end is the value
 	// it DOES include the enclosing quotation marks
-	t := new(token)
+	t := new(Token)
 	t.start = l.offset
 	t.end = l.offset
-	t.tkntype = TknString
+	t.Type = TknString
 	b := l.nextByte()
 	b2 := l.nextByte()
 	for b != b2 {

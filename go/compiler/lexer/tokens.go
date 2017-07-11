@@ -8,7 +8,7 @@ import "fmt"
 type TokenType int
 
 const (
-	TknValue = iota
+	TknIdentifier TokenType = iota
 	TknNumber
 	TknString
 	TknCharacter
@@ -84,6 +84,10 @@ const (
 	TknRun
 	TknDefer
 
+	TknIf
+	TknElseIf
+	TknElse
+
 	TknSwitch
 	TknCase
 	TknExclusive
@@ -96,6 +100,7 @@ const (
 	TknImport
 	TknIs
 	TknAs
+	TknInherits
 	TknType
 	TknTypeOf
 
@@ -134,6 +139,7 @@ func getProtoTokens() []protoToken {
 		protoToken{"KW: Class", is("class"), processFixed(TknClass)},
 		protoToken{"KW: Interface", is("interface"), processFixed(TknInterface)},
 		protoToken{"KW: Abstract", is("abstract"), processFixed(TknAbstract)},
+		protoToken{"KW: Inherits", is("inherits"), processFixed(TknInherits)},
 
 		protoToken{"KW: Const", is("const"), processFixed(TknConst)},
 		protoToken{"KW: Var", is("var"), processFixed(TknVar)},
@@ -149,9 +155,9 @@ func getProtoTokens() []protoToken {
 		protoToken{"KW: Break", is("break"), processFixed(TknBreak)},
 		protoToken{"KW: Continue", is("continue"), processFixed(TknContinue)},
 
-		protoToken{"KW: If", is("if"), processFixed(TknExclusive)},
-		protoToken{"KW: Else If", is("else if"), processFixed(TknExclusive)},
-		protoToken{"KW: Else", is("default"), processFixed(TknDefault)},
+		protoToken{"KW: If", is("if"), processFixed(TknIf)},
+		protoToken{"KW: Else If", is("else if"), processFixed(TknElseIf)},
+		protoToken{"KW: Else", is("default"), processFixed(TknElse)},
 
 		protoToken{"KW: For", is("for"), processFixed(TknFor)},
 		protoToken{"KW: Func", is("func"), processFixed(TknFunc)},
@@ -178,9 +184,9 @@ func getProtoTokens() []protoToken {
 }
 
 func processFixed(tkn TokenType) processorFunc {
-	return func(l *lexer) (t token) {
+	return func(l *lexer) (t Token) {
 		// start and end don't matter
-		t.tkntype = tkn
+		t.Type = tkn
 		l.offset++
 		return t
 	}
@@ -224,7 +230,7 @@ func is(a string) isFunc {
 }
 
 type isFunc func(*lexer) bool
-type processorFunc func(*lexer) token
+type processorFunc func(*lexer) Token
 
 type protoToken struct {
 	name       string // for debugging
@@ -232,8 +238,9 @@ type protoToken struct {
 	process    processorFunc
 }
 
-type token struct {
-	tkntype TokenType
-	start   int
-	end     int
+// Token ...
+type Token struct {
+	Type  TokenType
+	start int
+	end   int
 }
