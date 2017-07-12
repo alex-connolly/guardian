@@ -100,7 +100,6 @@ func parseTypeDeclaration(p *parser) {
 
 	p.parseRequired(lexer.TknType)
 	identifier := p.parseIdentifier()
-
 	//oldType := p.parseType()
 
 	p.validate(ast.TypeDeclaration)

@@ -14,7 +14,7 @@ func TestParseTypeDeclaration(t *testing.T) {
 
 func TestParseFuncDeclaration(t *testing.T) {
 	p := createParser("main(){}")
-	parseTypeDeclaration(p)
+	parseFuncDeclaration(p)
 	util.Assert(t, p.scope.Type() == ast.FuncDeclaration, "wrong scope type")
 }
 
@@ -40,5 +40,4 @@ func TestParseContractDeclaration(t *testing.T) {
 	p = createParser("contract Dog<T inherits Cat> inherits Animal<T> {}")
 	parseContractDeclaration(p)
 	util.Assert(t, p.scope.Type() == ast.ContractDeclaration, "wrong scope type")
-
 }

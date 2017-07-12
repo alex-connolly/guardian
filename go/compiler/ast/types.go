@@ -12,6 +12,7 @@ const (
 	ArrayType
 	MapType
 
+	Reference
 	Literal
 	CompositeLiteral
 	MapLiteral
@@ -31,4 +32,6 @@ const (
 	CaseStatement
 	BlockStatement
 	ForStatement
+
+	File
 )

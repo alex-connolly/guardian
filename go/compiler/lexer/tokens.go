@@ -1,6 +1,6 @@
 package lexer
 
-// lexer copied over in part from my efp
+// Lexer copied over in part from my efp
 
 // TokenType denotes the type of a token
 type TokenType int
@@ -34,6 +34,9 @@ const (
 	TknDiv          // /
 	TknMod          // %
 	TknAddress      // @
+
+	TknIncrement // ++
+	TknDecrement // --
 
 	TknAddAssign // +=
 	TknSubAssign // -=
@@ -155,7 +158,11 @@ func getProtoTokens() []protoToken {
 		createFixed("package", TknPackage),
 		createFixed("return", TknReturn),
 
+		createFixed("+=", TknAddAssign),
+		createFixed("++", TknIncrement),
 		createFixed("+", TknAdd),
+		createFixed("-=", TknSubAssign),
+		createFixed("--", TknDecrement),
 		createFixed("-", TknSub),
 		createFixed("/", TknDiv),
 		createFixed("*", TknStar),
@@ -180,7 +187,7 @@ func getProtoTokens() []protoToken {
 }
 
 func processFixed(len int, tkn TokenType) processorFunc {
-	return func(l *lexer) (t Token) {
+	return func(l *Lexer) (t Token) {
 		// start and end don't matter
 		t.Type = tkn
 		l.offset += len
@@ -188,7 +195,7 @@ func processFixed(len int, tkn TokenType) processorFunc {
 	}
 }
 
-func isOperator(l *lexer) bool {
+func isOperator(l *Lexer) bool {
 	switch l.buffer[l.offset] {
 	case '+', '-', '*', '/':
 		return true
@@ -196,35 +203,35 @@ func isOperator(l *lexer) bool {
 	return false
 }
 
-func isIdentifier(l *lexer) bool {
+func isIdentifier(l *Lexer) bool {
 	return ('A' <= l.current() && l.current() <= 'Z') ||
 		('a' <= l.current() && l.current() <= 'z') ||
 		('0' <= l.current() && l.current() <= '9') ||
 		(l.current() == '_')
 }
 
-func isNumber(l *lexer) bool {
+func isNumber(l *Lexer) bool {
 	return ('0' <= l.current() && l.current() <= '9')
 }
 
-func isString(l *lexer) bool {
+func isString(l *Lexer) bool {
 	return ((l.current() == '"') || (l.current() == '\''))
 }
 
-func isWhitespace(l *lexer) bool {
+func isWhitespace(l *Lexer) bool {
 	return (l.current() == ' ') || (l.current() == '\t')
 }
 
-func isNewLine(l *lexer) bool {
+func isNewLine(l *Lexer) bool {
 	return (l.current() == '\n')
 }
 
-func isCharacter(l *lexer) bool {
+func isCharacter(l *Lexer) bool {
 	return (l.current() == '\'')
 }
 
 func is(a string) isFunc {
-	return func(l *lexer) bool {
+	return func(l *Lexer) bool {
 		if l.offset+len(a) > len(l.buffer) {
 			return false
 		}
@@ -237,8 +244,8 @@ func createFixed(kw string, tkn TokenType) protoToken {
 	return protoToken{"KW: " + kw, is(kw), processFixed(len(kw), tkn)}
 }
 
-type isFunc func(*lexer) bool
-type processorFunc func(*lexer) Token
+type isFunc func(*Lexer) bool
+type processorFunc func(*Lexer) Token
 
 type protoToken struct {
 	name       string // for debugging
