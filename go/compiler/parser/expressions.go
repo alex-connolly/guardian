@@ -8,21 +8,21 @@ import (
 func (p *parser) parseExpression() ast.Node {
 	// should be checked in decreasing order of complexity
 	switch {
-	case p.isMapLiteral(0):
+	case p.isMapLiteral(0) > 0:
 		return p.parseMapLiteral()
-	case p.isArrayLiteral():
+	case p.isArrayLiteral(0) > 0:
 		return p.parseArrayLiteral()
-	case p.isCompositeLiteral():
+	case p.isCompositeLiteral(0) > 0:
 		return p.parseCompositeLiteralExpression()
-	case p.isCallExpression():
+	case p.isCallExpression(0) > 0:
 		return p.parseCallExpression()
-	case p.isLiteral():
+	case p.isLiteral() > 0:
 		return p.parseLiteralExpression()
-	case p.isUnaryExpression():
+	case p.isUnaryExpression() > 0:
 		return p.parseUnaryExpression()
-	case p.isBinaryExpression():
+	case p.isBinaryExpression() > 0:
 		return p.parseBinaryExpression()
-	case p.isReference():
+	case p.isReference() > 0:
 		return p.parseReference()
 	default:
 		p.addError("Required expression, not found.")

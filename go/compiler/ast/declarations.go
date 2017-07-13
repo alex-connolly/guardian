@@ -14,6 +14,10 @@ func (n TypeDeclarationNode) Declare(key string, node Node) {
 
 }
 
+func (n TypeDeclarationNode) Traverse() {
+
+}
+
 type FuncDeclarationNode struct {
 	Identifier string
 	Parameters []Node
@@ -28,6 +32,10 @@ func (n FuncDeclarationNode) Validate(t NodeType) bool {
 }
 
 func (n FuncDeclarationNode) Declare(key string, node Node) {
+
+}
+
+func (n FuncDeclarationNode) Traverse() {
 
 }
 
@@ -51,6 +59,10 @@ func (n ClassDeclarationNode) Declare(key string, node Node) {
 
 }
 
+func (n ClassDeclarationNode) Traverse() {
+
+}
+
 type InterfaceDeclarationNode struct {
 	Identifier   string
 	IsAbstract   bool
@@ -64,6 +76,10 @@ func (n InterfaceDeclarationNode) Validate(t NodeType) bool {
 }
 
 func (n InterfaceDeclarationNode) Declare(key string, node Node) {
+
+}
+
+func (n InterfaceDeclarationNode) Traverse() {
 
 }
 
@@ -82,6 +98,10 @@ func (n ContractDeclarationNode) Declare(key string, node Node) {
 
 }
 
+func (n ContractDeclarationNode) Traverse() {
+
+}
+
 type MapTypeNode struct {
 	Key   Node
 	Value Node
@@ -97,6 +117,10 @@ func (n MapTypeNode) Declare(key string, node Node) {
 
 }
 
+func (n MapTypeNode) Traverse() {
+
+}
+
 type ArrayTypeNode struct {
 	Value Node
 }
@@ -108,5 +132,9 @@ func (n ArrayTypeNode) Validate(t NodeType) bool {
 }
 
 func (n ArrayTypeNode) Declare(key string, node Node) {
+
+}
+
+func (n ArrayTypeNode) Traverse() {
 
 }

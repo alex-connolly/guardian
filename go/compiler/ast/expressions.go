@@ -104,6 +104,10 @@ func (n SliceExpressionNode) Declare(key string, node Node) {
 
 }
 
+func (n SliceExpressionNode) Traverse() {
+
+}
+
 type CallExpressionNode struct {
 	Name      string
 	Arguments []Node
@@ -119,6 +123,10 @@ func (n CallExpressionNode) Declare(key string, node Node) {
 
 }
 
+func (n CallExpressionNode) Traverse() {
+
+}
+
 type ArrayLiteralNode struct {
 	Key  Node
 	Data []Node
@@ -131,6 +139,10 @@ func (n ArrayLiteralNode) Validate(t NodeType) bool {
 }
 
 func (n ArrayLiteralNode) Declare(key string, node Node) {
+
+}
+
+func (n ArrayLiteralNode) Traverse() {
 
 }
 
@@ -150,6 +162,10 @@ func (n MapLiteralNode) Declare(key string, node Node) {
 
 }
 
+func (n MapLiteralNode) Traverse() {
+
+}
+
 type ReferenceNode struct {
 	Name string
 }
@@ -161,5 +177,9 @@ func (n ReferenceNode) Validate(t NodeType) bool {
 }
 
 func (n ReferenceNode) Declare(key string, node Node) {
+
+}
+
+func (n ReferenceNode) Traverse() {
 
 }

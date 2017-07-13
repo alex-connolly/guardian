@@ -29,5 +29,31 @@ type PackageNode struct {
 	name string
 }
 
+func (n PackageNode) Type() NodeType { return File }
+
+func (n PackageNode) Validate(t NodeType) bool {
+	return true
+}
+func (n PackageNode) Declare(key string, node Node) {
+
+}
+
+func (n PackageNode) Traverse() {
+
+}
+
 type ProgramNode struct {
+}
+
+func (n ProgramNode) Type() NodeType { return File }
+
+func (n ProgramNode) Validate(t NodeType) bool {
+	return true
+}
+func (n ProgramNode) Declare(key string, node Node) {
+
+}
+
+func (n ProgramNode) Traverse() {
+
 }

@@ -15,6 +15,10 @@ func (n AssignmentStatementNode) Declare(key string, node Node) {
 
 }
 
+func (n AssignmentStatementNode) Traverse() {
+
+}
+
 type ReturnStatementNode struct {
 	Results []Node
 }
@@ -29,6 +33,10 @@ func (n ReturnStatementNode) Declare(key string, node Node) {
 
 }
 
+func (n ReturnStatementNode) Traverse() {
+
+}
+
 type BranchStatementNode struct {
 	Identifier string
 }
@@ -40,6 +48,10 @@ func (n BranchStatementNode) Validate(t NodeType) bool {
 }
 
 func (n BranchStatementNode) Declare(key string, node Node) {
+
+}
+
+func (n BranchStatementNode) Traverse() {
 
 }
 
@@ -60,6 +72,10 @@ func (n IfStatementNode) Declare(key string, node Node) {
 
 }
 
+func (n IfStatementNode) Traverse() {
+
+}
+
 type SwitchStatementNode struct {
 	Target  Node
 	Clauses []CaseStatementNode
@@ -73,6 +89,10 @@ func (n SwitchStatementNode) Validate(t NodeType) bool {
 }
 
 func (n SwitchStatementNode) Declare(key string, node Node) {
+
+}
+
+func (n SwitchStatementNode) Traverse() {
 
 }
 
@@ -91,6 +111,10 @@ func (n CaseStatementNode) Declare(key string, node Node) {
 
 }
 
+func (n CaseStatementNode) Traverse() {
+
+}
+
 type BlockStatementNode struct {
 	Body []Node
 }
@@ -102,6 +126,10 @@ func (n BlockStatementNode) Validate(t NodeType) bool {
 }
 
 func (n BlockStatementNode) Declare(key string, node Node) {
+
+}
+
+func (n BlockStatementNode) Traverse() {
 
 }
 
@@ -119,5 +147,9 @@ func (n ForStatementNode) Validate(t NodeType) bool {
 }
 
 func (n ForStatementNode) Declare(key string, node Node) {
+
+}
+
+func (n ForStatementNode) Traverse() {
 
 }
