@@ -66,17 +66,21 @@ func (n ClassDeclarationNode) Traverse() {
 type InterfaceDeclarationNode struct {
 	Identifier   string
 	IsAbstract   bool
-	declarations map[string][]Node
+	Declarations []Node
 }
 
 func (n InterfaceDeclarationNode) Type() NodeType { return InterfaceDeclaration }
 
 func (n InterfaceDeclarationNode) Validate(t NodeType) bool {
-	return true
+	switch t {
+	case FuncDeclaration:
+		return true
+	}
+	return false
 }
 
 func (n InterfaceDeclarationNode) Declare(key string, node Node) {
-
+	n.Declarations = append(n.Declarations, node)
 }
 
 func (n InterfaceDeclarationNode) Traverse() {
@@ -86,16 +90,24 @@ func (n InterfaceDeclarationNode) Traverse() {
 type ContractDeclarationNode struct {
 	Identifier   string
 	IsAbstract   bool
-	declarations map[string][]Node
+	Declarations map[string][]Node
 }
 
 func (n ContractDeclarationNode) Type() NodeType { return ContractDeclaration }
 
 func (n ContractDeclarationNode) Validate(t NodeType) bool {
-	return true
+	switch t {
+	// allowable declarations
+	case InterfaceDeclaration, ClassDeclaration, FuncDeclaration:
+		return true
+	}
+	return false
 }
 func (n ContractDeclarationNode) Declare(key string, node Node) {
-
+	if n.Declarations == nil {
+		n.Declarations = make(map[string][]Node)
+	}
+	n.Declarations[key] = append(n.Declarations[key], node)
 }
 
 func (n ContractDeclarationNode) Traverse() {

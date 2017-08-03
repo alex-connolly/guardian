@@ -1,11 +1,13 @@
 package ast
 
+import "github.com/end-r/firevm"
+
 // Node interface for storage in AST
 type Node interface {
 	Type() NodeType
 	Validate(NodeType) bool
 	Declare(string, Node)
-	Traverse()
+	Traverse(vm *firevm.FireVM)
 }
 
 type FileNode struct {

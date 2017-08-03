@@ -1,0 +1,18 @@
+
+contract VotingSystem {
+
+    votes map[Address]
+
+    castVote(p Proposal){
+
+    }
+
+    delegateVote(a Address, p Proposal){
+
+    }
+
+}
+
+class Proposal {
+
+}

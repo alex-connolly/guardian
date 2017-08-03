@@ -1,0 +1,10 @@
+contract Constants {
+
+    const (
+        a = 5
+        b = "Hello"
+        c = 'a'
+        d = 5.6
+    )
+
+}

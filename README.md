@@ -1,37 +1,65 @@
 # Guardian
 
-Guardian is a statically typed, object-oriented programming language, with a particular focus on providing a new and more complete set of tools for blockchain applications.
+Guardian is a statically typed, object-oriented programming language, with a particular focus on providing a new and more complete set of tools for blockchain applications. Its syntax is primarily derived from Java and Go, with many of the blockchain-specific constructs drawn (at least in part) from [Solidity(https://github.com/ethereum/solidity)].
+
 ## Aims
 
-In no particular order, the Guardian programming language strives to be:
+In no particular order, the Guardian programming language strives to:
 
-- Executionally deterministic
-- Memory safe
-- Fully supportive of concurrency
-- Simple and easy to learn
+- Be executionally deterministic
+- Be memory and void safe
+- Be supportive of deterministic concurrency
+- Have a rich feature set reminiscent of full OOP languages
+- Be simple and easy to learn
 
-## Examples
+## Contracts
 
-A full list of example contracts is in the samples folder.
+In simple terms, contracts may be understood. There are numerous parallels between . In Guardian, contracts are analogous to top-level classes, within which any number.
+
+## Packaging
+
+Guardian uses go-style packaging and importing.
+
+## Version Declarations
+
+In order for future versions of Guardian to include potentially backwards-incompatible changes, each Guardian contract must include a version declaration appended to the package declaration:
 
 ```go
-contract SimpleStorage {
+package maths @ 0.0.1
+```
 
-    uint storedData
+If you select an older Guardian version to run your , nodes which do not have
 
-    set(uint x){
-        storedData = x
-    }
+## Exported Variables
 
-    get() uint {
-        return storedData
-    }
+Guardian does not use ```public``` or ```private``` modifiers. Functions and Variables may be exported, as in Go, through giving their identifier a capital letter. Other contracts may only interact with exported declarations.
+
+```go
+contract Test {
+
+    class Dog{} // exported
+    class cat{} // not exported
 }
 ```
 
-## Imports and Exports
+However, Guardian does not require exported declarations to be commented, or enforce any sort of syntax requirement on those comments (just comment where needed and avoid redundancy).
 
-Guardian does not use ```public``` or ```private``` modifiers. Functions and Variables may be exported, as in Go, through giving their identifier. However, Guardian does not require exported declarations to be commented (comment where needed and avoid redundancy).
+## Imports
+
+Guardian contracts may be imported using the following syntax:
+
+```go
+
+import "guard"
+
+contract Watcher {
+
+    guard(){
+        Guard() // this is a function from guard.grd
+    }
+}
+
+```
 
 ## Typing
 
@@ -40,8 +68,38 @@ Guardian is strongly and statically typed, and code which does not conform to th
 ```go
 x := 5      // x will have type int
 y := x      // y will have type int
-x = "hello" // will not compile
+x = "hello" // will not compile (x has type int)
 ```
+
+### Inheritance
+
+Guardian allows for multiple inheritence, such that the following is a valid class:
+
+```go
+class Liger inherits Lion, Tiger {
+
+}
+```
+
+All EXPORTED methods and fields will be available in the subclass. The introduction of a ```protected``` keyword, or some other mechanism for allowing inheritance of imported methods, is currently under consideration.
+
+However, in cases where a class inherits two methods with identical names and parameters, the methods will 'cancel', and a warning will be raised. To ignore this warning, simply annotate the offending class with ```@Ignore("cancellation")``` This sidesteps the diamond inheritance problem.
+
+### Interfaces
+
+Guardian uses java-style interface syntax.
+
+```go
+interface Walkable inherits Moveable {
+    walk(int distance)
+}
+
+class Liger inherits Lion, Tiger is Walkable {
+
+}
+```
+
+All types which explicitly implement an interface through the ```is``` keyword may be referenced as that interface type. However, there is no go-like implicit implementation, as it can be confusing and serves no particular purpose in a class-based language.
 
 ## Builtins
 
@@ -92,10 +150,114 @@ Address functions:
 
 ## Key Features
 
-###  Concurrency
+### Constructors and Destructors
 
-Concurrency is difficult to implement and acheive in a deterministic language. However, there are certain programs which process data in an arbitrary order, but
+Guardian uses ```constructor``` and ```destructor``` keywords. Each class may contain an arbitrary number of constructors and destructors, provided they have unique signatures.
 
-### Contracts
+```go
+contract Test {
 
-In the event of a ```terminate(args)``` call, the contract will be, and the state of all variables will be reset to their input values. This is tantamount to each operation being performed within a transaction.
+    constructor(string name){
+
+    }
+
+    destructor(){
+
+    }
+
+}
+```
+
+By default, the no-args constructor and destructor will be called.
+
+### Generics
+
+Generics can be specified using Java syntax:
+
+```go
+// Purchases can only be related to things which are Sellable
+// this will be checked at compile time
+contract Purchase<T is Sellable> {
+
+    T item
+    int quantity
+
+    constructor(T item, int quantity){
+        this.item = item
+        this.quantity = quantity
+    }
+}
+```
+
+### Macros and Text-Substitution
+
+Guardian allows text-replacement macros.
+
+```go
+macro HI {
+    HI
+}
+```
+
+You can pass arguments to macros as follows:
+
+```go
+macro MAX(a, b){
+    (a > b) ? a : b
+}
+```
+
+Braces are only necessary for multi-line macros:
+
+```go
+macro MAX(a, b) (a > b) ? a : b
+```
+
+To access the value of macro arguments as a string literal, use ```#name```, and to paste components together use ```##name```.
+
+### Randomisation
+
+Randomisation is traditionally a very difficult area for cryptocurrency, due to its inherent conflict with the properties of determinism proposed in the Aims section. The definition of random, then, should be the selection of an object from a group, such that the selection could not be predicted at the moment of contract creation, or at any point prior to attempting to insert the contract into a block, but . Guardian uses an inbuilt random() function .
+
+### Iteration
+
+Many languages (such as Go) only provide for randomised map iteration. Clearly, this is not deterministic, as demonstrated by the following example:
+
+
+```go
+myMap["hi"] = 2
+myMap["bye"] = 3
+count := 0
+sum := 0
+for k, v := range myMap {
+    sum += v * count
+    count++
+}
+```
+
+The value of sum will be radically different based on the order in which the map is . In a blockchain context, this means that every node will reach. Guardian maps resolve this issue by guaranteeing that maps will be iterated over in order of insertion.
+
+In Guardian, the above sequence of statements will always produce a result of 3.
+
+### ABI Specification
+
+Both Ethereum and any future cryptocurrency built using fireVM use an Application Binary Interface (ABI) to specify the encoding of instructions.
+
+For Ethereum,
+
+Ethereum functions may be called in the following manner (stolen from the Solidity documentation):
+
+0xcdcd77c0: the Method ID. This is derived as the first 4 bytes of the Keccak hash of the ASCII form of the signature baz(uint32,bool).
+
+0x0000000000000000000000000000000000000000000000000000000000000045: the first parameter, a uint32 value 69 padded to 32 bytes
+0x0000000000000000000000000000000000000000000000000000000000000001: the second parameter - boolean true, padded to 32 bytes
+
+The total call, therefore, is:
+
+0xcdcd77c00x00000000000000000000000000000000000000000000000000000000000000450x0000000000000000000000000000000000000000000000000000000000000001
+
+The same call in FireVM may be expressed as:
+
+cdcd77c045?1?
+
+? denotes the end of a value, such that the remaining bytes are assumed to have been zero padding. There is also no need to denote that particular stack variables are hexadecimal: it is the immutable default.

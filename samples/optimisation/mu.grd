@@ -1,0 +1,15 @@
+
+contract Optimise {
+
+    muPuzzle() {
+        iCount, uCount := 1, 0
+        for iCount % 3 != 0 {
+            exclusive switch random {
+                case 1: uCount++
+                case 2: iCount *= 2; uCount *= 2
+                case 3: iCount -= 3; uCount++
+                case 4: uCount -= 2
+            }
+        }
+    }
+}

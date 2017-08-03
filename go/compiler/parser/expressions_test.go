@@ -8,11 +8,11 @@ import (
 )
 
 func TestParseUnaryExpression(t *testing.T) {
-	p := createParser("@me")
+	p := createParser("!me")
 	n := p.parseUnaryExpression()
 	util.Assert(t, n.Type() == ast.UnaryExpression, "wrong node type")
 	u := n.(ast.UnaryExpressionNode)
-	util.Assert(t, u.Operator == lexer.TknAddress, "wrong operator")
+	util.Assert(t, u.Operator == lexer.TknNot, "wrong operator")
 }
 
 func TestParseBinaryExpression(t *testing.T) {

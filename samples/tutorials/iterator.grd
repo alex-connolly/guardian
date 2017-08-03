@@ -1,0 +1,29 @@
+guardian @ 0.0.1
+
+contract BasicIterator {
+
+    address creator;
+    uint8[10] integers;
+
+    constructor(){
+        creator = call.caller
+        x := 0
+        for x < len(integers) {
+            integers[x] = x
+            x++
+        }
+    }
+
+    getSum() uint {
+        sum := 0
+        for x := 0; x < len(integers); x++ {
+            sum += integers[x]
+        }
+    }
+
+    kill(){
+        if call.caller == creator {
+            terminate(creator)
+        }
+    }
+}

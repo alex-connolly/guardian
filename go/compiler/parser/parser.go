@@ -1,25 +1,25 @@
-package parser
+package Parser
 
 import (
 	"axia/guardian/go/compiler/ast"
 	"axia/guardian/go/compiler/lexer"
 )
 
-type parser struct {
+type Parser struct {
 	scope ast.Node
 	lexer *lexer.Lexer
 	index int
 	errs  []string
 }
 
-func createParser(data string) *parser {
-	p := new(parser)
+func createParser(data string) *Parser {
+	p := new(Parser)
 	p.lexer = lexer.LexString(data)
 	p.scope = ast.FileNode{}
 	return p
 }
 
-func (p *parser) run() {
+func (p *Parser) run() {
 	if p.index >= len(p.lexer.Tokens) {
 		return
 	}
@@ -39,19 +39,19 @@ func (p *parser) run() {
 	p.run()
 }
 
-func (p *parser) current() lexer.Token {
+func (p *Parser) current() lexer.Token {
 	return p.token(0)
 }
 
-func (p *parser) next() {
+func (p *Parser) next() {
 	p.index++
 }
 
-func (p *parser) token(offset int) lexer.Token {
+func (p *Parser) token(offset int) lexer.Token {
 	return p.lexer.Tokens[p.index+offset]
 }
 
-func (p *parser) parseOptional(t lexer.TokenType) bool {
+func (p *Parser) parseOptional(t lexer.TokenType) bool {
 	if p.current().Type == t {
 		p.next()
 		return true
@@ -59,14 +59,14 @@ func (p *parser) parseOptional(t lexer.TokenType) bool {
 	return false
 }
 
-func (p *parser) parseRequired(t lexer.TokenType) {
+func (p *Parser) Parserequired(t lexer.TokenType) {
 	if p.lexer.Tokens[p.index].Type != t {
 		p.addError("Required x, found y")
 	}
 	p.next()
 }
 
-func (p *parser) parseIdentifier() string {
+func (p *Parser) parseIdentifier() string {
 	if p.lexer.Tokens[p.index].Type != lexer.TknIdentifier {
 		p.addError("Required indentifier, found y")
 		return ""
@@ -76,7 +76,7 @@ func (p *parser) parseIdentifier() string {
 	return s
 }
 
-func (p *parser) validate(t ast.NodeType) {
+func (p *Parser) validate(t ast.NodeType) {
 	if p.scope != nil {
 		if !p.scope.Validate(t) {
 			p.addError("Invalid declaration in scope")
@@ -84,10 +84,10 @@ func (p *parser) validate(t ast.NodeType) {
 	}
 }
 
-func (p *parser) parseType() ast.Node {
+func (p *Parser) parseType() ast.Node {
 	return ast.TypeDeclarationNode{}
 }
 
-func (p *parser) addError(err string) {
+func (p *Parser) addError(err string) {
 	p.errs = append(p.errs, err)
 }

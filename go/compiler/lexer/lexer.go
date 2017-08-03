@@ -1,5 +1,12 @@
 package lexer
 
+import (
+	"io/ioutil"
+	"log"
+	"strings"
+)
+
+// Lexer ...
 type Lexer struct {
 	buffer []byte
 	offset int
@@ -40,12 +47,22 @@ func (l *Lexer) isEOF() bool {
 	return l.offset >= len(l.buffer)
 }
 
-// creates a new string from the Token's value
+// TokenString creates a new string from the Token's value
 // TODO: escaped characters
 func (l *Lexer) TokenString(t Token) string {
 	data := make([]byte, t.end-t.start)
 	copy(data, l.buffer[t.start:t.end])
 	return string(data)
+}
+
+// TokenStringAndTrim ...
+func (l *Lexer) TokenStringAndTrim(t Token) string {
+	s := l.TokenString(t)
+	if strings.HasPrefix(s, "\"") {
+		s = strings.TrimPrefix(s, "\"")
+		s = strings.TrimSuffix(s, "\"")
+	}
+	return s
 }
 
 func (l *Lexer) nextByte() byte {
@@ -54,6 +71,7 @@ func (l *Lexer) nextByte() byte {
 	return b
 }
 
+// LexString lexes a string
 func LexString(str string) *Lexer {
 	return Lex([]byte(str))
 }
@@ -68,6 +86,16 @@ func Lex(bytes []byte) *Lexer {
 	l.buffer = bytes
 	l.next()
 	return l
+}
+
+// LexFile ...
+func LexFile(path string) *Lexer {
+	bytes, err := ioutil.ReadFile(path)
+	if err != nil {
+		log.Println("File does not exist")
+		return nil
+	}
+	return Lex(bytes)
 }
 
 func processNewLine(l *Lexer) Token {
@@ -87,7 +115,14 @@ func processNumber(l *Lexer) (t Token) {
 	t.start = l.offset
 	t.end = l.offset
 	t.Type = TknNumber
-	for '0' <= l.buffer[l.offset] && l.buffer[l.offset] <= '9' {
+	decimalUsed := false
+	for '0' <= l.buffer[l.offset] && l.buffer[l.offset] <= '9' || l.buffer[l.offset] == '.' {
+		if l.buffer[l.offset] == '.' {
+			if decimalUsed {
+				return t
+			}
+			decimalUsed = true
+		}
 		l.offset++
 		t.end++
 		if l.isEOF() {
@@ -98,11 +133,24 @@ func processNumber(l *Lexer) (t Token) {
 }
 
 // TODO: handle errors etc
-func processCharacter(l *Lexer) (t Token) {
+func processCharacter(l *Lexer) Token {
+	t := new(Token)
 	t.start = l.offset
-	t.end = l.offset + 2
+	t.end = l.offset
 	t.Type = TknCharacter
-	return t
+	b := l.nextByte()
+	b2 := l.nextByte()
+	for b != b2 {
+		t.end++
+		b2 = l.nextByte()
+		if l.isEOF() {
+			l.errors = append(l.errors, "Character literal not closed")
+			t.end += 2
+			return *t
+		}
+	}
+	t.end += 2
+	return *t
 }
 
 func processIdentifier(l *Lexer) Token {
@@ -146,14 +194,4 @@ func processString(l *Lexer) Token {
 	}
 	t.end += 2
 	return *t
-}
-
-func IsOperator(t TokenType) (bool, int) {
-	switch t {
-	case TknAdd, TknSub, TknDiv, TknAddress:
-		return true, 1
-	case TknEql:
-		return true, 2
-	}
-	return false, 0
 }

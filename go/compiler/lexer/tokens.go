@@ -30,7 +30,7 @@ const (
 	TknShr          // >>
 	TknAdd          // +
 	TknSub          // -
-	TknStar         // *
+	TknMul          // *
 	TknDiv          // /
 	TknMod          // %
 	TknAddress      // @
@@ -52,7 +52,8 @@ const (
 
 	TknLogicalAnd // &&
 	TknLogicalOr  // ||
-	TknArrow      // <-
+	TknArrowLeft  // <-
+	TknArrowRight // ->
 	TknInc        // ++
 	TknDec        // --
 
@@ -164,10 +165,32 @@ func getProtoTokens() []protoToken {
 		createFixed("-=", TknSubAssign),
 		createFixed("--", TknDecrement),
 		createFixed("-", TknSub),
+		createFixed("/=", TknDivAssign),
 		createFixed("/", TknDiv),
-		createFixed("*", TknStar),
+		createFixed("*=", TknMulAssign),
+		createFixed("*", TknMul),
+		createFixed("%=", TknModAssign),
 		createFixed("%", TknMod),
+		createFixed("<<=", TknShlAssign),
+		createFixed("<<", TknShl),
+		createFixed(">>=", TknShrAssign),
+		createFixed(">>", TknShr),
 		createFixed("@", TknAddress),
+
+		createFixed("<-", TknArrowLeft),
+		createFixed(">-", TknArrowRight),
+		createFixed("&&", TknLogicalAnd),
+		createFixed("&", TknAnd),
+		createFixed("||", TknLogicalOr),
+		createFixed("|", TknOr),
+		createFixed("==", TknEql),
+		createFixed("!=", TknNeq),
+		createFixed("!", TknNot),
+		createFixed(">=", TknGeq),
+		createFixed("<=", TknLeq),
+		createFixed(":=", TknDefine),
+		createFixed("...", TknEllipsis),
+
 		createFixed("{", TknOpenBrace),
 		createFixed("}", TknCloseBrace),
 		createFixed("<", TknOpenCorner),
@@ -176,6 +199,12 @@ func getProtoTokens() []protoToken {
 		createFixed("]", TknCloseSquare),
 		createFixed("(", TknOpenBracket),
 		createFixed(")", TknCloseBracket),
+
+		createFixed(":", TknColon),
+		createFixed("?", TknTernary),
+		createFixed(";", TknSemicolon),
+		createFixed(".", TknDot),
+		createFixed("=", TknAssign),
 
 		protoToken{"New Line", isNewLine, processNewLine},
 		protoToken{"Whitespace", isWhitespace, processIgnored},
@@ -215,7 +244,7 @@ func isNumber(l *Lexer) bool {
 }
 
 func isString(l *Lexer) bool {
-	return ((l.current() == '"') || (l.current() == '\''))
+	return (l.current() == '"')
 }
 
 func isWhitespace(l *Lexer) bool {

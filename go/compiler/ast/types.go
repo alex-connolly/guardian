@@ -35,3 +35,12 @@ const (
 
 	File
 )
+
+func (t *NodeType) isExpression() bool {
+	switch t {
+	case UnaryExpression, BinaryExpression, SliceExpression, CallExpression, IndexExpression,
+		SliceExpression, GenericExpression, MapLiteral, ArrayLiteral, CompositeLiteral, Literal, Reference:
+		return true
+	}
+	return false
+}
