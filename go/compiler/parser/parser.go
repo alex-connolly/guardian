@@ -1,10 +1,11 @@
-package Parser
+package parser
 
 import (
 	"axia/guardian/go/compiler/ast"
 	"axia/guardian/go/compiler/lexer"
 )
 
+// Parser ...
 type Parser struct {
 	scope ast.Node
 	lexer *lexer.Lexer
@@ -59,7 +60,7 @@ func (p *Parser) parseOptional(t lexer.TokenType) bool {
 	return false
 }
 
-func (p *Parser) Parserequired(t lexer.TokenType) {
+func (p *Parser) parseRequired(t lexer.TokenType) {
 	if p.lexer.Tokens[p.index].Type != t {
 		p.addError("Required x, found y")
 	}

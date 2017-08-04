@@ -1,10 +1,6 @@
 package ast
 
-import (
-	"axia/guardian/go/compiler/lexer"
-
-	"github.com/end-r/firevm"
-)
+import "axia/guardian/go/compiler/lexer"
 
 // BinaryExpressionNode ...
 type BinaryExpressionNode struct {
@@ -23,12 +19,6 @@ func (n BinaryExpressionNode) Declare(key string, node Node) {
 
 }
 
-func (n BinaryExpressionNode) Traverse(vm *firevm.FireVM.FireVM) {
-	n.Left.Traverse(vm)
-	bytecode.TraverseOperator(vm, n.Operator)
-	n.Right.Traverse(vm)
-}
-
 type UnaryExpressionNode struct {
 	Operator lexer.TokenType
 	Operand  Node
@@ -41,12 +31,6 @@ func (n UnaryExpressionNode) Validate(t NodeType) bool {
 }
 
 func (n UnaryExpressionNode) Declare(key string, node Node) {}
-
-// Traverse ...
-func (n UnaryExpressionNode) Traverse(vm *firevm.FireVM) {
-	bytecode.TraverseOperator(vm, n.Operator)
-	n.Operand.Traverse(vm)
-}
 
 type LiteralNode struct {
 	LiteralType lexer.TokenType
@@ -62,25 +46,6 @@ func (n LiteralNode) Declare(key string, node Node) {
 	// can't declare anything inside a literal (of course)
 }
 
-func (n LiteralNode) Traverse(vm *firevm.FireVM) {
-	switch n.LiteralType {
-	case string:
-		vm.addInstruction()
-		break
-	case int:
-		vm.addInstruction("PUSH", n.SizeInBytes(), n.Value())
-		break
-	}
-}
-
-func (n LiteralNode) Value() []byte {
-
-}
-
-func (n LiteralNode) SizeInBytes() byte {
-
-}
-
 type CompositeLiteralNode struct {
 }
 
@@ -91,10 +56,6 @@ func (n CompositeLiteralNode) Validate(t NodeType) bool {
 }
 
 func (n CompositeLiteralNode) Declare(key string, node Node) {
-
-}
-
-func (n CompositeLiteralNode) Traverse(vm *firevm.FireVM) {
 
 }
 
@@ -113,10 +74,6 @@ func (n IndexExpressionNode) Declare(key string, node Node) {
 
 }
 
-func (n IndexExpressionNode) Traverse() {
-
-}
-
 type GenericExpressionNode struct {
 	Expression Node
 }
@@ -128,10 +85,6 @@ func (n GenericExpressionNode) Validate(t NodeType) bool {
 }
 
 func (n GenericExpressionNode) Declare(key string, node Node) {
-
-}
-
-func (n GenericExpressionNode) Traverse(vm *firevm.FireVM) {
 
 }
 
@@ -151,10 +104,6 @@ func (n SliceExpressionNode) Declare(key string, node Node) {
 
 }
 
-func (n SliceExpressionNode) Traverse() {
-
-}
-
 type CallExpressionNode struct {
 	Name      string
 	Arguments []Node
@@ -170,12 +119,9 @@ func (n CallExpressionNode) Declare(key string, node Node) {
 
 }
 
-func (n CallExpressionNode) Traverse() {
-
-}
-
 type ArrayLiteralNode struct {
 	Key  Node
+	Size Node
 	Data []Node
 }
 
@@ -189,14 +135,10 @@ func (n ArrayLiteralNode) Declare(key string, node Node) {
 
 }
 
-func (n ArrayLiteralNode) Traverse() {
-
-}
-
 type MapLiteralNode struct {
 	Key   Node
 	Value Node
-	Data  map[string]Node
+	Data  map[Node]Node
 }
 
 func (n MapLiteralNode) Type() NodeType { return MapLiteral }
@@ -206,10 +148,6 @@ func (n MapLiteralNode) Validate(t NodeType) bool {
 }
 
 func (n MapLiteralNode) Declare(key string, node Node) {
-
-}
-
-func (n MapLiteralNode) Traverse() {
 
 }
 
@@ -224,9 +162,5 @@ func (n ReferenceNode) Validate(t NodeType) bool {
 }
 
 func (n ReferenceNode) Declare(key string, node Node) {
-
-}
-
-func (n ReferenceNode) Traverse() {
 
 }

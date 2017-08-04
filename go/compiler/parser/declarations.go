@@ -5,7 +5,7 @@ import (
 	"axia/guardian/go/compiler/lexer"
 )
 
-func parseInterfaceDeclaration(p *parser) {
+func parseInterfaceDeclaration(p *Parser) {
 
 	abstract := p.parseOptional(lexer.TknAbstract)
 	p.parseRequired(lexer.TknInterface)
@@ -23,7 +23,7 @@ func parseInterfaceDeclaration(p *parser) {
 	})
 }
 
-func parseClassDeclaration(p *parser) {
+func parseClassDeclaration(p *Parser) {
 
 	abstract := p.parseOptional(lexer.TknAbstract)
 	p.parseRequired(lexer.TknClass)
@@ -45,7 +45,7 @@ func parseClassDeclaration(p *parser) {
 	})
 }
 
-func parseContractDeclaration(p *parser) {
+func parseContractDeclaration(p *Parser) {
 
 	abstract := p.parseOptional(lexer.TknAbstract)
 	p.parseRequired(lexer.TknContract)
@@ -67,22 +67,22 @@ func parseContractDeclaration(p *parser) {
 	})
 }
 
-func (p *parser) parseParameters() []ast.Node {
+func (p *Parser) parseParameters() []ast.Node {
 	return nil
 }
 
-func (p *parser) parseResults() []ast.Node {
+func (p *Parser) parseResults() []ast.Node {
 	return nil
 }
 
-func parseFuncDeclaration(p *parser) {
+func parseFuncDeclaration(p *Parser) {
 
 	abstract := p.parseOptional(lexer.TknAbstract)
 	identifier := p.parseIdentifier()
 
 	params := p.parseParameters()
 
-	results := p.parseResults()
+	results := p.Parseresults()
 
 	p.parseRequired(lexer.TknOpenBrace)
 
@@ -96,7 +96,7 @@ func parseFuncDeclaration(p *parser) {
 	})
 }
 
-func parseTypeDeclaration(p *parser) {
+func parseTypeDeclaration(p *Parser) {
 
 	p.parseRequired(lexer.TknType)
 	identifier := p.parseIdentifier()
@@ -109,7 +109,7 @@ func parseTypeDeclaration(p *parser) {
 	})
 }
 
-func parseMapType(p *parser) {
+func parseMapType(p *Parser) {
 
 	p.parseRequired(lexer.TknMap)
 	p.parseRequired(lexer.TknOpenSquare)
@@ -128,7 +128,7 @@ func parseMapType(p *parser) {
 	})
 }
 
-func parseArrayType(p *parser) {
+func parseArrayType(p *Parser) {
 	p.parseRequired(lexer.TknOpenSquare)
 
 	typ := p.parseExpression()

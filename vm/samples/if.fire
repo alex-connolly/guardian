@@ -5,11 +5,3 @@ greater(int a, b) int {
         return 1
     }
 }
-
-PUSH 1
-PUSH 1
-JUMPI
-LEQ
-PUSH
-RETURN
-PUSH 

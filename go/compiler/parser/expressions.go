@@ -5,157 +5,123 @@ import (
 	"axia/guardian/go/compiler/lexer"
 )
 
-func (p *parser) parseExpression() ast.Node {
-	// should be checked in decreasing order of complexity
-	switch {
-	case p.isMapLiteral(0) > 0:
+func (p *Parser) parseExpression() ast.Node {
+	// Guardian expressions can be arbitrarily chained
+	// e.g. array[expr]
+	// the expr could be 5 + 4 + 3, or 5 + 4 + getNumber()
+	// this is all stored in one expression Node
+	// however, ORDER IS IMPORTANT
+	// (5 + 4) * 3 vs 5 + 4 * 3
+	// these expression are not evaluated at compile time
+	// actually, maybe evaluate constants fully
+
+	// (dog() - 5) + 6
+	// !((dog() - 5) + 6 > 10)
+	switch p.current().Type {
+	case lexer.TknMap:
 		return p.parseMapLiteral()
-	case p.isArrayLiteral(0) > 0:
+	case lexer.TknOpenSquare:
 		return p.parseArrayLiteral()
-	case p.isCompositeLiteral(0) > 0:
-		return p.parseCompositeLiteralExpression()
-	case p.isCallExpression(0) > 0:
-		return p.parseCallExpression()
-	case p.isLiteral() > 0:
-		return p.parseLiteralExpression()
-	case p.isUnaryExpression() > 0:
-		return p.parseUnaryExpression()
-	case p.isBinaryExpression() > 0:
-		return p.parseBinaryExpression()
-	case p.isReference() > 0:
-		return p.parseReference()
-	default:
-		p.addError("Required expression, not found.")
-		return nil
+	case lexer.TknIdentifier:
+		// TODO: check in range
+		switch p.lexer.Tokens[p.lexer.offset+1].Type {
+		case lexer.TknOpenBracket:
+			p.parseCallExpression()
+		case lexer.TknWhitespace:
+			p.parseReference()
+		}
 	}
+	return p.parseReference()
 }
 
-func (p *parser) parseCallExpression() ast.Node {
+func (p *Parser) parseUnaryExpression() ast.Node {
+	n := new(ast.UnaryExpressionNode)
+	return n
+}
 
-	name := p.parseIdentifier()
+func (p *Parser) parseBinaryExpression() ast.Node {
+	n := new(ast.BinaryExpressionNode)
+	return n
+}
 
+func (p *Parser) parseCallExpression() ast.Node {
+	n := new(ast.CallExpressionNode)
+	n.Name = p.parseIdentifier()
 	p.parseRequired(lexer.TknOpenBracket)
-
-	var args []ast.Node
 	if !p.parseOptional(lexer.TknCloseBracket) {
-		args = append(args, p.parseExpression())
-		for p.parseOptional(lexer.TknComma) {
-			args = append(args, p.parseExpression())
-		}
+		n.Arguments = p.parseExpressionList()
 		p.parseRequired(lexer.TknCloseBracket)
 	}
-
-	p.validate(ast.CallExpression)
-
-	return ast.CallExpressionNode{
-		Name:      name,
-		Arguments: args,
-	}
+	return n
 }
 
-func (p *parser) parseBinaryExpression() ast.Node {
-
-	left := p.parseExpression()
-
-	op := p.current().Type
-	p.next()
-
-	right := p.parseExpression()
-
-	p.validate(ast.BinaryExpression)
-
-	return ast.BinaryExpressionNode{
-		Left:     left,
-		Operator: op,
-		Right:    right,
-	}
-}
-
-func (p *parser) parseUnaryExpression() ast.Node {
-
-	op := p.current().Type
-	p.next()
-
-	operand := p.parseExpression()
-
-	p.validate(ast.UnaryExpression)
-
-	return ast.UnaryExpressionNode{
-		Operator: op,
-		Operand:  operand,
-	}
-}
-
-func (p *parser) parseIndexExpression() ast.Node {
-
-	expr := p.parseExpression()
-
+func (p *Parser) parseArrayLiteral() ast.Node {
+	// [string:3]{"Dog", "Cat", ""}
+	n := new(ast.ArrayLiteralNode)
 	p.parseRequired(lexer.TknOpenSquare)
+	n.Key = p.parseType()
+	if !p.parseOptional(lexer.TknCloseSquare) {
+		n.Data = append(n.Data, p.parseExpression())
+		for p.parseOptional(lexer.TknComma) {
+			n.Data = append(n.Data, p.parseExpression())
+		}
+	}
+	return n
+}
 
-	index := p.parseExpression()
-
+func (p *Parser) parseMapLiteral() ast.Node {
+	n := new(ast.MapLiteralNode)
+	p.parseRequired(lexer.TknMap)
+	p.parseRequired(lexer.TknOpenSquare)
+	n.Key = p.parseType()
 	p.parseRequired(lexer.TknCloseSquare)
-
-	p.validate(ast.IndexExpression)
-
-	return ast.IndexExpressionNode{
-		Expression: expr,
-		Index:      index,
-	}
-}
-
-func (p *parser) parseSliceExpression() ast.Node {
-
-	expr := p.parseExpression()
-
-	p.parseRequired(lexer.TknOpenSquare)
-
-	var low, high ast.Node
-
-	first := p.parseExpression()
-
-	if p.parseOptional(lexer.TknColon) {
-
-	} else {
+	n.Value = p.parseType()
+	p.parseRequired(lexer.TknOpenBrace)
+	if !p.parseOptional(lexer.TknCloseBrace) {
+		firstKey := p.parseExpression()
 		p.parseRequired(lexer.TknColon)
-		low = first
+		firstValue := p.parseExpression()
+		n.Data[firstKey] = firstValue
+		for p.parseOptional(lexer.TknComma) {
+			key := p.parseExpression()
+			p.parseRequired(lexer.TknColon)
+			value := p.parseExpression()
+			n.Data[key] = value
+		}
 	}
+	return n
+}
 
-	p.validate(ast.SliceExpression)
-
-	return ast.SliceExpressionNode{
-		Expression: expr,
-		Low:        low,
-		High:       high,
+func (p *Parser) parseExpressionList() (list []ast.Node) {
+	list = append(list, p.parseExpression())
+	for p.parseOptional(lexer.TknComma) {
+		list = append(list, p.parseExpression())
 	}
+	return list
 }
 
-func (p *parser) parseLiteralExpression() ast.Node {
-
-	p.validate(ast.Literal)
-
-	return ast.LiteralNode{}
+func (p *Parser) parseIndexExpression() ast.Node {
+	n := new(ast.IndexExpressionNode)
+	n.Expression = p.parseExpression()
+	n.Index = p.parseExpression()
+	return n
 }
 
-func (p *parser) parseCompositeLiteralExpression() ast.Node {
-
-	p.validate(ast.CompositeLiteral)
-
-	return ast.CompositeLiteralNode{}
-
-}
-
-func (p *parser) parseArrayLiteral() ast.Node {
-	return ast.ArrayLiteralNode{}
-}
-
-func (p *parser) parseMapLiteral() ast.Node {
-	return ast.MapLiteralNode{}
-}
-
-func (p *parser) parseReference() ast.Node {
-	name := p.parseIdentifier()
-	return ast.ReferenceNode{
-		Name: name,
+func (p *Parser) parseSliceExpression() ast.Node {
+	n := new(ast.SliceExpressionNode)
+	n.Expression = p.parseExpression()
+	p.parseRequired(lexer.TknOpenSquare)
+	n.Low = p.parseExpression()
+	p.parseRequired(lexer.TknColon)
+	if !p.parseOptional(lexer.TknCloseSquare) {
+		n.High = p.parseExpression()
+		p.parseRequired(lexer.TknCloseSquare)
 	}
+	return n
+}
+
+func (p *Parser) parseReference() ast.Node {
+	n := new(ast.ReferenceNode)
+	n.Name = p.parseIdentifier()
+	return n
 }

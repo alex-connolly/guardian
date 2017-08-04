@@ -4,7 +4,7 @@ import (
 	"axia/guardian/go/compiler/lexer"
 )
 
-func isClassDeclaration(p *parser) bool {
+func isClassDeclaration(p *Parser) bool {
 	if p.index+1 < len(p.lexer.Tokens) {
 		return p.current().Type == lexer.TknClass ||
 			(p.current().Type == lexer.TknAbstract && p.token(1).Type == lexer.TknClass)
@@ -12,7 +12,7 @@ func isClassDeclaration(p *parser) bool {
 	return p.current().Type == lexer.TknClass
 }
 
-func isInterfaceDeclaration(p *parser) bool {
+func isInterfaceDeclaration(p *Parser) bool {
 	if p.index+1 < len(p.lexer.Tokens) {
 		return p.current().Type == lexer.TknInterface ||
 			(p.current().Type == lexer.TknAbstract && p.token(1).Type == lexer.TknInterface)
@@ -20,7 +20,7 @@ func isInterfaceDeclaration(p *parser) bool {
 	return p.current().Type == lexer.TknInterface
 }
 
-func isContractDeclaration(p *parser) bool {
+func isContractDeclaration(p *Parser) bool {
 	if p.index+1 < len(p.lexer.Tokens) {
 		return p.current().Type == lexer.TknContract ||
 			(p.current().Type == lexer.TknAbstract && p.token(1).Type == lexer.TknContract)
@@ -28,30 +28,30 @@ func isContractDeclaration(p *parser) bool {
 	return p.current().Type == lexer.TknContract
 }
 
-func isFuncDeclaration(p *parser) bool {
+func isFuncDeclaration(p *Parser) bool {
 	if p.index+2 < len(p.lexer.Tokens) {
 		return p.current().Type == lexer.TknIdentifier && p.token(1).Type == lexer.TknOpenBracket
 	}
 	return false
 }
 
-func isTypeDeclaration(p *parser) bool {
+func isTypeDeclaration(p *Parser) bool {
 	return p.current().Type == lexer.TknType
 }
 
-func isForStatement(p *parser) bool {
+func isForStatement(p *Parser) bool {
 	return p.current().Type == lexer.TknFor
 }
 
-func isIfStatement(p *parser) bool {
+func isIfStatement(p *Parser) bool {
 	return p.current().Type == lexer.TknIf
 }
 
-func isAssignmentStatement(p *parser) bool {
+func isAssignmentStatement(p *Parser) bool {
 	return false
 }
 
-func isSwitchStatement(p *parser) bool {
+func isSwitchStatement(p *Parser) bool {
 	if p.index+2 < len(p.lexer.Tokens) {
 		return p.current().Type == lexer.TknSwitch ||
 			(p.current().Type == lexer.TknExclusive && p.token(1).Type == lexer.TknSwitch)
@@ -59,10 +59,10 @@ func isSwitchStatement(p *parser) bool {
 	return p.current().Type == lexer.TknSwitch
 }
 
-func isReturnStatement(p *parser) bool {
+func isReturnStatement(p *Parser) bool {
 	return p.current().Type == lexer.TknReturn
 }
 
-func isCaseStatement(p *parser) bool {
+func isCaseStatement(p *Parser) bool {
 	return p.current().Type == lexer.TknCase
 }

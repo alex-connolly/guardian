@@ -1,12 +1,13 @@
-package ast
+package bytecode
 
 import (
+	"axia/guardian/go/compiler/ast"
 	"axia/guardian/go/compiler/lexer"
 
 	"github.com/end-r/firevm"
 )
 
-func Traverse(node Node) {
+func Traverse(node ast.Node) {
 	node.Traverse()
 }
 
@@ -29,6 +30,6 @@ func TraverseOperator(vm *firevm.FireVM, tkn lexer.TknType) {
 	vm.AddInstruction(operators[tkn])
 }
 
-func traverseExpression(node Node) {
+func traverseExpression(node ast.Node) {
 
 }

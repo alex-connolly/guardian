@@ -60,7 +60,7 @@ func TestParseInvalidContractDeclaration(t *testing.T) {
 	parseContractDeclaration(p)
 	util.Assert(t, p.scope.Type() == ast.ContractDeclaration, "wrong scope type")
 	util.Assert(t, len(p.errs) == 1, "should throw one error")
-	p := createParse("contract Hello contract {}")
+	p = createParse("contract Hello contract {}")
 	parseContractDeclaration(p)
 	util.Assert(t, p.scope.Type() == ast.ContractDeclaration, "wrong scope type")
 	util.Assert(t, len(p.errs) == 2, "should throw 2 errors")

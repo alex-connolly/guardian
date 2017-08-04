@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"axia/guardian/go/compiler/ast"
+	"axia/guardian/go/compiler/lexer"
 	"io/ioutil"
 	"log"
 )
@@ -21,7 +23,7 @@ func ParseString(data string) *Parser {
 }
 
 // ParseBytes ...
-func ParseBytes(data []byte) *Parser {
+func ParseBytes(data []byte) (p *Parser) {
 	p.lexer = lexer.LexBytes(data)
 	p.scope = ast.FileNode{}
 	p.run()

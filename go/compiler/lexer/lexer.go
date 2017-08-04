@@ -73,15 +73,15 @@ func (l *Lexer) nextByte() byte {
 
 // LexString lexes a string
 func LexString(str string) *Lexer {
-	return Lex([]byte(str))
+	return LexBytes([]byte(str))
 }
 
 func (l *Lexer) current() byte {
 	return l.buffer[l.offset]
 }
 
-// Lex ...
-func Lex(bytes []byte) *Lexer {
+// LexBytes ...
+func LexBytes(bytes []byte) *Lexer {
 	l := new(Lexer)
 	l.buffer = bytes
 	l.next()
@@ -95,7 +95,7 @@ func LexFile(path string) *Lexer {
 		log.Println("File does not exist")
 		return nil
 	}
-	return Lex(bytes)
+	return LexBytes(bytes)
 }
 
 func processNewLine(l *Lexer) Token {

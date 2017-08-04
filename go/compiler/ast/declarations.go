@@ -59,10 +59,6 @@ func (n ClassDeclarationNode) Declare(key string, node Node) {
 
 }
 
-func (n ClassDeclarationNode) Traverse() {
-
-}
-
 type InterfaceDeclarationNode struct {
 	Identifier   string
 	IsAbstract   bool
@@ -81,10 +77,6 @@ func (n InterfaceDeclarationNode) Validate(t NodeType) bool {
 
 func (n InterfaceDeclarationNode) Declare(key string, node Node) {
 	n.Declarations = append(n.Declarations, node)
-}
-
-func (n InterfaceDeclarationNode) Traverse() {
-
 }
 
 type ContractDeclarationNode struct {
@@ -110,10 +102,6 @@ func (n ContractDeclarationNode) Declare(key string, node Node) {
 	n.Declarations[key] = append(n.Declarations[key], node)
 }
 
-func (n ContractDeclarationNode) Traverse() {
-
-}
-
 type MapTypeNode struct {
 	Key   Node
 	Value Node
@@ -129,10 +117,6 @@ func (n MapTypeNode) Declare(key string, node Node) {
 
 }
 
-func (n MapTypeNode) Traverse() {
-
-}
-
 type ArrayTypeNode struct {
 	Value Node
 }
@@ -144,9 +128,5 @@ func (n ArrayTypeNode) Validate(t NodeType) bool {
 }
 
 func (n ArrayTypeNode) Declare(key string, node Node) {
-
-}
-
-func (n ArrayTypeNode) Traverse() {
 
 }

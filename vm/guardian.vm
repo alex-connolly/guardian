@@ -3,16 +3,19 @@ author = "ender"
 type = "vm"
 
 instruction("ADD"){
+    index = 0x00
     execute = add
     fuel = fuelLowest
 }
 
 instruction("SUB"){
+    index = 0x01
     execute = sub
     fuel = fuelLowest
 }
 
 instruction("MUL"){
+    index = 0x02
     execute = mul
     fuel = fuelLowest
 }

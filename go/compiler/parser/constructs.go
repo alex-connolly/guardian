@@ -2,8 +2,8 @@ package parser
 
 type construct struct {
 	name  string
-	is    func(*parser) bool
-	parse func(*parser)
+	is    func(*Parser) bool
+	parse func(*Parser)
 }
 
 func getPrimaryConstructs() []construct {

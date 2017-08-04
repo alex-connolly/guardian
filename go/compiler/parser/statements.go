@@ -5,7 +5,7 @@ import (
 	"axia/guardian/go/compiler/lexer"
 )
 
-func parseReturnStatement(p *parser) {
+func parseReturnStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknReturn)
 
@@ -21,7 +21,7 @@ func parseReturnStatement(p *parser) {
 	p.scope.Validate(ast.ReturnStatement)
 }
 
-func parseAssignmentStatement(p *parser) {
+func parseAssignmentStatement(p *Parser) {
 
 	var assigned []ast.Node
 	assigned = append(assigned, p.parseExpression())
@@ -45,23 +45,23 @@ func parseAssignmentStatement(p *parser) {
 	})
 }
 
-func parseIfStatement(p *parser) {
+func parseIfStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknIf)
 	//one := p.parseExpression()
 
 }
 
-func parseForStatement(p *parser) {
+func parseForStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknFor)
 
 }
 
-func parseCaseStatement(p *parser) {
+func parseCaseStatement(p *Parser) {
 
 }
 
-func parseSwitchStatement(p *parser) {
+func parseSwitchStatement(p *Parser) {
 
 }
