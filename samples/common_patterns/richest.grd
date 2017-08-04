@@ -1,0 +1,29 @@
+guardian @ 0.0.1
+
+contract WithdrawalContract {
+
+    pendingWithdrawals map[Address]uint
+    richest Address
+    maxSent uint
+
+    constructor(){
+        this.richest = call.caller
+        this.maxSent = call.value
+    }
+
+    becomeRichest() bool {
+        if call.value > maxSent {
+            pendingWithdrawals[richest] += call.value
+            richest = call.caller
+            maxSent = call.value
+            return true
+        }
+        return false
+    }
+
+    withdraw() {
+        amount := pendingWithdrawals[call.caller]
+        pendingWithdrawals[call.caller] = 0
+        call.caller.transfer(amount)
+    }
+}

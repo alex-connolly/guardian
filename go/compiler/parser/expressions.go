@@ -22,13 +22,16 @@ func (p *Parser) parseExpression() ast.Node {
 		return p.parseMapLiteral()
 	case lexer.TknOpenSquare:
 		return p.parseArrayLiteral()
+	case lexer.TknString, lexer.TknNumber, lexer.TknCharacter:
+		return p.parseLiteral()
 	case lexer.TknIdentifier:
 		// TODO: check in range
-		switch p.lexer.Tokens[p.lexer.offset+1].Type {
+		// TODO: won't work for package.name()
+		switch p.token(1).Type {
 		case lexer.TknOpenBracket:
-			p.parseCallExpression()
-		case lexer.TknWhitespace:
-			p.parseReference()
+			return p.parseCallExpression()
+		case lexer.TknOpenBrace:
+			return p.parseCompositeLiteral()
 		}
 	}
 	return p.parseReference()
@@ -123,5 +126,16 @@ func (p *Parser) parseSliceExpression() ast.Node {
 func (p *Parser) parseReference() ast.Node {
 	n := new(ast.ReferenceNode)
 	n.Name = p.parseIdentifier()
+	return n
+}
+
+func (p *Parser) parseLiteral() ast.Node {
+	n := new(ast.LiteralNode)
+	n.LiteralType = p.current().Type
+	return n
+}
+
+func (p *Parser) parseCompositeLiteral() ast.Node {
+	n := new(ast.CompositeLiteralNode)
 	return n
 }

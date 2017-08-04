@@ -82,7 +82,7 @@ func parseFuncDeclaration(p *Parser) {
 
 	params := p.parseParameters()
 
-	results := p.Parseresults()
+	results := p.parseResults()
 
 	p.parseRequired(lexer.TknOpenBrace)
 

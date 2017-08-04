@@ -252,12 +252,40 @@ Ethereum functions may be called in the following manner (stolen from the Solidi
 0x0000000000000000000000000000000000000000000000000000000000000045: the first parameter, a uint32 value 69 padded to 32 bytes
 0x0000000000000000000000000000000000000000000000000000000000000001: the second parameter - boolean true, padded to 32 bytes
 
+
+
 The total call, therefore, is:
 
 0xcdcd77c00x00000000000000000000000000000000000000000000000000000000000000450x0000000000000000000000000000000000000000000000000000000000000001
 
 The same call in FireVM may be expressed as:
 
-cdcd77c045?1?
+Represent the size before each parameter.
 
-? denotes the end of a value, such that the remaining bytes are assumed to have been zero padding. There is also no need to denote that particular stack variables are hexadecimal: it is the immutable default.
+### Modifers
+
+Solidity uses access modifiers to control method access. In my view, access modifiers are distracting, and can be simply substituted for standard ```require``` statements.
+
+Solidity:
+
+```go
+modifier local {
+
+}
+
+chat(msg string) local {
+
+}
+```
+
+Guardian:
+
+```go
+enforceLocal(loc Location){
+    require(location == loc)
+}
+
+chat(msg string){
+    enforceLocal(loc)
+}
+```

@@ -5,48 +5,6 @@ import (
 	"testing"
 )
 
-func TestIsMapLiteral(t *testing.T) {
-	p := createParser("map[key]value{}")
-	util.Assert(t, p.isMapLiteral(), "map literal not recognised")
-	// errors but should still be recognised
-	p = createParser("map[]{}")
-	util.Assert(t, p.isMapLiteral(), "map literal no key not recognised")
-	p = createParser("map{}")
-	util.Assert(t, p.isMapLiteral(), "map literal no key no squares not recognised")
-}
-
-func TestIsArrayLiteral(t *testing.T) {
-	p := createParser("[]int{1, 2, 3}")
-	util.Assert(t, p.isArrayLiteral(), "array literal not recognised")
-	p = createParser("[]int{}")
-	util.Assert(t, p.isArrayLiteral(), "empty array literal not recognised")
-}
-
-func TestIsLiteral(t *testing.T) {
-	p := createParser(`"hello"`)
-	util.Assert(t, p.isLiteral(), "string literal not recognised")
-	p = createParser(`6`)
-	util.Assert(t, p.isLiteral(), "int literal not recognised")
-	p = createParser(`'c'`)
-	util.Assert(t, p.isLiteral(), "character literal not recognised")
-	p = createParser(`7.4`)
-	util.Assert(t, p.isLiteral(), "float literal not recognised")
-}
-
-func TestIsCompositeLiteral(t *testing.T) {
-	p := createParser("Dog{4, 4}")
-	util.Assert(t, p.isCompositeLiteral(), "composite literal not recognised")
-	p = createParser("D{}")
-	util.Assert(t, p.isCompositeLiteral(), "empty composite literal not recognised")
-}
-
-func TestIsCallExpression(t *testing.T) {
-	p := createParser("hi()")
-	util.Assert(t, p.isCallExpression(), "call expression not recognised")
-	p = createParser("hi(2, 4, 5)")
-	util.Assert(t, p.isCallExpression(), "arguments call expression not recognised")
-}
-
 func TestIsClassDeclaration(t *testing.T) {
 	p := createParser("class Dog {")
 	util.Assert(t, isClassDeclaration(p), "class declaration not recognised")

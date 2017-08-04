@@ -8,13 +8,16 @@ import (
 )
 
 // ParseFile ...
-func ParseFile(path string) *Parser {
+func ParseFile(path string) (p *Parser) {
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Println(err)
 		return nil
 	}
-	return ParseBytes(bytes)
+	p.lexer = lexer.LexBytes(bytes)
+	p.scope = ast.FileNode{}
+	p.run()
+	return p
 }
 
 // ParseString ...
@@ -25,6 +28,6 @@ func ParseString(data string) *Parser {
 // ParseBytes ...
 func ParseBytes(data []byte) (p *Parser) {
 	p.lexer = lexer.LexBytes(data)
-	p.scope = ast.FileNode{}
 	p.run()
+	return p
 }
