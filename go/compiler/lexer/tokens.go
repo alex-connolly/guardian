@@ -5,6 +5,22 @@ package lexer
 // TokenType denotes the type of a token
 type TokenType int
 
+func (t TokenType) IsBinaryOperator() bool {
+	switch t {
+	case TknAdd, TknSub, TknMul, TknDiv:
+		return true
+	}
+	return false
+}
+
+func (t TokenType) IsUnaryOperator() bool {
+	switch t {
+	case TknIncrement, TknDecrement:
+		return true
+	}
+	return false
+}
+
 const (
 	TknIdentifier TokenType = iota
 	TknNumber

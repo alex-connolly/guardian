@@ -5,7 +5,7 @@ import (
 	"axia/guardian/go/compiler/lexer"
 )
 
-func (p *Parser) parseExpression() ast.Node {
+func (p *Parser) parseExpression() ast.ExpressionNode {
 	// Guardian expressions can be arbitrarily chained
 	// e.g. array[expr]
 	// the expr could be 5 + 4 + 3, or 5 + 4 + getNumber()
@@ -17,36 +17,67 @@ func (p *Parser) parseExpression() ast.Node {
 
 	// (dog() - 5) + 6
 	// !((dog() - 5) + 6 > 10)
+
+	// some expressions are 'complete'
+	// map, array, compositeLiteral
+	// some are 'incomplete'
+	// literals, references, calls
+	// incomplete expressions can have further ops performed
+	// a() + b() * c()
+	// TODO: improve the logical flow here: it's horrendous
+
 	switch p.current().Type {
 	case lexer.TknMap:
 		return p.parseMapLiteral()
 	case lexer.TknOpenSquare:
 		return p.parseArrayLiteral()
-	case lexer.TknString, lexer.TknNumber, lexer.TknCharacter:
-		return p.parseLiteral()
+	case lexer.TknString, lexer.TknCharacter, lexer.TknNumber:
+		//expr := p.parseLiteral()
+
+		break
 	case lexer.TknIdentifier:
-		// TODO: check in range
-		// TODO: won't work for package.name()
-		switch p.token(1).Type {
+		expr := p.parseReference()
+		switch p.current().Type {
 		case lexer.TknOpenBracket:
-			return p.parseCallExpression()
+			p.parseCallExpression(expr)
+			break
 		case lexer.TknOpenBrace:
-			return p.parseCompositeLiteral()
+			return p.parseCompositeLiteral(expr)
 		}
+		if p.current().Type.IsBinaryOperator() {
+			p.parseBinaryExpression(expr)
+		} else if p.current().Type.IsUnaryOperator() {
+			p.parsePostfixUnaryExpression(expr)
+		}
+		break
+	case lexer.TknNot:
+		// prefix unary operator
+		p.parsePrefixUnaryExpression()
+		break
 	}
 	return p.parseReference()
 }
 
-func (p *Parser) parseUnaryExpression() (n ast.UnaryExpressionNode) {
+func (p *Parser) parsePrefixUnaryExpression() (n ast.UnaryExpressionNode) {
+	n.Operator = p.current().Type
+	p.next()
+	n.Operand = p.parseExpression()
 	return n
 }
 
-func (p *Parser) parseBinaryExpression() (n ast.BinaryExpressionNode) {
+func (p *Parser) parsePostfixUnaryExpression(expr ast.ExpressionNode) (n ast.UnaryExpressionNode) {
 	return n
 }
 
-func (p *Parser) parseCallExpression() (n ast.CallExpressionNode) {
-	n.Name = p.parseIdentifier()
+func (p *Parser) parseBinaryExpression(expr ast.ExpressionNode) (n ast.BinaryExpressionNode) {
+	n.Left = expr
+	n.Operator = p.current().Type
+	n.Right = p.parseExpression()
+	return n
+}
+
+func (p *Parser) parseCallExpression(expr ast.ExpressionNode) (n ast.CallExpressionNode) {
+	n.Call = expr
 	p.parseRequired(lexer.TknOpenBracket)
 	if !p.parseOptional(lexer.TknCloseBracket) {
 		n.Arguments = p.parseExpressionList()
@@ -58,7 +89,7 @@ func (p *Parser) parseCallExpression() (n ast.CallExpressionNode) {
 func (p *Parser) parseArrayLiteral() (n ast.ArrayLiteralNode) {
 	// [string:3]{"Dog", "Cat", ""}
 	p.parseRequired(lexer.TknOpenSquare)
-	n.Key = p.parseType()
+	n.Key = p.parseReference()
 	if !p.parseOptional(lexer.TknCloseSquare) {
 		n.Data = append(n.Data, p.parseExpression())
 		for p.parseOptional(lexer.TknComma) {
@@ -71,9 +102,9 @@ func (p *Parser) parseArrayLiteral() (n ast.ArrayLiteralNode) {
 func (p *Parser) parseMapLiteral() (n ast.MapLiteralNode) {
 	p.parseRequired(lexer.TknMap)
 	p.parseRequired(lexer.TknOpenSquare)
-	n.Key = p.parseType()
+	n.Key = p.parseReference()
 	p.parseRequired(lexer.TknCloseSquare)
-	n.Value = p.parseType()
+	n.Value = p.parseReference()
 	p.parseRequired(lexer.TknOpenBrace)
 	if !p.parseOptional(lexer.TknCloseBrace) {
 		firstKey := p.parseExpression()
@@ -90,7 +121,7 @@ func (p *Parser) parseMapLiteral() (n ast.MapLiteralNode) {
 	return n
 }
 
-func (p *Parser) parseExpressionList() (list []ast.Node) {
+func (p *Parser) parseExpressionList() (list []ast.ExpressionNode) {
 	list = append(list, p.parseExpression())
 	for p.parseOptional(lexer.TknComma) {
 		list = append(list, p.parseExpression())
@@ -130,6 +161,7 @@ func (p *Parser) parseLiteral() (n ast.LiteralNode) {
 	return n
 }
 
-func (p *Parser) parseCompositeLiteral() (n ast.CompositeLiteralNode) {
+func (p *Parser) parseCompositeLiteral(ref ast.ReferenceNode) (n ast.CompositeLiteralNode) {
+	n.Reference = ref
 	return n
 }

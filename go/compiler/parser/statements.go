@@ -10,7 +10,7 @@ func parseReturnStatement(p *Parser) {
 	p.parseRequired(lexer.TknReturn)
 
 	if p.parseOptional(lexer.TknOpenBracket) {
-		var tuple []ast.Node
+		var tuple []ast.ExpressionNode
 		tuple = append(tuple, p.parseExpression())
 		for p.parseOptional(lexer.TknComma) {
 			tuple = append(tuple, p.parseExpression())
@@ -23,7 +23,7 @@ func parseReturnStatement(p *Parser) {
 
 func parseAssignmentStatement(p *Parser) {
 
-	var assigned []ast.Node
+	var assigned []ast.ExpressionNode
 	assigned = append(assigned, p.parseExpression())
 	for p.parseOptional(lexer.TknComma) {
 		assigned = append(assigned, p.parseExpression())
@@ -31,7 +31,7 @@ func parseAssignmentStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknAssign)
 
-	var to []ast.Node
+	var to []ast.ExpressionNode
 	to = append(to, p.parseExpression())
 	for p.parseOptional(lexer.TknComma) {
 		to = append(to, p.parseExpression())

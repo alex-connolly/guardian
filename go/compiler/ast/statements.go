@@ -1,8 +1,8 @@
 package ast
 
 type AssignmentStatementNode struct {
-	Left  []Node
-	Right []Node
+	Left  []ExpressionNode
+	Right []ExpressionNode
 }
 
 func (n AssignmentStatementNode) Type() NodeType { return AssignmentStatement }
@@ -16,7 +16,7 @@ func (n AssignmentStatementNode) Declare(key string, node Node) {
 }
 
 type ReturnStatementNode struct {
-	Results []Node
+	Results []ExpressionNode
 }
 
 func (n ReturnStatementNode) Type() NodeType { return ReturnStatement }
@@ -45,7 +45,7 @@ func (n BranchStatementNode) Declare(key string, node Node) {
 
 type IfStatementNode struct {
 	Init Node
-	Cond Node
+	Cond ExpressionNode
 	Body BlockStatementNode
 	Else BlockStatementNode
 }

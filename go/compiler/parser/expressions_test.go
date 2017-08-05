@@ -41,7 +41,6 @@ func TestParseBinaryReferenceExpression(t *testing.T) {
 	util.AssertNow(t, n.Type() == ast.BinaryExpression, "wrong node type")
 	u := n.(ast.BinaryExpressionNode)
 	util.Assert(t, u.Operator == lexer.TknSub, "wrong operator")
-
 }
 
 func TestParseBinaryCallExpression(t *testing.T) {
@@ -53,6 +52,22 @@ func TestParseBinaryCallExpression(t *testing.T) {
 	u := n.(ast.BinaryExpressionNode)
 	util.Assert(t, u.Operator == lexer.TknSub, "wrong operator")
 
+}
+
+func TestParseMultipleBinaryExpression(t *testing.T) {
+	p := createParser("a() - b() - c()")
+	n := p.parseExpression()
+	util.AssertNow(t, n.Type() == ast.BinaryExpression, "wrong node type")
+	u := n.(ast.BinaryExpressionNode)
+	util.Assert(t, u.Operator == lexer.TknSub, "wrong operator")
+}
+
+func TestParseMultipleBinaryExpressionBracketed(t *testing.T) {
+	p := createParser("a() - (b() - c())")
+	n := p.parseExpression()
+	util.AssertNow(t, n.Type() == ast.BinaryExpression, "wrong node type")
+	u := n.(ast.BinaryExpressionNode)
+	util.Assert(t, u.Operator == lexer.TknSub, "wrong operator")
 }
 
 func TestParseIndexExpression(t *testing.T) {

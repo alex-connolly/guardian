@@ -2,77 +2,45 @@ package ast
 
 import "axia/guardian/go/compiler/lexer"
 
+type ExpressionNode interface {
+	Type() NodeType
+}
+
 // BinaryExpressionNode ...
 type BinaryExpressionNode struct {
-	Left, Right Node
+	Left, Right ExpressionNode
 	Operator    lexer.TokenType
 }
 
 // Type ...
 func (n BinaryExpressionNode) Type() NodeType { return BinaryExpression }
 
-func (n BinaryExpressionNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n BinaryExpressionNode) Declare(key string, node Node) {
-
-}
-
 type UnaryExpressionNode struct {
 	Operator lexer.TokenType
-	Operand  Node
+	Operand  ExpressionNode
 }
 
 func (n UnaryExpressionNode) Type() NodeType { return UnaryExpression }
 
-func (n UnaryExpressionNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n UnaryExpressionNode) Declare(key string, node Node) {}
-
 type LiteralNode struct {
+	Data        string
 	LiteralType lexer.TokenType
 }
 
 func (n LiteralNode) Type() NodeType { return Literal }
 
-func (n LiteralNode) Validate(t NodeType) bool {
-	return false
-}
-
-func (n LiteralNode) Declare(key string, node Node) {
-	// can't declare anything inside a literal (of course)
-}
-
 type CompositeLiteralNode struct {
+	Reference ExpressionNode
 }
 
 func (n CompositeLiteralNode) Type() NodeType { return CompositeLiteral }
 
-func (n CompositeLiteralNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n CompositeLiteralNode) Declare(key string, node Node) {
-
-}
-
 type IndexExpressionNode struct {
-	Expression Node
-	Index      Node
+	Expression ExpressionNode
+	Index      ExpressionNode
 }
 
 func (n IndexExpressionNode) Type() NodeType { return IndexExpression }
-
-func (n IndexExpressionNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n IndexExpressionNode) Declare(key string, node Node) {
-
-}
 
 type GenericExpressionNode struct {
 	Expression Node
@@ -80,87 +48,39 @@ type GenericExpressionNode struct {
 
 func (n GenericExpressionNode) Type() NodeType { return GenericExpression }
 
-func (n GenericExpressionNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n GenericExpressionNode) Declare(key string, node Node) {
-
-}
-
 type SliceExpressionNode struct {
-	Expression Node
-	Low, High  Node
-	Max        Node
+	Expression ExpressionNode
+	Low, High  ExpressionNode
+	Max        ExpressionNode
 }
 
 func (n SliceExpressionNode) Type() NodeType { return SliceExpression }
 
-func (n SliceExpressionNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n SliceExpressionNode) Declare(key string, node Node) {
-
-}
-
 type CallExpressionNode struct {
-	Name      string
-	Arguments []Node
+	Call      ExpressionNode
+	Arguments []ExpressionNode
 }
 
 func (n CallExpressionNode) Type() NodeType { return CallExpression }
 
-func (n CallExpressionNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n CallExpressionNode) Declare(key string, node Node) {
-
-}
-
 type ArrayLiteralNode struct {
-	Key  Node
-	Size Node
-	Data []Node
+	Key  ReferenceNode
+	Size ExpressionNode
+	Data []ExpressionNode
 }
 
 func (n ArrayLiteralNode) Type() NodeType { return ArrayLiteral }
 
-func (n ArrayLiteralNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n ArrayLiteralNode) Declare(key string, node Node) {
-
-}
-
 type MapLiteralNode struct {
-	Key   Node
-	Value Node
-	Data  map[Node]Node
+	Key   ReferenceNode
+	Value ReferenceNode
+	Data  map[ExpressionNode]ExpressionNode
 }
 
 func (n MapLiteralNode) Type() NodeType { return MapLiteral }
-
-func (n MapLiteralNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n MapLiteralNode) Declare(key string, node Node) {
-
-}
 
 type ReferenceNode struct {
 	Names []string
 }
 
 func (n ReferenceNode) Type() NodeType { return Reference }
-
-func (n ReferenceNode) Validate(t NodeType) bool {
-	return false
-}
-
-func (n ReferenceNode) Declare(key string, node Node) {
-	// nothing
-}

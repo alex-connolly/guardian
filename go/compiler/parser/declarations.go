@@ -179,7 +179,7 @@ func parseMapType(p *Parser) {
 func parseArrayType(p *Parser) {
 	p.parseRequired(lexer.TknOpenSquare)
 
-	typ := p.parseExpression()
+	//typ := p.parseExpression()
 	//var max ast.Node
 
 	if p.parseOptional(lexer.TknColon) {
@@ -188,6 +188,6 @@ func parseArrayType(p *Parser) {
 	p.validate(ast.ArrayType)
 
 	p.scope.Declare("", ast.ArrayTypeNode{
-		Value: typ,
+	//Value: typ,
 	})
 }
