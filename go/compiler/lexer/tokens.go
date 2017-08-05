@@ -108,6 +108,7 @@ const (
 
 	TknIn
 	TknMap
+	TknMacro
 
 	TknPackage
 	TknReturn
@@ -150,11 +151,12 @@ func getProtoTokens() []protoToken {
 		createFixed("import", TknImport),
 		createFixed("is", TknIs),
 		createFixed("as", TknAs),
-		createFixed("type", TknType),
 		createFixed("typeof", TknTypeOf),
+		createFixed("type", TknType),
 
 		createFixed("in", TknIn),
 		createFixed("map", TknMap),
+		createFixed("macro", TknMacro),
 
 		createFixed("package", TknPackage),
 		createFixed("return", TknReturn),
@@ -204,6 +206,7 @@ func getProtoTokens() []protoToken {
 		createFixed("?", TknTernary),
 		createFixed(";", TknSemicolon),
 		createFixed(".", TknDot),
+		createFixed(",", TknComma),
 		createFixed("=", TknAssign),
 
 		protoToken{"New Line", isNewLine, processNewLine},

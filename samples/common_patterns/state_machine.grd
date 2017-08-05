@@ -1,0 +1,67 @@
+guardian @ 0.0.1
+
+contract StateMachine {
+
+    enum Stage {
+        AcceptingBlindedBids,
+        RevealBids,
+        AnotherStage,
+        AreWeDoneYet,
+        Finished
+    }
+
+    var (
+        // This is the current stage.
+        stage = Stage.AcceptingBlindedBids
+        creationTime = now()
+    )
+
+    requireStage(s Stage) {
+        require(stage == s);
+    }
+
+    nextStage() {
+        stage = Stages(uint(stage) + 1)
+    }
+
+    timedTransitions() {
+        exclusive switch stage {
+            case Stage.AcceptingBlindedBids:
+                if now() >= creationTime + 10 * time.Day {
+                    nextStage()
+                }
+            case Stage.RevealBids:
+                if now() >= creationTime + 12 * time.Day {
+                    nextStage()
+                }
+        }
+    }
+
+    bid(){
+        timedTransitions()
+        requireStage(Stage.AcceptingBlindedBids)
+    }
+
+    reveal(){
+        timedTransitions()
+        requireStage(Stage.RevealBids)
+    }
+
+    g(){
+        timedTransitions()
+        requireStage(Stage.AnotherStage)
+        nextStage()
+    }
+
+    h(){
+        timedTransitions()
+        requireStage(Stage.AreWeDoneYet)
+        nextStage()
+    }
+
+    i(){
+        timedTransitions()
+        requireStage(Stage.Finished)
+    }
+
+}

@@ -11,16 +11,35 @@ func parseInterfaceDeclaration(p *Parser) {
 	p.parseRequired(lexer.TknInterface)
 	identifier := p.parseIdentifier()
 
-	if p.parseOptional(lexer.TknInherits) {
+	var inherits []ast.ReferenceNode
 
+	if p.parseOptional(lexer.TknInherits) {
+		inherits = p.parseReferenceList()
 	}
 
 	p.parseRequired(lexer.TknOpenBrace)
 
-	p.scope.Declare("", ast.InterfaceDeclarationNode{
+	n := ast.InterfaceDeclarationNode{
 		Identifier: identifier,
+		Supers:     inherits,
 		IsAbstract: abstract,
-	})
+	}
+
+	p.scope.Declare("interface", n)
+
+	p.parent = p.scope
+	p.scope = n
+}
+
+// like any list parser, but enforces that each node must be a reference
+func (p *Parser) parseReferenceList() []ast.ReferenceNode {
+	var refs []ast.ReferenceNode
+	first := p.parseReference()
+	refs = append(refs, first)
+	for p.parseOptional(lexer.TknComma) {
+		refs = append(refs, p.parseReference())
+	}
+	return refs
 }
 
 func parseClassDeclaration(p *Parser) {
@@ -29,20 +48,35 @@ func parseClassDeclaration(p *Parser) {
 	p.parseRequired(lexer.TknClass)
 	identifier := p.parseIdentifier()
 
+	// is and inherits can be in any order
+
+	var inherits, interfaces []ast.ReferenceNode
+
 	if p.parseOptional(lexer.TknInherits) {
-
-	}
-
-	if p.parseOptional(lexer.TknIs) {
-
+		inherits = p.parseReferenceList()
+		if p.parseOptional(lexer.TknIs) {
+			interfaces = p.parseReferenceList()
+		}
+	} else if p.parseOptional(lexer.TknIs) {
+		interfaces = p.parseReferenceList()
+		if p.parseOptional(lexer.TknInherits) {
+			inherits = p.parseReferenceList()
+		}
 	}
 
 	p.parseRequired(lexer.TknOpenBrace)
 
-	p.scope.Declare("", ast.ClassDeclarationNode{
+	n := ast.ClassDeclarationNode{
 		Identifier: identifier,
+		Supers:     inherits,
+		Interfaces: interfaces,
 		IsAbstract: abstract,
-	})
+	}
+
+	p.scope.Declare("class", n)
+
+	p.parent = p.scope
+	p.scope = n
 }
 
 func parseContractDeclaration(p *Parser) {
@@ -51,24 +85,34 @@ func parseContractDeclaration(p *Parser) {
 	p.parseRequired(lexer.TknContract)
 	identifier := p.parseIdentifier()
 
+	// is and inherits can be in any order
+
+	var inherits []ast.ReferenceNode
+
 	if p.parseOptional(lexer.TknInherits) {
-
-	}
-
-	if p.parseOptional(lexer.TknIs) {
-
+		inherits = p.parseReferenceList()
 	}
 
 	p.parseRequired(lexer.TknOpenBrace)
 
-	p.scope.Declare("", ast.ContractDeclarationNode{
+	n := ast.ContractDeclarationNode{
 		Identifier: identifier,
+		Supers:     inherits,
 		IsAbstract: abstract,
-	})
+	}
+
+	p.scope.Declare("contract", n)
+
+	p.parent = p.scope
+	p.scope = n
 }
 
 func (p *Parser) parseParameters() []ast.Node {
-	return nil
+	var params []ast.Node
+	p.parseRequired(lexer.TknOpenBracket)
+
+	p.parseRequired(lexer.TknCloseBracket)
+	return params
 }
 
 func (p *Parser) parseResults() []ast.Node {
@@ -88,16 +132,20 @@ func parseFuncDeclaration(p *Parser) {
 
 	p.validate(ast.FuncDeclaration)
 
-	p.scope.Declare("func", ast.FuncDeclarationNode{
+	n := ast.FuncDeclarationNode{
 		Identifier: identifier,
 		Parameters: params,
 		Results:    results,
 		IsAbstract: abstract,
-	})
+	}
+
+	p.scope.Declare("func", n)
+
+	p.parent = p.scope
+	p.scope = n
 }
 
 func parseTypeDeclaration(p *Parser) {
-
 	p.parseRequired(lexer.TknType)
 	identifier := p.parseIdentifier()
 	//oldType := p.parseType()

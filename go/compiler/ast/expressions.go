@@ -152,7 +152,7 @@ func (n MapLiteralNode) Declare(key string, node Node) {
 }
 
 type ReferenceNode struct {
-	Name string
+	Names []string
 }
 
 func (n ReferenceNode) Type() NodeType { return Reference }
@@ -162,5 +162,5 @@ func (n ReferenceNode) Validate(t NodeType) bool {
 }
 
 func (n ReferenceNode) Declare(key string, node Node) {
-
+	// nothing
 }

@@ -14,6 +14,7 @@ type Lexer struct {
 	column int
 	Tokens []Token
 	errors []string
+	macros map[string]macro
 }
 
 func (l *Lexer) next() {
@@ -194,4 +195,11 @@ func processString(l *Lexer) Token {
 	}
 	t.end += 2
 	return *t
+}
+
+func (l *Lexer) error(msg string) {
+	if l.errors == nil {
+		l.errors = make([]string, 0)
+	}
+	l.errors = append(l.errors, msg)
 }

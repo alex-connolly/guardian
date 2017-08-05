@@ -26,7 +26,9 @@ func ParseString(data string) *Parser {
 }
 
 // ParseBytes ...
-func ParseBytes(data []byte) (p *Parser) {
+func ParseBytes(data []byte) *Parser {
+	p := new(Parser)
+	p.scope = ast.FileNode{}
 	p.lexer = lexer.LexBytes(data)
 	p.run()
 	return p

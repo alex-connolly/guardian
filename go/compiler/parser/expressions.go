@@ -37,18 +37,15 @@ func (p *Parser) parseExpression() ast.Node {
 	return p.parseReference()
 }
 
-func (p *Parser) parseUnaryExpression() ast.Node {
-	n := new(ast.UnaryExpressionNode)
+func (p *Parser) parseUnaryExpression() (n ast.UnaryExpressionNode) {
 	return n
 }
 
-func (p *Parser) parseBinaryExpression() ast.Node {
-	n := new(ast.BinaryExpressionNode)
+func (p *Parser) parseBinaryExpression() (n ast.BinaryExpressionNode) {
 	return n
 }
 
-func (p *Parser) parseCallExpression() ast.Node {
-	n := new(ast.CallExpressionNode)
+func (p *Parser) parseCallExpression() (n ast.CallExpressionNode) {
 	n.Name = p.parseIdentifier()
 	p.parseRequired(lexer.TknOpenBracket)
 	if !p.parseOptional(lexer.TknCloseBracket) {
@@ -58,9 +55,8 @@ func (p *Parser) parseCallExpression() ast.Node {
 	return n
 }
 
-func (p *Parser) parseArrayLiteral() ast.Node {
+func (p *Parser) parseArrayLiteral() (n ast.ArrayLiteralNode) {
 	// [string:3]{"Dog", "Cat", ""}
-	n := new(ast.ArrayLiteralNode)
 	p.parseRequired(lexer.TknOpenSquare)
 	n.Key = p.parseType()
 	if !p.parseOptional(lexer.TknCloseSquare) {
@@ -72,8 +68,7 @@ func (p *Parser) parseArrayLiteral() ast.Node {
 	return n
 }
 
-func (p *Parser) parseMapLiteral() ast.Node {
-	n := new(ast.MapLiteralNode)
+func (p *Parser) parseMapLiteral() (n ast.MapLiteralNode) {
 	p.parseRequired(lexer.TknMap)
 	p.parseRequired(lexer.TknOpenSquare)
 	n.Key = p.parseType()
@@ -103,15 +98,13 @@ func (p *Parser) parseExpressionList() (list []ast.Node) {
 	return list
 }
 
-func (p *Parser) parseIndexExpression() ast.Node {
-	n := new(ast.IndexExpressionNode)
+func (p *Parser) parseIndexExpression() (n ast.IndexExpressionNode) {
 	n.Expression = p.parseExpression()
 	n.Index = p.parseExpression()
 	return n
 }
 
-func (p *Parser) parseSliceExpression() ast.Node {
-	n := new(ast.SliceExpressionNode)
+func (p *Parser) parseSliceExpression() (n ast.SliceExpressionNode) {
 	n.Expression = p.parseExpression()
 	p.parseRequired(lexer.TknOpenSquare)
 	n.Low = p.parseExpression()
@@ -123,19 +116,20 @@ func (p *Parser) parseSliceExpression() ast.Node {
 	return n
 }
 
-func (p *Parser) parseReference() ast.Node {
-	n := new(ast.ReferenceNode)
-	n.Name = p.parseIdentifier()
+func (p *Parser) parseReference() (n ast.ReferenceNode) {
+	n.Names = make([]string, 0)
+	n.Names = append(n.Names, p.parseIdentifier())
+	for p.parseOptional(lexer.TknDot) {
+		n.Names = append(n.Names, p.parseIdentifier())
+	}
 	return n
 }
 
-func (p *Parser) parseLiteral() ast.Node {
-	n := new(ast.LiteralNode)
+func (p *Parser) parseLiteral() (n ast.LiteralNode) {
 	n.LiteralType = p.current().Type
 	return n
 }
 
-func (p *Parser) parseCompositeLiteral() ast.Node {
-	n := new(ast.CompositeLiteralNode)
+func (p *Parser) parseCompositeLiteral() (n ast.CompositeLiteralNode) {
 	return n
 }

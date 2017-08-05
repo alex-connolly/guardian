@@ -264,13 +264,13 @@ Represent the size before each parameter.
 
 ### Modifers
 
-Solidity uses access modifiers to control method access. In my view, access modifiers are distracting, and can be simply substituted for standard ```require``` statements.
+Solidity uses access modifiers to control method access. In my view, access modifiers are unnecessary, and can be simply substituted for standard ```require``` statements, or for functions where a condition must be duplicated over several methods.
 
 Solidity:
 
 ```go
-modifier local {
-
+modifier local(Location _loc) {
+    require(_loc == loc);
 }
 
 chat(msg string) local {

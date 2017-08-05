@@ -7,10 +7,11 @@ import (
 
 // Parser ...
 type Parser struct {
-	scope ast.Node
-	lexer *lexer.Lexer
-	index int
-	errs  []string
+	scope  ast.Node
+	parent ast.Node
+	lexer  *lexer.Lexer
+	index  int
+	errs   []string
 }
 
 func createParser(data string) *Parser {

@@ -42,6 +42,8 @@ func (n FuncDeclarationNode) Traverse() {
 type ClassDeclarationNode struct {
 	Identifier   string
 	IsAbstract   bool
+	Supers       []ReferenceNode
+	Interfaces   []ReferenceNode
 	declarations map[string][]Node
 }
 
@@ -63,6 +65,7 @@ type InterfaceDeclarationNode struct {
 	Identifier   string
 	IsAbstract   bool
 	Declarations []Node
+	Supers       []ReferenceNode
 }
 
 func (n InterfaceDeclarationNode) Type() NodeType { return InterfaceDeclaration }
@@ -82,6 +85,7 @@ func (n InterfaceDeclarationNode) Declare(key string, node Node) {
 type ContractDeclarationNode struct {
 	Identifier   string
 	IsAbstract   bool
+	Supers       []ReferenceNode
 	Declarations map[string][]Node
 }
 
@@ -129,4 +133,7 @@ func (n ArrayTypeNode) Validate(t NodeType) bool {
 
 func (n ArrayTypeNode) Declare(key string, node Node) {
 
+}
+
+type ParameterNode struct {
 }
