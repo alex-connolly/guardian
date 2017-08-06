@@ -25,10 +25,10 @@ func parseInterfaceDeclaration(p *Parser) {
 		IsAbstract: abstract,
 	}
 
-	p.scope.Declare("interface", n)
+	p.Scope.Declare("interface", n)
 
-	p.parent = p.scope
-	p.scope = n
+	p.parent = p.Scope
+	p.Scope = n
 }
 
 // like any list parser, but enforces that each node must be a reference
@@ -73,10 +73,10 @@ func parseClassDeclaration(p *Parser) {
 		IsAbstract: abstract,
 	}
 
-	p.scope.Declare("class", n)
+	p.Scope.Declare("class", n)
 
-	p.parent = p.scope
-	p.scope = n
+	p.parent = p.Scope
+	p.Scope = n
 }
 
 func parseContractDeclaration(p *Parser) {
@@ -101,10 +101,10 @@ func parseContractDeclaration(p *Parser) {
 		IsAbstract: abstract,
 	}
 
-	p.scope.Declare("contract", n)
+	p.Scope.Declare("contract", n)
 
-	p.parent = p.scope
-	p.scope = n
+	p.parent = p.Scope
+	p.Scope = n
 }
 
 func (p *Parser) parseParameters() []ast.Node {
@@ -139,10 +139,10 @@ func parseFuncDeclaration(p *Parser) {
 		IsAbstract: abstract,
 	}
 
-	p.scope.Declare("func", n)
+	p.Scope.Declare("func", n)
 
-	p.parent = p.scope
-	p.scope = n
+	p.parent = p.Scope
+	p.Scope = n
 }
 
 func parseTypeDeclaration(p *Parser) {
@@ -152,7 +152,7 @@ func parseTypeDeclaration(p *Parser) {
 
 	p.validate(ast.TypeDeclaration)
 
-	p.scope.Declare("type", ast.TypeDeclarationNode{
+	p.Scope.Declare("type", ast.TypeDeclarationNode{
 		Identifier: identifier,
 	})
 }
@@ -170,7 +170,7 @@ func parseMapType(p *Parser) {
 
 	p.validate(ast.MapType)
 
-	p.scope.Declare("", ast.MapTypeNode{
+	p.Scope.Declare("", ast.MapTypeNode{
 		Key:   key,
 		Value: value,
 	})
@@ -187,7 +187,7 @@ func parseArrayType(p *Parser) {
 	}
 	p.validate(ast.ArrayType)
 
-	p.scope.Declare("", ast.ArrayTypeNode{
+	p.Scope.Declare("", ast.ArrayTypeNode{
 	//Value: typ,
 	})
 }

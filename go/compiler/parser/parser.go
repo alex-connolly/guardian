@@ -7,7 +7,7 @@ import (
 
 // Parser ...
 type Parser struct {
-	scope  ast.Node
+	Scope  ast.Node
 	parent ast.Node
 	lexer  *lexer.Lexer
 	index  int
@@ -17,7 +17,7 @@ type Parser struct {
 func createParser(data string) *Parser {
 	p := new(Parser)
 	p.lexer = lexer.LexString(data)
-	p.scope = ast.FileNode{}
+	p.Scope = ast.FileNode{}
 	return p
 }
 
@@ -79,9 +79,9 @@ func (p *Parser) parseIdentifier() string {
 }
 
 func (p *Parser) validate(t ast.NodeType) {
-	if p.scope != nil {
-		if !p.scope.Validate(t) {
-			p.addError("Invalid declaration in scope")
+	if p.Scope != nil {
+		if !p.Scope.Validate(t) {
+			p.addError("Invalid declaration in Scope")
 		}
 	}
 }

@@ -6,9 +6,11 @@ import (
 	"testing"
 )
 
-func TestBooleanExpressionFor(t *testing.T) {
+func TestSinglePartExpressionFor(t *testing.T) {
 	p := ParseString("for x > 5 { }")
 	util.AssertNow(t, p.scope.Type() == ast.ForStatement, "wrong node type")
+	u := p.scope.(ast.ForStatementNode)
+	util.AssertNow(t, u.Init == nil, "should not have init node")
 }
 
 func TestInitExpressionFor(t *testing.T) {

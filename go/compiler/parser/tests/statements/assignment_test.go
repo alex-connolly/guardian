@@ -2,12 +2,13 @@ package statements
 
 import (
 	"axia/guardian/go/compiler/ast"
+	"axia/guardian/go/compiler/parser"
 	"axia/guardian/go/util"
 	"testing"
 )
 
 func TestSimpleLiteralAssignmentStatement(t *testing.T) {
-	p := ParseString("x = 5")
+	p := parser.ParseString("x = 5")
 	util.AssertNow(t, p.scope.Type() == ast.AssignmentStatement, "statement not recognised")
 	n := p.scope.(ast.AssignmentStatementNode)
 	util.AssertNow(t, len(n.Left) == 1, "should be one left value")
@@ -18,7 +19,7 @@ func TestSimpleLiteralAssignmentStatement(t *testing.T) {
 }
 
 func TestMultiToSingleLiteralAssignmentStatement(t *testing.T) {
-	p := ParseString("x, y = 5")
+	p := parser.ParseString("x, y = 5")
 	util.AssertNow(t, p.scope.Type() == ast.AssignmentStatement, "statement not recognised")
 	n := p.scope.(ast.AssignmentStatementNode)
 	util.AssertNow(t, len(n.Left) == 1, "should be two left values")
@@ -28,82 +29,82 @@ func TestMultiToSingleLiteralAssignmentStatement(t *testing.T) {
 }
 
 func TestMultiLiteralAssignmentStatement(t *testing.T) {
-	p := ParseString("x, y = 5, 3")
+	p := parser.ParseString("x, y = 5, 3")
 	util.AssertNow(t, p.scope.Type() == ast.AssignmentStatement, "statement not recognised")
 }
 
 func TestSimpleReferenceAssignmentStatement(t *testing.T) {
-	p := ParseString("x = a")
+	p := parser.ParseString("x = a")
 	util.AssertNow(t, p.scope.Type() == ast.AssignmentStatement, "statement not recognised")
 }
 
 func TestMultiToSingleReferenceAssignmentStatement(t *testing.T) {
-	p := ParseString("x, y = a")
+	p := parser.ParseString("x, y = a")
 	util.AssertNow(t, p.scope.Type() == ast.AssignmentStatement, "statement not recognised")
 }
 
 func TestMultiReferenceAssignmentStatement(t *testing.T) {
-	p := ParseString("x, y = a, b")
+	p := parser.ParseString("x, y = a, b")
 	util.AssertNow(t, p.scope.Type() == ast.AssignmentStatement, "statement not recognised")
 }
 
 func TestSimpleCallAssignmentStatement(t *testing.T) {
-	p := ParseString("x = a()")
+	p := parser.ParseString("x = a()")
 	util.AssertNow(t, p.scope.Type() == ast.AssignmentStatement, "statement not recognised")
 }
 
 func TestMultiToSingleCallAssignmentStatement(t *testing.T) {
-	p := ParseString("x, y = ab()")
+	p := parser.ParseString("x, y = ab()")
 	util.AssertNow(t, p.scope.Type() == ast.AssignmentStatement, "statement not recognised")
 }
 
 func TestMultiCallAssignmentStatement(t *testing.T) {
-	p := ParseString("x, y = a(), b()")
+	p := parser.ParseString("x, y = a(), b()")
 	util.AssertNow(t, p.scope.Type() == ast.AssignmentStatement, "statement not recognised")
 }
 
 func TestSimpleCompositeLiteralAssignmentStatement(t *testing.T) {
-	p := ParseString("x = Dog{}")
+	p := parser.ParseString("x = Dog{}")
 	util.AssertNow(t, p.scope.Type() == ast.AssignmentStatement, "statement not recognised")
 }
 
 func TestMultiToSingleCompositeLiteralAssignmentStatement(t *testing.T) {
-	p := ParseString("x, y = Dog{}")
+	p := parser.ParseString("x, y = Dog{}")
 	util.AssertNow(t, p.scope.Type() == ast.AssignmentStatement, "statement not recognised")
 }
 
 func TestMultiCompositeLiteralAssignmentStatement(t *testing.T) {
-	p := ParseString("x, y = Dog{}, Cat{}")
+	p := parser.ParseString("x, y = Dog{}, Cat{}")
 	util.AssertNow(t, p.scope.Type() == ast.AssignmentStatement, "statement not recognised")
 }
 
 func TestSimpleArrayLiteralAssignmentStatement(t *testing.T) {
-	p := ParseString("x = [int]{3, 5}")
+	p := parser.ParseString("x = [int]{3, 5}")
 	util.AssertNow(t, p.scope.Type() == ast.AssignmentStatement, "statement not recognised")
 }
 
 func TestMultiToSingleArrayLiteralAssignmentStatement(t *testing.T) {
-	p := ParseString("x, y = [int]{3, 5}")
+	p := parser.ParseString("x, y = [int]{3, 5}")
 	util.AssertNow(t, p.scope.Type() == ast.AssignmentStatement, "statement not recognised")
 }
 
 func TestMultiArrayLiteralAssignmentStatement(t *testing.T) {
-	p := ParseString("x, y = [int]{1, 2}, [int]{}")
+	p := parser.ParseString("x, y = [int]{1, 2}, [int]{}")
 	util.AssertNow(t, p.scope.Type() == ast.AssignmentStatement, "statement not recognised")
 }
 
 func TestSimpleMapLiteralAssignmentStatement(t *testing.T) {
-	p := ParseString("x = [int]{3, 5}")
+	p := parser.ParseString("x = [int]{3, 5}")
 	util.AssertNow(t, p.scope.Type() == ast.AssignmentStatement, "statement not recognised")
 }
 
 func TestMultiToSingleMapLiteralAssignmentStatement(t *testing.T) {
-	p := ParseString("x, y = [int]{3, 5}")
+	p := parser.ParseString("x, y = [int]{3, 5}")
 	util.AssertNow(t, p.scope.Type() == ast.AssignmentStatement, "statement not recognised")
 }
 
 func TestMultiMapLiteralAssignmentStatement(t *testing.T) {
-	p := ParseString(`x, y = map[int]string{1:"A", 2:"B"}, map[string]int{"A":3, "B": 4}`)
+	p := parser.ParseString(`x, y = map[int]string{1:"A", 2:"B"}, map[string]int{"A":3, "B": 4}`)
 	util.AssertNow(t, p.scope.Type() == ast.AssignmentStatement, "statement not recognised")
 
 }
