@@ -243,34 +243,40 @@ In Guardian, the above sequence of statements will always produce a result of 3.
 
 Both Ethereum and any future cryptocurrency built using fireVM use an Application Binary Interface (ABI) to specify the encoding of instructions.
 
-For Ethereum,
-
-Ethereum functions may be called in the following manner (stolen from the Solidity documentation):
+Ethereum functions may be called in the following manner (example stolen from the Solidity documentation):
 
 0xcdcd77c0: the Method ID. This is derived as the first 4 bytes of the Keccak hash of the ASCII form of the signature baz(uint32,bool).
 
 0x0000000000000000000000000000000000000000000000000000000000000045: the first parameter, a uint32 value 69 padded to 32 bytes
 0x0000000000000000000000000000000000000000000000000000000000000001: the second parameter - boolean true, padded to 32 bytes
 
-
-
 The total call, therefore, is:
 
-0xcdcd77c00x00000000000000000000000000000000000000000000000000000000000000450x0000000000000000000000000000000000000000000000000000000000000001
+0xcdcd77c000000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000001
 
-The same call in FireVM may be expressed as:
+The same call in FireVM may be expressed as (in hexadeciaml):
 
-Represent the size before each parameter.
+01        | size of size bytes
+cdcd77c0  | function signature
+01        | size of the next parameter
+45        | actual next parameter
+01        | size of the next parameter
+01        | actual next parameter
+
+The representation has been compressed from 68 bytes to 9 bytes.
+
+Of course, if the first n bytes of each contract was used to store the number of bytes used in each size byte, then the theoretical size of each parameter could be increased arbitrarily (but still by a capped amount). Currently, the FireVM uses only the first byte, meaning that each
 
 ### Modifers
 
-Solidity uses access modifiers to control method access. In my view, access modifiers are unnecessary, and can be simply substituted for standard ```require``` statements, or for functions where a condition must be duplicated over several methods.
+Solidity uses access modifiers to control method access. In my opinion, access modifiers can and should be substituted for standard ```require``` statements, or for functions if a condition must be duplicated over several methods.
 
 Solidity:
 
 ```go
 modifier local(Location _loc) {
     require(_loc == loc);
+    _;
 }
 
 chat(msg string) local {

@@ -32,8 +32,12 @@ func (p *Parser) parseExpression() ast.ExpressionNode {
 	case lexer.TknOpenSquare:
 		return p.parseArrayLiteral()
 	case lexer.TknString, lexer.TknCharacter, lexer.TknNumber:
-		//expr := p.parseLiteral()
-
+		expr := p.parseLiteral()
+		if p.current().Type.IsBinaryOperator() {
+			p.parseBinaryExpression(expr)
+		} else if p.current().Type.IsUnaryOperator() {
+			p.parsePostfixUnaryExpression(expr)
+		}
 		break
 	case lexer.TknIdentifier:
 		expr := p.parseReference()
@@ -43,6 +47,8 @@ func (p *Parser) parseExpression() ast.ExpressionNode {
 			break
 		case lexer.TknOpenBrace:
 			return p.parseCompositeLiteral(expr)
+		case lexer.TknOpenSquare:
+			p.parseIndexExpression() // TODO: could be slice
 		}
 		if p.current().Type.IsBinaryOperator() {
 			p.parseBinaryExpression(expr)
@@ -50,7 +56,7 @@ func (p *Parser) parseExpression() ast.ExpressionNode {
 			p.parsePostfixUnaryExpression(expr)
 		}
 		break
-	case lexer.TknNot:
+	case lexer.TknNot, lexer.TknIncrement, lexer.TknDecrement:
 		// prefix unary operator
 		p.parsePrefixUnaryExpression()
 		break
@@ -66,6 +72,8 @@ func (p *Parser) parsePrefixUnaryExpression() (n ast.UnaryExpressionNode) {
 }
 
 func (p *Parser) parsePostfixUnaryExpression(expr ast.ExpressionNode) (n ast.UnaryExpressionNode) {
+	n.Operand = expr
+	n.Operator = p.current().Type
 	return n
 }
 
@@ -158,6 +166,7 @@ func (p *Parser) parseReference() (n ast.ReferenceNode) {
 
 func (p *Parser) parseLiteral() (n ast.LiteralNode) {
 	n.LiteralType = p.current().Type
+	n.Data = p.lexer.TokenString(p.current())
 	return n
 }
 
