@@ -2,12 +2,13 @@ package declarations
 
 import (
 	"axia/guardian/go/compiler/ast"
+	"axia/guardian/go/compiler/parser"
 	"axia/guardian/go/util"
 	"testing"
 )
 
 func TestParseInterfaceDeclaration(t *testing.T) {
-	p := ParseString("interface Dog {")
+	p := parser.ParseString("interface Dog {")
 	util.AssertNow(t, p.Scope.Type() == ast.InterfaceDeclaration, "wrong Scope type")
 	n := p.Scope.(ast.InterfaceDeclarationNode)
 	util.Assert(t, n.Identifier == "Dog", "wrong identifier")
@@ -15,7 +16,7 @@ func TestParseInterfaceDeclaration(t *testing.T) {
 }
 
 func TestParseAbstractInterfaceDeclaration(t *testing.T) {
-	p := ParseString("abstract interface Dog {")
+	p := parser.ParseString("abstract interface Dog {")
 	util.AssertNow(t, p.Scope.Type() == ast.InterfaceDeclaration, "wrong Scope type")
 	n := p.Scope.(ast.InterfaceDeclarationNode)
 	util.Assert(t, n.Identifier == "Dog", "wrong identifier")
@@ -23,7 +24,7 @@ func TestParseAbstractInterfaceDeclaration(t *testing.T) {
 }
 
 func TestParseInterfaceDeclarationSingleSuper(t *testing.T) {
-	p := ParseString("interface Dog inherits Animal {")
+	p := parser.ParseString("interface Dog inherits Animal {")
 	util.AssertNow(t, p.Scope.Type() == ast.InterfaceDeclaration, "wrong Scope type")
 	n := p.Scope.(ast.InterfaceDeclarationNode)
 	util.Assert(t, n.Identifier == "Dog", "wrong identifier")
@@ -32,7 +33,7 @@ func TestParseInterfaceDeclarationSingleSuper(t *testing.T) {
 }
 
 func TestParseInterfaceDeclarationMultipleSupers(t *testing.T) {
-	p := ParseString("interface Dog inherits Animal, Quadriped {")
+	p := parser.ParseString("interface Dog inherits Animal, Quadriped {")
 	util.AssertNow(t, p.Scope.Type() == ast.InterfaceDeclaration, "wrong Scope type")
 	n := p.Scope.(ast.InterfaceDeclarationNode)
 	util.Assert(t, n.Identifier == "Dog", "wrong identifier")
@@ -41,7 +42,7 @@ func TestParseInterfaceDeclarationMultipleSupers(t *testing.T) {
 }
 
 func TestParseFullInterfaceDeclaration(t *testing.T) {
-	p := ParseString(`interface Dog {
+	p := parser.ParseString(`interface Dog {
 			walk(int position) bool
 		}`)
 	util.Assert(t, p != nil, "parser is nil")

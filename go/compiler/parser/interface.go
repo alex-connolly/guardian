@@ -15,7 +15,7 @@ func ParseFile(path string) (p *Parser) {
 		return nil
 	}
 	p.lexer = lexer.LexBytes(bytes)
-	p.scope = ast.FileNode{}
+	p.Scope = ast.FileNode{}
 	p.run()
 	return p
 }
@@ -28,7 +28,7 @@ func ParseString(data string) *Parser {
 // ParseBytes ...
 func ParseBytes(data []byte) *Parser {
 	p := new(Parser)
-	p.scope = ast.FileNode{}
+	p.Scope = ast.FileNode{}
 	p.lexer = lexer.LexBytes(data)
 	p.run()
 	return p

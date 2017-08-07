@@ -18,7 +18,7 @@ func parseReturnStatement(p *Parser) {
 	}
 	p.parseRequired(lexer.TknCloseBracket)
 
-	p.scope.Validate(ast.ReturnStatement)
+	p.Scope.Validate(ast.ReturnStatement)
 }
 
 func parseAssignmentStatement(p *Parser) {
@@ -37,9 +37,9 @@ func parseAssignmentStatement(p *Parser) {
 		to = append(to, p.parseExpression())
 	}
 
-	p.scope.Validate(ast.AssignmentStatement)
+	p.Scope.Validate(ast.AssignmentStatement)
 
-	p.scope.Declare("Assignment", ast.AssignmentStatementNode{
+	p.Scope.Declare("Assignment", ast.AssignmentStatementNode{
 		Left:  assigned,
 		Right: to,
 	})

@@ -122,6 +122,7 @@ func (p *Parser) parseResults() []ast.Node {
 func parseFuncDeclaration(p *Parser) {
 
 	abstract := p.parseOptional(lexer.TknAbstract)
+
 	identifier := p.parseIdentifier()
 
 	params := p.parseParameters()
@@ -148,13 +149,17 @@ func parseFuncDeclaration(p *Parser) {
 func parseTypeDeclaration(p *Parser) {
 	p.parseRequired(lexer.TknType)
 	identifier := p.parseIdentifier()
-	//oldType := p.parseType()
+
+	value := p.parseReference()
 
 	p.validate(ast.TypeDeclaration)
 
-	p.Scope.Declare("type", ast.TypeDeclarationNode{
+	n := ast.TypeDeclarationNode{
 		Identifier: identifier,
-	})
+		Value:      value,
+	}
+
+	p.Scope.Declare("type", n)
 }
 
 func parseMapType(p *Parser) {

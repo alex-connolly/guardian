@@ -2,8 +2,10 @@ package ast
 
 type TypeDeclarationNode struct {
 	Identifier string
+	Value      ReferenceNode
 }
 
+// Type ...
 func (n TypeDeclarationNode) Type() NodeType { return TypeDeclaration }
 
 func (n TypeDeclarationNode) Validate(t NodeType) bool {

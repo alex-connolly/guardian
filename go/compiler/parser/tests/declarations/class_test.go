@@ -2,31 +2,32 @@ package declarations
 
 import (
 	"axia/guardian/go/compiler/ast"
+	"axia/guardian/go/compiler/parser"
 	"axia/guardian/go/util"
 	"fmt"
 	"testing"
 )
 
 func TestParseBasicClassDeclaration(t *testing.T) {
-	p := ParseString("class Dog {")
-	util.AssertNow(t, p.scope.Type() == ast.ClassDeclaration, "wrong scope type")
-	n := p.scope.(ast.ClassDeclarationNode)
+	p := parser.ParseString("class Dog {")
+	util.AssertNow(t, p.Scope.Type() == ast.ClassDeclaration, "wrong Scope type")
+	n := p.Scope.(ast.ClassDeclarationNode)
 	util.Assert(t, n.Identifier == "Dog", "wrong identifier")
 	util.Assert(t, !n.IsAbstract, "wrong abstract")
 }
 
 func TestParseAbstractClassDeclaration(t *testing.T) {
-	p := ParseString("abstract class Dog {")
-	util.AssertNow(t, p.scope.Type() == ast.ClassDeclaration, "wrong scope type")
-	n := p.scope.(ast.ClassDeclarationNode)
+	p := parser.ParseString("abstract class Dog {")
+	util.AssertNow(t, p.Scope.Type() == ast.ClassDeclaration, "wrong Scope type")
+	n := p.Scope.(ast.ClassDeclarationNode)
 	util.Assert(t, n.Identifier == "Dog", "wrong identifier")
 	util.Assert(t, n.IsAbstract, "wrong abstract")
 }
 
 func TestParseInheritingClassDeclaration(t *testing.T) {
-	p := ParseString("class Dog inherits Animal, Thing {")
-	util.AssertNow(t, p.scope.Type() == ast.ClassDeclaration, "wrong scope type")
-	n := p.scope.(ast.ClassDeclarationNode)
+	p := parser.ParseString("class Dog inherits Animal, Thing {")
+	util.AssertNow(t, p.Scope.Type() == ast.ClassDeclaration, "wrong Scope type")
+	n := p.Scope.(ast.ClassDeclarationNode)
 	util.Assert(t, n.Identifier == "Dog", "wrong identifier")
 	util.Assert(t, !n.IsAbstract, "wrong abstract")
 	util.AssertNow(t, len(n.Supers) == 2, "wrong number of super classes")
@@ -34,9 +35,9 @@ func TestParseInheritingClassDeclaration(t *testing.T) {
 }
 
 func TestParseInterfacingClassDeclaration(t *testing.T) {
-	p := ParseString("class Dog is Noisy, Walkable {")
-	util.AssertNow(t, p.scope.Type() == ast.ClassDeclaration, "wrong scope type")
-	n := p.scope.(ast.ClassDeclarationNode)
+	p := parser.ParseString("class Dog is Noisy, Walkable {")
+	util.AssertNow(t, p.Scope.Type() == ast.ClassDeclaration, "wrong Scope type")
+	n := p.Scope.(ast.ClassDeclarationNode)
 	util.Assert(t, n.Identifier == "Dog", "wrong identifier")
 	util.Assert(t, !n.IsAbstract, "wrong abstract")
 	util.AssertNow(t, len(n.Supers) == 0, "wrong number of super classes")
@@ -44,9 +45,9 @@ func TestParseInterfacingClassDeclaration(t *testing.T) {
 }
 
 func TestParseMultipleInterfacesFirstClassDeclaration(t *testing.T) {
-	p := ParseString("class Dog is Noisy, Walkable inherits Animal, Thing {")
-	util.AssertNow(t, p.scope.Type() == ast.ClassDeclaration, "wrong scope type")
-	n := p.scope.(ast.ClassDeclarationNode)
+	p := parser.ParseString("class Dog is Noisy, Walkable inherits Animal, Thing {")
+	util.AssertNow(t, p.Scope.Type() == ast.ClassDeclaration, "wrong Scope type")
+	n := p.Scope.(ast.ClassDeclarationNode)
 	util.Assert(t, n.Identifier == "Dog", "wrong identifier")
 	util.Assert(t, !n.IsAbstract, "wrong abstract")
 	util.AssertNow(t, len(n.Supers) == 2, "wrong number of super classes")
@@ -54,9 +55,9 @@ func TestParseMultipleInterfacesFirstClassDeclaration(t *testing.T) {
 }
 
 func TestParseSingleSuperFirstClassDeclaration(t *testing.T) {
-	p := ParseString("class Dog inherits Animal is Noisy, Walkable {")
-	util.AssertNow(t, p.scope.Type() == ast.ClassDeclaration, "wrong scope type")
-	n := p.scope.(ast.ClassDeclarationNode)
+	p := parser.ParseString("class Dog inherits Animal is Noisy, Walkable {")
+	util.AssertNow(t, p.Scope.Type() == ast.ClassDeclaration, "wrong Scope type")
+	n := p.Scope.(ast.ClassDeclarationNode)
 	util.Assert(t, n.Identifier == "Dog", "wrong identifier")
 	util.Assert(t, !n.IsAbstract, "wrong abstract")
 	util.AssertNow(t, len(n.Supers) == 1, "wrong number of super classes")
@@ -64,9 +65,9 @@ func TestParseSingleSuperFirstClassDeclaration(t *testing.T) {
 }
 
 func TestParseSingleInterfaceFirstClassDeclaration(t *testing.T) {
-	p := ParseString("class Dog is Noisy inherits Animal, Thing {")
-	util.AssertNow(t, p.scope.Type() == ast.ClassDeclaration, "wrong scope type")
-	n := p.scope.(ast.ClassDeclarationNode)
+	p := parser.ParseString("class Dog is Noisy inherits Animal, Thing {")
+	util.AssertNow(t, p.Scope.Type() == ast.ClassDeclaration, "wrong Scope type")
+	n := p.Scope.(ast.ClassDeclarationNode)
 	util.Assert(t, n.Identifier == "Dog", "wrong identifier")
 	util.Assert(t, !n.IsAbstract, "wrong abstract")
 	util.AssertNow(t, len(n.Supers) == 2, "wrong number of super classes")
@@ -74,9 +75,9 @@ func TestParseSingleInterfaceFirstClassDeclaration(t *testing.T) {
 }
 
 func TestParseFullClassDeclaration(t *testing.T) {
-	p := ParseString("abstract class Dog inherits Animal, Thing is Noisy, Walkable {")
-	util.AssertNow(t, p.scope.Type() == ast.ClassDeclaration, "wrong scope type")
-	n := p.scope.(ast.ClassDeclarationNode)
+	p := parser.ParseString("abstract class Dog inherits Animal, Thing is Noisy, Walkable {")
+	util.AssertNow(t, p.Scope.Type() == ast.ClassDeclaration, "wrong Scope type")
+	n := p.Scope.(ast.ClassDeclarationNode)
 	util.Assert(t, n.Identifier == "Dog", "wrong identifier")
 	util.Assert(t, n.IsAbstract, "wrong abstract")
 	util.AssertNow(t, len(n.Supers) == 2, "wrong number of super classes")
@@ -84,11 +85,11 @@ func TestParseFullClassDeclaration(t *testing.T) {
 }
 
 func TestParseMultilineClassDeclaration(t *testing.T) {
-	p := ParseString(`abstract class Dog
+	p := parser.ParseString(`abstract class Dog
 		inherits Animal, Thing
 		is Noisy, Walkable {`)
-	util.AssertNow(t, p.scope.Type() == ast.ClassDeclaration, "wrong scope type")
-	n := p.scope.(ast.ClassDeclarationNode)
+	util.AssertNow(t, p.Scope.Type() == ast.ClassDeclaration, "wrong Scope type")
+	n := p.Scope.(ast.ClassDeclarationNode)
 	util.Assert(t, n.Identifier == "Dog", "wrong identifier")
 	util.Assert(t, n.IsAbstract, "wrong abstract")
 	util.AssertNow(t, len(n.Supers) == 2, "wrong number of super classes")

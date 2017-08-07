@@ -31,6 +31,7 @@ func (n LiteralNode) Type() NodeType { return Literal }
 
 type CompositeLiteralNode struct {
 	Reference ExpressionNode
+	Fields    map[string]ExpressionNode
 }
 
 func (n CompositeLiteralNode) Type() NodeType { return CompositeLiteral }
