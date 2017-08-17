@@ -32,17 +32,7 @@ If you select an older Guardian version to run your , nodes which do not have
 
 ## Exported Variables
 
-Guardian does not use ```public``` or ```private``` modifiers. Functions and Variables may be exported, as in Go, through giving their identifier a capital letter. Other contracts may only interact with exported declarations.
-
-```go
-contract Test {
-
-    class Dog{} // exported
-    class cat{} // not exported
-}
-```
-
-However, Guardian does not require exported declarations to be commented, or enforce any sort of syntax requirement on those comments (just comment where needed and avoid redundancy).
+Guardian is private by default. To increase clarity, the ```public``` keyword is replaced by ```export```.
 
 ## Imports
 
@@ -55,7 +45,7 @@ import "guard"
 contract Watcher {
 
     guard(){
-        Guard() // this is a function from guard.grd
+        guard.Guard() // this is a function from guard.grd
     }
 }
 
@@ -254,7 +244,7 @@ The total call, therefore, is:
 
 0xcdcd77c000000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000001
 
-The same call in FireVM may be expressed as (in hexadeciaml):
+The same call in FireVM may be expressed as (in hexadecimal), as 01cdcd77c001450101:
 
 01        | size of size bytes
 cdcd77c0  | function signature
@@ -264,6 +254,8 @@ cdcd77c0  | function signature
 01        | actual next parameter
 
 The representation has been compressed from 68 bytes to 9 bytes.
+
+This saving is not universal - for instance, where all 32 bytes of a value are used, the encoding actually wastes a byte, but it provides savings in the vast majority of cases (particularly as values tend to cluster in the lower ranges of the potential space capacity).
 
 Of course, if the first n bytes of each contract was used to store the number of bytes used in each size byte, then the theoretical size of each parameter could be increased arbitrarily (but still by a capped amount). Currently, the FireVM uses only the first byte, meaning that each
 

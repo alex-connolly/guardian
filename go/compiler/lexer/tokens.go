@@ -49,7 +49,6 @@ const (
 	TknMul          // *
 	TknDiv          // /
 	TknMod          // %
-	TknAddress      // @
 
 	TknIncrement // ++
 	TknDecrement // --
@@ -193,7 +192,6 @@ func getProtoTokens() []protoToken {
 		createFixed("<<", TknShl),
 		createFixed(">>=", TknShrAssign),
 		createFixed(">>", TknShr),
-		createFixed("@", TknAddress),
 
 		createFixed("<-", TknArrowLeft),
 		createFixed(">-", TknArrowRight),

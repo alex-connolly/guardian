@@ -30,7 +30,8 @@ func isContractDeclaration(p *Parser) bool {
 
 func isFuncDeclaration(p *Parser) bool {
 	if p.index+2 < len(p.lexer.Tokens) {
-		return p.current().Type == lexer.TknIdentifier && p.token(1).Type == lexer.TknOpenBracket
+		return p.current().Type == lexer.TknIdentifier && p.token(1).Type == lexer.TknOpenBracket ||
+			p.current().Type == lexer.TknAbstract && p.token(1).Type == lexer.TknIdentifier
 	}
 	return false
 }

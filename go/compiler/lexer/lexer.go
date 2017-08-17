@@ -35,10 +35,7 @@ func (l *Lexer) next() {
 		}
 	}
 	if !found {
-		if l.errors == nil {
-			l.errors = make([]string, 0)
-		}
-		l.errors = append(l.errors, "Unrecognised Token.")
+		l.error("Unrecognised Token.")
 		l.offset++
 	}
 	l.next()
