@@ -1,10 +1,11 @@
 package parser
 
 import (
-	"axia/guardian/go/compiler/ast"
-	"axia/guardian/go/compiler/lexer"
 	"io/ioutil"
 	"log"
+
+	"github.com/end-r/guardian/go/compiler/ast"
+	"github.com/end-r/guardian/go/compiler/lexer"
 )
 
 // ParseFile ...

@@ -1,10 +1,11 @@
 package declarations
 
 import (
-	"axia/guardian/go/compiler/ast"
-	"axia/guardian/go/compiler/parser"
-	"axia/guardian/go/util"
 	"testing"
+
+	"github.com/end-r/guardian/go/compiler/ast"
+	"github.com/end-r/guardian/go/compiler/parser"
+	"github.com/end-r/guardian/go/util"
 )
 
 func TestParseContractDeclaration(t *testing.T) {

@@ -1,9 +1,10 @@
 package parser
 
 import (
-	"axia/guardian/go/compiler/ast"
-	"axia/guardian/go/util"
 	"testing"
+
+	"github.com/end-r/guardian/go/compiler/ast"
+	"github.com/end-r/guardian/go/util"
 )
 
 func TestEmptyFile(t *testing.T) {

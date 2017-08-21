@@ -23,6 +23,10 @@ func (n FileNode) Declare(key string, node Node) {
 
 }
 
+func (n FileNode) Traverse(vm *vmgen.VM) {
+
+}
+
 type PackageNode struct {
 	name string
 }
@@ -33,6 +37,10 @@ func (n PackageNode) Validate(t NodeType) bool {
 	return true
 }
 func (n PackageNode) Declare(key string, node Node) {
+
+}
+
+func (n PackageNode) Traverse(vm *vmgen.VM) {
 
 }
 

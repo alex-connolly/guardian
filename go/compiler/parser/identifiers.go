@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"axia/guardian/go/compiler/lexer"
+	"github.com/end-r/guardian/go/compiler/lexer"
 )
 
 func isClassDeclaration(p *Parser) bool {

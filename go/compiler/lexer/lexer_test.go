@@ -1,9 +1,10 @@
 package lexer
 
 import (
-	"axia/guardian/go/util"
 	"fmt"
 	"testing"
+
+	"github.com/end-r/guardian/go/util"
 )
 
 func TestLexerTokenLength(t *testing.T) {

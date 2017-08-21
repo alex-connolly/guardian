@@ -1,8 +1,9 @@
 package parser
 
 import (
-	"axia/guardian/go/util"
 	"testing"
+
+	"github.com/end-r/guardian/go/util"
 )
 
 func TestIsClassDeclaration(t *testing.T) {

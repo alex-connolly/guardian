@@ -34,7 +34,7 @@ type UnaryExpressionNode struct {
 
 func (n UnaryExpressionNode) Type() NodeType { return UnaryExpression }
 
-func (n UnaryExpressionNode) Traverse(vm vmgen.VM) {
+func (n UnaryExpressionNode) Traverse(vm *vmgen.VM) {
 	switch n.Operator {
 	case lexer.TknNot:
 		// push data
@@ -160,6 +160,6 @@ type ReferenceNode struct {
 
 func (n ReferenceNode) Type() NodeType { return Reference }
 
-func (n ReferenceNode) Traverse(vm vmgen.VM) {
+func (n ReferenceNode) Traverse(vm *vmgen.VM) {
 
 }

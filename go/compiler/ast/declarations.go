@@ -18,7 +18,7 @@ func (n TypeDeclarationNode) Declare(key string, node Node) {
 
 }
 
-func (n TypeDeclarationNode) Traverse() {
+func (n TypeDeclarationNode) Traverse(vm *vmgen.VM) {
 
 }
 
@@ -39,7 +39,7 @@ func (n FuncDeclarationNode) Declare(key string, node Node) {
 
 }
 
-func (n FuncDeclarationNode) Traverse() {
+func (n FuncDeclarationNode) Traverse(vm *vmgen.VM) {
 
 }
 
@@ -88,6 +88,10 @@ func (n InterfaceDeclarationNode) Validate(t NodeType) bool {
 
 func (n InterfaceDeclarationNode) Declare(key string, node Node) {
 	n.Declarations = append(n.Declarations, node)
+}
+
+func (n InterfaceDeclarationNode) Traverse(vm *vmgen.VM) {
+
 }
 
 type ContractDeclarationNode struct {
@@ -145,6 +149,10 @@ func (n MapTypeNode) Declare(key string, node Node) {
 
 }
 
+func (n MapTypeNode) Traverse(vm *vmgen.VM) {
+
+}
+
 type ArrayTypeNode struct {
 	Value Node
 }
@@ -156,6 +164,10 @@ func (n ArrayTypeNode) Validate(t NodeType) bool {
 }
 
 func (n ArrayTypeNode) Declare(key string, node Node) {
+
+}
+
+func (n ArrayTypeNode) Traverse(vm *vmgen.VM) {
 
 }
 

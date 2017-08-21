@@ -1,8 +1,8 @@
 package parser
 
 import (
-	"axia/guardian/go/compiler/ast"
-	"axia/guardian/go/compiler/lexer"
+	"github.com/end-r/guardian/go/compiler/ast"
+	"github.com/end-r/guardian/go/compiler/lexer"
 )
 
 // Parser ...

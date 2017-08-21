@@ -1,11 +1,12 @@
 package declarations
 
 import (
-	"axia/guardian/go/compiler/ast"
-	"axia/guardian/go/compiler/parser"
-	"axia/guardian/go/util"
 	"fmt"
 	"testing"
+
+	"github.com/end-r/guardian/go/compiler/ast"
+	"github.com/end-r/guardian/go/compiler/parser"
+	"github.com/end-r/guardian/go/util"
 )
 
 func TestParseBasicClassDeclaration(t *testing.T) {
