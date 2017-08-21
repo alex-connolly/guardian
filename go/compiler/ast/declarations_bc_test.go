@@ -2,16 +2,20 @@ package ast
 
 import (
 	"testing"
+
+	"github.com/end-r/guardian/go/compiler/parser"
+
+	"github.com/end-r/firevm"
 )
 
 func TestBytecodeClassDeclaration(t *testing.T) {
-	p := ParseString(
+	p := parser.ParseString(
 		`contract Tester {
             var x = 5
             const y = 10
         }`)
-	vm := firevm.Create()
-	Traverse(vm, p.Scope)
+	vm := firevm.NewVM()
+	Traverse(vm, p.scope)
 	checkMnemonics(t, vm.Instructions, []string{
 		"PUSH", // push string data
 		"PUSH", // push hash(x)
@@ -21,13 +25,13 @@ func TestBytecodeClassDeclaration(t *testing.T) {
 }
 
 func TestBytecodeFuncDeclaration(t *testing.T) {
-	p := ParseString(
+	p := parser.ParseString(
 		`contract Tester {
             add(a, b int) int {
                 return a + b
             }
         }`)
-	vm := firevm.Create()
+	vm := firevm.NewVM()
 	Traverse(vm, p.Scope)
 	checkMnemonics(t, vm.Instructions, []string{
 		"PUSH",   // push string data

@@ -1,10 +1,13 @@
 package ast
 
+import "github.com/end-r/vmgen"
+
 // Node interface for storage in AST
 type Node interface {
 	Type() NodeType
 	Validate(NodeType) bool
 	Declare(string, Node)
+	Traverse(*vmgen.VM)
 }
 
 type FileNode struct {

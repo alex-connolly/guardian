@@ -1,5 +1,7 @@
 package ast
 
+import "github.com/end-r/vmgen"
+
 type TypeDeclarationNode struct {
 	Identifier string
 	Value      ReferenceNode
@@ -63,7 +65,7 @@ func (n ClassDeclarationNode) Declare(key string, node Node) {
 
 }
 
-func (n ClassDeclarationNode) Traverse(vm *firevm.VM){
+func (n ClassDeclarationNode) Traverse(vm *vmgen.VM) {
 
 }
 
@@ -112,12 +114,19 @@ func (n ContractDeclarationNode) Declare(key string, node Node) {
 	n.Declarations[key] = append(n.Declarations[key], node)
 }
 
-func (n ContractDeclarationNode) Traverse(vm *firevm.VM){
+func (n ContractDeclarationNode) Traverse(vm *vmgen.VM) {
 	// find our variable declarations
-	for _, decl range n.declarations["field"] {
-		bytes := []byte(decl.identifier)
-		vm.AddInstruction("PUSH", len(bytes), bytes)
-		vm.AddInstruction("STORE")
+	for _, decl := range n.Declarations["field"] {
+		decl.Type()
+		// set key
+		bytes := []byte("decl")
+		params := make([]byte, 0)
+		params = append(params, byte(len(bytes)))
+		params = append(params, bytes...)
+		vm.AddBytecode("PUSH", params...)
+		// set value (default value)
+		vm.AddBytecode("PUSH")
+		vm.AddBytecode("STORE")
 	}
 }
 

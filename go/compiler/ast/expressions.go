@@ -1,15 +1,14 @@
 package ast
 
 import (
-	"encoding/binary"
+	"github.com/end-r/vmgen"
 
-	"github.com/end-r/firevm"
 	"github.com/end-r/guardian/go/compiler/lexer"
 )
 
 type ExpressionNode interface {
 	Type() NodeType
-	Traverse(firevm.VM)
+	Traverse(*vmgen.VM)
 }
 
 // BinaryExpressionNode ...
@@ -21,7 +20,7 @@ type BinaryExpressionNode struct {
 // Type ...
 func (n BinaryExpressionNode) Type() NodeType { return BinaryExpression }
 
-func (n BinaryExpressionNode) Traverse(vm firevm.VM) {
+func (n BinaryExpressionNode) Traverse(vm *vmgen.VM) {
 	n.Left.Traverse(vm)
 	n.Right.Traverse(vm)
 	//bytecode.TraverseOperator(vm, n.Operator)
@@ -35,12 +34,12 @@ type UnaryExpressionNode struct {
 
 func (n UnaryExpressionNode) Type() NodeType { return UnaryExpression }
 
-func (n UnaryExpressionNode) Traverse(vm firevm.VM) {
+func (n UnaryExpressionNode) Traverse(vm vmgen.VM) {
 	switch n.Operator {
 	case lexer.TknNot:
 		// push data
 		// add not instruction
-		vm.AddInstruction("NOT")
+		vm.AddBytecode("NOT")
 		break
 	}
 }
@@ -52,26 +51,17 @@ type LiteralNode struct {
 
 func (n LiteralNode) Type() NodeType { return Literal }
 
-func (n LiteralNode) Traverse(vm firevm.VM) {
+func (n LiteralNode) Traverse(vm *vmgen.VM) {
 	// Literal Nodes are directly converted to push instructions
 	parameters := make([]byte, 0)
 	bytes := n.GetBytes()
-	parameters = append(parameters, len(bytes))
+	parameters = append(parameters, byte(len(bytes)))
 	parameters = append(parameters, bytes...)
-	vm.AddInstruction("PUSH", parameters...)
+	vm.AddBytecode("PUSH", parameters...)
 }
 
 func (n LiteralNode) GetBytes() []byte {
-	switch n.LiteralType {
-	case lexer.String:
-		return []byte(n.Data)
-	case lexer.Int:
-		bs := make([]byte, 4)
-		binary.LittleEndian.PutUint32(bs, 31415926)
-		return []byte()
-	case lexer.Float:
-
-	}
+	return nil
 }
 
 type CompositeLiteralNode struct {
@@ -81,10 +71,8 @@ type CompositeLiteralNode struct {
 
 func (n CompositeLiteralNode) Type() NodeType { return CompositeLiteral }
 
-func (n CompositeLiteralNode) Traverse(vm firevm.VM) {
-	for k, v := range n.Fields {
+func (n CompositeLiteralNode) Traverse(vm *vmgen.VM) {
 
-	}
 }
 
 type IndexExpressionNode struct {
@@ -94,12 +82,12 @@ type IndexExpressionNode struct {
 
 func (n IndexExpressionNode) Type() NodeType { return IndexExpression }
 
-func (n IndexExpressionNode) Traverse(vm firevm.VM) {
+func (n IndexExpressionNode) Traverse(vm *vmgen.VM) {
 	// evaluate the index
 	n.Index.Traverse(vm)
 	// then MLOAD it at the index offset
 	n.Expression.Traverse(vm)
-	vm.AddInstruction("GET")
+	vm.AddBytecode("GET")
 }
 
 type SliceExpressionNode struct {
@@ -110,7 +98,7 @@ type SliceExpressionNode struct {
 
 func (n SliceExpressionNode) Type() NodeType { return SliceExpression }
 
-func (n SliceExpressionNode) Traverse(vm firevm.VM) {
+func (n SliceExpressionNode) Traverse(vm *vmgen.VM) {
 
 }
 
@@ -121,10 +109,11 @@ type CallExpressionNode struct {
 
 func (n CallExpressionNode) Type() NodeType { return CallExpression }
 
-func (n CallExpressionNode) Traverse(vm firevm.VM) {
+func (n CallExpressionNode) Traverse(vm *vmgen.VM) {
 	// push arguments onto the stack
 	for _, a := range n.Arguments {
-		n.Traverse()
+		a.Type()
+		n.Traverse(vm)
 		// return values should be on the stack right now
 	}
 
@@ -138,13 +127,13 @@ type ArrayLiteralNode struct {
 
 func (n ArrayLiteralNode) Type() NodeType { return ArrayLiteral }
 
-func (n ArrayLiteralNode) Traverse(vm firevm.VM) {
+func (n ArrayLiteralNode) Traverse(vm *vmgen.VM) {
 	for _, en := range n.Data {
 		en.Traverse(vm)
 	}
 	// push the size of the array
-	vm.AddInstruction("PUSH", byte(1), byte(len(n.Data)))
-	vm.AddInstruction("ARRAY")
+	vm.AddBytecode("PUSH", byte(1), byte(len(n.Data)))
+	vm.AddBytecode("ARRAY")
 }
 
 type MapLiteralNode struct {
@@ -155,14 +144,14 @@ type MapLiteralNode struct {
 
 func (n MapLiteralNode) Type() NodeType { return MapLiteral }
 
-func (n MapLiteralNode) Traverse(vm firevm.VM) {
+func (n MapLiteralNode) Traverse(vm *vmgen.VM) {
 	for k, v := range n.Data {
 		k.Traverse(vm)
 		v.Traverse(vm)
 	}
 	// push the size of the map
-	vm.AddInstruction("PUSH", byte(1), byte(len(n.Data)))
-	vn.AddInstruction("MAP")
+	vm.AddBytecode("PUSH", byte(1), byte(len(n.Data)))
+	vm.AddBytecode("MAP")
 }
 
 type ReferenceNode struct {
@@ -171,6 +160,6 @@ type ReferenceNode struct {
 
 func (n ReferenceNode) Type() NodeType { return Reference }
 
-func (n ReferenceNode) Traverse(vm firevm.VM) {
+func (n ReferenceNode) Traverse(vm vmgen.VM) {
 
 }

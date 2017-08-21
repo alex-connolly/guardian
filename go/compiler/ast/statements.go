@@ -1,5 +1,7 @@
 package ast
 
+import "github.com/end-r/vmgen"
+
 type AssignmentStatementNode struct {
 	Left  []ExpressionNode
 	Right []ExpressionNode
@@ -15,19 +17,20 @@ func (n AssignmentStatementNode) Declare(key string, node Node) {
 
 }
 
-func (n AssignmentStatementNode) Traverse(vm firevm.VM) {
+func (n AssignmentStatementNode) Traverse(vm *vmgen.VM) {
 	if len(n.Left) != len(n.Right) {
-		if len(n.Right == 1) {
-			n.Right.Traverse()
-			vm.AddInstruction("PUSH")
+		if len(n.Right) == 1 {
+			n.Right[0].Traverse(vm)
+			vm.AddBytecode("PUSH")
 		}
 	} else {
-		for i, l := range n.Left {
-			vm.AddInstruction("PUSH")
-			vm.AddInstruction("PUSH")
+		/*for i, l := range n.Left {
+
+			vm.AddBytecode("PUSH")
+			vm.AddBytecode("PUSH")
 			// then do a memset
-			vm.AddInstruction("SET")
-		}
+			vm.AddBytecode("SET")
+		}*/
 	}
 
 }
@@ -77,8 +80,12 @@ func (n IfStatementNode) Declare(key string, node Node) {
 
 }
 
-func (n IfStatementNode) Traverse(vm *firevm.VM) {
-
+func (n IfStatementNode) Traverse(vm *vmgen.VM) {
+	n.Init.Traverse(vm)
+	n.Cond.Traverse(vm)
+	// TODO: add jumping statements
+	vm.AddBytecode("")
+	n.Body.Traverse(vm)
 }
 
 type SwitchStatementNode struct {
@@ -123,6 +130,10 @@ func (n BlockStatementNode) Validate(t NodeType) bool {
 }
 
 func (n BlockStatementNode) Declare(key string, node Node) {
+
+}
+
+func (n BlockStatementNode) Traverse(vm *vmgen.VM) {
 
 }
 
