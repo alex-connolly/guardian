@@ -15,6 +15,23 @@ func (n AssignmentStatementNode) Declare(key string, node Node) {
 
 }
 
+func (n AssignmentStatementNode) Traverse(vm firevm.VM) {
+	if len(n.Left) != len(n.Right) {
+		if len(n.Right == 1) {
+			n.Right.Traverse()
+			vm.AddInstruction("PUSH")
+		}
+	} else {
+		for i, l := range n.Left {
+			vm.AddInstruction("PUSH")
+			vm.AddInstruction("PUSH")
+			// then do a memset
+			vm.AddInstruction("SET")
+		}
+	}
+
+}
+
 type ReturnStatementNode struct {
 	Results []ExpressionNode
 }
@@ -57,6 +74,10 @@ func (n IfStatementNode) Validate(t NodeType) bool {
 }
 
 func (n IfStatementNode) Declare(key string, node Node) {
+
+}
+
+func (n IfStatementNode) Traverse(vm *firevm.VM) {
 
 }
 

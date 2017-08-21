@@ -42,21 +42,6 @@ func (n UnaryExpressionNode) Traverse(vm firevm.VM) {
 		// add not instruction
 		vm.AddInstruction("NOT")
 		break
-	case lexer.TknIncrement, lexer.TknDecrement:
-		// push data
-		n.Operand.Traverse(vm)
-		// push one
-		vm.AddInstruction("PUSH", byte(1), byte(1))
-		// add
-		switch n.Operator {
-		case lexer.TknIncrement:
-			vm.AddInstruction("ADD")
-			break
-		case lexer.TknDecrement:
-			vm.AddInstruction("SUB")
-			break
-		}
-		break
 	}
 }
 
@@ -114,7 +99,7 @@ func (n IndexExpressionNode) Traverse(vm firevm.VM) {
 	n.Index.Traverse(vm)
 	// then MLOAD it at the index offset
 	n.Expression.Traverse(vm)
-	vm.AddInstruction("MLOAD")
+	vm.AddInstruction("GET")
 }
 
 type SliceExpressionNode struct {
@@ -154,7 +139,12 @@ type ArrayLiteralNode struct {
 func (n ArrayLiteralNode) Type() NodeType { return ArrayLiteral }
 
 func (n ArrayLiteralNode) Traverse(vm firevm.VM) {
-
+	for _, en := range n.Data {
+		en.Traverse(vm)
+	}
+	// push the size of the array
+	vm.AddInstruction("PUSH", byte(1), byte(len(n.Data)))
+	vm.AddInstruction("ARRAY")
 }
 
 type MapLiteralNode struct {
@@ -166,7 +156,13 @@ type MapLiteralNode struct {
 func (n MapLiteralNode) Type() NodeType { return MapLiteral }
 
 func (n MapLiteralNode) Traverse(vm firevm.VM) {
-
+	for k, v := range n.Data {
+		k.Traverse(vm)
+		v.Traverse(vm)
+	}
+	// push the size of the map
+	vm.AddInstruction("PUSH", byte(1), byte(len(n.Data)))
+	vn.AddInstruction("MAP")
 }
 
 type ReferenceNode struct {

@@ -63,6 +63,10 @@ func (n ClassDeclarationNode) Declare(key string, node Node) {
 
 }
 
+func (n ClassDeclarationNode) Traverse(vm *firevm.VM){
+
+}
+
 type InterfaceDeclarationNode struct {
 	Identifier   string
 	IsAbstract   bool
@@ -106,6 +110,15 @@ func (n ContractDeclarationNode) Declare(key string, node Node) {
 		n.Declarations = make(map[string][]Node)
 	}
 	n.Declarations[key] = append(n.Declarations[key], node)
+}
+
+func (n ContractDeclarationNode) Traverse(vm *firevm.VM){
+	// find our variable declarations
+	for _, decl range n.declarations["field"] {
+		bytes := []byte(decl.identifier)
+		vm.AddInstruction("PUSH", len(bytes), bytes)
+		vm.AddInstruction("STORE")
+	}
 }
 
 type MapTypeNode struct {
