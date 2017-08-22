@@ -15,7 +15,7 @@ func TestBytecodeClassDeclaration(t *testing.T) {
             const y = 10
         }`)
 	vm := firevm.NewVM()
-	Traverse(vm, p.scope)
+	p.Scope.Traverse(vm)
 	checkMnemonics(t, vm.Instructions, []string{
 		"PUSH", // push string data
 		"PUSH", // push hash(x)
@@ -32,7 +32,7 @@ func TestBytecodeFuncDeclaration(t *testing.T) {
             }
         }`)
 	vm := firevm.NewVM()
-	Traverse(vm, p.Scope)
+	p.Scope.Traverse(vm)
 	checkMnemonics(t, vm.Instructions, []string{
 		"PUSH",   // push string data
 		"PUSH",   // push hash(x)

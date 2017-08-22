@@ -1,11 +1,14 @@
 package statements
 
-import "testing"
+import (
+	"axia/guardian/go/compiler/parser"
+	"testing"
+)
 
-func TestSimpleSwitch(t *testing.T) {
-
+func TestSimpleSwitchEmpty(t *testing.T) {
+	p := parser.ParseString("switch x {}")
 }
 
-func TestExclusiveSwitch(t *testing.T) {
-
+func TestExclusiveSwitchEmpty(t *testing.T) {
+	p := parser.ParseString("exclusive switch x {}")
 }
