@@ -35,9 +35,9 @@ func TestBinaryExpressionBytecodeStringLiteralConcat(t *testing.T) {
 	vm := firevm.NewVM()
 	p.Scope.Traverse(vm)
 	checkMnemonics(t, vm.Instructions, []string{
-		"PUSH", // push string data
-		"PUSH", // push hash(x)
-		"ADD",
+		"PUSH",   // push string data
+		"PUSH",   // push hash(x)
+		"CONCAT", // concatenate bytes
 	})
 }
 
@@ -54,7 +54,30 @@ func TestBinaryExpressionBytecodeStringReferenceConcat(t *testing.T) {
 	checkMnemonics(t, vm.Instructions, []string{
 		"PUSH", // push string data
 		"PUSH", // push hash(x)
-		"ADD",
+		"CONCAT",
+	})
+}
+
+func TesExtendedBinaryExpressionBytecodeStringReferenceConcat(t *testing.T) {
+	p := parser.ParseString(`
+		var (
+			a = "hello"
+			b = "world"
+			c = "www"
+			d = "comma"
+		)
+		a + b + c + d
+		`)
+	vm := firevm.NewVM()
+	p.Scope.Traverse(vm)
+	checkMnemonics(t, vm.Instructions, []string{
+		"PUSH",   // push hello
+		"PUSH",   // push world
+		"CONCAT", //
+		"PUSH",   // push www
+		"CONCAT", //
+		"PUSH",   // push comma
+		"CONCAT", //
 	})
 }
 

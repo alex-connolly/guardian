@@ -8,7 +8,7 @@ import (
 	"github.com/end-r/firevm"
 )
 
-func TestBytecodeClassDeclaration(t *testing.T) {
+func TestBytecodeContractDeclaration(t *testing.T) {
 	p := parser.ParseString(
 		`contract Tester {
             var x = 5
@@ -42,5 +42,55 @@ func TestBytecodeFuncDeclaration(t *testing.T) {
 }
 
 func TestBytecodeInterfaceDeclaration(t *testing.T) {
+	p := parser.ParseString(
+		`contract Tester {
+			interface Animalistic {
 
+			}
+		}`)
+	vm := firevm.NewVM()
+	p.Scope.Traverse(vm)
+	checkMnemonics(t, vm.Instructions, []string{})
+}
+
+func TestBytecodeClassDeclaration(t *testing.T) {
+	p := parser.ParseString(
+		`contract Tester {
+			class Animal {
+
+			}
+		}`)
+	vm := firevm.NewVM()
+	p.Scope.Traverse(vm)
+	checkMnemonics(t, vm.Instructions, []string{})
+}
+
+func TestBytecodeClassDeclarationWithFields(t *testing.T) {
+	p := parser.ParseString(
+		`contract Tester {
+			class Animal {
+				name string
+				genus string
+			}
+		}`)
+	vm := firevm.NewVM()
+	p.Scope.Traverse(vm)
+	checkMnemonics(t, vm.Instructions, []string{})
+}
+
+func TestBytecodeClassDeclarationWithMethods(t *testing.T) {
+	p := parser.ParseString(
+		`contract Tester {
+			class Animal {
+				name string
+				genus string
+
+				public getName() string {
+					return name
+				}
+			}
+		}`)
+	vm := firevm.NewVM()
+	p.Scope.Traverse(vm)
+	checkMnemonics(t, vm.Instructions, []string{})
 }
