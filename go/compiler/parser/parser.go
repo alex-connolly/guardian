@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/go/compiler/ast"
 	"github.com/end-r/guardian/go/compiler/lexer"
 )
@@ -29,14 +31,14 @@ func (p *Parser) run() {
 	found := false
 	for _, c := range getPrimaryConstructs() {
 		if c.is(p) {
-			//fmt.Printf("FOUND: %s at index %d\n", c.name, p.index)
+			fmt.Printf("FOUND: %s at index %d\n", c.name, p.index)
 			c.parse(p)
 			found = true
 			break
 		}
 	}
 	if !found {
-		//p.addError(fmt.Sprintf(errUnrecognisedConstruct, p.lexer.Tokenstring(p.current())))
+		p.addError(fmt.Sprintf("unrecognised construct: %d", p.lexer.TokenString(p.current())))
 		p.next()
 	}
 	p.run()
@@ -71,12 +73,17 @@ func (p *Parser) parseRequired(t lexer.TokenType) {
 
 func (p *Parser) parseIdentifier() string {
 	if p.lexer.Tokens[p.index].Type != lexer.TknIdentifier {
-		p.addError("Required indentifier, found y")
+		p.addError("Required indentifier, found {add token type}")
 		return ""
 	}
 	s := p.lexer.TokenString(p.lexer.Tokens[p.index])
 	p.next()
 	return s
+}
+
+func parseScopeClosure(p *Parser) {
+	p.Scope = p.parent
+	p.next()
 }
 
 func (p *Parser) validate(t ast.NodeType) {

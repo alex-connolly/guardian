@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"log"
 	"testing"
 
 	"github.com/end-r/guardian/go/compiler/ast"
@@ -12,12 +13,14 @@ func TestEmptyFile(t *testing.T) {
 	util.Assert(t, p != nil, "parser should not be nil")
 	util.Assert(t, p.Errs == nil, "parser should not have errors")
 	util.Assert(t, p.Scope.Type() == ast.File, "outer Scope should be file")
+	log.Println(p.Scope.Type())
 }
 
 func TestConstructorContract(t *testing.T) {
 	p := ParseFile("tests/constructor_contract.grd")
 	util.Assert(t, p != nil, "parser should not be nil")
 	util.Assert(t, p.Errs == nil, "parser should not have errors")
+	log.Println(p.Errs)
 	util.Assert(t, p.Scope.Type() == ast.File, "outer Scope should be file")
 }
 

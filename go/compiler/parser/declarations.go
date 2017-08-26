@@ -196,3 +196,21 @@ func parseArrayType(p *Parser) {
 	//Value: typ,
 	})
 }
+
+func parseExplicitVarDeclaration(p *Parser) {
+
+	// parse variable Names
+	names := make([]string, 0)
+	names = append(names, p.lexer.TokenString(p.current()))
+	p.next()
+	for p.parseOptional(lexer.TknComma) {
+		names = append(names, p.lexer.TokenString(p.current()))
+	}
+	// parse type
+	dType := p.parseReference()
+
+	p.Scope.Declare("variable", ast.ExplicitVarDeclarationNode{
+		Identifiers:  names,
+		DeclaredType: dType,
+	})
+}

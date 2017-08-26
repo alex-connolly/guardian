@@ -9,12 +9,13 @@ import (
 )
 
 // ParseFile ...
-func ParseFile(path string) (p *Parser) {
+func ParseFile(path string) *Parser {
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		log.Println(err)
 		return nil
 	}
+	p := new(Parser)
 	p.lexer = lexer.LexBytes(bytes)
 	p.Scope = ast.FileNode{}
 	p.run()

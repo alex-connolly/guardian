@@ -171,5 +171,21 @@ func (n ArrayTypeNode) Traverse(vm *vmgen.VM) {
 
 }
 
-type ParameterNode struct {
+type ExplicitVarDeclarationNode struct {
+	Identifiers  []string
+	DeclaredType ReferenceNode
+}
+
+func (n ExplicitVarDeclarationNode) Type() NodeType { return ExplicitVarDeclaration }
+
+func (n ExplicitVarDeclarationNode) Validate(t NodeType) bool {
+	return true
+}
+
+func (n ExplicitVarDeclarationNode) Declare(key string, node Node) {
+
+}
+
+func (n ExplicitVarDeclarationNode) Traverse(vm *vmgen.VM) {
+
 }

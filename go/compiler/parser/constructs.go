@@ -13,6 +13,9 @@ func getPrimaryConstructs() []construct {
 		construct{"interface declaration", isInterfaceDeclaration, parseInterfaceDeclaration},
 		construct{"func declaration", isFuncDeclaration, parseFuncDeclaration},
 		construct{"type declaration", isTypeDeclaration, parseTypeDeclaration},
+		construct{"explict var declaration", isExplicitVarDeclaration, parseExplicitVarDeclaration},
+
+		construct{"scope closure", isScopeClosure, parseScopeClosure},
 
 		construct{"if statement", isIfStatement, parseIfStatement},
 		construct{"for statement", isForStatement, parseForStatement},
