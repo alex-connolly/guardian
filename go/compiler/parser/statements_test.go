@@ -131,9 +131,7 @@ func TestParseCaseStatementSingle(t *testing.T) {
 }
 
 func TestParseCaseStatementMultiple(t *testing.T) {
-	p := createParser(`
-    case 5, 8, 9:
-        `)
+	p := createParser(`case 5, 8, 9:`)
 	goutil.Assert(t, isCaseStatement(p), "should detect case statement")
 	parseCaseStatement(p)
 	goutil.Assert(t, p.Scope.Type() == ast.CaseStatement, "wrong node type")
