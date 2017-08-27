@@ -48,7 +48,7 @@ func parseAssignmentStatement(p *Parser) {
 func parseIfStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknIf)
-	//one := p.parseExpression()
+	//stat := p.parseExpression()
 
 }
 
@@ -63,5 +63,13 @@ func parseCaseStatement(p *Parser) {
 }
 
 func parseSwitchStatement(p *Parser) {
+
+	p.parseRequired(lexer.TknSwitch)
+	//expr := p.parseExpression()
+	p.parseRequired(lexer.TknOpenBrace)
+
+	//s := ast.SwitchStatementNode{}
+
+	//p.Scope.Declare("", s)
 
 }

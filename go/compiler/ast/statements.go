@@ -89,7 +89,7 @@ func (n IfStatementNode) Traverse(vm *vmgen.VM) {
 }
 
 type SwitchStatementNode struct {
-	Target  Node
+	Target  ExpressionNode
 	Clauses []CaseStatementNode
 	Default BlockStatementNode
 }
@@ -97,10 +97,20 @@ type SwitchStatementNode struct {
 func (n SwitchStatementNode) Type() NodeType { return SwitchStatement }
 
 func (n SwitchStatementNode) Validate(t NodeType) bool {
-	return true
+	switch t {
+	case CaseStatement:
+		return true
+	}
+	return false
 }
 
 func (n SwitchStatementNode) Declare(key string, node Node) {
+
+}
+
+func (n SwitchStatementNode) Traverse(vm *vmgen.VM) {
+	// traverse Expression
+	n.Target.Traverse(vm)
 
 }
 
@@ -116,6 +126,10 @@ func (n CaseStatementNode) Validate(t NodeType) bool {
 }
 
 func (n CaseStatementNode) Declare(key string, node Node) {
+
+}
+
+func (n CaseStatementNode) Traverse(vm *vmgen.VM) {
 
 }
 
@@ -151,5 +165,9 @@ func (n ForStatementNode) Validate(t NodeType) bool {
 }
 
 func (n ForStatementNode) Declare(key string, node Node) {
+
+}
+
+func (n ForStatementNode) Traverse(vm *vmgen.VM) {
 
 }
