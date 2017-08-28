@@ -67,8 +67,8 @@ const (
 	TknShlAssign // <<=
 	TknShrAssign // >>=
 
-	TknLogicalAnd // &&
-	TknLogicalOr  // ||
+	TknLogicalAnd // and
+	TknLogicalOr  // or
 	TknArrowLeft  // <-
 	TknArrowRight // ->
 	TknInc        // ++
@@ -88,6 +88,8 @@ const (
 	TknDot       // .
 	TknSemicolon // ;
 	TknTernary   // ?
+
+	TknNewLine
 
 	TknBreak
 	TknContinue
@@ -197,9 +199,9 @@ func getProtoTokens() []protoToken {
 
 		createFixed("<-", TknArrowLeft),
 		createFixed(">-", TknArrowRight),
-		createFixed("&&", TknLogicalAnd),
+		createFixed("and", TknLogicalAnd),
 		createFixed("&", TknAnd),
-		createFixed("||", TknLogicalOr),
+		createFixed("or", TknLogicalOr),
 		createFixed("|", TknOr),
 		createFixed("==", TknEql),
 		createFixed("!=", TknNeq),

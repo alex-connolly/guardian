@@ -13,8 +13,17 @@ type Lexer struct {
 	line   int
 	column int
 	Tokens []Token
+	index  int
 	errors []string
 	macros map[string]macro
+}
+
+func (l *Lexer) currentToken() Token {
+	return l.Tokens[l.index]
+}
+
+func (l *Lexer) advance() {
+	l.index++
 }
 
 func (l *Lexer) next() {
@@ -82,6 +91,7 @@ func (l *Lexer) current() byte {
 func LexBytes(bytes []byte) *Lexer {
 	l := new(Lexer)
 	l.buffer = bytes
+	l.preprocess()
 	l.next()
 	return l
 }
@@ -99,7 +109,7 @@ func LexFile(path string) *Lexer {
 func processNewLine(l *Lexer) Token {
 	l.line++
 	return Token{
-		Type: TknNone,
+		Type: TknNewLine,
 	}
 }
 
