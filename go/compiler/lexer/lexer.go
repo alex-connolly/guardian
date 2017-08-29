@@ -91,8 +91,8 @@ func (l *Lexer) current() byte {
 func LexBytes(bytes []byte) *Lexer {
 	l := new(Lexer)
 	l.buffer = bytes
-	l.preprocess()
 	l.next()
+	l.preprocess()
 	return l
 }
 

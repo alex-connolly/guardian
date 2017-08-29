@@ -1,6 +1,9 @@
 package lexer
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 type macro struct {
 	parameters []string
@@ -8,6 +11,7 @@ type macro struct {
 }
 
 func (l *Lexer) preprocess() {
+	log.Println("hi")
 	l.addMacros()
 }
 
@@ -57,12 +61,35 @@ func (l *Lexer) insertToken(name string, m macro) {
 		if l.Tokens[l.offset+1].Type != TknOpenBracket {
 			l.error(fmt.Sprintf("Expected parameters for macro %s", name))
 		} else {
-
+			l.advance()
+			params := make(map[string][]Token)
+			for _, p := range m.parameters {
+				start := l.offset
+				for l.currentToken().Type != TknComma {
+					l.advance()
+				}
+				params[p] = l.Tokens[start:l.offset]
+			}
+			// for each token
+			tokens := make([]Token, len(m.tokens))
+			copy(tokens, m.tokens)
+			for i, t := range tokens {
+				if t.Type == TknIdentifier {
+					key := l.TokenString(t)
+					for k, v := range params {
+						if key == k {
+							tokens = append(tokens[:i], append(v, tokens[i:]...)...)
+						}
+					}
+				}
+			}
+			l.Tokens = append(l.Tokens[:l.offset], append(tokens, l.Tokens[l.offset:]...)...)
 		}
 	}
 }
 
 func (l *Lexer) addMacros() {
+	log.Printf("adding macros")
 	for i := 0; i < len(l.Tokens); i++ {
 		switch l.Tokens[i].Type {
 		case TknMacro:
