@@ -51,7 +51,7 @@ func TestLexerLiterals(t *testing.T) {
 	goutil.Assert(t, len(l.Tokens) == 3, "wrong number of tokens")
 }
 
-func TestLexerFiles(t *testing.T) {
+func TestLexerFileConstants(t *testing.T) {
 	l := LexFile("tests/constants.grd")
 	checkTokens(t, l.Tokens, []TokenType{
 		TknContract, TknIdentifier, TknOpenBrace, TknNewLine,
@@ -65,6 +65,31 @@ func TestLexerFiles(t *testing.T) {
 		TknNewLine,
 		TknCloseBrace, TknNewLine,
 	})
+}
+
+func TestLexerFileDeclarations(t *testing.T) {
+	l := LexString(`
+		contract Dog {
+		    class Hi {
+
+		    }
+		    interface XX {
+
+		    }
+		    event Hello(string)
+		}
+	`)
+	checkTokens(t, l.Tokens, []TokenType{
+		TknNewLine,
+		TknContract, TknIdentifier, TknOpenBrace, TknNewLine,
+		TknClass, TknIdentifier, TknOpenBrace, TknNewLine,
+		TknNewLine,
+		TknCloseBrace, TknNewLine,
+		TknInterface, TknIdentifier, TknOpenBrace, TknNewLine,
+		TknNewLine,
+		TknCloseBrace, TknNewLine,
+		TknEvent, TknIdentifier, TknOpenBracket, TknIdentifier, TknCloseBracket, TknNewLine,
+		TknCloseBrace, TknNewLine})
 }
 
 func TestLexerError(t *testing.T) {
