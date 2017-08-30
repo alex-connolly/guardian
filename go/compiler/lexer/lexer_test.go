@@ -53,7 +53,7 @@ func TestLexerLiterals(t *testing.T) {
 
 func TestLexerFiles(t *testing.T) {
 	l := LexFile("tests/constants.grd")
-	expected := []TokenType{
+	checkTokens(t, l.Tokens, []TokenType{
 		TknContract, TknIdentifier, TknOpenBrace, TknNewLine,
 		TknNewLine,
 		TknConst, TknOpenBracket, TknNewLine,
@@ -64,11 +64,7 @@ func TestLexerFiles(t *testing.T) {
 		TknCloseBracket, TknNewLine,
 		TknNewLine,
 		TknCloseBrace, TknNewLine,
-	}
-	goutil.AssertNow(t, len(l.Tokens) == len(expected), fmt.Sprintf("wrong number of tokens (%d), expected %d", len(l.Tokens), len(expected)))
-	for i, tok := range l.Tokens {
-		goutil.Assert(t, tok.Type == expected[i], fmt.Sprintf("token type %d didn't match", i))
-	}
+	})
 }
 
 func TestLexerError(t *testing.T) {

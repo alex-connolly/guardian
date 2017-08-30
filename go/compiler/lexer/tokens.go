@@ -248,7 +248,7 @@ func processFixed(len int, tkn TokenType) processorFunc {
 }
 
 func isOperator(l *Lexer) bool {
-	switch l.buffer[l.byteOffset] {
+	switch l.current() {
 	case '+', '-', '*', '/':
 		return true
 	}

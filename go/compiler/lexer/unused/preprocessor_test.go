@@ -11,7 +11,7 @@ func TestPreprocessMacroSimple(t *testing.T) {
         name = VALUE
         `)
 	checkTokens(t, l.Tokens, []TokenType{
-		TknIdentifier, TknAssign, TknIdentifier, TknNewLine,
+		TknIdentifier, TknAssign, TknNumber, TknNewLine,
 	})
 }
 

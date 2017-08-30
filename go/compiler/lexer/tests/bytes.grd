@@ -1,0 +1,15 @@
+contract Bytes {
+
+    macro = (a, b) {
+        a = b
+    }
+
+    =(name, value)
+
+    macro several tokens together (a, b){
+        a = b
+    }
+
+    several tokens together(a, b)
+
+}

@@ -2,7 +2,6 @@ package lexer
 
 import (
 	"fmt"
-	"log"
 )
 
 type macro struct {
@@ -90,8 +89,7 @@ func (l *Lexer) insertToken(name string, m macro) {
 }
 
 func (l *Lexer) addMacros() {
-	log.Printf("adding macros")
-	for l.tokenOffset < len(l.Tokens) {
+	for ; l.tokenOffset < len(l.Tokens); l.advance() {
 		switch l.currentToken().Type {
 		case TknMacro:
 			// after macro next token must be a key
@@ -105,6 +103,9 @@ func (l *Lexer) addMacros() {
 				l.multiLineMacro(m)
 			} else {
 				l.singleLineMacro(m)
+			}
+			if l.macros == nil {
+				l.macros = make(map[string]macro)
 			}
 			l.macros[key] = m
 			break

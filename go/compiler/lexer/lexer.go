@@ -15,7 +15,7 @@ type Lexer struct {
 	Tokens      []Token
 	tokenOffset int
 	errors      []string
-	macros      map[string]macro
+	//macros      map[string]macro
 }
 
 func (l *Lexer) currentToken() Token {
@@ -94,7 +94,6 @@ func LexBytes(bytes []byte) *Lexer {
 	l.buffer = bytes
 	l.next()
 	l.tokenOffset = 0
-	l.preprocess()
 	return l
 }
 
