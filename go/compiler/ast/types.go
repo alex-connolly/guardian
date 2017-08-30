@@ -9,6 +9,7 @@ const (
 	FuncDeclaration
 	InterfaceDeclaration
 	TypeDeclaration
+	EventDeclaration
 	ExplicitVarDeclaration
 	ArrayType
 	MapType

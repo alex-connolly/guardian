@@ -42,3 +42,24 @@ func TestParseExplicitVarDeclaration(t *testing.T) {
 	parseTypeDeclaration(p)
 	goutil.Assert(t, p.Scope.Type() == ast.TypeDeclaration, "wrong node type")
 }
+
+func TestParseEventDeclarationEmpty(t *testing.T) {
+	p := createParser(`event Notification{}`)
+	goutil.Assert(t, isEventDeclaration(p), "should detect event decl")
+	parseEventDeclaration(p)
+	goutil.Assert(t, p.Scope.Type() == ast.EventDeclaration, "wrong node type")
+}
+
+func TestParseEventDeclarationSingle(t *testing.T) {
+	p := createParser(`event Notification{string}`)
+	goutil.Assert(t, isEventDeclaration(p), "should detect event decl")
+	parseEventDeclaration(p)
+	goutil.Assert(t, p.Scope.Type() == ast.EventDeclaration, "wrong node type")
+}
+
+func TestParseEventDeclarationMultiple(t *testing.T) {
+	p := createParser(`event Notification{string, string}`)
+	goutil.Assert(t, isEventDeclaration(p), "should detect event decl")
+	parseEventDeclaration(p)
+	goutil.Assert(t, p.Scope.Type() == ast.EventDeclaration, "wrong node type")
+}

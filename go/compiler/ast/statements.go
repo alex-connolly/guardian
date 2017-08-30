@@ -115,8 +115,8 @@ func (n SwitchStatementNode) Traverse(vm *vmgen.VM) {
 }
 
 type CaseStatementNode struct {
-	Clauses []Node
-	Body    BlockStatementNode
+	Expressions []ExpressionNode
+	Body        BlockStatementNode
 }
 
 func (n CaseStatementNode) Type() NodeType { return CaseStatement }

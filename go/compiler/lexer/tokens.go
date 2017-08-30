@@ -96,6 +96,7 @@ const (
 
 	TknContract
 	TknClass
+	TknEvent
 	TknInterface
 	TknAbstract
 
@@ -142,6 +143,7 @@ func getProtoTokens() []protoToken {
 	return []protoToken{
 		createFixed("contract", TknContract),
 		createFixed("class", TknClass),
+		createFixed("event", TknEvent),
 		createFixed("interface", TknInterface),
 		createFixed("abstract", TknAbstract),
 		createFixed("inherits", TknInherits),
@@ -240,13 +242,13 @@ func processFixed(len int, tkn TokenType) processorFunc {
 	return func(l *Lexer) (t Token) {
 		// start and end don't matter
 		t.Type = tkn
-		l.offset += len
+		l.byteOffset += len
 		return t
 	}
 }
 
 func isOperator(l *Lexer) bool {
-	switch l.buffer[l.offset] {
+	switch l.buffer[l.byteOffset] {
 	case '+', '-', '*', '/':
 		return true
 	}
@@ -282,11 +284,11 @@ func isCharacter(l *Lexer) bool {
 
 func is(a string) isFunc {
 	return func(l *Lexer) bool {
-		if l.offset+len(a) > len(l.buffer) {
+		if l.byteOffset+len(a) > len(l.buffer) {
 			return false
 		}
 		//	fmt.Printf("cmp %s to %s\n", string(l.buffer[l.offset:l.offset+len(a)]), a)
-		return string(l.buffer[l.offset:l.offset+len(a)]) == a
+		return string(l.buffer[l.byteOffset:l.byteOffset+len(a)]) == a
 	}
 }
 

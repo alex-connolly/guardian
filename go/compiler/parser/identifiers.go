@@ -45,6 +45,10 @@ func isFuncDeclaration(p *Parser) bool {
 	return false
 }
 
+func isEventDeclaration(p *Parser) bool {
+	return p.current().Type == lexer.TknEvent
+}
+
 func isTypeDeclaration(p *Parser) bool {
 	return p.current().Type == lexer.TknType
 }

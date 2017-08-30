@@ -1,10 +1,7 @@
 package lexer
 
 import (
-	"fmt"
 	"testing"
-
-	"github.com/end-r/goutil"
 )
 
 func TestPreprocessMacroSimple(t *testing.T) {
@@ -13,7 +10,9 @@ func TestPreprocessMacroSimple(t *testing.T) {
 
         name = VALUE
         `)
-	goutil.Assert(t, len(l.Tokens) == 3, fmt.Sprintf("wrong token length: %d", len(l.Tokens)))
+	checkTokens(t, l.Tokens, []TokenType{
+		TknIdentifier, TknAssign, TknIdentifier, TknNewLine,
+	})
 }
 
 func TestPreprocessMacroArguments(t *testing.T) {
@@ -24,7 +23,9 @@ func TestPreprocessMacroArguments(t *testing.T) {
 
         ASSIGN(name, 20)
         `)
-	goutil.Assert(t, len(l.Tokens) == 3, fmt.Sprintf("wrong token length: %d", len(l.Tokens)))
+	checkTokens(t, l.Tokens, []TokenType{
+		TknIdentifier, TknAssign, TknNumber, TknNewLine,
+	})
 }
 
 func TestPreprocessMacroNestedSimple(t *testing.T) {
@@ -34,7 +35,9 @@ func TestPreprocessMacroNestedSimple(t *testing.T) {
 
         name = V2
         `)
-	goutil.Assert(t, len(l.Tokens) == 3, fmt.Sprintf("wrong token length: %d", len(l.Tokens)))
+	checkTokens(t, l.Tokens, []TokenType{
+		TknIdentifier, TknAssign, TknNumber, TknNewLine,
+	})
 }
 
 func TestPreprocessMacroNestedMixed(t *testing.T) {
@@ -46,7 +49,9 @@ func TestPreprocessMacroNestedMixed(t *testing.T) {
 
         ASSIGN(name, 20)
         `)
-	goutil.Assert(t, len(l.Tokens) == 3, fmt.Sprintf("wrong token length: %d", len(l.Tokens)))
+	checkTokens(t, l.Tokens, []TokenType{
+		TknIdentifier, TknAssign, TknNumber, TknNewLine,
+	})
 }
 
 func TestPreprocessMacroNestedArguments(t *testing.T) {
@@ -60,7 +65,10 @@ func TestPreprocessMacroNestedArguments(t *testing.T) {
 
         ASSIGN_MAX(name, 20)
         `)
-	goutil.Assert(t, len(l.Tokens) == 9, fmt.Sprintf("wrong token length: %d", len(l.Tokens)))
+	checkTokens(t, l.Tokens, []TokenType{
+		TknIdentifier, TknAssign, TknIdentifier, TknGtr, TknIdentifier, TknTernary,
+		TknIdentifier, TknColon, TknIdentifier, TknNewLine,
+	})
 }
 
 func TestPreprocessMacroNestedArgumentsSingleLine(t *testing.T) {
@@ -69,5 +77,8 @@ func TestPreprocessMacroNestedArgumentsSingleLine(t *testing.T) {
         macro ASSIGN_MAX(a, b) a = MAX(a, b)
         ASSIGN_MAX(name, 20)
         `)
-	goutil.Assert(t, len(l.Tokens) == 9, fmt.Sprintf("wrong token length: %d", len(l.Tokens)))
+	checkTokens(t, l.Tokens, []TokenType{
+		TknIdentifier, TknAssign, TknIdentifier, TknGtr, TknIdentifier, TknTernary,
+		TknIdentifier, TknColon, TknIdentifier, TknNewLine,
+	})
 }

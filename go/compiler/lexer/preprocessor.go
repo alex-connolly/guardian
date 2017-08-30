@@ -11,7 +11,6 @@ type macro struct {
 }
 
 func (l *Lexer) preprocess() {
-	log.Println("hi")
 	l.addMacros()
 }
 
@@ -38,37 +37,39 @@ func (l *Lexer) macroParameters(m macro) {
 }
 
 func (l *Lexer) multiLineMacro(m macro) {
-	start := l.offset
+	l.advance()
+	start := l.tokenOffset
 	for l.currentToken().Type != TknCloseBrace {
 		l.advance()
 	}
-	m.tokens = l.Tokens[start:l.offset]
+	m.tokens = l.Tokens[start:l.tokenOffset]
 }
 
 func (l *Lexer) singleLineMacro(m macro) {
-	start := l.offset
-	for l.currentToken().Type != TknNewLine && l.offset < len(l.Tokens) {
+	l.advance()
+	start := l.tokenOffset
+	for l.currentToken().Type != TknNewLine && l.tokenOffset < len(l.Tokens) {
 		l.advance()
 	}
-	m.tokens = l.Tokens[start:l.offset]
+	m.tokens = l.Tokens[start:l.tokenOffset]
 }
 
 func (l *Lexer) insertToken(name string, m macro) {
 	if m.parameters == nil {
 		// insert to middle of slice
-		l.Tokens = append(l.Tokens[:l.offset], append(m.tokens, l.Tokens[l.offset:]...)...)
+		l.Tokens = append(l.Tokens[:l.tokenOffset], append(m.tokens, l.Tokens[l.tokenOffset:]...)...)
 	} else {
-		if l.Tokens[l.offset+1].Type != TknOpenBracket {
+		if l.Tokens[l.tokenOffset+1].Type != TknOpenBracket {
 			l.error(fmt.Sprintf("Expected parameters for macro %s", name))
 		} else {
 			l.advance()
 			params := make(map[string][]Token)
 			for _, p := range m.parameters {
-				start := l.offset
+				start := l.tokenOffset
 				for l.currentToken().Type != TknComma {
 					l.advance()
 				}
-				params[p] = l.Tokens[start:l.offset]
+				params[p] = l.Tokens[start:l.tokenOffset]
 			}
 			// for each token
 			tokens := make([]Token, len(m.tokens))
@@ -83,23 +84,24 @@ func (l *Lexer) insertToken(name string, m macro) {
 					}
 				}
 			}
-			l.Tokens = append(l.Tokens[:l.offset], append(tokens, l.Tokens[l.offset:]...)...)
+			l.Tokens = append(l.Tokens[:l.tokenOffset], append(tokens, l.Tokens[l.tokenOffset:]...)...)
 		}
 	}
 }
 
 func (l *Lexer) addMacros() {
 	log.Printf("adding macros")
-	for i := 0; i < len(l.Tokens); i++ {
-		switch l.Tokens[i].Type {
+	for l.tokenOffset < len(l.Tokens) {
+		switch l.currentToken().Type {
 		case TknMacro:
 			// after macro next token must be a key
 			l.advance()
 			key := l.TokenString(l.currentToken())
+			l.advance()
 			m := macro{}
-			if l.Tokens[i].Type == TknOpenBracket {
+			if l.currentToken().Type == TknOpenBracket {
 				l.macroParameters(m)
-			} else if l.Tokens[i].Type == TknOpenBrace {
+			} else if l.currentToken().Type == TknOpenBrace {
 				l.multiLineMacro(m)
 			} else {
 				l.singleLineMacro(m)
@@ -108,7 +110,7 @@ func (l *Lexer) addMacros() {
 			break
 		case TknIdentifier:
 			for k, v := range l.macros {
-				if k == l.TokenString(l.Tokens[i]) {
+				if k == l.TokenString(l.currentToken()) {
 					l.insertToken(k, v)
 				}
 			}

@@ -7,6 +7,10 @@ import (
 	"github.com/end-r/goutil"
 )
 
+func TestLex(t *testing.T) {
+
+}
+
 func TestLexerTokenLength(t *testing.T) {
 	l := LexString("hi this is me")
 	goutil.Assert(t, len(l.Tokens) == 4, "wrong number of tokens")
@@ -49,17 +53,19 @@ func TestLexerLiterals(t *testing.T) {
 
 func TestLexerFiles(t *testing.T) {
 	l := LexFile("tests/constants.grd")
-	goutil.Assert(t, len(l.Tokens) == 19, fmt.Sprintf("wrong number of tokens (%d)", len(l.Tokens)))
 	expected := []TokenType{
-		TknContract, TknIdentifier, TknOpenBrace,
-		TknConst, TknOpenBracket,
-		TknIdentifier, TknAssign, TknNumber,
-		TknIdentifier, TknAssign, TknString,
-		TknIdentifier, TknAssign, TknCharacter,
-		TknIdentifier, TknAssign, TknNumber,
-		TknCloseBracket,
-		TknCloseBrace,
+		TknContract, TknIdentifier, TknOpenBrace, TknNewLine,
+		TknNewLine,
+		TknConst, TknOpenBracket, TknNewLine,
+		TknIdentifier, TknAssign, TknNumber, TknNewLine,
+		TknIdentifier, TknAssign, TknString, TknNewLine,
+		TknIdentifier, TknAssign, TknCharacter, TknNewLine,
+		TknIdentifier, TknAssign, TknNumber, TknNewLine,
+		TknCloseBracket, TknNewLine,
+		TknNewLine,
+		TknCloseBrace, TknNewLine,
 	}
+	goutil.AssertNow(t, len(l.Tokens) == len(expected), fmt.Sprintf("wrong number of tokens (%d), expected %d", len(l.Tokens), len(expected)))
 	for i, tok := range l.Tokens {
 		goutil.Assert(t, tok.Type == expected[i], fmt.Sprintf("token type %d didn't match", i))
 	}

@@ -48,18 +48,54 @@ func parseAssignmentStatement(p *Parser) {
 func parseIfStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknIf)
-	//stat := p.parseExpression()
+	init := p.parseStatement()
+	expr := p.parseExpression()
+
+	// parse elif cases
+
+	// parse else case
 
 }
 
 func parseForStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknFor)
+	// parse init expr, can be nil
+	init := p.parseExpression()
+	// parse condition, required
+	cond := p.parseExpression()
+	// parse statement
+	stat := p.parseStatement()
 
+	block := p.parseBlock()
+
+}
+
+func (p *Parser) parseBlock() ast.BlockStatementNode {
+
+	p.parseRequired(lexer.TknOpenBrace)
+
+	node := ast.BlockStatementNode{}
+
+	for p.parseOptional(lexer.TknCloseBrace) {
+		p.next()
+	}
+
+	return node
 }
 
 func parseCaseStatement(p *Parser) {
 
+	p.parseRequired(lexer.TknCase)
+
+	exprs := p.parseExpressionList()
+
+	block := p.parseBlock()
+
+	node := ast.CaseStatementNode{
+		Expressions: exprs,
+		Block:       block,
+	}
 }
 
 func parseSwitchStatement(p *Parser) {

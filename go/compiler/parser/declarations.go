@@ -214,3 +214,17 @@ func parseExplicitVarDeclaration(p *Parser) {
 		DeclaredType: dType,
 	})
 }
+
+func parseEventDeclaration(p *Parser) {
+	p.parseRequired(lexer.TknEvent)
+	name := p.lexer.TokenString(p.current())
+	p.next()
+	p.parseRequired(lexer.TknOpenBracket)
+	types := p.parseReferenceList()
+	p.parseRequired(lexer.TknCloseBracket)
+	node := ast.EventDeclarataionNode{
+		Identifier: name,
+		Types:      types,
+	}
+	p.Scope.Declare("event", node)
+}

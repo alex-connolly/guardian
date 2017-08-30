@@ -189,3 +189,22 @@ func (n ExplicitVarDeclarationNode) Declare(key string, node Node) {
 func (n ExplicitVarDeclarationNode) Traverse(vm *vmgen.VM) {
 
 }
+
+type EventDeclarationNode struct {
+	Identifier string
+	Parameters []ReferenceNode
+}
+
+func (n EventDeclarationNode) Type() NodeType { return EventDeclaration }
+
+func (n EventDeclarationNode) Validate(t NodeType) bool {
+	return true
+}
+
+func (n EventDeclarationNode) Declare(key string, node Node) {
+
+}
+
+func (n EventDeclarationNode) Traverse(vm *vmgen.VM) {
+
+}

@@ -46,15 +46,22 @@ func TestBinaryExpressionBytecodeStringReferenceConcat(t *testing.T) {
 		var (
 			a = "hello"
 			b = "world"
+			c = a + b
 		)
-		a + b
 		`)
 	vm := firevm.NewVM()
 	p.Scope.Traverse(vm)
 	checkMnemonics(t, vm.Instructions, []string{
-		"PUSH", // push string data
-		"PUSH", // push hash(x)
-		"CONCAT",
+		"PUSH",   // push string data
+		"PUSH",   // push a reference
+		"STORE",  // store at a
+		"PUSH",   // push string data
+		"PUSH",   // push b reference
+		"PUSH",   // push a reference
+		"LOAD",   // load a data
+		"PUSH",   // push b reference
+		"LOAD",   // load b data
+		"CONCAT", //
 	})
 }
 

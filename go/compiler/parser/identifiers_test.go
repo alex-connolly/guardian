@@ -85,3 +85,12 @@ func TestIsCaseStatement(t *testing.T) {
 	p = createParser("case 1: break")
 	goutil.Assert(t, isCaseStatement(p), "single case statement not recognised")
 }
+
+func TestIsEventDeclaration(t *testing.T) {
+	p := createParser("event Notification()")
+	goutil.Assert(t, isCaseStatement(p), "empty event not recognised")
+	p = createParser("event Notification(string)")
+	goutil.Assert(t, isCaseStatement(p), "single event not recognised")
+	p = createParser("event Notification(string, dog.Dog)")
+	goutil.Assert(t, isCaseStatement(p), "multiple event not recognised")
+}

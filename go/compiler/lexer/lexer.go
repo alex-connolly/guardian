@@ -8,22 +8,22 @@ import (
 
 // Lexer ...
 type Lexer struct {
-	buffer []byte
-	offset int
-	line   int
-	column int
-	Tokens []Token
-	index  int
-	errors []string
-	macros map[string]macro
+	buffer      []byte
+	byteOffset  int
+	line        int
+	column      int
+	Tokens      []Token
+	tokenOffset int
+	errors      []string
+	macros      map[string]macro
 }
 
 func (l *Lexer) currentToken() Token {
-	return l.Tokens[l.index]
+	return l.Tokens[l.tokenOffset]
 }
 
 func (l *Lexer) advance() {
-	l.index++
+	l.tokenOffset++
 }
 
 func (l *Lexer) next() {
@@ -37,7 +37,7 @@ func (l *Lexer) next() {
 			if t.Type != TknNone {
 				l.Tokens = append(l.Tokens, t)
 			} else {
-				l.offset++
+				l.byteOffset++
 			}
 			found = true
 			break
@@ -45,13 +45,13 @@ func (l *Lexer) next() {
 	}
 	if !found {
 		l.error("Unrecognised Token.")
-		l.offset++
+		l.byteOffset++
 	}
 	l.next()
 }
 
 func (l *Lexer) isEOF() bool {
-	return l.offset >= len(l.buffer)
+	return l.byteOffset >= len(l.buffer)
 }
 
 // TokenString creates a new string from the Token's value
@@ -73,8 +73,8 @@ func (l *Lexer) TokenStringAndTrim(t Token) string {
 }
 
 func (l *Lexer) nextByte() byte {
-	b := l.buffer[l.offset]
-	l.offset++
+	b := l.buffer[l.byteOffset]
+	l.byteOffset++
 	return b
 }
 
@@ -84,14 +84,16 @@ func LexString(str string) *Lexer {
 }
 
 func (l *Lexer) current() byte {
-	return l.buffer[l.offset]
+	return l.buffer[l.byteOffset]
 }
 
 // LexBytes ...
 func LexBytes(bytes []byte) *Lexer {
 	l := new(Lexer)
+	l.byteOffset = 0
 	l.buffer = bytes
 	l.next()
+	l.tokenOffset = 0
 	l.preprocess()
 	return l
 }
@@ -108,6 +110,7 @@ func LexFile(path string) *Lexer {
 
 func processNewLine(l *Lexer) Token {
 	l.line++
+	l.byteOffset++
 	return Token{
 		Type: TknNewLine,
 	}
@@ -120,18 +123,18 @@ func processIgnored(l *Lexer) Token {
 }
 
 func processNumber(l *Lexer) (t Token) {
-	t.start = l.offset
-	t.end = l.offset
+	t.start = l.byteOffset
+	t.end = l.byteOffset
 	t.Type = TknNumber
 	decimalUsed := false
-	for '0' <= l.buffer[l.offset] && l.buffer[l.offset] <= '9' || l.buffer[l.offset] == '.' {
-		if l.buffer[l.offset] == '.' {
+	for '0' <= l.buffer[l.byteOffset] && l.buffer[l.byteOffset] <= '9' || l.buffer[l.byteOffset] == '.' {
+		if l.buffer[l.byteOffset] == '.' {
 			if decimalUsed {
 				return t
 			}
 			decimalUsed = true
 		}
-		l.offset++
+		l.byteOffset++
 		t.end++
 		if l.isEOF() {
 			return t
@@ -143,8 +146,8 @@ func processNumber(l *Lexer) (t Token) {
 // TODO: handle errors etc
 func processCharacter(l *Lexer) Token {
 	t := new(Token)
-	t.start = l.offset
-	t.end = l.offset
+	t.start = l.byteOffset
+	t.end = l.byteOffset
 	t.Type = TknCharacter
 	b := l.nextByte()
 	b2 := l.nextByte()
@@ -164,16 +167,16 @@ func processCharacter(l *Lexer) Token {
 func processIdentifier(l *Lexer) Token {
 
 	t := new(Token)
-	t.start = l.offset
-	t.end = l.offset
+	t.start = l.byteOffset
+	t.end = l.byteOffset
 	t.Type = TknIdentifier
 	if l.isEOF() {
 		return *t
 	}
 	for isIdentifier(l) {
-		//fmt.Printf("id: %c\n", l.buffer[l.offset])
+		//fmt.Printf("id: %c\n", l.buffer[l.byteOffset])
 		t.end++
-		l.offset++
+		l.byteOffset++
 		if l.isEOF() {
 			return *t
 		}
@@ -186,8 +189,8 @@ func processString(l *Lexer) Token {
 	// the start - end is the value
 	// it DOES include the enclosing quotation marks
 	t := new(Token)
-	t.start = l.offset
-	t.end = l.offset
+	t.start = l.byteOffset
+	t.end = l.byteOffset
 	t.Type = TknString
 	b := l.nextByte()
 	b2 := l.nextByte()
