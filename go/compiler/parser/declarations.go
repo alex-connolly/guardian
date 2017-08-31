@@ -226,9 +226,9 @@ func parseEventDeclaration(p *Parser) {
 	p.parseRequired(lexer.TknOpenBracket)
 	types := p.parseReferenceList()
 	p.parseRequired(lexer.TknCloseBracket)
-	node := ast.EventDeclarataionNode{
+	node := ast.EventDeclarationNode{
 		Identifier: name,
-		Types:      types,
+		Parameters: types,
 	}
 	p.Scope.Declare("event", node)
 }

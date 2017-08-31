@@ -6,11 +6,6 @@ import (
 	"github.com/end-r/guardian/go/compiler/lexer"
 )
 
-type ExpressionNode interface {
-	Type() NodeType
-	Traverse(*vmgen.VM)
-}
-
 // BinaryExpressionNode ...
 type BinaryExpressionNode struct {
 	Left, Right ExpressionNode

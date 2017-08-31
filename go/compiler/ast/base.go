@@ -6,8 +6,21 @@ import "github.com/end-r/vmgen"
 type Node interface {
 	Type() NodeType
 	Validate(NodeType) bool
-	Declare(string, Node)
 	Traverse(*vmgen.VM)
+}
+
+type ExpressionNode interface {
+	Node
+}
+
+type DeclarationNode interface {
+}
+
+type ScopeNode interface {
+	Declare(string, Node)
+}
+
+type StatementNode interface {
 }
 
 type FileNode struct {

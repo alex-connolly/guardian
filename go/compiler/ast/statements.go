@@ -2,9 +2,6 @@ package ast
 
 import "github.com/end-r/vmgen"
 
-type StatementNode interface {
-}
-
 type AssignmentStatementNode struct {
 	Left  []ExpressionNode
 	Right []ExpressionNode

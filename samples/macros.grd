@@ -1,8 +1,0 @@
-
-contract Doer {
-
-    macro ASSIGN(k, v) k = v
-
-    ASSIGN(name, "Alex")
-
-}
