@@ -78,7 +78,7 @@ func (p *Parser) parseBlock() ast.BlockStatementNode {
 	node := ast.BlockStatementNode{}
 
 	for p.parseOptional(lexer.TknCloseBrace) {
-		p.next()
+		//p.parseNext()
 	}
 
 	return node

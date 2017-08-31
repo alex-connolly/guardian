@@ -2,6 +2,9 @@ package ast
 
 import "github.com/end-r/vmgen"
 
+type StatementNode interface {
+}
+
 type AssignmentStatementNode struct {
 	Left  []ExpressionNode
 	Right []ExpressionNode
@@ -89,9 +92,10 @@ func (n IfStatementNode) Traverse(vm *vmgen.VM) {
 }
 
 type SwitchStatementNode struct {
-	Target  ExpressionNode
-	Clauses []CaseStatementNode
-	Default BlockStatementNode
+	Target      ExpressionNode
+	Clauses     []CaseStatementNode
+	Default     BlockStatementNode
+	IsExclusive bool
 }
 
 func (n SwitchStatementNode) Type() NodeType { return SwitchStatement }
@@ -111,12 +115,18 @@ func (n SwitchStatementNode) Declare(key string, node Node) {
 func (n SwitchStatementNode) Traverse(vm *vmgen.VM) {
 	// traverse Expression
 	n.Target.Traverse(vm)
+	for _, clause := range n.Clauses {
+		clause.Traverse(vm)
+		if n.IsExclusive {
+			vm.AddBytecode("")
+		}
+	}
 
 }
 
 type CaseStatementNode struct {
 	Expressions []ExpressionNode
-	Body        BlockStatementNode
+	Block       BlockStatementNode
 }
 
 func (n CaseStatementNode) Type() NodeType { return CaseStatement }
@@ -130,6 +140,9 @@ func (n CaseStatementNode) Declare(key string, node Node) {
 }
 
 func (n CaseStatementNode) Traverse(vm *vmgen.VM) {
+	for _, expr := range n.Expressions {
+		expr.Traverse(vm)
+	}
 
 }
 
@@ -153,7 +166,7 @@ func (n BlockStatementNode) Traverse(vm *vmgen.VM) {
 
 type ForStatementNode struct {
 	Init  Node
-	Cond  Node
+	Cond  ExpressionNode
 	Post  Node
 	Block BlockStatementNode
 }
@@ -169,5 +182,13 @@ func (n ForStatementNode) Declare(key string, node Node) {
 }
 
 func (n ForStatementNode) Traverse(vm *vmgen.VM) {
+	n.Init.Traverse(vm)
+	vm.AddBytecode("JUMPDEST")
+	//position := vm.Position()
+	n.Cond.Traverse(vm)
+	vm.AddBytecode("JUMPI")
+	n.Block.Traverse(vm)
+	n.Post.Traverse(vm)
+	//vm.AddBytecode("JUMP", position)
 
 }

@@ -161,5 +161,8 @@ type ReferenceNode struct {
 func (n ReferenceNode) Type() NodeType { return Reference }
 
 func (n ReferenceNode) Traverse(vm *vmgen.VM) {
-
+	// reference e.g. dog.tail.wag()
+	// get the object
+	// if in storage
+	vm.AddBytecode("LOAD")
 }

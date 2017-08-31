@@ -175,10 +175,12 @@ func parseMapType(p *Parser) {
 
 	p.validate(ast.MapType)
 
-	p.Scope.Declare("", ast.MapTypeNode{
+	mapType := ast.MapTypeNode{
 		Key:   key,
 		Value: value,
-	})
+	}
+
+	p.Scope.Declare("", mapType)
 }
 
 func parseArrayType(p *Parser) {
@@ -192,9 +194,11 @@ func parseArrayType(p *Parser) {
 	}
 	p.validate(ast.ArrayType)
 
-	p.Scope.Declare("", ast.ArrayTypeNode{
+	arrayType := ast.ArrayTypeNode{
 	//Value: typ,
-	})
+	}
+
+	p.Scope.Declare("", arrayType)
 }
 
 func parseExplicitVarDeclaration(p *Parser) {

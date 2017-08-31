@@ -206,5 +206,5 @@ func (n EventDeclarationNode) Declare(key string, node Node) {
 }
 
 func (n EventDeclarationNode) Traverse(vm *vmgen.VM) {
-
+	vm.AddBytecode("LOG")
 }
