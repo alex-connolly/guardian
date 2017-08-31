@@ -9,17 +9,17 @@ import (
 )
 
 func TestParseInterfaceDeclarationEmpty(t *testing.T) {
-	p := createParser(`interface Wagable {}`)
+	p := createContractParser(`interface Wagable {}`)
 	goutil.Assert(t, isInterfaceDeclaration(p), "should detect interface decl")
 	parseInterfaceDeclaration(p)
-	goutil.Assert(t, p.Scope.Type() == ast.InterfaceDeclaration, "wrong node type")
+	goutil.Assert(t, len(p.Scope.Nodes["interface"]) == 1, "wrong node count")
 }
 
 func TestParseContractDeclarationEmpty(t *testing.T) {
 	p := createParser(`contract Wagable {}`)
 	goutil.Assert(t, isContractDeclaration(p), "should detect contract decl")
 	parseContractDeclaration(p)
-	goutil.Assert(t, p.Scope.Type() == ast.ContractDeclaration, "wrong node type")
+	goutil.Assert(t, len(p.Scope.Nodes["interface"]) == 1, "wrong node count")
 }
 
 func TestParseClassDeclarationEmpty(t *testing.T) {

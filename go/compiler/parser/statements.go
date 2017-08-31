@@ -39,6 +39,7 @@ func parseAssignmentStatement(p *Parser) {
 		Left:  assigned,
 		Right: to,
 	}
+	p.Scope.Add("flow", node)
 }
 
 func parseIfStatement(p *Parser) {
@@ -72,6 +73,7 @@ func parseForStatement(p *Parser) {
 		Cond:  cond,
 		Block: body,
 	}
+	p.Scope.Add("flow", node)
 
 }
 
@@ -89,6 +91,7 @@ func parseCaseStatement(p *Parser) {
 		Expressions: exprs,
 		Block:       body,
 	}
+	p.Scope.Add("flow", node)
 }
 
 func parseSwitchStatement(p *Parser) {

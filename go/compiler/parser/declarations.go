@@ -23,12 +23,14 @@ func parseInterfaceDeclaration(p *Parser) {
 
 	p.parseScope(&body)
 
-	n := ast.InterfaceDeclarationNode{
+	node := ast.InterfaceDeclarationNode{
 		Identifier: identifier,
 		Supers:     inherits,
 		IsAbstract: abstract,
 		Body:       body,
 	}
+
+	p.Scope.Add("interface", node)
 }
 
 // like any list parser, but enforces that each node must be a reference
@@ -72,7 +74,7 @@ func parseClassDeclaration(p *Parser) {
 
 	p.parseScope(&body)
 
-	n := ast.ClassDeclarationNode{
+	node := ast.ClassDeclarationNode{
 		Identifier: identifier,
 		Supers:     inherits,
 		Interfaces: interfaces,
@@ -80,6 +82,7 @@ func parseClassDeclaration(p *Parser) {
 		Body:       body,
 	}
 
+	p.Scope.Add("class", node)
 }
 
 func parseContractDeclaration(p *Parser) {
@@ -102,12 +105,14 @@ func parseContractDeclaration(p *Parser) {
 
 	p.parseScope(&body)
 
-	n := ast.ContractDeclarationNode{
+	node := ast.ContractDeclarationNode{
 		Identifier: identifier,
 		Supers:     inherits,
 		IsAbstract: abstract,
 		Body:       body,
 	}
+
+	p.Scope.Add("contract", node)
 }
 
 func (p *Parser) parseParameters() []ast.ExplicitVarDeclarationNode {
@@ -142,13 +147,15 @@ func parseFuncDeclaration(p *Parser) {
 
 	p.parseScope(&body)
 
-	n := ast.FuncDeclarationNode{
+	node := ast.FuncDeclarationNode{
 		Identifier: identifier,
 		Parameters: params,
 		Results:    results,
 		IsAbstract: abstract,
 		Body:       body,
 	}
+
+	p.Scope.Add("func", node)
 }
 
 func parseTypeDeclaration(p *Parser) {
@@ -165,7 +172,7 @@ func parseTypeDeclaration(p *Parser) {
 	p.Scope.Add("type", n)
 }
 
-func (p *Parser) parseMapType() {
+func (p *Parser) parseMapType() ast.Node {
 
 	p.parseRequired(lexer.TknMap)
 	p.parseRequired(lexer.TknOpenSquare)
@@ -183,9 +190,10 @@ func (p *Parser) parseMapType() {
 		Value: value,
 	}
 
+	return mapType
 }
 
-func (p *Parser) parseArrayType() {
+func (p *Parser) parseArrayType() ast.Node {
 	p.parseRequired(lexer.TknOpenSquare)
 
 	//typ := p.parseExpression()
@@ -199,26 +207,26 @@ func (p *Parser) parseArrayType() {
 	arrayType := ast.ArrayTypeNode{
 	//Value: typ,
 	}
-
+	return arrayType
 }
 
 func parseExplicitVarDeclaration(p *Parser) {
-
-	// parse variable Names
-	names := make([]string, 0)
-	names = append(names, p.lexer.TokenString(p.current()))
-	p.next()
-	for p.parseOptional(lexer.TknComma) {
+	/*
+		// parse variable Names
+		names := make([]string, 0)
 		names = append(names, p.lexer.TokenString(p.current()))
-	}
-	// parse type
-	dType := p.parseReference()
+		p.next()
+		for p.parseOptional(lexer.TknComma) {
+			names = append(names, p.lexer.TokenString(p.current()))
+		}
+		// parse type
+		dType := p.parseReference()
 
-	node := ast.ExplicitVarDeclarationNode{
-		Identifiers:  names,
-		DeclaredType: dType,
-	}
-
+		node := ast.ExplicitVarDeclarationNode{
+			Identifiers:  names,
+			DeclaredType: dType,
+		}
+	*/
 }
 
 func parseEventDeclaration(p *Parser) {

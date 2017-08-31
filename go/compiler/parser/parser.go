@@ -16,31 +16,19 @@ type Parser struct {
 	Errs       []string
 }
 
-func createParser(data string) *Parser {
+func createContractParser(data string) *Parser {
 	p := new(Parser)
+	data = `contract {` + data + `}`
 	p.lexer = lexer.LexString(data)
 	p.Scope = &ast.ScopeNode{}
 	return p
 }
 
-func (p *Parser) run() {
-	if p.index >= len(p.lexer.Tokens) {
-		return
-	}
-	found := false
-	for _, c := range getPrimaryConstructs() {
-		if c.is(p) {
-			fmt.Printf("FOUND: %s at index %d\n", c.name, p.index)
-			c.parse(p)
-			found = true
-			break
-		}
-	}
-	if !found {
-		p.addError(fmt.Sprintf("unrecognised construct: %d", p.lexer.TokenString(p.current())))
-		p.next()
-	}
-	p.run()
+func createParser(data string) *Parser {
+	p := new(Parser)
+	p.lexer = lexer.LexString(data)
+	p.Scope = &ast.ScopeNode{}
+	return p
 }
 
 func (p *Parser) current() lexer.Token {
@@ -64,14 +52,15 @@ func (p *Parser) parseOptional(t lexer.TokenType) bool {
 }
 
 func (p *Parser) parseRequired(t lexer.TokenType) {
-	if p.lexer.Tokens[p.index].Type != t {
+	if p.current().Type != t {
 		p.addError("Required x, found y")
 	}
 	p.next()
 }
 
 func (p *Parser) parseIdentifier() string {
-	if p.lexer.Tokens[p.index].Type != lexer.TknIdentifier {
+	fmt.Printf("index: %d, tknlength %d", len(p.lexer.Tokens), p.index)
+	if p.current().Type != lexer.TknIdentifier {
 		p.addError("Required indentifier, found {add token type}")
 		return ""
 	}
@@ -101,6 +90,36 @@ func (p *Parser) addError(err string) {
 	p.Errs = append(p.Errs, err)
 }
 
+func (p *Parser) parseEnclosedScope(scope *ast.ScopeNode) {
+	p.parseRequired(lexer.TknOpenBrace)
+	p.parseScope(scope)
+	p.parseRequired(lexer.TknCloseBrace)
+}
+
 func (p *Parser) parseScope(scope *ast.ScopeNode) {
 
+	scope.Parent = p.Scope
+	p.Scope = scope
+
+	for true {
+		if p.index >= len(p.lexer.Tokens) {
+			p.addError("unclosed scope")
+		}
+		found := false
+		for _, c := range getPrimaryConstructs() {
+			if c.is(p) {
+				fmt.Printf("FOUND: %s at index %d\n", c.name, p.index)
+				c.parse(p)
+				if c.name == "scope closure" {
+					return
+				}
+				found = true
+				break
+			}
+		}
+		if !found {
+			p.addError(fmt.Sprintf("unrecognised construct: %d", p.lexer.TokenString(p.current())))
+			p.next()
+		}
+	}
 }

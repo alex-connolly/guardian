@@ -156,8 +156,7 @@ func (p *Parser) parseSliceExpression() (n ast.SliceExpressionNode) {
 }
 
 func (p *Parser) parseReference() (n ast.ReferenceNode) {
-	n.Names = make([]string, 0)
-	n.Names = append(n.Names, p.parseIdentifier())
+	n.Names = []string{p.parseIdentifier()}
 	for p.parseOptional(lexer.TknDot) {
 		n.Names = append(n.Names, p.parseIdentifier())
 	}
