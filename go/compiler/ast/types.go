@@ -30,12 +30,14 @@ const (
 	ReturnStatement
 	BranchStatement
 	IfStatement
+	Condition
 	SwitchStatement
 	CaseStatement
 	BlockStatement
 	ForStatement
 
 	File
+	Scope
 )
 
 func (t NodeType) isExpression() bool {

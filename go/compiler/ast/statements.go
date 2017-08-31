@@ -9,14 +9,6 @@ type AssignmentStatementNode struct {
 
 func (n AssignmentStatementNode) Type() NodeType { return AssignmentStatement }
 
-func (n AssignmentStatementNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n AssignmentStatementNode) Declare(key string, node Node) {
-
-}
-
 func (n AssignmentStatementNode) Traverse(vm *vmgen.VM) {
 	if len(n.Left) != len(n.Right) {
 		if len(n.Right) == 1 {
@@ -41,73 +33,46 @@ type ReturnStatementNode struct {
 
 func (n ReturnStatementNode) Type() NodeType { return ReturnStatement }
 
-func (n ReturnStatementNode) Validate(t NodeType) bool {
-	return t.isExpression()
-}
-
-func (n ReturnStatementNode) Declare(key string, node Node) {
-
-}
-
 type BranchStatementNode struct {
 	Identifier string
 }
 
 func (n BranchStatementNode) Type() NodeType { return BranchStatement }
 
-func (n BranchStatementNode) Validate(t NodeType) bool {
-	return true
+type ConditionNode struct {
+	Condition ExpressionNode
+	Body      ScopeNode
 }
 
-func (n BranchStatementNode) Declare(key string, node Node) {
+func (n ConditionNode) Type() NodeType { return IfStatement }
 
+func (n ConditionNode) Traverse(vm *vmgen.VM) {
+	//position := vm.Position()
+	//ops := n.Body.Traverse(vm)
+	n.Condition.Traverse(vm)
+	//vm.AddBytecode("JUMP", position+ops)
 }
 
 type IfStatementNode struct {
-	Init Node
-	Cond ExpressionNode
-	Body BlockStatementNode
-	Else BlockStatementNode
+	Init       Node
+	Conditions []ConditionNode
+	Else       ScopeNode
 }
 
 func (n IfStatementNode) Type() NodeType { return IfStatement }
 
-func (n IfStatementNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n IfStatementNode) Declare(key string, node Node) {
-
-}
-
 func (n IfStatementNode) Traverse(vm *vmgen.VM) {
 	n.Init.Traverse(vm)
-	n.Cond.Traverse(vm)
-	// TODO: add jumping statements
-	vm.AddBytecode("")
-	n.Body.Traverse(vm)
 }
 
 type SwitchStatementNode struct {
 	Target      ExpressionNode
 	Clauses     []CaseStatementNode
-	Default     BlockStatementNode
+	Default     ScopeNode
 	IsExclusive bool
 }
 
 func (n SwitchStatementNode) Type() NodeType { return SwitchStatement }
-
-func (n SwitchStatementNode) Validate(t NodeType) bool {
-	switch t {
-	case CaseStatement:
-		return true
-	}
-	return false
-}
-
-func (n SwitchStatementNode) Declare(key string, node Node) {
-
-}
 
 func (n SwitchStatementNode) Traverse(vm *vmgen.VM) {
 	// traverse Expression
@@ -123,18 +88,10 @@ func (n SwitchStatementNode) Traverse(vm *vmgen.VM) {
 
 type CaseStatementNode struct {
 	Expressions []ExpressionNode
-	Block       BlockStatementNode
+	Block       ScopeNode
 }
 
 func (n CaseStatementNode) Type() NodeType { return CaseStatement }
-
-func (n CaseStatementNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n CaseStatementNode) Declare(key string, node Node) {
-
-}
 
 func (n CaseStatementNode) Traverse(vm *vmgen.VM) {
 	for _, expr := range n.Expressions {
@@ -143,40 +100,14 @@ func (n CaseStatementNode) Traverse(vm *vmgen.VM) {
 
 }
 
-type BlockStatementNode struct {
-	Body []Node
-}
-
-func (n BlockStatementNode) Type() NodeType { return BlockStatement }
-
-func (n BlockStatementNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n BlockStatementNode) Declare(key string, node Node) {
-
-}
-
-func (n BlockStatementNode) Traverse(vm *vmgen.VM) {
-
-}
-
 type ForStatementNode struct {
-	Init  Node
+	Init  AssignmentStatementNode
 	Cond  ExpressionNode
-	Post  Node
-	Block BlockStatementNode
+	Post  StatementNode
+	Block ScopeNode
 }
 
 func (n ForStatementNode) Type() NodeType { return ForStatement }
-
-func (n ForStatementNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n ForStatementNode) Declare(key string, node Node) {
-
-}
 
 func (n ForStatementNode) Traverse(vm *vmgen.VM) {
 	n.Init.Traverse(vm)

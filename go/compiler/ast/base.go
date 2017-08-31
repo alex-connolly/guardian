@@ -5,7 +5,6 @@ import "github.com/end-r/vmgen"
 // Node interface for storage in AST
 type Node interface {
 	Type() NodeType
-	Validate(NodeType) bool
 	Traverse(*vmgen.VM)
 }
 
@@ -14,13 +13,33 @@ type ExpressionNode interface {
 }
 
 type DeclarationNode interface {
-}
-
-type ScopeNode interface {
-	Declare(string, Node)
+	Node
 }
 
 type StatementNode interface {
+	Node
+}
+
+type ScopeNode struct {
+	ValidTypes []NodeType
+	Nodes      []Node
+}
+
+func (n ScopeNode) Type() NodeType { return Scope }
+
+func (n ScopeNode) Traverse(vm *vmgen.VM) {
+	for _, n := range n.Nodes {
+		n.Traverse(vm)
+	}
+}
+
+func (n ScopeNode) IsValid(nt NodeType) bool {
+	for _, t := range n.ValidTypes {
+		if t == nt {
+			return true
+		}
+	}
+	return false
 }
 
 type FileNode struct {

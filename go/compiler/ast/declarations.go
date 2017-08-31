@@ -10,34 +10,18 @@ type TypeDeclarationNode struct {
 // Type ...
 func (n TypeDeclarationNode) Type() NodeType { return TypeDeclaration }
 
-func (n TypeDeclarationNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n TypeDeclarationNode) Declare(key string, node Node) {
-
-}
-
 func (n TypeDeclarationNode) Traverse(vm *vmgen.VM) {
 
 }
 
 type FuncDeclarationNode struct {
 	Identifier string
-	Parameters []Node
-	Results    []Node
+	Parameters []ExplicitVarDeclarationNode
+	Results    []ExplicitVarDeclarationNode
 	IsAbstract bool
 }
 
 func (n FuncDeclarationNode) Type() NodeType { return FuncDeclaration }
-
-func (n FuncDeclarationNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n FuncDeclarationNode) Declare(key string, node Node) {
-
-}
 
 func (n FuncDeclarationNode) Traverse(vm *vmgen.VM) {
 
