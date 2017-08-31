@@ -17,13 +17,11 @@ func parseInterfaceDeclaration(p *Parser) {
 		inherits = p.parseReferenceList()
 	}
 
-	body := &ast.ScopeNode{
-		ValidTypes: []ast.NodeType{
-		//ast.FuncType
-		},
+	body := ast.ScopeNode{
+		ValidTypes: []ast.NodeType{},
 	}
 
-	p.parseScope(body)
+	p.parseScope(&body)
 
 	n := ast.InterfaceDeclarationNode{
 		Identifier: identifier,
@@ -68,17 +66,20 @@ func parseClassDeclaration(p *Parser) {
 
 	p.parseRequired(lexer.TknOpenBrace)
 
+	body := ast.ScopeNode{
+		ValidTypes: []ast.NodeType{},
+	}
+
+	p.parseScope(&body)
+
 	n := ast.ClassDeclarationNode{
 		Identifier: identifier,
 		Supers:     inherits,
 		Interfaces: interfaces,
 		IsAbstract: abstract,
+		Body:       body,
 	}
 
-	p.Scope.Declare("class", n)
-
-	p.parent = p.Scope
-	p.Scope = n
 }
 
 func parseContractDeclaration(p *Parser) {
@@ -95,21 +96,21 @@ func parseContractDeclaration(p *Parser) {
 		inherits = p.parseReferenceList()
 	}
 
-	p.parseRequired(lexer.TknOpenBrace)
+	body := ast.ScopeNode{
+		ValidTypes: []ast.NodeType{},
+	}
+
+	p.parseScope(&body)
 
 	n := ast.ContractDeclarationNode{
 		Identifier: identifier,
 		Supers:     inherits,
 		IsAbstract: abstract,
+		Body:       body,
 	}
-
-	p.Scope.Declare("contract", n)
-
-	p.parent = p.Scope
-	p.Scope = n
 }
 
-func (p *Parser) parseParameters() []ast.Node {
+func (p *Parser) parseParameters() []ast.ExplicitVarDeclarationNode {
 	var params []ast.Node
 	p.parseRequired(lexer.TknOpenBracket)
 
@@ -117,7 +118,7 @@ func (p *Parser) parseParameters() []ast.Node {
 	return params
 }
 
-func (p *Parser) parseResults() []ast.Node {
+func (p *Parser) parseResults() []ast.ReferenceNode {
 	return nil
 }
 
@@ -135,17 +136,19 @@ func parseFuncDeclaration(p *Parser) {
 
 	p.validate(ast.FuncDeclaration)
 
+	body := ast.ScopeNode{
+		ValidTypes: []ast.NodeType{},
+	}
+
+	p.parseScope(&body)
+
 	n := ast.FuncDeclarationNode{
 		Identifier: identifier,
 		Parameters: params,
 		Results:    results,
 		IsAbstract: abstract,
+		Body:       body,
 	}
-
-	p.Scope.Declare("func", n)
-
-	p.parent = p.Scope
-	p.Scope = n
 }
 
 func parseTypeDeclaration(p *Parser) {
@@ -161,7 +164,6 @@ func parseTypeDeclaration(p *Parser) {
 		Value:      value,
 	}
 
-	p.Scope.Declare("type", n)
 }
 
 func parseMapType(p *Parser) {
