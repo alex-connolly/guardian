@@ -17,7 +17,7 @@ func ParseFile(path string) *Parser {
 	}
 	p := new(Parser)
 	p.lexer = lexer.LexBytes(bytes)
-	p.Scope = ast.FileNode{}
+	p.Scope = &ast.ScopeNode{}
 	p.run()
 	return p
 }
@@ -30,7 +30,7 @@ func ParseString(data string) *Parser {
 // ParseBytes ...
 func ParseBytes(data []byte) *Parser {
 	p := new(Parser)
-	p.Scope = ast.FileNode{}
+	p.Scope = &ast.ScopeNode{}
 	p.lexer = lexer.LexBytes(data)
 	p.run()
 	return p

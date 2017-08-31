@@ -17,7 +17,7 @@ func (n TypeDeclarationNode) Traverse(vm *vmgen.VM) {
 type FuncDeclarationNode struct {
 	Identifier string
 	Parameters []ExplicitVarDeclarationNode
-	Results    []ExplicitVarDeclarationNode
+	Results    []ReferenceNode
 	Body       ScopeNode
 	IsAbstract bool
 }

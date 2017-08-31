@@ -111,7 +111,7 @@ func parseContractDeclaration(p *Parser) {
 }
 
 func (p *Parser) parseParameters() []ast.ExplicitVarDeclarationNode {
-	var params []ast.Node
+	var params []ast.ExplicitVarDeclarationNode
 	p.parseRequired(lexer.TknOpenBracket)
 
 	p.parseRequired(lexer.TknCloseBracket)
@@ -157,16 +157,15 @@ func parseTypeDeclaration(p *Parser) {
 
 	value := p.parseReference()
 
-	p.validate(ast.TypeDeclaration)
-
 	n := ast.TypeDeclarationNode{
 		Identifier: identifier,
 		Value:      value,
 	}
 
+	p.Scope.Add("type", n)
 }
 
-func parseMapType(p *Parser) {
+func (p *Parser) parseMapType() {
 
 	p.parseRequired(lexer.TknMap)
 	p.parseRequired(lexer.TknOpenSquare)
@@ -184,10 +183,9 @@ func parseMapType(p *Parser) {
 		Value: value,
 	}
 
-	p.Scope.Declare("", mapType)
 }
 
-func parseArrayType(p *Parser) {
+func (p *Parser) parseArrayType() {
 	p.parseRequired(lexer.TknOpenSquare)
 
 	//typ := p.parseExpression()
@@ -202,7 +200,6 @@ func parseArrayType(p *Parser) {
 	//Value: typ,
 	}
 
-	p.Scope.Declare("", arrayType)
 }
 
 func parseExplicitVarDeclaration(p *Parser) {
@@ -217,10 +214,11 @@ func parseExplicitVarDeclaration(p *Parser) {
 	// parse type
 	dType := p.parseReference()
 
-	p.Scope.Declare("variable", ast.ExplicitVarDeclarationNode{
+	node := ast.ExplicitVarDeclarationNode{
 		Identifiers:  names,
 		DeclaredType: dType,
-	})
+	}
+
 }
 
 func parseEventDeclaration(p *Parser) {
@@ -234,5 +232,5 @@ func parseEventDeclaration(p *Parser) {
 		Identifier: name,
 		Parameters: types,
 	}
-	p.Scope.Declare("event", node)
+	p.Scope.Add("event", node)
 }

@@ -17,8 +17,6 @@ func parseReturnStatement(p *Parser) {
 		}
 	}
 	p.parseRequired(lexer.TknCloseBracket)
-
-	p.Scope.Validate(ast.ReturnStatement)
 }
 
 func parseAssignmentStatement(p *Parser) {
@@ -37,12 +35,10 @@ func parseAssignmentStatement(p *Parser) {
 		to = append(to, p.parseExpression())
 	}
 
-	p.Scope.Validate(ast.AssignmentStatement)
-
-	p.Scope.Declare("Assignment", ast.AssignmentStatementNode{
+	node := ast.AssignmentStatementNode{
 		Left:  assigned,
 		Right: to,
-	})
+	}
 }
 
 func parseIfStatement(p *Parser) {
@@ -61,18 +57,20 @@ func parseForStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknFor)
 	// parse init expr, can be nil
-	init := p.parseExpression()
+	//init := p.parseExpression()
 	// parse condition, required
 	cond := p.parseExpression()
 	// parse statement
 	//	stat := p.parseStatement()
 
-	block := p.parseBlock()
+	body := ast.ScopeNode{}
+
+	p.parseScope(&body)
 
 	node := ast.ForStatementNode{
-		Init:  init,
+		//Init:  init,
 		Cond:  cond,
-		Block: block,
+		Block: body,
 	}
 
 }
@@ -83,14 +81,14 @@ func parseCaseStatement(p *Parser) {
 
 	exprs := p.parseExpressionList()
 
-	block := p.parseBlock()
+	body := ast.ScopeNode{}
+
+	p.parseScope(&body)
 
 	node := ast.CaseStatementNode{
 		Expressions: exprs,
-		Body:        block,
+		Block:       body,
 	}
-
-	p.Scope.Declare("", node)
 }
 
 func parseSwitchStatement(p *Parser) {
