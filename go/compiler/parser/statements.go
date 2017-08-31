@@ -77,19 +77,6 @@ func parseForStatement(p *Parser) {
 
 }
 
-func (p *Parser) parseBlock() ast.BlockStatementNode {
-
-	p.parseRequired(lexer.TknOpenBrace)
-
-	node := ast.BlockStatementNode{}
-
-	for p.parseOptional(lexer.TknCloseBrace) {
-		//p.parseNext()
-	}
-
-	return node
-}
-
 func parseCaseStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknCase)

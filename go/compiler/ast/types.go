@@ -13,6 +13,7 @@ const (
 	ExplicitVarDeclaration
 	ArrayType
 	MapType
+	FuncType
 
 	Reference
 	Literal

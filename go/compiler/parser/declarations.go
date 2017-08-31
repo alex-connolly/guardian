@@ -17,18 +17,20 @@ func parseInterfaceDeclaration(p *Parser) {
 		inherits = p.parseReferenceList()
 	}
 
-	p.parseRequired(lexer.TknOpenBrace)
+	body := &ast.ScopeNode{
+		ValidTypes: []ast.NodeType{
+		//ast.FuncType
+		},
+	}
+
+	p.parseScope(body)
 
 	n := ast.InterfaceDeclarationNode{
 		Identifier: identifier,
 		Supers:     inherits,
 		IsAbstract: abstract,
+		Body:       body,
 	}
-
-	p.Scope.Declare("interface", n)
-
-	p.parent = p.Scope
-	p.Scope = n
 }
 
 // like any list parser, but enforces that each node must be a reference

@@ -25,6 +25,13 @@ type ScopeNode struct {
 	Nodes      []Node
 }
 
+func (n ScopeNode) Add(new Node) {
+	if n.Nodes == nil {
+		n.Nodes = make([]Node, 0)
+	}
+	n.Nodes = append(n.Nodes, new)
+}
+
 func (n ScopeNode) Type() NodeType { return Scope }
 
 func (n ScopeNode) Traverse(vm *vmgen.VM) {

@@ -18,6 +18,7 @@ type FuncDeclarationNode struct {
 	Identifier string
 	Parameters []ExplicitVarDeclarationNode
 	Results    []ExplicitVarDeclarationNode
+	Body       ScopeNode
 	IsAbstract bool
 }
 
@@ -32,90 +33,41 @@ type ClassDeclarationNode struct {
 	IsAbstract   bool
 	Supers       []ReferenceNode
 	Interfaces   []ReferenceNode
+	Body         ScopeNode
 	declarations map[string][]Node
 }
 
 func (n ClassDeclarationNode) Type() NodeType { return ClassDeclaration }
-
-func (n ClassDeclarationNode) Validate(t NodeType) bool {
-	switch t {
-	case ClassDeclaration, InterfaceDeclaration, ContractDeclaration:
-		return true
-	}
-	return false
-}
-
-func (n ClassDeclarationNode) Declare(key string, node Node) {
-
-}
 
 func (n ClassDeclarationNode) Traverse(vm *vmgen.VM) {
 
 }
 
 type InterfaceDeclarationNode struct {
-	Identifier   string
-	IsAbstract   bool
-	Declarations []Node
-	Supers       []ReferenceNode
+	Identifier string
+	IsAbstract bool
+	Body       ScopeNode
+	Supers     []ReferenceNode
 }
 
 func (n InterfaceDeclarationNode) Type() NodeType { return InterfaceDeclaration }
-
-func (n InterfaceDeclarationNode) Validate(t NodeType) bool {
-	switch t {
-	case FuncDeclaration:
-		return true
-	}
-	return false
-}
-
-func (n InterfaceDeclarationNode) Declare(key string, node Node) {
-	n.Declarations = append(n.Declarations, node)
-}
 
 func (n InterfaceDeclarationNode) Traverse(vm *vmgen.VM) {
 
 }
 
 type ContractDeclarationNode struct {
-	Identifier   string
-	IsAbstract   bool
-	Supers       []ReferenceNode
-	Declarations map[string][]Node
+	Identifier string
+	IsAbstract bool
+	Supers     []ReferenceNode
+	Interfaces []ReferenceNode
+	Body       ScopeNode
 }
 
 func (n ContractDeclarationNode) Type() NodeType { return ContractDeclaration }
 
-func (n ContractDeclarationNode) Validate(t NodeType) bool {
-	switch t {
-	// allowable declarations
-	case InterfaceDeclaration, ClassDeclaration, FuncDeclaration:
-		return true
-	}
-	return false
-}
-func (n ContractDeclarationNode) Declare(key string, node Node) {
-	if n.Declarations == nil {
-		n.Declarations = make(map[string][]Node)
-	}
-	n.Declarations[key] = append(n.Declarations[key], node)
-}
-
 func (n ContractDeclarationNode) Traverse(vm *vmgen.VM) {
 	// find our variable declarations
-	for _, decl := range n.Declarations["field"] {
-		decl.Type()
-		// set key
-		bytes := []byte("decl")
-		params := make([]byte, 0)
-		params = append(params, byte(len(bytes)))
-		params = append(params, bytes...)
-		vm.AddBytecode("PUSH", params...)
-		// set value (default value)
-		vm.AddBytecode("PUSH")
-		vm.AddBytecode("STORE")
-	}
 }
 
 type MapTypeNode struct {
@@ -124,14 +76,6 @@ type MapTypeNode struct {
 }
 
 func (n MapTypeNode) Type() NodeType { return MapType }
-
-func (n MapTypeNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n MapTypeNode) Declare(key string, node Node) {
-
-}
 
 func (n MapTypeNode) Traverse(vm *vmgen.VM) {
 
@@ -143,15 +87,17 @@ type ArrayTypeNode struct {
 
 func (n ArrayTypeNode) Type() NodeType { return ArrayType }
 
-func (n ArrayTypeNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n ArrayTypeNode) Declare(key string, node Node) {
-
-}
-
 func (n ArrayTypeNode) Traverse(vm *vmgen.VM) {
+
+}
+
+type FuncTypeNode struct {
+	Value Node
+}
+
+func (n FuncTypeNode) Type() NodeType { return FuncType }
+
+func (n FuncTypeNode) Traverse(vm *vmgen.VM) {
 
 }
 
@@ -161,14 +107,6 @@ type ExplicitVarDeclarationNode struct {
 }
 
 func (n ExplicitVarDeclarationNode) Type() NodeType { return ExplicitVarDeclaration }
-
-func (n ExplicitVarDeclarationNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n ExplicitVarDeclarationNode) Declare(key string, node Node) {
-
-}
 
 func (n ExplicitVarDeclarationNode) Traverse(vm *vmgen.VM) {
 
@@ -180,14 +118,6 @@ type EventDeclarationNode struct {
 }
 
 func (n EventDeclarationNode) Type() NodeType { return EventDeclaration }
-
-func (n EventDeclarationNode) Validate(t NodeType) bool {
-	return true
-}
-
-func (n EventDeclarationNode) Declare(key string, node Node) {
-
-}
 
 func (n EventDeclarationNode) Traverse(vm *vmgen.VM) {
 	vm.AddBytecode("LOG")

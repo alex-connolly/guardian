@@ -9,9 +9,9 @@ import (
 
 // Parser ...
 type Parser struct {
-	Scope      ast.Node
+	Scope      ast.ScopeNode
 	Expression ast.ExpressionNode
-	parent     ast.Node
+	parent     ast.ScopeNode
 	lexer      *lexer.Lexer
 	index      int
 	Errs       []string
@@ -86,6 +86,11 @@ func parseScopeClosure(p *Parser) {
 	p.next()
 }
 
+func parseExplicitVarDeclaration(p *Parser) {
+	identifier := p.lexer.TokenString(p.current())
+
+}
+
 func (p *Parser) validate(t ast.NodeType) {
 	if p.Scope != nil {
 		if !p.Scope.Validate(t) {
@@ -100,4 +105,8 @@ func (p *Parser) parseType() ast.Node {
 
 func (p *Parser) addError(err string) {
 	p.Errs = append(p.Errs, err)
+}
+
+func (p *Parser) parseScope(scope *ast.ScopeNode) {
+	inner
 }
