@@ -6,6 +6,16 @@ import (
 	"github.com/end-r/goutil"
 )
 
+func TestIdentifierSafety(t *testing.T) {
+	p := createParser("")
+	// none of these should crash
+	goutil.Assert(t, !isClassDeclaration(p), "class declaration not recognised")
+	goutil.Assert(t, !isContractDeclaration(p), "contract declaration not recognised")
+	goutil.Assert(t, !isInterfaceDeclaration(p), "interface declaration not recognised")
+	goutil.Assert(t, !isEventDeclaration(p), "event declaration not recognised")
+	goutil.Assert(t, !isFuncDeclaration(p), "func declaration not recognised")
+}
+
 func TestIsClassDeclaration(t *testing.T) {
 	p := createParser("class Dog {")
 	goutil.Assert(t, isClassDeclaration(p), "class declaration not recognised")

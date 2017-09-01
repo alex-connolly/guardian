@@ -18,16 +18,25 @@ type Parser struct {
 
 func createContractParser(data string) *Parser {
 	p := new(Parser)
-	data = `contract {` + data + `}`
 	p.lexer = lexer.LexString(data)
-	p.Scope = &ast.ScopeNode{}
+	p.Scope = &ast.ScopeNode{
+		ValidTypes: []ast.NodeType{
+			ast.InterfaceDeclaration, ast.ClassDeclaration,
+			ast.FuncDeclaration,
+		},
+	}
 	return p
 }
 
 func createParser(data string) *Parser {
 	p := new(Parser)
 	p.lexer = lexer.LexString(data)
-	p.Scope = &ast.ScopeNode{}
+	p.Scope = &ast.ScopeNode{
+		ValidTypes: []ast.NodeType{
+			ast.InterfaceDeclaration, ast.ClassDeclaration,
+			ast.FuncDeclaration,
+		},
+	}
 	return p
 }
 
@@ -43,7 +52,18 @@ func (p *Parser) token(offset int) lexer.Token {
 	return p.lexer.Tokens[p.index+offset]
 }
 
+// index 0, tknlength 1
+// hasTokens(0) yes always
+// hasTokens(1) yes
+// hasTokens(2) no
+func (p *Parser) hasTokens(offset int) bool {
+	return p.index+offset <= len(p.lexer.Tokens)
+}
+
 func (p *Parser) parseOptional(t lexer.TokenType) bool {
+	if !p.hasTokens(1) {
+		return false
+	}
 	if p.current().Type == t {
 		p.next()
 		return true

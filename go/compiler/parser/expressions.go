@@ -26,42 +26,47 @@ func (p *Parser) parseExpression() ast.ExpressionNode {
 	// a() + b() * c()
 	// TODO: improve the logical flow here: it's horrendous
 
-	switch p.current().Type {
-	case lexer.TknMap:
-		return p.parseMapLiteral()
-	case lexer.TknOpenSquare:
-		return p.parseArrayLiteral()
-	case lexer.TknString, lexer.TknCharacter, lexer.TknNumber:
-		expr := p.parseLiteral()
-		if p.current().Type.IsBinaryOperator() {
-			p.parseBinaryExpression(expr)
-		} else if p.current().Type.IsUnaryOperator() {
-			p.parsePostfixUnaryExpression(expr)
-		}
-		break
-	case lexer.TknIdentifier:
-		expr := p.parseReference()
+	var expr ast.ExpressionNode
+	if !p.hasTokens(1) {
 		switch p.current().Type {
-		case lexer.TknOpenBracket:
-			p.parseCallExpression(expr)
-			break
-		case lexer.TknOpenBrace:
-			return p.parseCompositeLiteral(expr)
+		case lexer.TknMap:
+			return p.parseMapLiteral()
 		case lexer.TknOpenSquare:
-			p.parseIndexExpression() // TODO: could be slice
+			return p.parseArrayLiteral()
+		case lexer.TknString, lexer.TknCharacter, lexer.TknNumber:
+			expr = p.parseLiteral()
+			if p.current().Type.IsBinaryOperator() {
+				p.parseBinaryExpression(expr)
+			} else if p.current().Type.IsUnaryOperator() {
+				p.parsePostfixUnaryExpression(expr)
+			}
+			break
+		case lexer.TknIdentifier:
+			expr = p.parseReference()
+			if !p.hasTokens(1) {
+				switch p.current().Type {
+				case lexer.TknOpenBracket:
+					p.parseCallExpression(expr)
+					break
+				case lexer.TknOpenBrace:
+					return p.parseCompositeLiteral(expr.(ast.ReferenceNode))
+				case lexer.TknOpenSquare:
+					p.parseIndexExpression() // TODO: could be slice
+				}
+				if p.current().Type.IsBinaryOperator() {
+					p.parseBinaryExpression(expr)
+				} else if p.current().Type.IsUnaryOperator() {
+					p.parsePostfixUnaryExpression(expr)
+				}
+			}
+			break
+		case lexer.TknNot, lexer.TknIncrement, lexer.TknDecrement:
+			// prefix unary operator
+			p.parsePrefixUnaryExpression()
+			break
 		}
-		if p.current().Type.IsBinaryOperator() {
-			p.parseBinaryExpression(expr)
-		} else if p.current().Type.IsUnaryOperator() {
-			p.parsePostfixUnaryExpression(expr)
-		}
-		break
-	case lexer.TknNot, lexer.TknIncrement, lexer.TknDecrement:
-		// prefix unary operator
-		p.parsePrefixUnaryExpression()
-		break
 	}
-	return p.parseReference()
+	return expr
 }
 
 func (p *Parser) parsePrefixUnaryExpression() (n ast.UnaryExpressionNode) {

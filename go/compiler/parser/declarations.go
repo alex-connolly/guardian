@@ -30,7 +30,7 @@ func parseInterfaceDeclaration(p *Parser) {
 		Body:       body,
 	}
 
-	p.Scope.Add("interface", node)
+	p.Scope.Declare("interface", node)
 }
 
 // like any list parser, but enforces that each node must be a reference
@@ -82,7 +82,7 @@ func parseClassDeclaration(p *Parser) {
 		Body:       body,
 	}
 
-	p.Scope.Add("class", node)
+	p.Scope.Declare("class", node)
 }
 
 func parseContractDeclaration(p *Parser) {
@@ -112,7 +112,7 @@ func parseContractDeclaration(p *Parser) {
 		Body:       body,
 	}
 
-	p.Scope.Add("contract", node)
+	p.Scope.Declare("contract", node)
 }
 
 func (p *Parser) parseParameters() []ast.ExplicitVarDeclarationNode {
@@ -155,7 +155,7 @@ func parseFuncDeclaration(p *Parser) {
 		Body:       body,
 	}
 
-	p.Scope.Add("func", node)
+	p.Scope.Declare("func", node)
 }
 
 func parseTypeDeclaration(p *Parser) {
@@ -169,7 +169,7 @@ func parseTypeDeclaration(p *Parser) {
 		Value:      value,
 	}
 
-	p.Scope.Add("type", n)
+	p.Scope.Declare("type", n)
 }
 
 func (p *Parser) parseMapType() ast.Node {
@@ -240,5 +240,5 @@ func parseEventDeclaration(p *Parser) {
 		Identifier: name,
 		Parameters: types,
 	}
-	p.Scope.Add("event", node)
+	p.Scope.Declare("event", node)
 }

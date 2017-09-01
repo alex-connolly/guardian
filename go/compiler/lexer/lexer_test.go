@@ -92,6 +92,15 @@ func TestLexerFileDeclarations(t *testing.T) {
 		TknCloseBrace, TknNewLine})
 }
 
+func TestLexerReference(t *testing.T) {
+	l := LexString("hello")
+	goutil.AssertNow(t, len(l.Tokens) == 1, "wrong token length")
+	l = LexString("hello.dog")
+	goutil.AssertNow(t, len(l.Tokens) == 3, "wrong token length")
+	l = LexString("hello.dog.cat")
+	goutil.AssertNow(t, len(l.Tokens) == 5, "wrong token length")
+}
+
 func TestLexerError(t *testing.T) {
 	l := LexString("")
 	goutil.Assert(t, len(l.errors) == 0, "error len should be zero")
