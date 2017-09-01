@@ -247,14 +247,6 @@ func processFixed(len int, tkn TokenType) processorFunc {
 	}
 }
 
-func isOperator(l *Lexer) bool {
-	switch l.current() {
-	case '+', '-', '*', '/':
-		return true
-	}
-	return false
-}
-
 func isIdentifier(l *Lexer) bool {
 	return ('A' <= l.current() && l.current() <= 'Z') ||
 		('a' <= l.current() && l.current() <= 'z') ||

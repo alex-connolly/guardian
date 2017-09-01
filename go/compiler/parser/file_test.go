@@ -23,10 +23,3 @@ func TestConstructorContract(t *testing.T) {
 	log.Println(p.Errs)
 	goutil.Assert(t, p.Scope.Type() == ast.File, "outer Scope should be file")
 }
-
-func TestMacroContract(t *testing.T) {
-	p := ParseFile("tests/macro_contract.grd")
-	goutil.Assert(t, p != nil, "parser should not be nil")
-	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
-	goutil.Assert(t, p.Scope.Type() == ast.File, "outer Scope should be file")
-}

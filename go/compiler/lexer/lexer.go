@@ -18,13 +18,13 @@ type Lexer struct {
 	//macros      map[string]macro
 }
 
-func (l *Lexer) currentToken() Token {
+/*func (l *Lexer) currentToken() Token {
 	return l.Tokens[l.tokenOffset]
 }
 
 func (l *Lexer) advance() {
 	l.tokenOffset++
-}
+}*/
 
 func (l *Lexer) next() {
 	if l.isEOF() {
@@ -169,9 +169,9 @@ func processIdentifier(l *Lexer) Token {
 	t.start = l.byteOffset
 	t.end = l.byteOffset
 	t.Type = TknIdentifier
-	if l.isEOF() {
+	/*if l.isEOF() {
 		return *t
-	}
+	}*/
 	for isIdentifier(l) {
 		//fmt.Printf("id: %c\n", l.buffer[l.byteOffset])
 		t.end++

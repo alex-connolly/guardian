@@ -7,8 +7,13 @@ import (
 	"github.com/end-r/goutil"
 )
 
-func TestLex(t *testing.T) {
+func TestLexFileNonExistent(t *testing.T) {
+	l := LexFile("fake_file.grd")
+	goutil.Assert(t, l == nil, "lexer should be nil")
+}
 
+func TestLexUnrecognisedToken(t *testing.T) {
+	LexString("~")
 }
 
 func TestLexerTokenLength(t *testing.T) {
@@ -99,6 +104,13 @@ func TestLexerReference(t *testing.T) {
 	goutil.AssertNow(t, len(l.Tokens) == 3, "wrong token length")
 	l = LexString("hello.dog.cat")
 	goutil.AssertNow(t, len(l.Tokens) == 5, "wrong token length")
+}
+
+func TestLexerFloat(t *testing.T) {
+	l := LexString("5.5")
+	goutil.AssertNow(t, len(l.Tokens) == 1, "wrong token length")
+	l = LexString("5.5.5")
+	goutil.AssertNow(t, len(l.Tokens) == 3, "wrong token length")
 }
 
 func TestLexerError(t *testing.T) {
