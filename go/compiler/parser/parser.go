@@ -122,13 +122,14 @@ func (p *Parser) parseScope(scope *ast.ScopeNode) {
 	p.Scope = scope
 
 	for true {
-		if p.index >= len(p.lexer.Tokens) {
+		if !p.hasTokens(1) {
 			p.addError("unclosed scope")
+			return
 		}
 		found := false
 		for _, c := range getPrimaryConstructs() {
 			if c.is(p) {
-				fmt.Printf("FOUND: %s at index %d\n", c.name, p.index)
+				//fmt.Printf("FOUND: %s at index %d\n", c.name, p.index)
 				c.parse(p)
 				if c.name == "scope closure" {
 					return

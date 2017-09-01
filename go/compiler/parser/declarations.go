@@ -124,6 +124,22 @@ func (p *Parser) parseParameters() []ast.ExplicitVarDeclarationNode {
 }
 
 func (p *Parser) parseResults() []ast.ReferenceNode {
+	// currently not supporting named return types
+	// reasoning: confusing to user
+	// returns can either be single
+	// string {
+	// or multiple
+	// (string, string) {
+	// or none
+	// {
+	if p.parseOptional(lexer.TknOpenBracket) {
+		refs := p.parseReferenceList()
+		p.parseOptional(lexer.TknCloseBracket)
+		return refs
+	}
+	if p.current().Type == lexer.TknIdentifier {
+		return p.parseReferenceList()
+	}
 	return nil
 }
 
