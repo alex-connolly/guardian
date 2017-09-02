@@ -8,12 +8,12 @@ import (
 	"github.com/end-r/guardian/go/compiler/ast"
 )
 
-func TestEmptyFile(t *testing.T) {
+func TestEmptyContract(t *testing.T) {
 	p := ParseFile("tests/empty_contract.grd")
+	goutil.Assert(t, len(p.lexer.Tokens) == 7, "wrong length of tokens")
 	goutil.Assert(t, p != nil, "parser should not be nil")
 	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
-	goutil.Assert(t, p.Scope.Type() == ast.File, "outer Scope should be file")
-	log.Println(p.Scope.Type())
+	log.Println(p.Errs)
 }
 
 func TestConstructorContract(t *testing.T) {

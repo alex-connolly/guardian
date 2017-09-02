@@ -17,6 +17,7 @@ func getPrimaryConstructs() []construct {
 		construct{"explict var declaration", isExplicitVarDeclaration, parseExplicitVarDeclaration},
 
 		construct{"scope closure", isScopeClosure, parseScopeClosure},
+		construct{"new line", isNewLine, parseNewLine},
 
 		construct{"if statement", isIfStatement, parseIfStatement},
 		construct{"for statement", isForStatement, parseForStatement},

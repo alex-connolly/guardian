@@ -21,7 +21,7 @@ func parseInterfaceDeclaration(p *Parser) {
 		ValidTypes: []ast.NodeType{},
 	}
 
-	p.parseScope(&body)
+	p.parseEnclosedScope(&body)
 
 	node := ast.InterfaceDeclarationNode{
 		Identifier: identifier,
@@ -72,7 +72,7 @@ func parseClassDeclaration(p *Parser) {
 		ValidTypes: []ast.NodeType{},
 	}
 
-	p.parseScope(&body)
+	p.parseEnclosedScope(&body)
 
 	node := ast.ClassDeclarationNode{
 		Identifier: identifier,
@@ -103,7 +103,7 @@ func parseContractDeclaration(p *Parser) {
 		ValidTypes: []ast.NodeType{},
 	}
 
-	p.parseScope(&body)
+	p.parseEnclosedScope(&body)
 
 	node := ast.ContractDeclarationNode{
 		Identifier: identifier,

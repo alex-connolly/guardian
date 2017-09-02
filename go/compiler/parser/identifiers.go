@@ -52,6 +52,10 @@ func (p *Parser) isNextToken(t lexer.TokenType) bool {
 	return false
 }
 
+func isNewLine(p *Parser) bool {
+	return p.isNextToken(lexer.TknNewLine)
+}
+
 func isEventDeclaration(p *Parser) bool {
 	return p.isNextToken(lexer.TknEvent)
 }

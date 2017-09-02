@@ -14,6 +14,7 @@ type Parser struct {
 	lexer      *lexer.Lexer
 	index      int
 	Errs       []string
+	line       int
 }
 
 func createContractParser(data string) *Parser {
@@ -102,6 +103,11 @@ func (p *Parser) validate(t ast.NodeType) {
 	}
 }
 
+func parseNewLine(p *Parser) {
+	p.line++
+	p.next()
+}
+
 func (p *Parser) parseType() ast.Node {
 	return ast.TypeDeclarationNode{}
 }
@@ -118,28 +124,28 @@ func (p *Parser) parseEnclosedScope(scope *ast.ScopeNode) {
 
 func (p *Parser) parseScope(scope *ast.ScopeNode) {
 
+	fmt.Println("PARSING SCOPE")
+
 	scope.Parent = p.Scope
 	p.Scope = scope
 
-	for true {
-		if !p.hasTokens(1) {
-			p.addError("unclosed scope")
-			return
-		}
+	for p.hasTokens(1) {
 		found := false
 		for _, c := range getPrimaryConstructs() {
 			if c.is(p) {
-				//fmt.Printf("FOUND: %s at index %d\n", c.name, p.index)
-				c.parse(p)
+				fmt.Printf("FOUND: %s at index %d\n", c.name, p.index)
 				if c.name == "scope closure" {
+					fmt.Println("CLOSING SCOPE")
 					return
 				}
+				c.parse(p)
 				found = true
 				break
 			}
 		}
 		if !found {
-			p.addError(fmt.Sprintf("unrecognised construct: %d", p.lexer.TokenString(p.current())))
+			fmt.Printf("Unrecognised token at index %d\n", p.index)
+			p.addError(fmt.Sprintf("unrecognised construct: %s", p.lexer.TokenString(p.current())))
 			p.next()
 		}
 	}
