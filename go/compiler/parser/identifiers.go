@@ -73,11 +73,23 @@ func isIfStatement(p *Parser) bool {
 }
 
 func isAssignmentStatement(p *Parser) bool {
-	return false
+	savedIndex := p.index
+	expr := p.parseExpression()
+	if expr == nil {
+		return false
+	}
+	i := 0
+	for p.token(i).Type == lexer.TknComma {
+		i++
+		p.parseExpression()
+	}
+	flag := p.isNextToken(lexer.TknAssign)
+	p.index = savedIndex
+	return flag
 }
 
 func isSwitchStatement(p *Parser) bool {
-	if p.index+2 < len(p.lexer.Tokens) {
+	if p.hasTokens(2) {
 		return p.isNextToken(lexer.TknSwitch) ||
 			(p.current().Type == lexer.TknExclusive && p.token(1).Type == lexer.TknSwitch)
 	}

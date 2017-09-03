@@ -73,6 +73,9 @@ func (p *Parser) parseOptional(t lexer.TokenType) bool {
 }
 
 func (p *Parser) parseRequired(t lexer.TokenType) {
+	if !p.hasTokens(1) {
+		return
+	}
 	if p.current().Type != t {
 		p.addError("Required x, found y")
 	}

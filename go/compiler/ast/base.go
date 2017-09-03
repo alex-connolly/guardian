@@ -23,17 +23,21 @@ type StatementNode interface {
 type ScopeNode struct {
 	Parent     *ScopeNode
 	ValidTypes []NodeType
-	Nodes      map[string][]Node
+	nodes      map[string][]Node
 }
 
-func (n ScopeNode) Declare(key string, new Node) {
-	if n.Nodes == nil {
-		n.Nodes = make(map[string][]Node)
+func (n *ScopeNode) Nodes(key string) []Node {
+	return n.nodes[key]
+}
+
+func (n *ScopeNode) Declare(key string, node Node) {
+	if n.nodes == nil {
+		n.nodes = make(map[string][]Node)
 	}
-	if n.Nodes[key] == nil {
-		n.Nodes[key] = make([]Node, 0)
+	if n.nodes[key] == nil {
+		n.nodes[key] = make([]Node, 0)
 	}
-	n.Nodes[key] = append(n.Nodes[key], new)
+	n.nodes[key] = append(n.nodes[key], node)
 }
 
 func (n ScopeNode) Type() NodeType { return Scope }
@@ -42,7 +46,7 @@ func (n ScopeNode) Traverse(vm *vmgen.VM) {
 
 }
 
-func (n ScopeNode) IsValid(nt NodeType) bool {
+func (n *ScopeNode) IsValid(nt NodeType) bool {
 	for _, t := range n.ValidTypes {
 		if t == nt {
 			return true
