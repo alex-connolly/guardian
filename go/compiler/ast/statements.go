@@ -33,11 +33,9 @@ type ReturnStatementNode struct {
 
 func (n ReturnStatementNode) Type() NodeType { return ReturnStatement }
 
-type BranchStatementNode struct {
-	Identifier string
-}
+func (n ReturnStatementNode) Traverse(vm *vmgen.VM) {
 
-func (n BranchStatementNode) Type() NodeType { return BranchStatement }
+}
 
 type ConditionNode struct {
 	Condition ExpressionNode

@@ -178,5 +178,29 @@ func (p *Parser) parseLiteral() (n ast.LiteralNode) {
 
 func (p *Parser) parseCompositeLiteral(ref ast.ReferenceNode) (n ast.CompositeLiteralNode) {
 	n.Reference = ref
+	p.parseRequired(lexer.TknOpenBrace)
+	switch p.current().Type {
+	case lexer.TknIdentifier:
+		firstKey := p.lexer.TokenString(p.current())
+		p.parseRequired(lexer.TknColon)
+		expr := p.parseExpression()
+		if n.Fields == nil {
+			n.Fields = make(map[string]ast.ExpressionNode)
+		}
+		n.Fields[firstKey] = expr
+		for p.current().Type == lexer.TknComma {
+			key := p.lexer.TokenString(p.current())
+			p.parseRequired(lexer.TknColon)
+			expr := p.parseExpression()
+			if n.Fields == nil {
+				n.Fields = make(map[string]ast.ExpressionNode)
+			}
+			n.Fields[key] = expr
+		}
+		break
+	case lexer.TknCloseBrace:
+		p.next()
+		break
+	}
 	return n
 }
