@@ -130,6 +130,7 @@ func (n EventDeclarationNode) Traverse(vm *vmgen.VM) {
 // }
 type ConstructorDeclarationNode struct {
 	Parameters []ExplicitVarDeclarationNode
+	Body       ScopeNode
 }
 
 func (n ConstructorDeclarationNode) Type() NodeType { return ConstructorDeclaration }
@@ -139,7 +140,10 @@ func (n ConstructorDeclarationNode) Traverse(vm *vmgen.VM) {
 }
 
 type EnumDeclarationNode struct {
-	Cases []ReferenceNode
+	Identifier string
+	IsAbstract bool
+	Inherits   []ReferenceNode
+	Body       ScopeNode
 }
 
 func (n EnumDeclarationNode) Type() NodeType { return EnumDeclaration }

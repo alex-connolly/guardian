@@ -33,6 +33,34 @@ func parseInterfaceDeclaration(p *Parser) {
 	p.Scope.Declare("interface", node)
 }
 
+func parseEnumDeclaration(p *Parser) {
+
+	abstract := p.parseOptional(lexer.TknAbstract)
+	p.parseRequired(lexer.TknEnum)
+	identifier := p.parseIdentifier()
+
+	var inherits []ast.ReferenceNode
+
+	if p.parseOptional(lexer.TknInherits) {
+		inherits = p.parseReferenceList()
+	}
+
+	body := ast.ScopeNode{
+		ValidTypes: []ast.NodeType{ast.Reference},
+	}
+
+	p.parseEnclosedScope(&body)
+
+	node := ast.EnumDeclarationNode{
+		IsAbstract: abstract,
+		Identifier: identifier,
+		Inherits:   inherits,
+		Body:       body,
+	}
+
+	p.Scope.Declare("enum", node)
+}
+
 // like any list parser, but enforces that each node must be a reference
 func (p *Parser) parseReferenceList() []ast.ReferenceNode {
 	var refs []ast.ReferenceNode
@@ -172,6 +200,30 @@ func parseFuncDeclaration(p *Parser) {
 	}
 
 	p.Scope.Declare("func", node)
+}
+
+func parseFuncDeclaration(p *Parser) {
+
+	identifier := p.parseIdentifier()
+
+	params := p.parseParameters()
+
+	p.parseRequired(lexer.TknOpenBrace)
+
+	p.validate(ast.ConstructorDeclaration)
+
+	body := ast.ScopeNode{
+		ValidTypes: []ast.NodeType{},
+	}
+
+	p.parseScope(&body)
+
+	node := ast.ConstructorDeclarationNode{
+		Parameters: params,
+		Body:       body,
+	}
+
+	p.Scope.Declare("constructor", node)
 }
 
 func parseTypeDeclaration(p *Parser) {

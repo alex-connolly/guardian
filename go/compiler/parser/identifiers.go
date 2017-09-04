@@ -29,6 +29,18 @@ func isInterfaceDeclaration(p *Parser) bool {
 	return p.isNextToken(lexer.TknInterface)
 }
 
+func isConstructorDeclaration(p *Parser) bool {
+	return p.isNextToken(lexer.TknConstructor)
+}
+
+func isEnumDeclaration(p *Parser) bool {
+	if p.hasTokens(2) {
+		return p.isNextToken(lexer.TknEnum) ||
+			(p.current().Type == lexer.TknAbstract && p.token(1).Type == lexer.TknEnum)
+	}
+	return p.isNextToken(lexer.TknEnum)
+}
+
 func isContractDeclaration(p *Parser) bool {
 	if p.hasTokens(2) {
 		return p.isNextToken(lexer.TknContract) ||

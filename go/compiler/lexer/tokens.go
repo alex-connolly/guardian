@@ -97,8 +97,12 @@ const (
 	TknContract
 	TknClass
 	TknEvent
+	TknEnum
 	TknInterface
 	TknAbstract
+
+	TknConstructor
+	TknDestructor
 
 	TknConst
 	TknVar
