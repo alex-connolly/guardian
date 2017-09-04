@@ -35,6 +35,7 @@ func TestParseClassDeclarationEmpty(t *testing.T) {
 
 func TestParseTypeDeclaration(t *testing.T) {
 	p := createParser(`type Wagable int`)
+	fmt.Println(p.lexer.Tokens)
 	goutil.AssertNow(t, len(p.lexer.Tokens) == 3, fmt.Sprintf("wrong token length: %d", len(p.lexer.Tokens)))
 	goutil.Assert(t, isTypeDeclaration(p), "should detect type decl")
 	parseTypeDeclaration(p)
@@ -71,4 +72,46 @@ func TestParseEventDeclarationMultiple(t *testing.T) {
 	goutil.Assert(t, isEventDeclaration(p), "should detect event decl")
 	parseEventDeclaration(p)
 	goutil.Assert(t, p.Scope.Type() == ast.EventDeclaration, "wrong node type")
+}
+
+func TestParseConstructorEmpty(t *testing.T) {
+	p := createParser(`constructor() {}`)
+	goutil.AssertNow(t, len(p.lexer.Tokens) == 5, "wrong token length")
+	goutil.Assert(t, isConstructorDeclaration(p), "should detect constructor decl")
+	parseConstructorDeclaration(p)
+}
+
+func TestParseConstructorSingle(t *testing.T) {
+	p := createParser(`constructor(a int) {}`)
+	goutil.AssertNow(t, len(p.lexer.Tokens) == 7, "wrong token length")
+	goutil.Assert(t, isConstructorDeclaration(p), "should detect constructor decl")
+	parseConstructorDeclaration(p)
+}
+
+func TestParseConstructorMultiple(t *testing.T) {
+	p := createParser(`constructor(a, b string) {}`)
+	goutil.AssertNow(t, len(p.lexer.Tokens) == 9, "wrong token length")
+	goutil.Assert(t, isConstructorDeclaration(p), "should detect constructor decl")
+	parseConstructorDeclaration(p)
+}
+
+func TestParseEnum(t *testing.T) {
+	p := createParser(`enum Weekday {}`)
+	goutil.AssertNow(t, len(p.lexer.Tokens) == 4, "wrong token length")
+	goutil.Assert(t, isEnumDeclaration(p), "should detect enum decl")
+	parseEnumDeclaration(p)
+}
+
+func TestParseEnumInheritsSingle(t *testing.T) {
+	p := createParser(`enum Day inherits Weekday {}`)
+	goutil.AssertNow(t, len(p.lexer.Tokens) == 6, "wrong token length")
+	goutil.Assert(t, isEnumDeclaration(p), "should detect enum decl")
+	parseEnumDeclaration(p)
+}
+
+func TestParseEnumInheritsMultiple(t *testing.T) {
+	p := createParser(`enum Day inherits Weekday, Weekend {}`)
+	goutil.AssertNow(t, len(p.lexer.Tokens) == 8, "wrong token length")
+	goutil.Assert(t, isEnumDeclaration(p), "should detect enum decl")
+	parseEnumDeclaration(p)
 }

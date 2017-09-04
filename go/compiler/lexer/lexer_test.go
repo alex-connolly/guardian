@@ -119,3 +119,18 @@ func TestLexerError(t *testing.T) {
 	l.error("this is an error")
 	goutil.Assert(t, len(l.errors) == 1, "error len should be 1")
 }
+
+func TestLexerType(t *testing.T) {
+	l := LexString("type Number int")
+	checkTokens(t, l.Tokens, []TokenType{TknType, TknIdentifier, TknIdentifier})
+}
+
+func TestHasByte(t *testing.T) {
+	text := "interface"
+	l := new(Lexer)
+	l.buffer = []byte(text)
+	l.byteOffset = len(text)
+	goutil.Assert(t, !l.hasBytes(1), "end should not have bytes")
+	l.byteOffset = 0
+	goutil.Assert(t, l.hasBytes(1), "start should have bytes")
+}

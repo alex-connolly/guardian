@@ -202,9 +202,9 @@ func parseFuncDeclaration(p *Parser) {
 	p.Scope.Declare("func", node)
 }
 
-func parseFuncDeclaration(p *Parser) {
+func parseConstructorDeclaration(p *Parser) {
 
-	identifier := p.parseIdentifier()
+	p.parseRequired(lexer.TknConstructor)
 
 	params := p.parseParameters()
 

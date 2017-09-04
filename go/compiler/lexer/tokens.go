@@ -51,75 +51,59 @@ const (
 	TknMul          // *
 	TknDiv          // /
 	TknMod          // %
-
-	TknIncrement // ++
-	TknDecrement // --
-
-	TknAddAssign // +=
-	TknSubAssign // -=
-	TknMulAssign // *=
-	TknDivAssign // /=
-	TknModAssign // %=
-
-	TknAndAssign // &=
-	TknOrAssign  // |=
-	TknXorAssign // ^=
-	TknShlAssign // <<=
-	TknShrAssign // >>=
-
-	TknLogicalAnd // and
-	TknLogicalOr  // or
-	TknArrowLeft  // <-
-	TknArrowRight // ->
-	TknInc        // ++
-	TknDec        // --
-
-	TknEql // ==
-	TknLss // <
-	TknGtr // >
-	TknNot // !
-
-	TknNeq      // !=
-	TknLeq      // <=
-	TknGeq      // >=
-	TknDefine   // :=
-	TknEllipsis // ...
-
-	TknDot       // .
-	TknSemicolon // ;
-	TknTernary   // ?
-
+	TknIncrement    // ++
+	TknDecrement    // --
+	TknAddAssign    // +=
+	TknSubAssign    // -=
+	TknMulAssign    // *=
+	TknDivAssign    // /=
+	TknModAssign    // %=
+	TknAndAssign    // &=
+	TknOrAssign     // |=
+	TknXorAssign    // ^=
+	TknShlAssign    // <<=
+	TknShrAssign    // >>=
+	TknLogicalAnd   // and
+	TknLogicalOr    // or
+	TknArrowLeft    // <-
+	TknArrowRight   // ->
+	TknInc          // ++
+	TknDec          // --
+	TknEql          // ==
+	TknLss          // <
+	TknGtr          // >
+	TknNot          // !
+	TknNeq          // !=
+	TknLeq          // <=
+	TknGeq          // >=
+	TknDefine       // :=
+	TknEllipsis     // ...
+	TknDot          // .
+	TknSemicolon    // ;
+	TknTernary      // ?
 	TknNewLine
-
 	TknBreak
 	TknContinue
-
 	TknContract
 	TknClass
 	TknEvent
 	TknEnum
 	TknInterface
 	TknAbstract
-
 	TknConstructor
 	TknDestructor
-
 	TknConst
 	TknVar
-
 	TknRun
 	TknDefer
-
 	TknIf
 	TknElseIf
 	TknElse
-
 	TknSwitch
 	TknCase
 	TknExclusive
 	TknDefault
 	TknFallthrough
-
 	TknFor
 	TknFunc
 	TknGoto
@@ -129,14 +113,11 @@ const (
 	TknInherits
 	TknType
 	TknTypeOf
-
 	TknIn
 	TknMap
 	TknMacro
-
 	TknPackage
 	TknReturn
-
 	TknNone
 )
 
@@ -145,46 +126,50 @@ const (
 
 func getProtoTokens() []protoToken {
 	return []protoToken{
-		createFixed("contract", TknContract),
-		createFixed("class", TknClass),
-		createFixed("event", TknEvent),
-		createFixed("interface", TknInterface),
-		createFixed("abstract", TknAbstract),
-		createFixed("inherits", TknInherits),
+		createDistinct("contract", TknContract),
+		createDistinct("class", TknClass),
+		createDistinct("event", TknEvent),
+		createDistinct("enum", TknEnum),
+		createDistinct("interface", TknInterface),
+		createDistinct("abstract", TknAbstract),
+		createDistinct("inherits", TknInherits),
 
-		createFixed("const", TknConst),
-		createFixed("var", TknVar),
+		createDistinct("const", TknConst),
+		createDistinct("var", TknVar),
 
-		createFixed("run", TknRun),
-		createFixed("defer", TknDefer),
+		createDistinct("run", TknRun),
+		createDistinct("defer", TknDefer),
 
-		createFixed("switch", TknSwitch),
-		createFixed("case", TknCase),
-		createFixed("exclusive", TknExclusive),
-		createFixed("default", TknDefault),
-		createFixed("fallthrough", TknFallthrough),
-		createFixed("break", TknBreak),
-		createFixed("continue", TknContinue),
+		createDistinct("switch", TknSwitch),
+		createDistinct("case", TknCase),
+		createDistinct("exclusive", TknExclusive),
+		createDistinct("default", TknDefault),
+		createDistinct("fallthrough", TknFallthrough),
+		createDistinct("break", TknBreak),
+		createDistinct("continue", TknContinue),
 
-		createFixed("if", TknIf),
-		createFixed("else if", TknElseIf),
-		createFixed("default", TknElse),
+		createDistinct("constructor", TknConstructor),
+		createDistinct("destructor", TknDestructor),
 
-		createFixed("for", TknFor),
-		createFixed("func", TknFunc),
-		createFixed("goto", TknGoto),
-		createFixed("import", TknImport),
-		createFixed("is", TknIs),
-		createFixed("as", TknAs),
-		createFixed("typeof", TknTypeOf),
-		createFixed("type", TknType),
+		createDistinct("if", TknIf),
+		createDistinct("else if", TknElseIf),
+		createDistinct("default", TknElse),
 
-		createFixed("in", TknIn),
-		createFixed("map", TknMap),
-		createFixed("macro", TknMacro),
+		createDistinct("for", TknFor),
+		createDistinct("func", TknFunc),
+		createDistinct("goto", TknGoto),
+		createDistinct("import", TknImport),
+		createDistinct("is", TknIs),
+		createDistinct("as", TknAs),
+		createDistinct("typeof", TknTypeOf),
+		createDistinct("type", TknType),
 
-		createFixed("package", TknPackage),
-		createFixed("return", TknReturn),
+		createDistinct("in", TknIn),
+		createDistinct("map", TknMap),
+		createDistinct("macro", TknMacro),
+
+		createDistinct("package", TknPackage),
+		createDistinct("return", TknReturn),
 
 		createFixed("+=", TknAddAssign),
 		createFixed("++", TknIncrement),
@@ -205,9 +190,9 @@ func getProtoTokens() []protoToken {
 
 		createFixed("<-", TknArrowLeft),
 		createFixed(">-", TknArrowRight),
-		createFixed("and", TknLogicalAnd),
+		createDistinct("and", TknLogicalAnd),
 		createFixed("&", TknAnd),
-		createFixed("or", TknLogicalOr),
+		createDistinct("or", TknLogicalOr),
 		createFixed("|", TknOr),
 		createFixed("==", TknEql),
 		createFixed("!=", TknNeq),
@@ -242,20 +227,15 @@ func getProtoTokens() []protoToken {
 	}
 }
 
-func processFixed(len int, tkn TokenType) processorFunc {
-	return func(l *Lexer) (t Token) {
-		// start and end don't matter
-		t.Type = tkn
-		l.byteOffset += len
-		return t
-	}
+func isIdentifierByte(b byte) bool {
+	return ('A' <= b && b <= 'Z') ||
+		('a' <= b && b <= 'z') ||
+		('0' <= b && b <= '9') ||
+		(b == '_')
 }
 
 func isIdentifier(l *Lexer) bool {
-	return ('A' <= l.current() && l.current() <= 'Z') ||
-		('a' <= l.current() && l.current() <= 'z') ||
-		('0' <= l.current() && l.current() <= '9') ||
-		(l.current() == '_')
+	return isIdentifierByte(l.current())
 }
 
 func isNumber(l *Lexer) bool {
@@ -288,8 +268,37 @@ func is(a string) isFunc {
 	}
 }
 
+func isDistinct(a string) isFunc {
+	return func(l *Lexer) bool {
+		if !l.hasBytes(len(a)) {
+			return false
+		}
+		end := l.byteOffset + len(a)
+		if string(l.buffer[l.byteOffset:end]) != a {
+			return false
+		}
+		if !l.hasBytes(len(a) + 1) {
+			return true
+		}
+		return !isIdentifierByte(l.buffer[end])
+	}
+}
+
+func processFixed(len int, tkn TokenType) processorFunc {
+	return func(l *Lexer) (t Token) {
+		// start and end don't matter
+		t.Type = tkn
+		l.byteOffset += len
+		return t
+	}
+}
+
 func createFixed(kw string, tkn TokenType) protoToken {
 	return protoToken{"KW: " + kw, is(kw), processFixed(len(kw), tkn)}
+}
+
+func createDistinct(kw string, tkn TokenType) protoToken {
+	return protoToken{"KW: " + kw, isDistinct(kw), processFixed(len(kw), tkn)}
 }
 
 type isFunc func(*Lexer) bool
@@ -304,6 +313,7 @@ type protoToken struct {
 // Token ...
 type Token struct {
 	Type  TokenType
+	proto protoToken
 	start int
 	end   int
 }

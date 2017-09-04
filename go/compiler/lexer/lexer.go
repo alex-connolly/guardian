@@ -34,7 +34,9 @@ func (l *Lexer) next() {
 	for _, pt := range getProtoTokens() {
 		if pt.identifier(l) {
 			t := pt.process(l)
+			t.proto = pt
 			if t.Type != TknNone {
+				//log.Printf("Found tok type: %d", t.Type)
 				l.Tokens = append(l.Tokens, t)
 			} else {
 				l.byteOffset++
@@ -204,6 +206,10 @@ func processString(l *Lexer) Token {
 	}
 	t.end += 2
 	return *t
+}
+
+func (l *Lexer) hasBytes(offset int) bool {
+	return l.byteOffset+offset <= len(l.buffer)
 }
 
 func (l *Lexer) error(msg string) {
