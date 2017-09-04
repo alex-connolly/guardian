@@ -19,112 +19,77 @@ func TestParseAssignmentStatementSingleConstant(t *testing.T) {
 }
 
 func TestParseIfStatement(t *testing.T) {
-	p := createParser(`
-        x = 6
-        if x > 4 {
+	p := createParser(`if x > 4 {
 
-        } elif x < 4 {
+	} elif x < 4 {
 
-        } else {
+	} else {
 
-        }
-        `)
+	}`)
 	goutil.Assert(t, isIfStatement(p), "should detect if statement")
 	parseIfStatement(p)
 }
 
 func TestParseForStatementCondition(t *testing.T) {
-	p := createParser(`
-        for x < 5 {
-
-        }
-        `)
+	p := createParser(`for x < 5 {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
 	parseForStatement(p)
 }
 
 func TestParseForStatementInitCondition(t *testing.T) {
-	p := createParser(`
-        for x := 0; x < 5 {
-
-        }
-        `)
+	p := createParser(`for x := 0; x < 5 {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
 	parseForStatement(p)
 }
 
 func TestParseForStatementInitConditionStatement(t *testing.T) {
-	p := createParser(`
-        for x := 0; x < 5; x++ {
-
-        }
-        `)
+	p := createParser(`for x := 0; x < 5; x++ {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
 	parseForStatement(p)
 }
 
 func TestParseSwitchStatement(t *testing.T) {
-	p := createParser(`
-        switch x {
-
-        }
-        `)
+	p := createParser(`switch x {}`)
 	goutil.Assert(t, isSwitchStatement(p), "should detect switch statement")
 	parseSwitchStatement(p)
 }
 
 func TestParseSwitchStatementSingleCase(t *testing.T) {
-	p := createParser(`
-        switch x {
-        case 5:
-
-        }
-        `)
+	p := createParser(`switch x { case 5{}}`)
 	goutil.Assert(t, isSwitchStatement(p), "should detect switch statement")
 	parseSwitchStatement(p)
 }
 
 func TestParseSwitchStatementMultiCase(t *testing.T) {
-	p := createParser(`
-        switch x {
-	        case 5 {
-				x += 2
-	            break
-			}
-	        case 4{
-				x *= 2
-	            break
-			}
-        }
-        `)
+	p := createParser(`switch x {
+		case 5 {
+			x += 2
+			break
+		}
+		case 4{
+			x *= 2
+			break
+		}
+	}`)
 	goutil.Assert(t, isSwitchStatement(p), "should detect switch statement")
 	parseSwitchStatement(p)
 }
 
 func TestParseSwitchStatementExclusive(t *testing.T) {
-	p := createParser(`
-        exclusive switch x {
-
-        }
+	p := createParser(`exclusive switch x {}
         `)
 	goutil.Assert(t, isSwitchStatement(p), "should detect switch statement")
 	parseSwitchStatement(p)
 }
 
 func TestParseCaseStatementSingle(t *testing.T) {
-	p := createParser(`
-        case 5 {
-
-		}
-        `)
+	p := createParser(`case 5 {}`)
 	goutil.Assert(t, isCaseStatement(p), "should detect case statement")
 	parseCaseStatement(p)
 }
 
 func TestParseCaseStatementMultiple(t *testing.T) {
-	p := createParser(`case 5, 8, 9 {
-
-		}`)
+	p := createParser(`case 5, 8, 9 {}`)
 	goutil.Assert(t, isCaseStatement(p), "should detect case statement")
 	parseCaseStatement(p)
 }

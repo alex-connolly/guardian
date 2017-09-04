@@ -97,7 +97,7 @@ const (
 	TknRun
 	TknDefer
 	TknIf
-	TknElseIf
+	TknElif
 	TknElse
 	TknSwitch
 	TknCase
@@ -152,8 +152,8 @@ func getProtoTokens() []protoToken {
 		createDistinct("destructor", TknDestructor),
 
 		createDistinct("if", TknIf),
-		createDistinct("else if", TknElseIf),
-		createDistinct("default", TknElse),
+		createDistinct("elif", TknElif),
+		createDistinct("else", TknElse),
 
 		createDistinct("for", TknFor),
 		createDistinct("func", TknFunc),

@@ -17,18 +17,6 @@ type Parser struct {
 	line       int
 }
 
-func createContractParser(data string) *Parser {
-	p := new(Parser)
-	p.lexer = lexer.LexString(data)
-	p.Scope = &ast.ScopeNode{
-		ValidTypes: []ast.NodeType{
-			ast.InterfaceDeclaration, ast.ClassDeclaration,
-			ast.FuncDeclaration,
-		},
-	}
-	return p
-}
-
 func createParser(data string) *Parser {
 	p := new(Parser)
 	p.lexer = lexer.LexString(data)

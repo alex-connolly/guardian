@@ -90,9 +90,9 @@ func TestIsSwitchStatement(t *testing.T) {
 }
 
 func TestIsCaseStatement(t *testing.T) {
-	p := createParser("case 1, 2, 3: break")
+	p := createParser("case 1, 2, 3 { break}")
 	goutil.Assert(t, isCaseStatement(p), "multi case statement not recognised")
-	p = createParser("case 1: break")
+	p = createParser("case 1 { break }")
 	goutil.Assert(t, isCaseStatement(p), "single case statement not recognised")
 }
 
