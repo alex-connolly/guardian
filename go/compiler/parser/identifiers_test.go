@@ -9,11 +9,9 @@ import (
 func TestIdentifierSafety(t *testing.T) {
 	p := createParser("")
 	// none of these should crash
-	goutil.Assert(t, !isClassDeclaration(p), "class declaration not recognised")
-	goutil.Assert(t, !isContractDeclaration(p), "contract declaration not recognised")
-	goutil.Assert(t, !isInterfaceDeclaration(p), "interface declaration not recognised")
-	goutil.Assert(t, !isEventDeclaration(p), "event declaration not recognised")
-	goutil.Assert(t, !isFuncDeclaration(p), "func declaration not recognised")
+	for _, c := range getPrimaryConstructs() {
+		c.is(p)
+	}
 }
 
 func TestIsClassDeclaration(t *testing.T) {
@@ -90,7 +88,7 @@ func TestIsSwitchStatement(t *testing.T) {
 }
 
 func TestIsCaseStatement(t *testing.T) {
-	p := createParser("case 1, 2, 3 { break}")
+	p := createParser("case 1, 2, 3 { break }")
 	goutil.Assert(t, isCaseStatement(p), "multi case statement not recognised")
 	p = createParser("case 1 { break }")
 	goutil.Assert(t, isCaseStatement(p), "single case statement not recognised")

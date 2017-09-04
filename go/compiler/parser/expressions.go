@@ -124,6 +124,7 @@ func (p *Parser) parseMapLiteral() (n ast.MapLiteralNode) {
 		firstKey := p.parseExpression()
 		p.parseRequired(lexer.TknColon)
 		firstValue := p.parseExpression()
+		n.Data = make(map[ast.ExpressionNode]ast.ExpressionNode)
 		n.Data[firstKey] = firstValue
 		for p.parseOptional(lexer.TknComma) {
 			key := p.parseExpression()
