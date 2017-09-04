@@ -38,13 +38,13 @@ func TestIsContractDeclaration(t *testing.T) {
 }
 
 func TestIsFuncDeclaration(t *testing.T) {
-	p := createParser("main(){")
+	p := createParser("func main(){")
 	goutil.Assert(t, isFuncDeclaration(p), "function declaration not recognised")
-	p = createParser("abstract main(){")
+	p = createParser("abstract func main(){")
 	goutil.Assert(t, isFuncDeclaration(p), "abstract function declaration not recognised")
-	p = createParser("main() int {")
+	p = createParser("func main() int {")
 	goutil.Assert(t, isFuncDeclaration(p), "returning function declaration not recognised")
-	p = createParser("main() (int, int) {")
+	p = createParser("func main() (int, int) {")
 	goutil.Assert(t, isFuncDeclaration(p), "tuple returning function declaration not recognised")
 }
 
@@ -98,9 +98,9 @@ func TestIsCaseStatement(t *testing.T) {
 
 func TestIsEventDeclaration(t *testing.T) {
 	p := createParser("event Notification()")
-	goutil.Assert(t, isCaseStatement(p), "empty event not recognised")
+	goutil.Assert(t, isEventDeclaration(p), "empty event not recognised")
 	p = createParser("event Notification(string)")
-	goutil.Assert(t, isCaseStatement(p), "single event not recognised")
+	goutil.Assert(t, isEventDeclaration(p), "single event not recognised")
 	p = createParser("event Notification(string, dog.Dog)")
-	goutil.Assert(t, isCaseStatement(p), "multiple event not recognised")
+	goutil.Assert(t, isEventDeclaration(p), "multiple event not recognised")
 }

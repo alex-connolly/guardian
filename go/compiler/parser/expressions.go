@@ -27,7 +27,8 @@ func (p *Parser) parseExpression() ast.ExpressionNode {
 	// TODO: improve the logical flow here: it's horrendous
 
 	var expr ast.ExpressionNode
-	if !p.hasTokens(1) {
+	//	fmt.Printf("index: %d, tokens: %d\n", p.index, len(p.lexer.Tokens))
+	if p.hasTokens(1) {
 		switch p.current().Type {
 		case lexer.TknMap:
 			return p.parseMapLiteral()
@@ -43,7 +44,7 @@ func (p *Parser) parseExpression() ast.ExpressionNode {
 			break
 		case lexer.TknIdentifier:
 			expr = p.parseReference()
-			if !p.hasTokens(1) {
+			if p.hasTokens(1) {
 				switch p.current().Type {
 				case lexer.TknOpenBracket:
 					p.parseCallExpression(expr)

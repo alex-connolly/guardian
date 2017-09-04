@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/end-r/guardian/go/compiler/ast"
-
 	"github.com/end-r/goutil"
 )
 
@@ -39,15 +37,13 @@ func TestParseTypeDeclaration(t *testing.T) {
 	goutil.AssertNow(t, len(p.lexer.Tokens) == 3, fmt.Sprintf("wrong token length: %d", len(p.lexer.Tokens)))
 	goutil.Assert(t, isTypeDeclaration(p), "should detect type decl")
 	parseTypeDeclaration(p)
-	goutil.Assert(t, p.Scope.Type() == ast.TypeDeclaration, "wrong node type")
 }
 
 func TestParseExplicitVarDeclaration(t *testing.T) {
-	p := createParser(`x, y = 5, 3`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 5, "wrong token length")
-	goutil.Assert(t, isTypeDeclaration(p), "should detect type decl")
-	parseTypeDeclaration(p)
-	goutil.Assert(t, p.Scope.Type() == ast.TypeDeclaration, "wrong node type")
+	p := createParser(`a string`)
+	goutil.AssertNow(t, len(p.lexer.Tokens) == 2, "wrong token length")
+	goutil.Assert(t, isExplicitVarDeclaration(p), "should detect expvar decl")
+	parseExplicitVarDeclaration(p)
 }
 
 func TestParseEventDeclarationEmpty(t *testing.T) {
@@ -55,7 +51,6 @@ func TestParseEventDeclarationEmpty(t *testing.T) {
 	goutil.AssertNow(t, len(p.lexer.Tokens) == 4, "wrong token length")
 	goutil.Assert(t, isEventDeclaration(p), "should detect event decl")
 	parseEventDeclaration(p)
-	goutil.Assert(t, p.Scope.Type() == ast.EventDeclaration, "wrong node type")
 }
 
 func TestParseEventDeclarationSingle(t *testing.T) {
@@ -63,7 +58,6 @@ func TestParseEventDeclarationSingle(t *testing.T) {
 	goutil.AssertNow(t, len(p.lexer.Tokens) == 5, "wrong token length")
 	goutil.Assert(t, isEventDeclaration(p), "should detect event decl")
 	parseEventDeclaration(p)
-	goutil.Assert(t, p.Scope.Type() == ast.EventDeclaration, "wrong node type")
 }
 
 func TestParseEventDeclarationMultiple(t *testing.T) {
@@ -71,7 +65,6 @@ func TestParseEventDeclarationMultiple(t *testing.T) {
 	goutil.AssertNow(t, len(p.lexer.Tokens) == 7, "wrong token length")
 	goutil.Assert(t, isEventDeclaration(p), "should detect event decl")
 	parseEventDeclaration(p)
-	goutil.Assert(t, p.Scope.Type() == ast.EventDeclaration, "wrong node type")
 }
 
 func TestParseConstructorEmpty(t *testing.T) {

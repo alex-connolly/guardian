@@ -33,8 +33,8 @@ func TestParseReferenceMultiple(t *testing.T) {
 	goutil.AssertNow(t, ref.Names != nil, "ref should not be nil")
 	goutil.AssertNow(t, len(ref.Names) == 3, "wrong name length")
 	goutil.Assert(t, ref.Names[0] == "hello", "wrong name data 0")
-	goutil.Assert(t, ref.Names[0] == "aaa", "wrong name data 0")
-	goutil.Assert(t, ref.Names[0] == "bb", "wrong name data 0")
+	goutil.Assert(t, ref.Names[1] == "aaa", "wrong name data 1")
+	goutil.Assert(t, ref.Names[2] == "bb", "wrong name data 2")
 }
 
 func TestParseLiteralInteger(t *testing.T) {
