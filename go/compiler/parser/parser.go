@@ -83,7 +83,6 @@ func (p *Parser) parseRequired(t lexer.TokenType) {
 }
 
 func (p *Parser) parseIdentifier() string {
-	fmt.Printf("index: %d, tknlength %d", len(p.lexer.Tokens), p.index)
 	if p.current().Type != lexer.TknIdentifier {
 		p.addError("Required indentifier, found {add token type}")
 		return ""
@@ -127,8 +126,6 @@ func (p *Parser) parseEnclosedScope(scope *ast.ScopeNode) {
 
 func (p *Parser) parseScope(scope *ast.ScopeNode) {
 
-	fmt.Println("PARSING SCOPE")
-
 	scope.Parent = p.Scope
 	p.Scope = scope
 
@@ -136,9 +133,8 @@ func (p *Parser) parseScope(scope *ast.ScopeNode) {
 		found := false
 		for _, c := range getPrimaryConstructs() {
 			if c.is(p) {
-				fmt.Printf("FOUND: %s at index %d\n", c.name, p.index)
+				//fmt.Printf("FOUND: %s at index %d\n", c.name, p.index)
 				if c.name == "scope closure" {
-					fmt.Println("CLOSING SCOPE")
 					return
 				}
 				c.parse(p)

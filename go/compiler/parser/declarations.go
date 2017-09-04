@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/go/compiler/ast"
 	"github.com/end-r/guardian/go/compiler/lexer"
 )
@@ -32,11 +30,7 @@ func parseInterfaceDeclaration(p *Parser) {
 		Body:       body,
 	}
 
-	fmt.Println("here")
-
 	p.Scope.Declare("interface", node)
-
-	fmt.Printf("interfaces: %d\n", len(p.Scope.Nodes["interface"]))
 }
 
 // like any list parser, but enforces that each node must be a reference

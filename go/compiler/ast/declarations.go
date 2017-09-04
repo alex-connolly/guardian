@@ -122,3 +122,28 @@ func (n EventDeclarationNode) Type() NodeType { return EventDeclaration }
 func (n EventDeclarationNode) Traverse(vm *vmgen.VM) {
 	vm.AddBytecode("LOG")
 }
+
+// constructors are functions
+// have their own type to distinguish them from functions
+// declared as construtor(params) {
+//
+// }
+type ConstructorDeclarationNode struct {
+	Parameters []ExplicitVarDeclarationNode
+}
+
+func (n ConstructorDeclarationNode) Type() NodeType { return ConstructorDeclaration }
+
+func (n ConstructorDeclarationNode) Traverse(vm *vmgen.VM) {
+
+}
+
+type EnumDeclarationNode struct {
+	Cases []ReferenceNode
+}
+
+func (n EnumDeclarationNode) Type() NodeType { return EnumDeclaration }
+
+func (n EnumDeclarationNode) Traverse(vm *vmgen.VM) {
+
+}

@@ -7,6 +7,8 @@ const (
 	ContractDeclaration NodeType = iota
 	ClassDeclaration
 	FuncDeclaration
+	ConstructorDeclaration
+	EnumDeclaration
 	InterfaceDeclaration
 	TypeDeclaration
 	EventDeclaration
