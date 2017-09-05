@@ -109,7 +109,7 @@ func TestIsAssignmentStatementReferenceLiteral(t *testing.T) {
 	p = createParser("x, y = 5")
 	goutil.Assert(t, isAssignmentStatement(p), "multiple left assignment not recognised")
 	p = createParser("x, y = 5, 3")
-	goutil.Assert(t, isAssignmentStatement(p), "multiple l/r recognised")
+	goutil.Assert(t, isAssignmentStatement(p), "multiple l/r not recognised")
 	p = createParser("")
-	goutil.Assert(t, !isAssignmentStatement(p), "black statement recognised")
+	goutil.Assert(t, !isAssignmentStatement(p), "blank statement should not berecognised")
 }

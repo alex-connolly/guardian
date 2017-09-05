@@ -85,20 +85,18 @@ func isIfStatement(p *Parser) bool {
 }
 
 func isAssignmentStatement(p *Parser) bool {
-	return false
-	/*savedIndex := p.index
+	savedIndex := p.index
 	expr := p.parseExpression()
 	if expr == nil {
 		return false
 	}
-	i := 0
-	for p.token(i).Type == lexer.TknComma {
-		i++
+	for p.parseOptional(lexer.TknComma) {
+		// assume these will be expressions
 		p.parseExpression()
 	}
 	flag := p.isNextToken(lexer.TknAssign)
 	p.index = savedIndex
-	return flag*/
+	return flag
 }
 
 func isSwitchStatement(p *Parser) bool {

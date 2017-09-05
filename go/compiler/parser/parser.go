@@ -7,6 +7,19 @@ import (
 	"github.com/end-r/guardian/go/compiler/lexer"
 )
 
+const (
+	classKey       = "class"
+	contractKey    = "contract"
+	enumKey        = "enum"
+	flowKey        = "flow"
+	interfaceKey   = "interface"
+	varKey         = "var"
+	eventKey       = "event"
+	constructorKey = "constructor"
+	funcKey        = "func"
+	typeKey        = "type"
+)
+
 // Parser ...
 type Parser struct {
 	Scope      *ast.ScopeNode
@@ -80,11 +93,6 @@ func (p *Parser) parseIdentifier() string {
 	return s
 }
 
-func parseScopeClosure(p *Parser) {
-	p.Scope = p.Scope.Parent
-	p.next()
-}
-
 func (p *Parser) validate(t ast.NodeType) {
 	if p.Scope != nil {
 		if !p.Scope.IsValid(t) {
@@ -118,13 +126,13 @@ func (p *Parser) parseScope(scope *ast.ScopeNode) {
 	p.Scope = scope
 
 	for p.hasTokens(1) {
+		if p.current().Type == lexer.TknCloseBrace {
+			return
+		}
 		found := false
 		for _, c := range getPrimaryConstructs() {
 			if c.is(p) {
 				//fmt.Printf("FOUND: %s at index %d\n", c.name, p.index)
-				if c.name == "scope closure" {
-					return
-				}
 				c.parse(p)
 				found = true
 				break

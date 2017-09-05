@@ -357,11 +357,12 @@ func TestParseIndexExpressionReferenceReference(t *testing.T) {
 	p := createParser(`array[index]`)
 	goutil.AssertNow(t, len(p.lexer.Tokens) == 4, "wrong token length")
 	expr := p.parseExpression()
-	goutil.AssertNow(t, expr != nil, "expression shouldn't be nil")
+	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
 	indexExpr := expr.(ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
+	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expression.Type() == ast.Reference, "wrong expression type")
 	goutil.AssertNow(t, index.Type() == ast.Reference, "wrong index type")
 }
@@ -374,6 +375,7 @@ func TestParseIndexExpressionReferenceLiteral(t *testing.T) {
 	indexExpr := expr.(ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
+	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expression.Type() == ast.Reference, "wrong expression type")
 	goutil.AssertNow(t, index.Type() == ast.Literal, "wrong index type")
 }
@@ -386,6 +388,7 @@ func TestParseIndexExpressionReferenceCall(t *testing.T) {
 	indexExpr := expr.(ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
+	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expression.Type() == ast.Reference, "wrong expression type")
 	goutil.AssertNow(t, index.Type() == ast.CallExpression, "wrong index type")
 }
@@ -398,6 +401,7 @@ func TestParseIndexExpressionReferenceIndex(t *testing.T) {
 	indexExpr := expr.(ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
+	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expression.Type() == ast.Reference, "wrong expression type")
 	goutil.AssertNow(t, index.Type() == ast.IndexExpression, "wrong index type")
 }
@@ -410,6 +414,7 @@ func TestParseIndexExpressionCallReference(t *testing.T) {
 	indexExpr := expr.(ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
+	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expression.Type() == ast.CallExpression, "wrong expression type")
 	goutil.AssertNow(t, index.Type() == ast.Reference, "wrong index type")
 }
@@ -422,6 +427,7 @@ func TestParseIndexExpressionCallLiteral(t *testing.T) {
 	indexExpr := expr.(ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
+	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expression.Type() == ast.CallExpression, "wrong expression type")
 	goutil.AssertNow(t, index.Type() == ast.Literal, "wrong index type")
 }
@@ -434,6 +440,7 @@ func TestParseIndexExpressionCallCall(t *testing.T) {
 	indexExpr := expr.(ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
+	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expression.Type() == ast.CallExpression, "wrong expression type")
 	goutil.AssertNow(t, index.Type() == ast.CallExpression, "wrong index type")
 }
@@ -446,6 +453,7 @@ func TestParseIndexExpressionCallIndex(t *testing.T) {
 	indexExpr := expr.(ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
+	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expression.Type() == ast.CallExpression, "wrong expression type")
 	goutil.AssertNow(t, index.Type() == ast.IndexExpression, "wrong index type")
 }
@@ -458,6 +466,7 @@ func TestParseIndexExpressionIndexReference(t *testing.T) {
 	indexExpr := expr.(ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
+	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expression.Type() == ast.IndexExpression, "wrong expression type")
 	goutil.AssertNow(t, index.Type() == ast.Reference, "wrong index type")
 }
@@ -470,6 +479,7 @@ func TestParseIndexExpressionIndexLiteral(t *testing.T) {
 	indexExpr := expr.(ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
+	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expression.Type() == ast.IndexExpression, "wrong expression type")
 	goutil.AssertNow(t, index.Type() == ast.Literal, "wrong index type")
 }
@@ -482,6 +492,7 @@ func TestParseIndexExpressionIndexCall(t *testing.T) {
 	indexExpr := expr.(ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
+	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expression.Type() == ast.IndexExpression, "wrong expression type")
 	goutil.AssertNow(t, index.Type() == ast.CallExpression, "wrong index type")
 }
@@ -506,6 +517,7 @@ func TestParseIndexExpressionLiteralReference(t *testing.T) {
 	indexExpr := expr.(ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
+	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expression.Type() == ast.Literal, "wrong expression type")
 	goutil.AssertNow(t, index.Type() == ast.Reference, "wrong index type")
 }
@@ -518,6 +530,7 @@ func TestParseIndexExpressionLiteralLiteral(t *testing.T) {
 	indexExpr := expr.(ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
+	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expression.Type() == ast.Literal, "wrong expression type")
 	goutil.AssertNow(t, index.Type() == ast.Literal, "wrong index type")
 }
@@ -530,6 +543,7 @@ func TestParseIndexExpressionLiteralCall(t *testing.T) {
 	indexExpr := expr.(ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
+	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expression.Type() == ast.IndexExpression, "wrong expression type")
 	goutil.AssertNow(t, index.Type() == ast.Literal, "wrong index type")
 }
@@ -542,6 +556,7 @@ func TestParseIndexExpressionLiteralIndex(t *testing.T) {
 	indexExpr := expr.(ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
+	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expression.Type() == ast.Literal, "wrong expression type")
 	goutil.AssertNow(t, index.Type() == ast.IndexExpression, "wrong index type")
 }

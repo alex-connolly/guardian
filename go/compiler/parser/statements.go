@@ -39,7 +39,7 @@ func parseAssignmentStatement(p *Parser) {
 		Left:  assigned,
 		Right: to,
 	}
-	p.Scope.Declare("flow", node)
+	p.Scope.Declare(flowKey, node)
 }
 
 func parseIfStatement(p *Parser) {
@@ -58,22 +58,21 @@ func parseForStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknFor)
 	// parse init expr, can be nil
-	//init := p.parseExpression()
+	//init := parseAssignmentStatement(p)
 	// parse condition, required
 	cond := p.parseExpression()
 	// parse statement
-	//	stat := p.parseStatement()
+	//stat := p.parseExpression()
 
 	body := ast.ScopeNode{}
 
-	p.parseScope(&body)
+	p.parseEnclosedScope(&body)
 
 	node := ast.ForStatementNode{
-		//Init:  init,
 		Cond:  cond,
 		Block: body,
 	}
-	p.Scope.Declare("flow", node)
+	p.Scope.Declare(flowKey, node)
 
 }
 
@@ -91,7 +90,7 @@ func parseCaseStatement(p *Parser) {
 		Expressions: exprs,
 		Block:       body,
 	}
-	p.Scope.Declare("flow", node)
+	p.Scope.Declare(flowKey, node)
 }
 
 func parseSwitchStatement(p *Parser) {
