@@ -189,7 +189,7 @@ func parseFuncDeclaration(p *Parser) {
 		ValidTypes: []ast.NodeType{},
 	}
 
-	p.parseScope(&body)
+	p.parseEnclosedScope(&body)
 
 	node := ast.FuncDeclarationNode{
 		Identifier: identifier,
@@ -216,7 +216,7 @@ func parseConstructorDeclaration(p *Parser) {
 		ValidTypes: []ast.NodeType{},
 	}
 
-	p.parseScope(&body)
+	p.parseEnclosedScope(&body)
 
 	node := ast.ConstructorDeclarationNode{
 		Parameters: params,

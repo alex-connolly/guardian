@@ -102,3 +102,14 @@ func TestIsEventDeclaration(t *testing.T) {
 	p = createParser("event Notification(string, dog.Dog)")
 	goutil.Assert(t, isEventDeclaration(p), "multiple event not recognised")
 }
+
+func TestIsAssignmentStatementReferenceLiteral(t *testing.T) {
+	p := createParser("x = 5")
+	goutil.Assert(t, isAssignmentStatement(p), "simple assignment not recognised")
+	p = createParser("x, y = 5")
+	goutil.Assert(t, isAssignmentStatement(p), "multiple left assignment not recognised")
+	p = createParser("x, y = 5, 3")
+	goutil.Assert(t, isAssignmentStatement(p), "multiple l/r recognised")
+	p = createParser("")
+	goutil.Assert(t, !isAssignmentStatement(p), "black statement recognised")
+}

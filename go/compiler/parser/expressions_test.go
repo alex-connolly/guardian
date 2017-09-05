@@ -335,15 +335,19 @@ func TestParseCompositeLiteralDeepReferenceEmpty(t *testing.T) {
 func TestParseCompositeLiteralInline(t *testing.T) {
 	p := createParser(`Dog{name: "Mr Woof"}`)
 	expr := p.parseExpression()
+	goutil.AssertNow(t, expr != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.CompositeLiteral, "wrong node type")
 	n := expr.(ast.CompositeLiteralNode)
-	goutil.AssertNow(t, n.Reference.Type() == ast.Reference, "wrong type type")
+	goutil.AssertNow(t, n.Reference != nil, "reference shouldn't be nil")
+	goutil.AssertNow(t, n.Reference.Type() == ast.Reference, "wrong reference type")
 	r := n.Reference.(ast.ReferenceNode)
 	goutil.AssertNow(t, len(r.Names) == 1, "wrong reference name length")
 	goutil.Assert(t, r.Names[0] == "Dog", "wrong reference name 0")
+	goutil.AssertNow(t, n.Fields != nil, "fields shouldn't be nil")
 	goutil.AssertNow(t, len(n.Fields) == 1, "wrong number of fields")
 	value, ok := n.Fields["name"]
 	goutil.AssertNow(t, ok, "correct field name not found")
+	goutil.AssertNow(t, value != nil, "value shouldn't be nil")
 	goutil.Assert(t, value.Type() == ast.Literal, "wrong value type")
 	v := value.(ast.LiteralNode)
 	goutil.Assert(t, v.Data == "Mr Woof", "wrong value data")
@@ -353,6 +357,7 @@ func TestParseIndexExpressionReferenceReference(t *testing.T) {
 	p := createParser(`array[index]`)
 	goutil.AssertNow(t, len(p.lexer.Tokens) == 4, "wrong token length")
 	expr := p.parseExpression()
+	goutil.AssertNow(t, expr != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
 	indexExpr := expr.(ast.IndexExpressionNode)
 	index := indexExpr.Index

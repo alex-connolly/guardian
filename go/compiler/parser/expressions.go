@@ -31,40 +31,35 @@ func (p *Parser) parseExpression() ast.ExpressionNode {
 	if p.hasTokens(1) {
 		switch p.current().Type {
 		case lexer.TknMap:
-			return p.parseMapLiteral()
+			expr = p.parseMapLiteral()
 		case lexer.TknOpenSquare:
-			return p.parseArrayLiteral()
+			expr = p.parseArrayLiteral()
 		case lexer.TknString, lexer.TknCharacter, lexer.TknNumber:
 			expr = p.parseLiteral()
-			if p.current().Type.IsBinaryOperator() {
-				p.parseBinaryExpression(expr)
-			} else if p.current().Type.IsUnaryOperator() {
-				p.parsePostfixUnaryExpression(expr)
-			}
 			break
 		case lexer.TknIdentifier:
 			expr = p.parseReference()
-			if p.hasTokens(1) {
-				switch p.current().Type {
-				case lexer.TknOpenBracket:
-					p.parseCallExpression(expr)
-					break
-				case lexer.TknOpenBrace:
-					return p.parseCompositeLiteral(expr.(ast.ReferenceNode))
-				case lexer.TknOpenSquare:
-					p.parseIndexExpression() // TODO: could be slice
-				}
-				if p.current().Type.IsBinaryOperator() {
-					p.parseBinaryExpression(expr)
-				} else if p.current().Type.IsUnaryOperator() {
-					p.parsePostfixUnaryExpression(expr)
-				}
-			}
 			break
 		case lexer.TknNot, lexer.TknIncrement, lexer.TknDecrement:
-			// prefix unary operator
-			p.parsePrefixUnaryExpression()
+			expr = p.parsePrefixUnaryExpression()
 			break
+		}
+	}
+	// composite expressions
+	if p.hasTokens(1) {
+		switch p.current().Type {
+		case lexer.TknOpenBracket:
+			p.parseCallExpression(expr)
+			break
+		case lexer.TknOpenBrace:
+			return p.parseCompositeLiteral(expr)
+		case lexer.TknOpenSquare:
+			p.parseIndexExpression(expr)
+		}
+		if p.current().Type.IsBinaryOperator() {
+			p.parseBinaryExpression(expr)
+		} else if p.current().Type.IsUnaryOperator() {
+			p.parsePostfixUnaryExpression(expr)
 		}
 	}
 	return expr
@@ -144,16 +139,22 @@ func (p *Parser) parseExpressionList() (list []ast.ExpressionNode) {
 	return list
 }
 
-func (p *Parser) parseIndexExpression() (n ast.IndexExpressionNode) {
-	n.Expression = p.parseExpression()
-	n.Index = p.parseExpression()
+func (p *Parser) parseIndexExpression(expr ast.ExpressionNode) ast.Node {
+	n := new(ast.IndexExpressionNode)
+	if p.current().Type == lexer.TknColon {
+		p.parseSliceExpression(expr, nil)
+	}
+	index := p.parseExpression()
+	if p.current().Type == lexer.TknColon {
+		return p.parseSliceExpression(expr, index)
+	}
+	n.Index = index
 	return n
 }
 
-func (p *Parser) parseSliceExpression() (n ast.SliceExpressionNode) {
-	n.Expression = p.parseExpression()
-	p.parseRequired(lexer.TknOpenSquare)
-	n.Low = p.parseExpression()
+func (p *Parser) parseSliceExpression(expr ast.ExpressionNode,
+	first ast.ExpressionNode) (n ast.SliceExpressionNode) {
+	n.Low = first
 	p.parseRequired(lexer.TknColon)
 	if !p.parseOptional(lexer.TknCloseSquare) {
 		n.High = p.parseExpression()
@@ -176,8 +177,9 @@ func (p *Parser) parseLiteral() (n ast.LiteralNode) {
 	return n
 }
 
-func (p *Parser) parseCompositeLiteral(ref ast.ReferenceNode) (n ast.CompositeLiteralNode) {
-	n.Reference = ref
+func (p *Parser) parseCompositeLiteral(expr ast.ExpressionNode) (n ast.CompositeLiteralNode) {
+	// expr must be a reference node
+	n.Reference = expr.(ast.ReferenceNode)
 	p.parseRequired(lexer.TknOpenBrace)
 	switch p.current().Type {
 	case lexer.TknIdentifier:

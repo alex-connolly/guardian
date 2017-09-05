@@ -85,7 +85,8 @@ func isIfStatement(p *Parser) bool {
 }
 
 func isAssignmentStatement(p *Parser) bool {
-	savedIndex := p.index
+	return false
+	/*savedIndex := p.index
 	expr := p.parseExpression()
 	if expr == nil {
 		return false
@@ -97,7 +98,7 @@ func isAssignmentStatement(p *Parser) bool {
 	}
 	flag := p.isNextToken(lexer.TknAssign)
 	p.index = savedIndex
-	return flag
+	return flag*/
 }
 
 func isSwitchStatement(p *Parser) bool {
