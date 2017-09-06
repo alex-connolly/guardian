@@ -47,26 +47,27 @@ func (p *Parser) parseExpression() ast.ExpressionNode {
 			expr = p.parsePrefixUnaryExpression()
 		}
 	}
-	if expr != nil {
-		return p.parsePossibleCompositeExpression(expr)
-	}
-	return nil
-}
-
-func (p *Parser) parsePossibleCompositeExpression(expr ast.ExpressionNode) ast.ExpressionNode {
-	if p.hasTokens(1) {
-		switch p.current().Type {
-		case lexer.TknOpenBracket:
-			return p.parseCallExpression(expr)
-		case lexer.TknOpenBrace:
-			return p.parseCompositeLiteral(expr)
-		case lexer.TknOpenSquare:
-			return p.parseIndexExpression(expr)
-		}
-		if p.current().Type.IsBinaryOperator() {
+	// parse composite expressiona
+	for p.hasTokens(1) && expr != nil {
+		t := p.current().Type
+		switch {
+		case t == lexer.TknOpenBracket:
+			expr = p.parseCallExpression(expr)
+			break
+		case t == lexer.TknOpenBrace:
+			expr = p.parseCompositeLiteral(expr)
+			break
+		case t == lexer.TknOpenSquare:
+			expr = p.parseIndexExpression(expr)
+			break
+		case t.IsBinaryOperator():
 			expr = p.parseBinaryExpression(expr)
-		} else if p.current().Type.IsUnaryOperator() {
+			break
+		case t.IsUnaryOperator():
 			expr = p.parsePostfixUnaryExpression(expr)
+			break
+		default:
+			return expr
 		}
 	}
 	return expr
@@ -154,19 +155,24 @@ func (p *Parser) parseExpressionList() (list []ast.ExpressionNode) {
 
 func (p *Parser) parseIndexExpression(expr ast.ExpressionNode) ast.ExpressionNode {
 	n := ast.IndexExpressionNode{}
+	p.parseRequired(lexer.TknOpenSquare)
 	if p.parseOptional(lexer.TknColon) {
-		p.parseSliceExpression(expr, nil)
+		return p.parseSliceExpression(expr, nil)
 	}
 	index := p.parseExpression()
 	if p.parseOptional(lexer.TknColon) {
 		return p.parseSliceExpression(expr, index)
 	}
+	p.parseRequired(lexer.TknCloseSquare)
+	n.Expression = expr
 	n.Index = index
 	return n
 }
 
 func (p *Parser) parseSliceExpression(expr ast.ExpressionNode,
-	first ast.ExpressionNode) (n ast.SliceExpressionNode) {
+	first ast.ExpressionNode) ast.SliceExpressionNode {
+	n := ast.SliceExpressionNode{}
+	n.Expression = expr
 	n.Low = first
 	if !p.parseOptional(lexer.TknCloseSquare) {
 		n.High = p.parseExpression()
