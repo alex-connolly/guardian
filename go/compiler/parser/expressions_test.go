@@ -96,13 +96,30 @@ func TestParseMapLiteralMultiple(t *testing.T) {
 func TestParseSliceExpressionReferenceLowLiteral(t *testing.T) {
 	p := createParser("slice[6:]")
 	expr := p.parseExpression()
-	goutil.Assert(t, expr.Type() == ast.SliceExpression, "wrong node type")
+	goutil.AssertNow(t, expr.Type() == ast.SliceExpression, "wrong node type")
+	s := expr.(ast.SliceExpressionNode)
+	goutil.AssertNow(t, s.Expression.Type() == ast.Reference, "wrong expression type")
+	r := s.Expression.(ast.ReferenceNode)
+	goutil.AssertNow(t, len(r.Names) == 1, "wrong expr name length")
+	goutil.AssertNow(t, r.Names[0] == "slice", "wrong expr name 0")
+	goutil.AssertNow(t, s.Low.Type() == ast.Literal, "wrong low type")
+	l := s.Low.(ast.LiteralNode)
+	goutil.AssertNow(t, l.Data == "6", "wrong data")
 }
 
 func TestParseSliceExpressionReferenceLowReference(t *testing.T) {
 	p := createParser("slice[low:]")
 	expr := p.parseExpression()
-	goutil.Assert(t, expr.Type() == ast.SliceExpression, "wrong node type")
+	goutil.AssertNow(t, expr.Type() == ast.SliceExpression, "wrong node type")
+	s := expr.(ast.SliceExpressionNode)
+	goutil.AssertNow(t, s.Expression.Type() == ast.Reference, "wrong expression type")
+	r := s.Expression.(ast.ReferenceNode)
+	goutil.AssertNow(t, len(r.Names) == 1, "wrong expr name length")
+	goutil.AssertNow(t, r.Names[0] == "slice", "wrong expr name 0")
+	goutil.AssertNow(t, s.Low.Type() == ast.Reference, "wrong low type")
+	l := s.Low.(ast.ReferenceNode)
+	goutil.AssertNow(t, len(l.Names) == 1, "wrong reference length")
+	goutil.AssertNow(t, l.Names[0] == "low", "wrong ref 0")
 }
 
 func TestParseSliceExpressionReferenceLowCall(t *testing.T) {
@@ -126,19 +143,43 @@ func TestParseSliceExpressionReferenceLowCall(t *testing.T) {
 func TestParseSliceExpressionCallLowLiteral(t *testing.T) {
 	p := createParser("getSlice()[6:]")
 	expr := p.parseExpression()
-	goutil.Assert(t, expr.Type() == ast.SliceExpression, "wrong node type")
+	goutil.AssertNow(t, expr.Type() == ast.SliceExpression, "wrong node type")
+	s := expr.(ast.SliceExpressionNode)
+	goutil.AssertNow(t, s.Expression.Type() == ast.CallExpression, "wrong expression type")
+	c := s.Expression.(ast.CallExpressionNode)
+	goutil.AssertNow(t, c.Arguments == nil, "arguments should be nil")
+	goutil.AssertNow(t, c.Call.Type() == ast.Reference, "wrong call type")
+	r := c.Call.(ast.ReferenceNode)
+	goutil.AssertNow(t, len(r.Names) == 1, "wrong call name length")
+	goutil.AssertNow(t, r.Names[0] == "getSlice", "wrong call name 0")
 }
 
 func TestParseSliceExpressionCallLowReference(t *testing.T) {
 	p := createParser("getSlice()[low:]")
 	expr := p.parseExpression()
-	goutil.Assert(t, expr.Type() == ast.SliceExpression, "wrong node type")
+	goutil.AssertNow(t, expr.Type() == ast.SliceExpression, "wrong node type")
+	s := expr.(ast.SliceExpressionNode)
+	goutil.AssertNow(t, s.Expression.Type() == ast.CallExpression, "wrong expression type")
+	c := s.Expression.(ast.CallExpressionNode)
+	goutil.AssertNow(t, c.Arguments == nil, "arguments should be nil")
+	goutil.AssertNow(t, c.Call.Type() == ast.Reference, "wrong call type")
+	r := c.Call.(ast.ReferenceNode)
+	goutil.AssertNow(t, len(r.Names) == 1, "wrong call name length")
+	goutil.AssertNow(t, r.Names[0] == "getSlice", "wrong call name 0")
 }
 
 func TestParseSliceExpressionCallLowCall(t *testing.T) {
 	p := createParser("getSlice()[getLow():]")
 	expr := p.parseExpression()
-	goutil.Assert(t, expr.Type() == ast.SliceExpression, "wrong node type")
+	goutil.AssertNow(t, expr.Type() == ast.SliceExpression, "wrong node type")
+	s := expr.(ast.SliceExpressionNode)
+	goutil.AssertNow(t, s.Expression.Type() == ast.CallExpression, "wrong expression type")
+	c := s.Expression.(ast.CallExpressionNode)
+	goutil.AssertNow(t, c.Arguments == nil, "arguments should be nil")
+	goutil.AssertNow(t, c.Call.Type() == ast.Reference, "wrong call type")
+	r := c.Call.(ast.ReferenceNode)
+	goutil.AssertNow(t, len(r.Names) == 1, "wrong call name length")
+	goutil.AssertNow(t, r.Names[0] == "getSlice", "wrong call name 0")
 }
 
 func TestParseSliceExpressionLiteralLowLiteral(t *testing.T) {
