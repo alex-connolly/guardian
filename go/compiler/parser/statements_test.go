@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/end-r/guardian/go/compiler/ast"
@@ -213,7 +214,7 @@ func TestSingleMapLiterallReturnStatement(t *testing.T) {
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 1, "wrong result length")
-	goutil.AssertNow(t, r.Results[0].Type() == ast.ArrayLiteral, "wrong result 0 type")
+	goutil.AssertNow(t, r.Results[0].Type() == ast.MapLiteral, "wrong result 0 type")
 }
 
 func TestMultipleMapLiteralReturnStatement(t *testing.T) {
@@ -225,11 +226,11 @@ func TestMultipleMapLiteralReturnStatement(t *testing.T) {
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 2, "wrong result length")
-	goutil.AssertNow(t, r.Results[0].Type() == ast.ArrayLiteral, "wrong result 0 type")
-	goutil.AssertNow(t, r.Results[1].Type() == ast.ArrayLiteral, "wrong result 1 type")
+	goutil.AssertNow(t, r.Results[0].Type() == ast.MapLiteral, "wrong result 0 type")
+	goutil.AssertNow(t, r.Results[1].Type() == ast.MapLiteral, "wrong result 1 type")
 }
 
-func TestSingleCompositeLiterallReturnStatement(t *testing.T) {
+func TestSingleCompositeLiteralReturnStatement(t *testing.T) {
 	p := createParser(`return Dog{}`)
 	goutil.Assert(t, isReturnStatement(p), "should detect return statement")
 	parseReturnStatement(p)
@@ -238,20 +239,20 @@ func TestSingleCompositeLiterallReturnStatement(t *testing.T) {
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 1, "wrong result length")
-	goutil.AssertNow(t, r.Results[0].Type() == ast.ArrayLiteral, "wrong result 0 type")
+	goutil.AssertNow(t, r.Results[0].Type() == ast.CompositeLiteral, "wrong result 0 type")
 }
 
 func TestMultipleCompositeLiteralReturnStatement(t *testing.T) {
-	p := createParser(`return Cat{name:"Doggo"}, Dog{name:"Katter"}`)
+	p := createParser(`return Cat{name:"Doggo", age:"Five"}, Dog{name:"Katter"}`)
 	goutil.Assert(t, isReturnStatement(p), "should detect return statement")
 	parseReturnStatement(p)
 	goutil.AssertNow(t, p.Scope.Nodes(flowKey) != nil, "nodes shouldn't be nil")
 	u := p.Scope.Nodes(flowKey)[0]
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
-	goutil.AssertNow(t, len(r.Results) == 2, "wrong result length")
-	goutil.AssertNow(t, r.Results[0].Type() == ast.ArrayLiteral, "wrong result 0 type")
-	goutil.AssertNow(t, r.Results[1].Type() == ast.ArrayLiteral, "wrong result 1 type")
+	goutil.AssertNow(t, len(r.Results) == 2, fmt.Sprintf("wrong result length: %d", len(r.Results)))
+	goutil.AssertNow(t, r.Results[0].Type() == ast.CompositeLiteral, "wrong result 0 type")
+	goutil.AssertNow(t, r.Results[1].Type() == ast.CompositeLiteral, "wrong result 1 type")
 }
 
 func TestSimpleLiteralAssignmentStatement(t *testing.T) {
@@ -274,7 +275,7 @@ func TestMultiToSingleLiteralAssignmentStatement(t *testing.T) {
 	n := p.Scope.Nodes(flowKey)[0]
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
-	goutil.AssertNow(t, len(a.Left) == 1, "should be two left values")
+	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
 	goutil.AssertNow(t, a.Left[0].Type() == ast.Reference, "wrong left type")
 }
 

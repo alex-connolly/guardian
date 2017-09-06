@@ -141,6 +141,7 @@ func (p *Parser) parseMapLiteral() (n ast.MapLiteralNode) {
 			value := p.parseExpression()
 			n.Data[key] = value
 		}
+		p.parseRequired(lexer.TknCloseBrace)
 	}
 	return n
 }
@@ -200,28 +201,21 @@ func (p *Parser) parseCompositeLiteral(expr ast.ExpressionNode) (n ast.Composite
 	// expr must be a reference node
 	n.Reference = expr.(ast.ReferenceNode)
 	p.parseRequired(lexer.TknOpenBrace)
-	switch p.current().Type {
-	case lexer.TknIdentifier:
-		firstKey := p.lexer.TokenString(p.current())
+	if !p.parseOptional(lexer.TknCloseBrace) {
+		firstKey := p.parseIdentifier()
 		p.parseRequired(lexer.TknColon)
 		expr := p.parseExpression()
 		if n.Fields == nil {
 			n.Fields = make(map[string]ast.ExpressionNode)
 		}
 		n.Fields[firstKey] = expr
-		for p.current().Type == lexer.TknComma {
-			key := p.lexer.TokenString(p.current())
+		for p.parseOptional(lexer.TknComma) {
+			key := p.parseIdentifier()
 			p.parseRequired(lexer.TknColon)
-			expr := p.parseExpression()
-			if n.Fields == nil {
-				n.Fields = make(map[string]ast.ExpressionNode)
-			}
-			n.Fields[key] = expr
+			exp := p.parseExpression()
+			n.Fields[key] = exp
 		}
-		break
-	case lexer.TknCloseBrace:
-		p.next()
-		break
+		p.parseRequired(lexer.TknCloseBrace)
 	}
 	return n
 }

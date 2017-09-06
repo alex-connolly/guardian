@@ -192,21 +192,21 @@ func TestParseSliceExpressionCallLowCall(t *testing.T) {
 	goutil.AssertNow(t, r.Names[0] == "getSlice", "wrong call name 0")
 }
 
-func TestParseSliceExpressionArrayLiteralLowLiteral(t *testing.T) {
+func TestParseSliceExpressionArrayLiteralowLiteral(t *testing.T) {
 	p := createParser(`[string]{"a", "b", "c"}[6:]`)
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.Assert(t, expr.Type() == ast.SliceExpression, "wrong node type")
 }
 
-func TestParseSliceExpressionArrayLiteralLowReference(t *testing.T) {
+func TestParseSliceExpressionArrayLiteralowReference(t *testing.T) {
 	p := createParser(`[string]{"a", "b", "c"}[low:]`)
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.Assert(t, expr.Type() == ast.SliceExpression, "wrong node type")
 }
 
-func TestParseSliceExpressionArrayLiteralLowCall(t *testing.T) {
+func TestParseSliceExpressionArrayLiteralowCall(t *testing.T) {
 	p := createParser(`[string]{"a", "b", "c"}[getLow():]`)
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
@@ -318,21 +318,21 @@ func TestParseSliceExpressionCallLowHighCall(t *testing.T) {
 	goutil.Assert(t, expr.Type() == ast.SliceExpression, "wrong node type")
 }
 
-func TestParseSliceExpressionArrayLiteralLowHighLiteral(t *testing.T) {
+func TestParseSliceExpressionArrayLiteralowHighLiteral(t *testing.T) {
 	p := createParser(`[string]{"a", "b", "c"}[1:6]`)
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.Assert(t, expr.Type() == ast.SliceExpression, "wrong node type")
 }
 
-func TestParseSliceExpressionArrayLiteralLowHighReference(t *testing.T) {
+func TestParseSliceExpressionArrayLiteralowHighReference(t *testing.T) {
 	p := createParser(`[string]{"a", "b", "c"}[low:high]`)
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.Assert(t, expr.Type() == ast.SliceExpression, "wrong node type")
 }
 
-func TestParseSliceExpressionArrayLiteralLowHighCall(t *testing.T) {
+func TestParseSliceExpressionArrayLiteralowHighCall(t *testing.T) {
 	p := createParser(`[string]{"a", "b", "c"}[getLow():getHigh()]`)
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
@@ -377,12 +377,6 @@ func TestParseCompositeLiteralInline(t *testing.T) {
 	goutil.Assert(t, r.Names[0] == "Dog", "wrong reference name 0")
 	goutil.AssertNow(t, n.Fields != nil, "fields shouldn't be nil")
 	goutil.AssertNow(t, len(n.Fields) == 1, "wrong number of fields")
-	value, ok := n.Fields["name"]
-	goutil.AssertNow(t, ok, "correct field name not found")
-	goutil.AssertNow(t, value != nil, "value shouldn't be nil")
-	goutil.Assert(t, value.Type() == ast.Literal, "wrong value type")
-	v := value.(ast.LiteralNode)
-	goutil.Assert(t, v.Data == "Mr Woof", "wrong value data")
 }
 
 func TestParseIndexExpressionReferenceReference(t *testing.T) {

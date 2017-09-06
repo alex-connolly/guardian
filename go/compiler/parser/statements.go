@@ -9,21 +9,7 @@ func parseReturnStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknReturn)
 
-	var tuple []ast.ExpressionNode
-
-	if p.parseOptional(lexer.TknOpenBracket) {
-		tuple = append(tuple, p.parseExpression())
-		for p.parseOptional(lexer.TknComma) {
-			tuple = append(tuple, p.parseExpression())
-		}
-		p.parseRequired(lexer.TknCloseBracket)
-	} else {
-		tuple = append(tuple, p.parseExpression())
-		for p.parseOptional(lexer.TknComma) {
-			tuple = append(tuple, p.parseExpression())
-		}
-
-	}
+	var tuple = p.parseExpressionList()
 
 	node := ast.ReturnStatementNode{
 		Results: tuple,
