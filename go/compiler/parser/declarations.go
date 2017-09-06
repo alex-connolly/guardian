@@ -154,11 +154,9 @@ func parseContractDeclaration(p *Parser) {
 
 func (p *Parser) parseVarDeclaration() ast.ExplicitVarDeclarationNode {
 	names := make([]string, 0)
-	names = append(names, p.lexer.TokenString(p.current()))
-	p.next()
+	names = append(names, p.parseIdentifier())
 	for p.parseOptional(lexer.TknComma) {
-		names = append(names, p.lexer.TokenString(p.current()))
-		p.next()
+		names = append(names, p.parseIdentifier())
 	}
 	// parse type
 	dType := p.parseReference()
@@ -193,7 +191,7 @@ func (p *Parser) parseResults() []ast.ReferenceNode {
 	// {
 	if p.parseOptional(lexer.TknOpenBracket) {
 		refs := p.parseReferenceList()
-		p.parseOptional(lexer.TknCloseBracket)
+		p.parseRequired(lexer.TknCloseBracket)
 		return refs
 	}
 	if p.current().Type == lexer.TknIdentifier {
@@ -206,15 +204,13 @@ func parseFuncDeclaration(p *Parser) {
 
 	abstract := p.parseOptional(lexer.TknAbstract)
 
+	p.parseRequired(lexer.TknFunc)
+
 	identifier := p.parseIdentifier()
 
 	params := p.parseParameters()
 
 	results := p.parseResults()
-
-	p.parseRequired(lexer.TknOpenBrace)
-
-	p.validate(ast.FuncDeclaration)
 
 	body := ast.ScopeNode{
 		ValidTypes: []ast.NodeType{},
@@ -238,10 +234,6 @@ func parseConstructorDeclaration(p *Parser) {
 	p.parseRequired(lexer.TknConstructor)
 
 	params := p.parseParameters()
-
-	p.parseRequired(lexer.TknOpenBrace)
-
-	p.validate(ast.ConstructorDeclaration)
 
 	body := ast.ScopeNode{
 		ValidTypes: []ast.NodeType{},
@@ -311,12 +303,13 @@ func (p *Parser) parseArrayType() ast.Node {
 
 func parseExplicitVarDeclaration(p *Parser) {
 
+	p.parseOptional(lexer.TknVar)
+
 	// parse variable Names
 	var names []string
-	names = append(names, p.lexer.TokenString(p.current()))
-	p.next()
+	names = append(names, p.parseIdentifier())
 	for p.parseOptional(lexer.TknComma) {
-		names = append(names, p.lexer.TokenString(p.current()))
+		names = append(names, p.parseIdentifier())
 	}
 	// parse type
 	dType := p.parseReference()

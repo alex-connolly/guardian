@@ -173,7 +173,7 @@ func TestParseContractDeclarationSingleInheritanceSingleInterface(t *testing.T) 
 	goutil.AssertNow(t, len(i.Supers) == 1, "wrong supers length")
 }
 
-func TestParseContractDeclarationMultipleInheritanceSingleInterface(t *testing.T) {
+func TestParseContractDeclarationMultipleInterfaceSingleInheritance(t *testing.T) {
 	p := createParser(`contract Wagable is Visible, Movable inherits A {}`)
 	goutil.Assert(t, isContractDeclaration(p), "should detect contract decl")
 	parseContractDeclaration(p)
@@ -183,7 +183,8 @@ func TestParseContractDeclarationMultipleInheritanceSingleInterface(t *testing.T
 	goutil.AssertNow(t, n.Type() == ast.ContractDeclaration, "wrong node type")
 	i := n.(ast.ContractDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
-	goutil.AssertNow(t, len(i.Supers) == 2, "wrong supers length")
+	goutil.AssertNow(t, len(i.Supers) == 1, "wrong supers length")
+	goutil.AssertNow(t, len(i.Interfaces) == 2, "wrong interfaces length")
 }
 
 func TestParseContractDeclarationMultipleInheritanceMultipleInterface(t *testing.T) {
@@ -345,7 +346,6 @@ func TestParseClassDeclarationAbstract(t *testing.T) {
 
 func TestParseTypeDeclaration(t *testing.T) {
 	p := createParser(`type Wagable int`)
-	fmt.Println(p.lexer.Tokens)
 	goutil.AssertNow(t, len(p.lexer.Tokens) == 3, fmt.Sprintf("wrong token length: %d", len(p.lexer.Tokens)))
 	goutil.Assert(t, isTypeDeclaration(p), "should detect type decl")
 	parseTypeDeclaration(p)
@@ -359,8 +359,8 @@ func TestParseTypeDeclaration(t *testing.T) {
 }
 
 func TestParseExplicitVarDeclaration(t *testing.T) {
-	p := createParser(`a string`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 2, "wrong token length")
+	p := createParser(`var a string`)
+	goutil.AssertNow(t, len(p.lexer.Tokens) == 3, "wrong token length")
 	goutil.Assert(t, isExplicitVarDeclaration(p), "should detect expvar decl")
 	parseExplicitVarDeclaration(p)
 }
@@ -478,7 +478,8 @@ func TestParseFuncNoParameters(t *testing.T) {
 	n := p.Scope.Nodes(funcKey)[0]
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
 	f := n.(ast.FuncDeclarationNode)
-	goutil.AssertNow(t, len(f.Parameters) == 0, "wrong param length")
+	goutil.AssertNow(t, len(f.Parameters) == 0,
+		fmt.Sprintf("wrong param length: %d", len(f.Parameters)))
 }
 
 func TestParseFuncOneParameter(t *testing.T) {

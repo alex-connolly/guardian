@@ -88,7 +88,7 @@ func (p *Parser) parseIdentifier() string {
 		p.addError("Required indentifier, found {add token type}")
 		return ""
 	}
-	s := p.lexer.TokenString(p.lexer.Tokens[p.index])
+	s := p.lexer.TokenString(p.current())
 	p.next()
 	return s
 }
@@ -139,7 +139,7 @@ func (p *Parser) parseScope(scope *ast.ScopeNode) {
 			}
 		}
 		if !found {
-			fmt.Printf("Unrecognised token at index %d\n", p.index)
+			fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.lexer.TokenString(p.current()))
 			p.addError(fmt.Sprintf("unrecognised construct: %s", p.lexer.TokenString(p.current())))
 			p.next()
 		}
