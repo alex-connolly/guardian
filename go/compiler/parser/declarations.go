@@ -121,10 +121,18 @@ func parseContractDeclaration(p *Parser) {
 
 	// is and inherits can be in any order
 
-	var inherits []ast.ReferenceNode
+	var inherits, interfaces []ast.ReferenceNode
 
 	if p.parseOptional(lexer.TknInherits) {
 		inherits = p.parseReferenceList()
+		if p.parseOptional(lexer.TknIs) {
+			interfaces = p.parseReferenceList()
+		}
+	} else if p.parseOptional(lexer.TknIs) {
+		interfaces = p.parseReferenceList()
+		if p.parseOptional(lexer.TknInherits) {
+			inherits = p.parseReferenceList()
+		}
 	}
 
 	body := ast.ScopeNode{
@@ -136,6 +144,7 @@ func parseContractDeclaration(p *Parser) {
 	node := ast.ContractDeclarationNode{
 		Identifier: identifier,
 		Supers:     inherits,
+		Interfaces: interfaces,
 		IsAbstract: abstract,
 		Body:       body,
 	}
@@ -149,6 +158,7 @@ func (p *Parser) parseVarDeclaration() ast.ExplicitVarDeclarationNode {
 	p.next()
 	for p.parseOptional(lexer.TknComma) {
 		names = append(names, p.lexer.TokenString(p.current()))
+		p.next()
 	}
 	// parse type
 	dType := p.parseReference()
@@ -162,7 +172,7 @@ func (p *Parser) parseVarDeclaration() ast.ExplicitVarDeclarationNode {
 func (p *Parser) parseParameters() []ast.ExplicitVarDeclarationNode {
 	var params []ast.ExplicitVarDeclarationNode
 	p.parseRequired(lexer.TknOpenBracket)
-	if p.parseOptional(lexer.TknCloseBracket) {
+	if !p.parseOptional(lexer.TknCloseBracket) {
 		params = append(params, p.parseVarDeclaration())
 		for p.parseOptional(lexer.TknComma) {
 			params = append(params, p.parseVarDeclaration())

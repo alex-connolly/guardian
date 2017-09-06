@@ -39,7 +39,7 @@ func (p *Parser) parseExpression() ast.ExpressionNode {
 			break
 		case lexer.TknString, lexer.TknCharacter, lexer.TknNumber:
 			expr = p.parseLiteral()
-			break
+			return expr
 		case lexer.TknIdentifier:
 			expr = p.parseReference()
 			break
@@ -47,7 +47,6 @@ func (p *Parser) parseExpression() ast.ExpressionNode {
 			expr = p.parsePrefixUnaryExpression()
 		}
 	}
-	// composite expressions
 	if expr != nil {
 		return p.parsePossibleCompositeExpression(expr)
 	}
@@ -187,6 +186,7 @@ func (p *Parser) parseReference() (n ast.ReferenceNode) {
 func (p *Parser) parseLiteral() (n ast.LiteralNode) {
 	n.LiteralType = p.current().Type
 	n.Data = p.lexer.TokenString(p.current())
+	p.next()
 	return n
 }
 

@@ -32,6 +32,7 @@ func TestParseIfStatement(t *testing.T) {
 	parseIfStatement(p)
 }
 
+/*
 func TestParseForStatementCondition(t *testing.T) {
 	p := createParser(`for x < 5 {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")

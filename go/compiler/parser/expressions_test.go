@@ -60,6 +60,7 @@ func TestParseLiteralString(t *testing.T) {
 func TestParseMapLiteralEmpty(t *testing.T) {
 	p := createParser("map[string]int{}")
 	expr := p.parseExpression()
+	goutil.AssertNow(t, expr != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.MapLiteral, "wrong node type")
 	n := expr.(ast.MapLiteralNode)
 	goutil.AssertNow(t, len(n.Key.Names) == 1, "wrong key name length")
@@ -72,6 +73,7 @@ func TestParseMapLiteralEmpty(t *testing.T) {
 func TestParseMapLiteralSingle(t *testing.T) {
 	p := createParser(`map[string]int{"Hi":3}`)
 	expr := p.parseExpression()
+	goutil.AssertNow(t, expr != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.MapLiteral, "wrong node type")
 	n := expr.(ast.MapLiteralNode)
 	goutil.AssertNow(t, len(n.Key.Names) == 1, "wrong key name length")
@@ -84,6 +86,7 @@ func TestParseMapLiteralSingle(t *testing.T) {
 func TestParseMapLiteralMultiple(t *testing.T) {
 	p := createParser(`map[string]int{"Hi":3, "Byte":8}`)
 	expr := p.parseExpression()
+	goutil.AssertNow(t, expr != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.MapLiteral, "wrong node type")
 	n := expr.(ast.MapLiteralNode)
 	goutil.AssertNow(t, len(n.Key.Names) == 1, "wrong key name length")

@@ -9,14 +9,27 @@ func parseReturnStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknReturn)
 
+	var tuple []ast.ExpressionNode
+
 	if p.parseOptional(lexer.TknOpenBracket) {
-		var tuple []ast.ExpressionNode
 		tuple = append(tuple, p.parseExpression())
 		for p.parseOptional(lexer.TknComma) {
 			tuple = append(tuple, p.parseExpression())
 		}
+		p.parseRequired(lexer.TknCloseBracket)
+	} else {
+		tuple = append(tuple, p.parseExpression())
+		for p.parseOptional(lexer.TknComma) {
+			tuple = append(tuple, p.parseExpression())
+		}
+
 	}
-	p.parseRequired(lexer.TknCloseBracket)
+
+	node := ast.ReturnStatementNode{
+		Results: tuple,
+	}
+
+	p.Scope.Declare(flowKey, node)
 }
 
 func parseAssignmentStatement(p *Parser) {
