@@ -108,7 +108,19 @@ func TestParseSliceExpressionReferenceLowReference(t *testing.T) {
 func TestParseSliceExpressionReferenceLowCall(t *testing.T) {
 	p := createParser("slice[low():]")
 	expr := p.parseExpression()
-	goutil.Assert(t, expr.Type() == ast.SliceExpression, "wrong node type")
+	goutil.AssertNow(t, expr.Type() == ast.SliceExpression, "wrong node type")
+	s := expr.(ast.SliceExpressionNode)
+	goutil.AssertNow(t, s.Expression.Type() == ast.Reference, "wrong expression type")
+	r := s.Expression.(ast.ReferenceNode)
+	goutil.AssertNow(t, len(r.Names) == 1, "wrong expr name length")
+	goutil.AssertNow(t, r.Names[0] == "slice", "wrong expr name 0")
+	goutil.AssertNow(t, s.Low.Type() == ast.CallExpression, "wrong low type")
+	l := s.Low.(ast.CallExpressionNode)
+	goutil.AssertNow(t, l.Arguments == nil, "call arguments should be nil")
+	goutil.AssertNow(t, l.Call.Type() == ast.Reference, "wrong call type")
+	c := l.Call.(ast.ReferenceNode)
+	goutil.AssertNow(t, len(c.Names) == 1, "wrong call name length")
+	goutil.AssertNow(t, c.Names[0] == "low", "wrong call name 0")
 }
 
 func TestParseSliceExpressionCallLowLiteral(t *testing.T) {
@@ -355,7 +367,6 @@ func TestParseCompositeLiteralInline(t *testing.T) {
 
 func TestParseIndexExpressionReferenceReference(t *testing.T) {
 	p := createParser(`array[index]`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 4, "wrong token length")
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
@@ -369,7 +380,6 @@ func TestParseIndexExpressionReferenceReference(t *testing.T) {
 
 func TestParseIndexExpressionReferenceLiteral(t *testing.T) {
 	p := createParser(`array[6]`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 4, "wrong token length")
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
 	indexExpr := expr.(ast.IndexExpressionNode)
@@ -382,7 +392,6 @@ func TestParseIndexExpressionReferenceLiteral(t *testing.T) {
 
 func TestParseIndexExpressionReferenceCall(t *testing.T) {
 	p := createParser(`array[getIndex()]`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 6, "wrong token length")
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
 	indexExpr := expr.(ast.IndexExpressionNode)
@@ -395,7 +404,6 @@ func TestParseIndexExpressionReferenceCall(t *testing.T) {
 
 func TestParseIndexExpressionReferenceIndex(t *testing.T) {
 	p := createParser(`array[nested[0]]`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 7, "wrong token length")
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
 	indexExpr := expr.(ast.IndexExpressionNode)
@@ -408,7 +416,6 @@ func TestParseIndexExpressionReferenceIndex(t *testing.T) {
 
 func TestParseIndexExpressionCallReference(t *testing.T) {
 	p := createParser(`getArray()[index]`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 6, "wrong token length")
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
 	indexExpr := expr.(ast.IndexExpressionNode)
@@ -421,7 +428,6 @@ func TestParseIndexExpressionCallReference(t *testing.T) {
 
 func TestParseIndexExpressionCallLiteral(t *testing.T) {
 	p := createParser(`getArray()[5]`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 6, "wrong token length")
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
 	indexExpr := expr.(ast.IndexExpressionNode)
@@ -434,7 +440,6 @@ func TestParseIndexExpressionCallLiteral(t *testing.T) {
 
 func TestParseIndexExpressionCallCall(t *testing.T) {
 	p := createParser(`getArray()[getIndex()]`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 8, "wrong token length")
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
 	indexExpr := expr.(ast.IndexExpressionNode)
@@ -447,7 +452,6 @@ func TestParseIndexExpressionCallCall(t *testing.T) {
 
 func TestParseIndexExpressionCallIndex(t *testing.T) {
 	p := createParser(`getArray()[nested[0]]`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 9, "wrong token length")
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
 	indexExpr := expr.(ast.IndexExpressionNode)
@@ -460,7 +464,6 @@ func TestParseIndexExpressionCallIndex(t *testing.T) {
 
 func TestParseIndexExpressionIndexReference(t *testing.T) {
 	p := createParser(`array[0][index]`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 6, "wrong token length")
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
 	indexExpr := expr.(ast.IndexExpressionNode)

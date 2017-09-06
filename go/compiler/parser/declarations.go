@@ -143,11 +143,32 @@ func parseContractDeclaration(p *Parser) {
 	p.Scope.Declare(contractKey, node)
 }
 
+func (p *Parser) parseVarDeclaration() ast.ExplicitVarDeclarationNode {
+	names := make([]string, 0)
+	names = append(names, p.lexer.TokenString(p.current()))
+	p.next()
+	for p.parseOptional(lexer.TknComma) {
+		names = append(names, p.lexer.TokenString(p.current()))
+	}
+	// parse type
+	dType := p.parseReference()
+
+	return ast.ExplicitVarDeclarationNode{
+		DeclaredType: dType,
+		Identifiers:  names,
+	}
+}
+
 func (p *Parser) parseParameters() []ast.ExplicitVarDeclarationNode {
 	var params []ast.ExplicitVarDeclarationNode
 	p.parseRequired(lexer.TknOpenBracket)
-
-	p.parseRequired(lexer.TknCloseBracket)
+	if p.parseOptional(lexer.TknCloseBracket) {
+		params = append(params, p.parseVarDeclaration())
+		for p.parseOptional(lexer.TknComma) {
+			params = append(params, p.parseVarDeclaration())
+		}
+		p.parseRequired(lexer.TknCloseBracket)
+	}
 	return params
 }
 
@@ -281,7 +302,7 @@ func (p *Parser) parseArrayType() ast.Node {
 func parseExplicitVarDeclaration(p *Parser) {
 
 	// parse variable Names
-	names := make([]string, 0)
+	var names []string
 	names = append(names, p.lexer.TokenString(p.current()))
 	p.next()
 	for p.parseOptional(lexer.TknComma) {
@@ -303,8 +324,12 @@ func parseEventDeclaration(p *Parser) {
 	name := p.lexer.TokenString(p.current())
 	p.next()
 	p.parseRequired(lexer.TknOpenBracket)
-	types := p.parseReferenceList()
-	p.parseRequired(lexer.TknCloseBracket)
+	var types []ast.ReferenceNode
+	if !p.parseOptional(lexer.TknCloseBracket) {
+		types = p.parseReferenceList()
+		p.parseRequired(lexer.TknCloseBracket)
+	}
+
 	node := ast.EventDeclarationNode{
 		Identifier: name,
 		Parameters: types,

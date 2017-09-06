@@ -4,13 +4,9 @@ import (
 	"github.com/end-r/guardian/go/compiler/lexer"
 )
 
-func isScopeClosure(p *Parser) bool {
-	return p.isNextToken(lexer.TknCloseBrace)
-}
-
 // e.g. name string
 func isExplicitVarDeclaration(p *Parser) bool {
-	return p.isNextToken(lexer.TknIdentifier) && p.token(1).Type == lexer.TknIdentifier
+	return p.isNextToken(lexer.TknVar) || p.isNextToken(lexer.TknConst)
 }
 
 func isClassDeclaration(p *Parser) bool {

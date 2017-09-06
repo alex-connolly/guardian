@@ -80,6 +80,11 @@ func TestIsIfStatement(t *testing.T) {
 	goutil.Assert(t, isIfStatement(p), "init if statement not recognised")
 }
 
+func TestIsExplicitVarDeclaration(t *testing.T) {
+	p := createParser("var x string")
+	goutil.Assert(t, isExplicitVarDeclaration(p), "var expvar statement not recognised")
+}
+
 func TestIsSwitchStatement(t *testing.T) {
 	p := createParser("switch x {}")
 	goutil.Assert(t, isSwitchStatement(p), "switch statement not recognised")
@@ -112,4 +117,6 @@ func TestIsAssignmentStatementReferenceLiteral(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "multiple l/r not recognised")
 	p = createParser("")
 	goutil.Assert(t, !isAssignmentStatement(p), "blank statement should not berecognised")
+	p = createParser("{}")
+	goutil.Assert(t, !isAssignmentStatement(p), "braces should not berecognised")
 }
