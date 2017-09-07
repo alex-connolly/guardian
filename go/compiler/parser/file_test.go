@@ -53,3 +53,9 @@ func TestEnumsContract(t *testing.T) {
 	goutil.Assert(t, p != nil, "parser should not be nil")
 	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
 }
+
+func TestTypesContract(t *testing.T) {
+	p := ParseFile("tests/types.grd")
+	goutil.Assert(t, p != nil, "parser should not be nil")
+	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
+}

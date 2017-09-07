@@ -152,6 +152,16 @@ func parseContractDeclaration(p *Parser) {
 	p.Scope.Declare(contractKey, node)
 }
 
+func (p *Parser) parseType() ast.Node {
+	switch {
+	case p.isArrayType():
+		return p.parseArrayType()
+	case p.isMapType():
+		return p.parseMapType()
+	}
+	return p.parseReference()
+}
+
 func (p *Parser) parseVarDeclaration() ast.ExplicitVarDeclarationNode {
 	names := make([]string, 0)
 	names = append(names, p.parseIdentifier())
@@ -159,7 +169,7 @@ func (p *Parser) parseVarDeclaration() ast.ExplicitVarDeclarationNode {
 		names = append(names, p.parseIdentifier())
 	}
 	// parse type
-	dType := p.parseReference()
+	dType := p.parseType()
 
 	return ast.ExplicitVarDeclarationNode{
 		DeclaredType: dType,

@@ -18,9 +18,24 @@ func isExplicitVarDeclaration(p *Parser) bool {
 			return false
 		}
 	}
-	flag := p.isNextToken(lexer.TknIdentifier)
+	if p.hasTokens(1) {
+		return false
+	}
+	flag := p.isNextAType()
 	p.index = savedIndex
 	return flag
+}
+
+func (p *Parser) isNextAType() bool {
+	return p.isNextToken(lexer.TknIdentifier) || p.isArrayType() || p.isMapType()
+}
+
+func (p *Parser) isArrayType() bool {
+	return p.isNextToken(lexer.TknOpenSquare)
+}
+
+func (p *Parser) isMapType() bool {
+	return p.isNextToken(lexer.TknMap)
 }
 
 func isClassDeclaration(p *Parser) bool {

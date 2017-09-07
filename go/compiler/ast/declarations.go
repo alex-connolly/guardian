@@ -103,7 +103,7 @@ func (n FuncTypeNode) Traverse(vm *vmgen.VM) {
 
 type ExplicitVarDeclarationNode struct {
 	Identifiers  []string
-	DeclaredType ReferenceNode
+	DeclaredType Node
 }
 
 func (n ExplicitVarDeclarationNode) Type() NodeType { return ExplicitVarDeclaration }
