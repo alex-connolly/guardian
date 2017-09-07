@@ -15,5 +15,5 @@ func TestParseString(t *testing.T) {
 }
 
 func TestParseFile(t *testing.T) {
-	ParseFile("tests/empty_contract.grd")
+	ParseFile("tests/empty.grd")
 }

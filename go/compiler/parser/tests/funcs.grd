@@ -1,0 +1,14 @@
+contract Funcs {
+
+    func doThing(){
+
+    }
+
+    func withParams(a, b string){
+
+    }
+
+    func withResults(a, b string) string {
+        
+    }
+}

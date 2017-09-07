@@ -1,0 +1,10 @@
+contract C {
+
+    interface A {
+
+    }
+
+    interface B inherits A {
+
+    }
+}

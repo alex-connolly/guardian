@@ -303,8 +303,6 @@ func (p *Parser) parseArrayType() ast.Node {
 
 func parseExplicitVarDeclaration(p *Parser) {
 
-	p.parseOptional(lexer.TknVar)
-
 	// parse variable Names
 	var names []string
 	names = append(names, p.parseIdentifier())

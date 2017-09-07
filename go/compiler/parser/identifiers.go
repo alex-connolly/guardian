@@ -6,7 +6,21 @@ import (
 
 // e.g. name string
 func isExplicitVarDeclaration(p *Parser) bool {
-	return p.isNextToken(lexer.TknVar) || p.isNextToken(lexer.TknConst)
+	if !p.hasTokens(2) {
+		return false
+	}
+	savedIndex := p.index
+	if !p.parseOptional(lexer.TknIdentifier) {
+		return false
+	}
+	for p.parseOptional(lexer.TknComma) {
+		if !p.parseOptional(lexer.TknIdentifier) {
+			return false
+		}
+	}
+	flag := p.isNextToken(lexer.TknIdentifier)
+	p.index = savedIndex
+	return flag
 }
 
 func isClassDeclaration(p *Parser) bool {

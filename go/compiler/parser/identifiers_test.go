@@ -81,8 +81,10 @@ func TestIsIfStatement(t *testing.T) {
 }
 
 func TestIsExplicitVarDeclaration(t *testing.T) {
-	p := createParser("var x string")
+	p := createParser("x string")
 	goutil.Assert(t, isExplicitVarDeclaration(p), "var expvar statement not recognised")
+	p = createParser("x, a string")
+	goutil.Assert(t, isExplicitVarDeclaration(p), "multiple var expvar statement not recognised")
 }
 
 func TestIsSwitchStatement(t *testing.T) {

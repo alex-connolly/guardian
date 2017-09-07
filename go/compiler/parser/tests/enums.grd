@@ -1,0 +1,10 @@
+contract EnumsContract {
+
+    enum A {
+
+    }
+
+    enum B {
+        
+    }
+}

@@ -359,8 +359,7 @@ func TestParseTypeDeclaration(t *testing.T) {
 }
 
 func TestParseExplicitVarDeclaration(t *testing.T) {
-	p := createParser(`var a string`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 3, "wrong token length")
+	p := createParser(`a string`)
 	goutil.Assert(t, isExplicitVarDeclaration(p), "should detect expvar decl")
 	parseExplicitVarDeclaration(p)
 }

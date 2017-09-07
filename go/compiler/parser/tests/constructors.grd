@@ -1,13 +1,11 @@
 contract Basic {
 
-    name string
-    id uint64
-
     constructor(name string){
-        this.name = name
+
     }
 
     constructor(id uint64){
-        this.id = id
+
     }
+    
 }
