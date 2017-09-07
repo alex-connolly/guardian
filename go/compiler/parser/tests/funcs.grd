@@ -9,6 +9,10 @@ contract Funcs {
     }
 
     func withResults(a, b string) string {
+
+    }
+
+    func withMultipleResults(a, b string) (string, string){
         
     }
 }

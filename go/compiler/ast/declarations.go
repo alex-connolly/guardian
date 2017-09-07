@@ -4,7 +4,7 @@ import "github.com/end-r/vmgen"
 
 type TypeDeclarationNode struct {
 	Identifier string
-	Value      ReferenceNode
+	Value      Node
 }
 
 // Type ...

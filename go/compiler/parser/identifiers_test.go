@@ -85,6 +85,10 @@ func TestIsExplicitVarDeclaration(t *testing.T) {
 	goutil.Assert(t, isExplicitVarDeclaration(p), "var expvar statement not recognised")
 	p = createParser("x, a string")
 	goutil.Assert(t, isExplicitVarDeclaration(p), "multiple var expvar statement not recognised")
+	p = createParser("x map[string]string")
+	goutil.Assert(t, isExplicitVarDeclaration(p), "map expvar statement not recognised")
+	p = createParser("x [string]")
+	goutil.Assert(t, isExplicitVarDeclaration(p), "array expvar statement not recognised")
 }
 
 func TestIsSwitchStatement(t *testing.T) {

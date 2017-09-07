@@ -163,12 +163,12 @@ func (p *Parser) parseType() ast.Node {
 }
 
 func (p *Parser) parseVarDeclaration() ast.ExplicitVarDeclarationNode {
-	names := make([]string, 0)
+	var names []string
 	names = append(names, p.parseIdentifier())
 	for p.parseOptional(lexer.TknComma) {
 		names = append(names, p.parseIdentifier())
 	}
-	// parse type
+
 	dType := p.parseType()
 
 	return ast.ExplicitVarDeclarationNode{
@@ -190,15 +190,15 @@ func (p *Parser) parseParameters() []ast.ExplicitVarDeclarationNode {
 	return params
 }
 
+// currently not supporting named return types
+// reasoning: confusing to user
+// returns can either be single
+// string {
+// or multiple
+// (string, string) {
+// or none
+// {
 func (p *Parser) parseResults() []ast.ReferenceNode {
-	// currently not supporting named return types
-	// reasoning: confusing to user
-	// returns can either be single
-	// string {
-	// or multiple
-	// (string, string) {
-	// or none
-	// {
 	if p.parseOptional(lexer.TknOpenBracket) {
 		refs := p.parseReferenceList()
 		p.parseRequired(lexer.TknCloseBracket)
@@ -263,7 +263,7 @@ func parseTypeDeclaration(p *Parser) {
 	p.parseRequired(lexer.TknType)
 	identifier := p.parseIdentifier()
 
-	value := p.parseReference()
+	value := p.parseType()
 
 	n := ast.TypeDeclarationNode{
 		Identifier: identifier,
@@ -284,8 +284,6 @@ func (p *Parser) parseMapType() ast.Node {
 
 	value := p.parseType()
 
-	p.validate(ast.MapType)
-
 	mapType := ast.MapTypeNode{
 		Key:   key,
 		Value: value,
@@ -297,18 +295,17 @@ func (p *Parser) parseMapType() ast.Node {
 func (p *Parser) parseArrayType() ast.Node {
 	p.parseRequired(lexer.TknOpenSquare)
 
-	//typ := p.parseExpression()
-	//var max ast.Node
+	typ := p.parseType()
 
-	if p.parseOptional(lexer.TknColon) {
+	p.parseRequired(lexer.TknCloseSquare)
+
+	/*if p.parseOptional(lexer.TknColon) {
 		//	max = p.parseExpression()
-	}
-	p.validate(ast.ArrayType)
+	}*/
 
-	arrayType := ast.ArrayTypeNode{
-	//Value: typ,
+	return ast.ArrayTypeNode{
+		Value: typ,
 	}
-	return arrayType
 }
 
 func parseExplicitVarDeclaration(p *Parser) {

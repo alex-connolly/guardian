@@ -18,7 +18,7 @@ func isExplicitVarDeclaration(p *Parser) bool {
 			return false
 		}
 	}
-	if p.hasTokens(1) {
+	if !p.hasTokens(1) {
 		return false
 	}
 	flag := p.isNextAType()

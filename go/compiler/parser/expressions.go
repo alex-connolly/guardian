@@ -39,7 +39,7 @@ func (p *Parser) parseExpression() ast.ExpressionNode {
 			break
 		case lexer.TknString, lexer.TknCharacter, lexer.TknNumber:
 			expr = p.parseLiteral()
-			return expr
+			break
 		case lexer.TknIdentifier:
 			expr = p.parseReference()
 			break
@@ -54,7 +54,7 @@ func (p *Parser) parseExpression() ast.ExpressionNode {
 		case t == lexer.TknOpenBracket:
 			expr = p.parseCallExpression(expr)
 			break
-		case t == lexer.TknOpenBrace:
+		case t == lexer.TknOpenBrace && expr.Type() != ast.Literal:
 			expr = p.parseCompositeLiteral(expr)
 			break
 		case t == lexer.TknOpenSquare:
@@ -62,9 +62,6 @@ func (p *Parser) parseExpression() ast.ExpressionNode {
 			break
 		case t.IsBinaryOperator():
 			expr = p.parseBinaryExpression(expr)
-			break
-		case t.IsUnaryOperator():
-			expr = p.parsePostfixUnaryExpression(expr)
 			break
 		default:
 			return expr
@@ -80,15 +77,10 @@ func (p *Parser) parsePrefixUnaryExpression() (n ast.UnaryExpressionNode) {
 	return n
 }
 
-func (p *Parser) parsePostfixUnaryExpression(expr ast.ExpressionNode) (n ast.UnaryExpressionNode) {
-	n.Operand = expr
-	n.Operator = p.current().Type
-	return n
-}
-
 func (p *Parser) parseBinaryExpression(expr ast.ExpressionNode) (n ast.BinaryExpressionNode) {
 	n.Left = expr
 	n.Operator = p.current().Type
+	p.next()
 	n.Right = p.parseExpression()
 	return n
 }

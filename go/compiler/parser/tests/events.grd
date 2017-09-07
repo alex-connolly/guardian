@@ -1,0 +1,12 @@
+contract EventsContract {
+
+    event EventOne()
+    event EventTwo(string)
+    event EventThree(string, string)
+
+    func basic(){
+        EventOne()
+        EventTwo("Hello")
+        EventThree("Hello", "Alex")
+    }
+}

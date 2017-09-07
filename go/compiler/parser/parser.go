@@ -78,12 +78,16 @@ func (p *Parser) parseRequired(t lexer.TokenType) {
 		return
 	}
 	if p.current().Type != t {
-		p.addError("Required x, found y")
+		p.addError(fmt.Sprintf("Required %d, found %d", t, p.current().Type))
 	}
 	p.next()
 }
 
 func (p *Parser) parseIdentifier() string {
+	if !p.hasTokens(1) {
+		p.addError("Required indentifier, nothing found")
+		return ""
+	}
 	if p.current().Type != lexer.TknIdentifier {
 		p.addError("Required indentifier, found {add token type}")
 		return ""
@@ -104,10 +108,6 @@ func (p *Parser) validate(t ast.NodeType) {
 func parseNewLine(p *Parser) {
 	p.line++
 	p.next()
-}
-
-func (p *Parser) parseType() ast.Node {
-	return ast.TypeDeclarationNode{}
 }
 
 func (p *Parser) addError(err string) {

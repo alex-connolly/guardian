@@ -1,10 +1,15 @@
 package ast
 
-import "github.com/end-r/vmgen"
+import (
+	"github.com/end-r/guardian/go/compiler/lexer"
+
+	"github.com/end-r/vmgen"
+)
 
 type AssignmentStatementNode struct {
-	Left  []ExpressionNode
-	Right []ExpressionNode
+	Left     []ExpressionNode
+	Operator lexer.TokenType
+	Right    []ExpressionNode
 }
 
 func (n AssignmentStatementNode) Type() NodeType { return AssignmentStatement }

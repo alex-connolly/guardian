@@ -61,7 +61,7 @@ func parseForStatement(p *Parser) {
 	// parse condition, required
 	cond := p.parseExpression()
 	// parse statement
-	//stat := p.parseExpression()
+	//stat := p.parseAssignment()
 
 	body := ast.ScopeNode{}
 
