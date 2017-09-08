@@ -13,6 +13,10 @@ contract Funcs {
     }
 
     func withMultipleResults(a, b string) (string, string){
+
+    }
+
+    func withDifferentTypes(a, b string, c int) {
         
     }
 }

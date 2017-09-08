@@ -3,7 +3,7 @@ package ast
 import (
 	"testing"
 
-	"github.com/end-r/guardian/go/compiler/parser"
+	"github.com/end-r/guardian/go/parser"
 
 	"github.com/end-r/firevm"
 )

@@ -3,8 +3,8 @@ package parser
 import (
 	"fmt"
 
-	"github.com/end-r/guardian/go/compiler/ast"
-	"github.com/end-r/guardian/go/compiler/lexer"
+	"github.com/end-r/guardian/go/ast"
+	"github.com/end-r/guardian/go/lexer"
 )
 
 const (

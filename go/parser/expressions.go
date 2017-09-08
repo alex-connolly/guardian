@@ -1,10 +1,8 @@
 package parser
 
 import (
-	"fmt"
-
-	"github.com/end-r/guardian/go/compiler/ast"
-	"github.com/end-r/guardian/go/compiler/lexer"
+	"github.com/end-r/guardian/go/ast"
+	"github.com/end-r/guardian/go/lexer"
 )
 
 type Operator struct {
@@ -78,7 +76,6 @@ func pushNode(stack []ast.ExpressionNode, op lexer.TokenType) []ast.ExpressionNo
 }
 
 func (p *Parser) parseExpression() ast.ExpressionNode {
-	fmt.Println("expr")
 	var opStack []lexer.TokenType
 	var expStack []ast.ExpressionNode
 	var current lexer.TokenType

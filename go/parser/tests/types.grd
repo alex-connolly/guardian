@@ -1,0 +1,6 @@
+contract TypesContract {
+
+    a string
+    b, c string
+
+}

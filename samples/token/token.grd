@@ -1,4 +1,3 @@
-pragma solidity ^0.4.13;
 
 contract tokenRecipient {
     func receiveApproval(token, from address value uint256, extra bytes)

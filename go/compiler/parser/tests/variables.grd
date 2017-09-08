@@ -1,5 +1,0 @@
-contract Variables {
-
-    a, b string
-    
-}

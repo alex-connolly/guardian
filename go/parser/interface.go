@@ -4,8 +4,8 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/end-r/guardian/go/compiler/ast"
-	"github.com/end-r/guardian/go/compiler/lexer"
+	"github.com/end-r/guardian/go/ast"
+	"github.com/end-r/guardian/go/lexer"
 )
 
 // ParseFile ...

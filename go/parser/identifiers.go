@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"github.com/end-r/guardian/go/compiler/lexer"
+	"github.com/end-r/guardian/go/lexer"
 )
 
 // e.g. name string

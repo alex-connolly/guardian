@@ -1,7 +1,0 @@
-contract TypesContract {
-
-    v string
-    m [string]
-    a map[string]string
-
-}

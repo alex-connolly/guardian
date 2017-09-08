@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/end-r/guardian/go/compiler/lexer"
+	"github.com/end-r/guardian/go/lexer"
 
 	"github.com/end-r/vmgen"
 )

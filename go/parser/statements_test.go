@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/end-r/guardian/go/compiler/ast"
+	"github.com/end-r/guardian/go/ast"
 
 	"github.com/end-r/goutil"
 )

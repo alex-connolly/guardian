@@ -1,0 +1,23 @@
+contract Basic {
+
+    constructor(name string){
+
+    }
+
+    constructor(id uint64){
+
+    }
+
+    constructor(){
+
+    }
+
+    constructor(name, name2 string){
+
+    }
+
+    constructor(name int, name2 string){
+        
+    }
+
+}

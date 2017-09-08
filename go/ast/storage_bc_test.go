@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/end-r/firevm"
-	"github.com/end-r/guardian/go/compiler/parser"
+	"github.com/end-r/guardian/go/parser"
 )
 
 func TestStoreVariable(t *testing.T) {

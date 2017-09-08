@@ -1,8 +1,8 @@
 package parser
 
 import (
-	"github.com/end-r/guardian/go/compiler/ast"
-	"github.com/end-r/guardian/go/compiler/lexer"
+	"github.com/end-r/guardian/go/ast"
+	"github.com/end-r/guardian/go/lexer"
 )
 
 func parseInterfaceDeclaration(p *Parser) {
@@ -136,7 +136,12 @@ func parseContractDeclaration(p *Parser) {
 	}
 
 	body := ast.ScopeNode{
-		ValidTypes: []ast.NodeType{},
+		ValidTypes: []ast.NodeType{
+			ast.ClassDeclaration, ast.InterfaceDeclaration,
+			ast.EventDeclaration, ast.ExplicitVarDeclaration,
+			ast.TypeDeclaration, ast.EnumDeclaration,
+			ast.ConstructorDeclaration, ast.FuncDeclaration,
+		},
 	}
 
 	p.parseEnclosedScope(&body)
@@ -223,7 +228,9 @@ func parseFuncDeclaration(p *Parser) {
 	results := p.parseResults()
 
 	body := ast.ScopeNode{
-		ValidTypes: []ast.NodeType{},
+		ValidTypes: []ast.NodeType{
+			ast.ExplicitVarDeclaration, ast.FuncDeclaration,
+		},
 	}
 
 	p.parseEnclosedScope(&body)
@@ -246,7 +253,9 @@ func parseConstructorDeclaration(p *Parser) {
 	params := p.parseParameters()
 
 	body := ast.ScopeNode{
-		ValidTypes: []ast.NodeType{},
+		ValidTypes: []ast.NodeType{
+			ast.ExplicitVarDeclaration, ast.FuncDeclaration,
+		},
 	}
 
 	p.parseEnclosedScope(&body)
