@@ -7,4 +7,8 @@ contract C {
     interface B inherits A {
 
     }
+
+    interface Full {
+        calculate(int, int) string
+    }
 }

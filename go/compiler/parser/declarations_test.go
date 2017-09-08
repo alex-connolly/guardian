@@ -354,8 +354,7 @@ func TestParseTypeDeclaration(t *testing.T) {
 	goutil.AssertNow(t, n.Type() == ast.TypeDeclaration, "wrong node type")
 	e := n.(ast.TypeDeclarationNode)
 	goutil.AssertNow(t, e.Identifier == "Wagable", "wrong type name")
-	goutil.AssertNow(t, len(e.Value.Names) == 1, "wrong value length")
-	goutil.AssertNow(t, e.Value.Names[0] == "int", "wrong value name 0")
+
 }
 
 func TestParseExplicitVarDeclaration(t *testing.T) {

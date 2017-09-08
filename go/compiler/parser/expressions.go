@@ -1,31 +1,149 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/go/compiler/ast"
 	"github.com/end-r/guardian/go/compiler/lexer"
 )
 
+type Operator struct {
+	rightAssoc bool
+	prec       int
+}
+
+// Guardian uses Swift's operator precedence table
+var (
+	assignmentOperator     = Operator{true, 90}
+	ternaryOperator        = Operator{true, 100}
+	disjunctiveOperator    = Operator{true, 110}
+	conjunctiveOperator    = Operator{true, 120}
+	comparativeOperator    = Operator{false, 130}
+	castOperator           = Operator{false, 132}
+	rangeOperator          = Operator{false, 135}
+	additiveOperator       = Operator{false, 140}
+	multiplicativeOperator = Operator{false, 150}
+	exponentiveOperator    = Operator{false, 160}
+)
+
+var operators = map[lexer.TokenType]Operator{
+	// exponentive operators
+	lexer.TknShl: exponentiveOperator,
+	lexer.TknShr: exponentiveOperator,
+	// multiplicative operators
+	lexer.TknMul: multiplicativeOperator,
+	lexer.TknDiv: multiplicativeOperator,
+	lexer.TknMod: multiplicativeOperator,
+	lexer.TknAnd: multiplicativeOperator,
+	// additive operators
+	lexer.TknAdd: additiveOperator,
+	lexer.TknSub: additiveOperator,
+	lexer.TknOr:  additiveOperator,
+	lexer.TknXor: additiveOperator,
+	// cast operators
+	lexer.TknIs: castOperator,
+	lexer.TknAs: castOperator,
+	// comparative operators
+	lexer.TknLss: comparativeOperator,
+	lexer.TknGtr: comparativeOperator,
+	lexer.TknGeq: comparativeOperator,
+	lexer.TknLeq: comparativeOperator,
+	lexer.TknEql: comparativeOperator,
+	lexer.TknNeq: comparativeOperator,
+	// logical operators
+	lexer.TknLogicalAnd: conjunctiveOperator,
+	lexer.TknLogicalOr:  disjunctiveOperator,
+	// ternary operators
+	lexer.TknTernary: ternaryOperator,
+	// assignment operators
+	lexer.TknAssign:    assignmentOperator,
+	lexer.TknMulAssign: assignmentOperator,
+	lexer.TknDivAssign: assignmentOperator,
+	lexer.TknModAssign: assignmentOperator,
+	lexer.TknAddAssign: assignmentOperator,
+	lexer.TknSubAssign: assignmentOperator,
+	lexer.TknShlAssign: assignmentOperator,
+	lexer.TknShrAssign: assignmentOperator,
+	lexer.TknAndAssign: assignmentOperator,
+	lexer.TknOrAssign:  assignmentOperator,
+	lexer.TknXorAssign: assignmentOperator,
+}
+
+func pushNode(stack []ast.ExpressionNode, op lexer.TokenType) []ast.ExpressionNode {
+	n := ast.BinaryExpressionNode{}
+	n.Right, stack = stack[len(stack)-1], stack[:len(stack)-1]
+	n.Left, stack = stack[len(stack)-1], stack[:len(stack)-1]
+	n.Operator = op
+	return append(stack, n)
+}
+
 func (p *Parser) parseExpression() ast.ExpressionNode {
-	// Guardian expressions can be arbitrarily chained
-	// e.g. array[expr]
-	// the expr could be 5 + 4 + 3, or 5 + 4 + getNumber()
-	// this is all stored in one expression Node
-	// however, ORDER IS IMPORTANT
-	// (5 + 4) * 3 vs 5 + 4 * 3
-	// these expression are not evaluated at compile time
-	// actually, maybe evaluate constants fully
+	var opStack []lexer.TokenType
+	var expStack []ast.ExpressionNode
+	var current lexer.TokenType
+main:
+	for p.hasTokens(1) {
+		current = p.current().Type
+		switch current {
+		case lexer.TknOpenBracket:
+			p.next()
+			fmt.Println("open")
+			opStack = append(opStack, current)
+			break
+		case lexer.TknCloseBracket:
+			p.next()
+			fmt.Println("close")
+			var op lexer.TokenType
+			for len(opStack) > 0 {
+				// pop item ("(" or operator) from stack
+				op, opStack = opStack[len(opStack)-1], opStack[:len(opStack)-1]
+				if op == lexer.TknOpenBracket {
+					fmt.Println("goto main")
+					continue main
+				} else {
+					fmt.Println("brackets")
+					expStack = pushNode(expStack, op)
+				}
+			}
+			break
+		default:
+			if o1, ok := operators[current]; ok {
+				fmt.Println("operator")
+				p.next()
+				for len(opStack) > 0 {
+					// consider top item on stack
+					op := opStack[len(opStack)-1]
+					if o2, isOp := operators[op]; !isOp || o1.prec > o2.prec ||
+						o1.prec == o2.prec && o1.rightAssoc {
+						break
+					} else {
+						fmt.Println("pop lol")
+						opStack = opStack[:len(opStack)-1]
+						expStack = pushNode(expStack, op)
+					}
+				}
+				opStack = append(opStack, current)
+			} else {
+				expr := p.parseExpressionComponent()
+				expStack = append(expStack, expr)
+			}
+			break
+		}
+	}
+	fmt.Printf("ops: %d\n", len(opStack))
+	for len(opStack) > 0 {
+		fmt.Printf("yolo, expstack: %d\n", len(expStack))
+		n := ast.BinaryExpressionNode{}
+		n.Right, expStack = expStack[len(expStack)-1], expStack[:len(expStack)-1]
+		n.Left, expStack = expStack[len(expStack)-1], expStack[:len(expStack)-1]
+		n.Operator, opStack = opStack[len(opStack)-1], opStack[:len(opStack)-1]
+		expStack = append(expStack, n)
+	}
+	fmt.Printf("xxx, expstack: %d\n", len(expStack))
+	return expStack[len(expStack)-1]
+}
 
-	// (dog() - 5) + 6
-	// !((dog() - 5) + 6 > 10)
-
-	// some expressions are 'complete'
-	// map, array, compositeLiteral
-	// some are 'incomplete'
-	// literals, references, calls
-	// incomplete expressions can have further ops performed
-	// a() + b() * c()
-	// TODO: improve the logical flow here: it's horrendous
-
+func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 	var expr ast.ExpressionNode
 	expr = nil
 	//	fmt.Printf("index: %d, tokens: %d\n", p.index, len(p.lexer.Tokens))
@@ -39,15 +157,17 @@ func (p *Parser) parseExpression() ast.ExpressionNode {
 			break
 		case lexer.TknString, lexer.TknCharacter, lexer.TknNumber:
 			expr = p.parseLiteral()
+			fmt.Println("literal")
 			break
 		case lexer.TknIdentifier:
 			expr = p.parseReference()
 			break
 		case lexer.TknNot, lexer.TknIncrement, lexer.TknDecrement:
 			expr = p.parsePrefixUnaryExpression()
+			break
 		}
 	}
-	// parse composite expressiona
+	// parse composite expressions
 	for p.hasTokens(1) && expr != nil {
 		t := p.current().Type
 		switch {
@@ -60,9 +180,6 @@ func (p *Parser) parseExpression() ast.ExpressionNode {
 		case t == lexer.TknOpenSquare:
 			expr = p.parseIndexExpression(expr)
 			break
-		case t.IsBinaryOperator():
-			expr = p.parseBinaryExpression(expr)
-			break
 		default:
 			return expr
 		}
@@ -74,14 +191,6 @@ func (p *Parser) parsePrefixUnaryExpression() (n ast.UnaryExpressionNode) {
 	n.Operator = p.current().Type
 	p.next()
 	n.Operand = p.parseExpression()
-	return n
-}
-
-func (p *Parser) parseBinaryExpression(expr ast.ExpressionNode) (n ast.BinaryExpressionNode) {
-	n.Left = expr
-	n.Operator = p.current().Type
-	p.next()
-	n.Right = p.parseExpression()
 	return n
 }
 
