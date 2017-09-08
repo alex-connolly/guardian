@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/go/compiler/ast"
 	"github.com/end-r/guardian/go/compiler/lexer"
 )
@@ -8,13 +10,11 @@ import (
 func parseReturnStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknReturn)
-
-	var tuple = p.parseExpressionList()
-
+	fmt.Println("return")
 	node := ast.ReturnStatementNode{
-		Results: tuple,
+		Results: p.parseExpressionList(),
 	}
-
+	fmt.Println("done")
 	p.Scope.Declare(flowKey, node)
 }
 
@@ -26,7 +26,9 @@ func parseAssignmentStatement(p *Parser) {
 		assigned = append(assigned, p.parseExpression())
 	}
 
-	p.parseRequired(lexer.TknAssign)
+	p.parseRequired(lexer.TknAssign, lexer.TknAddAssign, lexer.TknSubAssign, lexer.TknMulAssign,
+		lexer.TknDivAssign, lexer.TknShrAssign, lexer.TknShlAssign, lexer.TknModAssign, lexer.TknAndAssign,
+		lexer.TknOrAssign, lexer.TknXorAssign)
 
 	var to []ast.ExpressionNode
 	to = append(to, p.parseExpression())

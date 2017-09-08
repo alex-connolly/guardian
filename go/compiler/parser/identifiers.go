@@ -82,9 +82,13 @@ func isFuncDeclaration(p *Parser) bool {
 	return p.isNextToken(lexer.TknFunc)
 }
 
-func (p *Parser) isNextToken(t lexer.TokenType) bool {
+func (p *Parser) isNextToken(types ...lexer.TokenType) bool {
 	if p.hasTokens(1) {
-		return p.current().Type == t
+		for _, t := range types {
+			if p.current().Type == t {
+				return true
+			}
+		}
 	}
 	return false
 }
@@ -119,7 +123,9 @@ func isAssignmentStatement(p *Parser) bool {
 		// assume these will be expressions
 		p.parseExpression()
 	}
-	flag := p.isNextToken(lexer.TknAssign)
+	flag := p.isNextToken(lexer.TknAssign, lexer.TknAddAssign, lexer.TknSubAssign, lexer.TknMulAssign,
+		lexer.TknDivAssign, lexer.TknShrAssign, lexer.TknShlAssign, lexer.TknModAssign, lexer.TknAndAssign,
+		lexer.TknOrAssign, lexer.TknXorAssign)
 	p.index = savedIndex
 	return flag
 }

@@ -14,7 +14,7 @@ type Operator struct {
 
 // Guardian uses Swift's operator precedence table
 var (
-	assignmentOperator     = Operator{true, 90}
+	//assignmentOperator     = Operator{true, 90}
 	ternaryOperator        = Operator{true, 100}
 	disjunctiveOperator    = Operator{true, 110}
 	conjunctiveOperator    = Operator{true, 120}
@@ -55,7 +55,7 @@ var operators = map[lexer.TokenType]Operator{
 	lexer.TknLogicalOr:  disjunctiveOperator,
 	// ternary operators
 	lexer.TknTernary: ternaryOperator,
-	// assignment operators
+	/* assignment operators
 	lexer.TknAssign:    assignmentOperator,
 	lexer.TknMulAssign: assignmentOperator,
 	lexer.TknDivAssign: assignmentOperator,
@@ -66,7 +66,7 @@ var operators = map[lexer.TokenType]Operator{
 	lexer.TknShrAssign: assignmentOperator,
 	lexer.TknAndAssign: assignmentOperator,
 	lexer.TknOrAssign:  assignmentOperator,
-	lexer.TknXorAssign: assignmentOperator,
+	lexer.TknXorAssign: assignmentOperator,*/
 }
 
 func pushNode(stack []ast.ExpressionNode, op lexer.TokenType) []ast.ExpressionNode {
@@ -78,6 +78,7 @@ func pushNode(stack []ast.ExpressionNode, op lexer.TokenType) []ast.ExpressionNo
 }
 
 func (p *Parser) parseExpression() ast.ExpressionNode {
+	fmt.Println("expr")
 	var opStack []lexer.TokenType
 	var expStack []ast.ExpressionNode
 	var current lexer.TokenType
@@ -87,28 +88,23 @@ main:
 		switch current {
 		case lexer.TknOpenBracket:
 			p.next()
-			fmt.Println("open")
 			opStack = append(opStack, current)
 			break
 		case lexer.TknCloseBracket:
-			p.next()
-			fmt.Println("close")
 			var op lexer.TokenType
 			for len(opStack) > 0 {
-				// pop item ("(" or operator) from stack
 				op, opStack = opStack[len(opStack)-1], opStack[:len(opStack)-1]
 				if op == lexer.TknOpenBracket {
-					fmt.Println("goto main")
+					p.next()
 					continue main
 				} else {
-					fmt.Println("brackets")
 					expStack = pushNode(expStack, op)
 				}
 			}
-			break
+			// unmatched parens
+			return finalise(expStack, opStack)
 		default:
 			if o1, ok := operators[current]; ok {
-				fmt.Println("operator")
 				p.next()
 				for len(opStack) > 0 {
 					// consider top item on stack
@@ -117,7 +113,6 @@ main:
 						o1.prec == o2.prec && o1.rightAssoc {
 						break
 					} else {
-						fmt.Println("pop lol")
 						opStack = opStack[:len(opStack)-1]
 						expStack = pushNode(expStack, op)
 					}
@@ -125,28 +120,39 @@ main:
 				opStack = append(opStack, current)
 			} else {
 				expr := p.parseExpressionComponent()
+				// if it isn't an expression
+				if expr == nil {
+					return finalise(expStack, opStack)
+				}
 				expStack = append(expStack, expr)
 			}
 			break
 		}
 	}
-	fmt.Printf("ops: %d\n", len(opStack))
+	if len(expStack) == 0 {
+		return nil
+	}
+	return finalise(expStack, opStack)
+}
+
+func finalise(expStack []ast.ExpressionNode, opStack []lexer.TokenType) ast.ExpressionNode {
 	for len(opStack) > 0 {
-		fmt.Printf("yolo, expstack: %d\n", len(expStack))
 		n := ast.BinaryExpressionNode{}
 		n.Right, expStack = expStack[len(expStack)-1], expStack[:len(expStack)-1]
 		n.Left, expStack = expStack[len(expStack)-1], expStack[:len(expStack)-1]
 		n.Operator, opStack = opStack[len(opStack)-1], opStack[:len(opStack)-1]
 		expStack = append(expStack, n)
 	}
-	fmt.Printf("xxx, expstack: %d\n", len(expStack))
+	if len(expStack) == 0 {
+		return nil
+	}
 	return expStack[len(expStack)-1]
 }
 
 func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 	var expr ast.ExpressionNode
 	expr = nil
-	//	fmt.Printf("index: %d, tokens: %d\n", p.index, len(p.lexer.Tokens))
+	//fmt.Printf("index: %d, tokens: %d\n", p.index, len(p.lexer.Tokens))
 	if p.hasTokens(1) {
 		switch p.current().Type {
 		case lexer.TknMap:
@@ -157,7 +163,6 @@ func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 			break
 		case lexer.TknString, lexer.TknCharacter, lexer.TknNumber:
 			expr = p.parseLiteral()
-			fmt.Println("literal")
 			break
 		case lexer.TknIdentifier:
 			expr = p.parseReference()

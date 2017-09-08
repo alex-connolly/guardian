@@ -175,8 +175,10 @@ func TestMultipleCallReturnStatement(t *testing.T) {
 	u := p.Scope.Nodes(flowKey)[0]
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
-	goutil.AssertNow(t, len(r.Results) == 2, "wrong result length")
+	goutil.AssertNow(t, len(r.Results) == 2, fmt.Sprintf("wrong result length: %d", len(r.Results)))
 	goutil.AssertNow(t, r.Results[0].Type() == ast.CallExpression, "wrong result 0 type")
+	c1 := r.Results[0].(ast.CallExpressionNode)
+	goutil.AssertNow(t, len(c1.Arguments) == 2, fmt.Sprintf("wrong c1 args length: %d", len(c1.Arguments)))
 	goutil.AssertNow(t, r.Results[1].Type() == ast.CallExpression, "wrong result 1 type")
 }
 
@@ -453,4 +455,15 @@ func TestMultiMapLiteralAssignmentStatement(t *testing.T) {
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
+}
+
+func TestAssignmentStatementSingleAdd(t *testing.T) {
+	p := createParser(`x += 5`)
+	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
+	parseAssignmentStatement(p)
+	goutil.AssertNow(t, p.Scope.Nodes(flowKey) != nil, "nodes shouldn't be nil")
+	n := p.Scope.Nodes(flowKey)[0]
+	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
+	a := n.(ast.AssignmentStatementNode)
+	goutil.AssertNow(t, len(a.Left) == 1, "should be one left value")
 }

@@ -5,8 +5,6 @@ contract EventsContract {
     event EventThree(string, string)
 
     func basic(){
-        EventOne()
-        EventTwo("Hello")
-        EventThree("Hello", "Alex")
+        
     }
 }

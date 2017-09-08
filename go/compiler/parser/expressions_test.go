@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"log"
 	"testing"
 
 	"github.com/end-r/guardian/go/compiler/lexer"
@@ -583,6 +584,7 @@ func TestParseBinaryExpressionCallCall(t *testing.T) {
 	p := createParser(`a(0) / b(0)`)
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
+	log.Println(expr.Type())
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
 	b := expr.(ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left.Type() == ast.CallExpression, "wrong left type")

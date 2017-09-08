@@ -114,6 +114,15 @@ func TestIsEventDeclaration(t *testing.T) {
 	goutil.Assert(t, isEventDeclaration(p), "multiple event not recognised")
 }
 
+func TestIsAssignmentEdgeCases(t *testing.T) {
+	p := createParser("5")
+	goutil.Assert(t, !isAssignmentStatement(p), "expression should not be recognised")
+	p = createParser("")
+	goutil.Assert(t, !isAssignmentStatement(p), "blank statement should not be ecognised")
+	p = createParser("{}")
+	goutil.Assert(t, !isAssignmentStatement(p), "braces should not be recognised")
+}
+
 func TestIsAssignmentStatementReferenceLiteral(t *testing.T) {
 	p := createParser("x = 5")
 	goutil.Assert(t, isAssignmentStatement(p), "simple assignment not recognised")
@@ -121,8 +130,5 @@ func TestIsAssignmentStatementReferenceLiteral(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "multiple left assignment not recognised")
 	p = createParser("x, y = 5, 3")
 	goutil.Assert(t, isAssignmentStatement(p), "multiple l/r not recognised")
-	p = createParser("")
-	goutil.Assert(t, !isAssignmentStatement(p), "blank statement should not berecognised")
-	p = createParser("{}")
-	goutil.Assert(t, !isAssignmentStatement(p), "braces should not berecognised")
+
 }

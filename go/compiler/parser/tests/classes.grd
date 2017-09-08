@@ -1,11 +1,4 @@
 contract ClassContract {
 
-    class Dog inherits Animal {
-
-    }
-
-    class Animal {
-
-    }
     
 }

@@ -9,6 +9,6 @@ contract C {
     }
 
     interface Full {
-        calculate(int, int) string
+        
     }
 }

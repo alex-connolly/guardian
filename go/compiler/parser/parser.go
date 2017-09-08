@@ -73,14 +73,18 @@ func (p *Parser) parseOptional(t lexer.TokenType) bool {
 	return false
 }
 
-func (p *Parser) parseRequired(t lexer.TokenType) {
+func (p *Parser) parseRequired(types ...lexer.TokenType) bool {
 	if !p.hasTokens(1) {
-		return
+		return false
 	}
-	if p.current().Type != t {
-		p.addError(fmt.Sprintf("Required %d, found %d", t, p.current().Type))
+	for _, t := range types {
+		if p.current().Type == t {
+			p.next()
+			return true
+		}
 	}
-	p.next()
+	p.addError(fmt.Sprintf("Required %s, found %d", "x", p.current().Type))
+	return false
 }
 
 func (p *Parser) parseIdentifier() string {
