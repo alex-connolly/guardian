@@ -8,7 +8,7 @@ interface Noisy {
 
 abstract class Animal is Noisy {
 
-    abstract getName() string {
+    getName() string {
 
     }
 
@@ -17,9 +17,9 @@ abstract class Animal is Noisy {
 // must implement the interface
 class Dog {
 
-    string name
+    name string
 
-    constructor(string name){
+    constructor(name string){
         this.name = name
     }
 

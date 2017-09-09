@@ -125,7 +125,7 @@ func isAssignmentStatement(p *Parser) bool {
 	}
 	flag := p.isNextToken(lexer.TknAssign, lexer.TknAddAssign, lexer.TknSubAssign, lexer.TknMulAssign,
 		lexer.TknDivAssign, lexer.TknShrAssign, lexer.TknShlAssign, lexer.TknModAssign, lexer.TknAndAssign,
-		lexer.TknOrAssign, lexer.TknXorAssign)
+		lexer.TknOrAssign, lexer.TknXorAssign, lexer.TknIncrement, lexer.TknDecrement)
 	p.index = savedIndex
 	return flag
 }

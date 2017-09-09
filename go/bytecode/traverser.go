@@ -2,9 +2,7 @@ package bytecode
 
 import "github.com/end-r/guardian/go/ast"
 
+// Traverser of a Guardian AST
 type Traverser interface {
-}
-
-func Traverse(ast.Node) {
-
+	Traverse(ast.Node)
 }

@@ -5,9 +5,9 @@ import (
 	"log"
 	"testing"
 
-	"github.com/end-r/guardian/go/compiler/lexer"
+	"github.com/end-r/guardian/go/lexer"
 
-	"github.com/end-r/guardian/go/compiler/ast"
+	"github.com/end-r/guardian/go/ast"
 
 	"github.com/end-r/goutil"
 )
@@ -678,5 +678,38 @@ func TestParseChainedExpressionLiteralsOverridePrecedence(t *testing.T) {
 	b := expr.(ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left.Type() == ast.BinaryExpression, "wrong left type")
 	goutil.AssertNow(t, b.Right.Type() == ast.Literal, "wrong right type")
+	goutil.AssertNow(t, b.Operator == lexer.TknMul, "wrong operator")
+}
+
+func TestParseChainedExpressionReferencesOverridePrecedence(t *testing.T) {
+	p := createParser("(a + b) * c")
+	expr := p.parseExpression()
+	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
+	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
+	b := expr.(ast.BinaryExpressionNode)
+	goutil.AssertNow(t, b.Left.Type() == ast.BinaryExpression, "wrong left type")
+	goutil.AssertNow(t, b.Right.Type() == ast.Reference, "wrong right type")
+	goutil.AssertNow(t, b.Operator == lexer.TknMul, "wrong operator")
+}
+
+func TestParseChainedExpressionCallsOverridePrecedence(t *testing.T) {
+	p := createParser("(a() + b(1)) * c(1, 2)")
+	expr := p.parseExpression()
+	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
+	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
+	b := expr.(ast.BinaryExpressionNode)
+	goutil.AssertNow(t, b.Left.Type() == ast.BinaryExpression, "wrong left type")
+	goutil.AssertNow(t, b.Right.Type() == ast.CallExpression, "wrong right type")
+	goutil.AssertNow(t, b.Operator == lexer.TknMul, "wrong operator")
+}
+
+func TestParseHighlyChainedExpressionCallsOverridePrecedence(t *testing.T) {
+	p := createParser("(a() + b(1)) * (c(1, 2) + d(1, 2, 3))")
+	expr := p.parseExpression()
+	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
+	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
+	b := expr.(ast.BinaryExpressionNode)
+	goutil.AssertNow(t, b.Left.Type() == ast.BinaryExpression, "wrong left type")
+	goutil.AssertNow(t, b.Right.Type() == ast.BinaryExpression, "wrong right type")
 	goutil.AssertNow(t, b.Operator == lexer.TknMul, "wrong operator")
 }

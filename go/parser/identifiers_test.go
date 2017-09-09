@@ -132,3 +132,11 @@ func TestIsAssignmentStatementReferenceLiteral(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "multiple l/r not recognised")
 
 }
+
+func TestIsAssignmentStatementIncrementDecrement(t *testing.T) {
+	p := createParser("x++")
+	goutil.Assert(t, isAssignmentStatement(p), "simple increment not recognised")
+	p = createParser("y--")
+	goutil.Assert(t, isAssignmentStatement(p), "simple decrement not recognised")
+
+}

@@ -33,7 +33,6 @@ func TestParseIfStatement(t *testing.T) {
 	parseIfStatement(p)
 }
 
-/*
 func TestParseForStatementCondition(t *testing.T) {
 	p := createParser(`for x < 5 {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
@@ -46,12 +45,11 @@ func TestParseForStatementInitCondition(t *testing.T) {
 	parseForStatement(p)
 }
 
-/*
 func TestParseForStatementInitConditionStatement(t *testing.T) {
-	p := createParser(`for x := 0; x < 5; x++ {}`)
+	p := createParser(`for x = 0; x < 5; x+=1 {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
 	parseForStatement(p)
-}*/
+}
 
 func TestParseSwitchStatement(t *testing.T) {
 	p := createParser(`switch x {}`)

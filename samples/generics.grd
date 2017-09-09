@@ -1,4 +1,0 @@
-
-interface Comparable<T> {
-    int compare(T one, T two)
-}

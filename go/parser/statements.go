@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/go/ast"
 	"github.com/end-r/guardian/go/lexer"
 )
@@ -10,16 +8,18 @@ import (
 func parseReturnStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknReturn)
-	fmt.Println("return")
 	node := ast.ReturnStatementNode{
 		Results: p.parseExpressionList(),
 	}
-	fmt.Println("done")
 	p.Scope.Declare(flowKey, node)
 }
 
 func parseAssignmentStatement(p *Parser) {
+	node := p.parseAssignment()
+	p.Scope.Declare(flowKey, node)
+}
 
+func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 	var assigned []ast.ExpressionNode
 	assigned = append(assigned, p.parseExpression())
 	for p.parseOptional(lexer.TknComma) {
@@ -36,11 +36,10 @@ func parseAssignmentStatement(p *Parser) {
 		to = append(to, p.parseExpression())
 	}
 
-	node := ast.AssignmentStatementNode{
+	return ast.AssignmentStatementNode{
 		Left:  assigned,
 		Right: to,
 	}
-	p.Scope.Declare(flowKey, node)
 }
 
 func parseIfStatement(p *Parser) {
@@ -59,18 +58,20 @@ func parseForStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknFor)
 	// parse init expr, can be nil
-	//init := parseAssignmentStatement(p)
+	init := p.parseAssignment()
 	// parse condition, required
 	cond := p.parseExpression()
 	// parse statement
-	//stat := p.parseAssignment()
+	post := p.parseAssignment()
 
 	body := ast.ScopeNode{}
 
 	p.parseEnclosedScope(&body)
 
 	node := ast.ForStatementNode{
+		Init:  init,
 		Cond:  cond,
+		Post:  post,
 		Block: body,
 	}
 	p.Scope.Declare(flowKey, node)

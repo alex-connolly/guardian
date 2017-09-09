@@ -5,6 +5,7 @@ import (
 	"github.com/end-r/guardian/go/lexer"
 )
 
+// Operator ...
 type Operator struct {
 	rightAssoc bool
 	prec       int

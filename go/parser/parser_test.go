@@ -17,3 +17,12 @@ func TestHasTokens(t *testing.T) {
 	goutil.Assert(t, p.hasTokens(3), "should have 3 tokens")
 	goutil.Assert(t, !p.hasTokens(4), "should not have 4 tokens")
 }
+
+func TestParseIdentifier(t *testing.T) {
+	p := createParser("identifier")
+	goutil.Assert(t, p.parseIdentifier() == "identifier", "wrong identifier")
+	p = createParser("")
+	goutil.Assert(t, p.parseIdentifier() == "", "empty should be nil")
+	p = createParser("{")
+	goutil.Assert(t, p.parseIdentifier() == "", "wrong token should be nil")
+}
