@@ -165,7 +165,7 @@ func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 		case lexer.TknIdentifier:
 			expr = p.parseReference()
 			break
-		case lexer.TknNot, lexer.TknIncrement, lexer.TknDecrement:
+		case lexer.TknNot:
 			expr = p.parsePrefixUnaryExpression()
 			break
 		}

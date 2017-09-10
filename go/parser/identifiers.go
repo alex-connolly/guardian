@@ -123,11 +123,15 @@ func isAssignmentStatement(p *Parser) bool {
 		// assume these will be expressions
 		p.parseExpression()
 	}
-	flag := p.isNextToken(lexer.TknAssign, lexer.TknAddAssign, lexer.TknSubAssign, lexer.TknMulAssign,
-		lexer.TknDivAssign, lexer.TknShrAssign, lexer.TknShlAssign, lexer.TknModAssign, lexer.TknAndAssign,
-		lexer.TknOrAssign, lexer.TknXorAssign, lexer.TknIncrement, lexer.TknDecrement)
+	flag := p.isNextTokenAssignment()
 	p.index = savedIndex
 	return flag
+}
+
+func (p *Parser) isNextTokenAssignment() bool {
+	return p.isNextToken(lexer.TknAssign, lexer.TknAddAssign, lexer.TknSubAssign, lexer.TknMulAssign,
+		lexer.TknDivAssign, lexer.TknShrAssign, lexer.TknShlAssign, lexer.TknModAssign, lexer.TknAndAssign,
+		lexer.TknOrAssign, lexer.TknXorAssign, lexer.TknIncrement, lexer.TknDecrement)
 }
 
 func isSwitchStatement(p *Parser) bool {

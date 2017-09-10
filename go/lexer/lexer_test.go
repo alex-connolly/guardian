@@ -125,6 +125,13 @@ func TestLexerType(t *testing.T) {
 	checkTokens(t, l.Tokens, []TokenType{TknType, TknIdentifier, TknIdentifier})
 }
 
+func TestLexerIncrement(t *testing.T) {
+	l := LexString("x++")
+	checkTokens(t, l.Tokens, []TokenType{TknIdentifier, TknIncrement})
+	l = LexString("x--")
+	checkTokens(t, l.Tokens, []TokenType{TknIdentifier, TknDecrement})
+}
+
 func TestHasByte(t *testing.T) {
 	text := "interface"
 	l := new(Lexer)

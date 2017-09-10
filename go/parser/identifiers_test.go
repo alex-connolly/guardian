@@ -140,3 +140,11 @@ func TestIsAssignmentStatementIncrementDecrement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "simple decrement not recognised")
 
 }
+
+func TestIsNextAssignmentStatement(t *testing.T) {
+	p := createParser("++")
+	goutil.Assert(t, p.isNextTokenAssignment(), "simple increment not recognised")
+	p = createParser("--")
+	goutil.Assert(t, p.isNextTokenAssignment(), "simple decrement not recognised")
+
+}
