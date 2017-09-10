@@ -3,42 +3,40 @@ package vm
 import (
 	"testing"
 
-	"github.com/end-r/firevm"
-	"github.com/end-r/guardian/compiler/parser"
+	"github.com/end-r/guardian"
 )
 
 func TestStorageArrayDeclaration(t *testing.T) {
-	p := parser.ParseString(
+	a := new(Arsonist)
+	guardian.New(a).CompileString(
 		`contract ArrayTest {
             animals = [string]{
                 "Dog", "Cat"
             }
         }
     `)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"",
 	})
 }
 
 func TestStorageMapDeclaration(t *testing.T) {
-	p := parser.ParseString(
+	a := new(Arsonist)
+	guardian.New(a).CompileString(
 		`contract ArrayTest {
             animals = map[string]string{
                 "Dog":"canine", "Cat":"feline",
             }
         }
     `)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"",
 	})
 }
 
 func TestMemoryArrayDeclaration(t *testing.T) {
-	p := parser.ParseString(
+	a := new(Arsonist)
+	guardian.New(a).CompileString(
 		`contract ArrayTest {
 
             func doThings(){
@@ -48,15 +46,14 @@ func TestMemoryArrayDeclaration(t *testing.T) {
             }
         }
     `)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"",
 	})
 }
 
 func TestMemoryMapDeclaration(t *testing.T) {
-	p := parser.ParseString(
+	a := new(Arsonist)
+	guardian.New(a).CompileString(
 		`contract ArrayTest {
 
             func doThings(){
@@ -66,9 +63,7 @@ func TestMemoryMapDeclaration(t *testing.T) {
             }
         }
     `)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"",
 	})
 }

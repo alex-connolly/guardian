@@ -6,46 +6,35 @@ import (
 	"github.com/end-r/guardian/compiler/ast"
 )
 
-// Compiler ...
-type Compiler struct {
-	traverser Traverser
-}
-
 // Traverser ...
 type Traverser interface {
 	Traverse(ast.Node)
 }
 
-// New ...
-func New(t Traverser) *Compiler {
-	return &Compiler{
-		traverser: t,
-	}
-}
-
 // CompileFile ...
-func (c *Compiler) CompileFile(path string) []string {
+func CompileFile(t Traverser, path string) []string {
 	// generate AST
 	p := parser.ParseFile(path)
 	// Traverse AST
-	c.traverser.Traverse(p.Scope)
+	t.Traverse(p.Scope)
 	return nil
 }
 
 // CompileString ...
-func (c *Compiler) CompileString(data string) []string {
+func CompileString(t Traverser, data string) []string {
+
 	// generate AST
 	p := parser.ParseString(data)
 	// Traverse AST
-	c.traverser.Traverse(p.Scope)
+	t.Traverse(p.Scope)
 	return nil
 }
 
 // CompileBytes ...
-func (c *Compiler) CompileBytes(bytes []byte) []string {
+func CompileBytes(t Traverser, bytes []byte) []string {
 	// generate AST
 	p := parser.ParseBytes(bytes)
 	// Traverse AST
-	c.traverser.Traverse(p.Scope)
+	t.Traverse(p.Scope)
 	return nil
 }

@@ -3,15 +3,13 @@ package vm
 import (
 	"testing"
 
-	"github.com/end-r/firevm"
-	"github.com/end-r/guardian/compiler/parser"
+	"github.com/end-r/guardian"
 )
 
 func TestIncrementStatement(t *testing.T) {
-	p := parser.ParseString(`x++`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	a := new(Arsonist)
+	guardian.New(a).CompileString(`x++`)
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		"PUSH", // push hash(x)
 		"PUSH", // push offset (0)
@@ -20,10 +18,9 @@ func TestIncrementStatement(t *testing.T) {
 }
 
 func TestAssignmentStatementLiteralDeclaration(t *testing.T) {
-	p := parser.ParseString(`x := "this is a string"`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	a := new(Arsonist)
+	guardian.New(a).CompileString(`x := "this is a string"`)
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		"PUSH", // push hash(x)
 		"PUSH", // push offset (0)
@@ -32,10 +29,9 @@ func TestAssignmentStatementLiteralDeclaration(t *testing.T) {
 }
 
 func TestAssignmentStatementBinaryExpressionDeclaration(t *testing.T) {
-	p := parser.ParseString("x := 1 + 2")
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	a := new(Arsonist)
+	guardian.New(a).CompileString("x := 1 + 2")
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		"PUSH", // push hash(x)
 		"PUSH", // push offset (0)
@@ -44,13 +40,12 @@ func TestAssignmentStatementBinaryExpressionDeclaration(t *testing.T) {
 }
 
 func TestAssignmentStatementReferencingDeclaration(t *testing.T) {
-	p := parser.ParseString(`
+	a := new(Arsonist)
+	guardian.New(a).CompileString(`
 		x := 5
 		y := x
 		`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push data
 		"PUSH", // push x
 		"SET",  // set x
@@ -62,7 +57,8 @@ func TestAssignmentStatementReferencingDeclaration(t *testing.T) {
 }
 
 func TestExclusiveSwitchStatement(t *testing.T) {
-	p := parser.ParseString(`
+	a := new(Arsonist)
+	guardian.New(a).CompileString(`
 		x := 1 + 5
 		exclusive switch x {
 		case 4, 5:
@@ -71,9 +67,7 @@ func TestExclusiveSwitchStatement(t *testing.T) {
 			x += 5
 		}
 		`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push 6 --> constant evaluation should be already done
 		"PUSH", // push 4
 		"EQL",  // check for equality
@@ -86,7 +80,8 @@ func TestExclusiveSwitchStatement(t *testing.T) {
 }
 
 func TestSwitchStatement(t *testing.T) {
-	p := parser.ParseString(`
+	a := new(Arsonist)
+	guardian.New(a).CompileString(`
 		x := 1 + 5
 		switch x {
 		case 4, 5:
@@ -95,9 +90,7 @@ func TestSwitchStatement(t *testing.T) {
 			break
 		}
 		`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push 6 --> constant evaluation should be already done
 		"PUSH", // push 4
 		"EQL",  // check for equality

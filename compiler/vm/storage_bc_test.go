@@ -3,19 +3,17 @@ package vm
 import (
 	"testing"
 
-	"github.com/end-r/firevm"
-	"github.com/end-r/guardian/compiler/parser"
+	"github.com/end-r/guardian"
 )
 
 func TestStoreVariable(t *testing.T) {
-	p := parser.ParseString(`
+	a := new(Arsonist)
+	guardian.New(a).CompileString(`
             contract Dog {
                 var name = "Buffy"
             }
         `)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		"PUSH", // push hash(name)
 		"SET",  // store result in memory
@@ -23,7 +21,8 @@ func TestStoreVariable(t *testing.T) {
 }
 
 func TestStoreAndLoadVariable(t *testing.T) {
-	p := parser.ParseString(`
+	a := new(Arsonist)
+	guardian.New(a).CompileString(`
             contract Dog {
                 var name = "Buffy"
 
@@ -33,9 +32,7 @@ func TestStoreAndLoadVariable(t *testing.T) {
 
             }
         `)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH",  // push string data
 		"PUSH",  // push hash(name)
 		"STORE", // store result in memory

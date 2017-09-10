@@ -3,20 +3,17 @@ package vm
 import (
 	"testing"
 
-	"github.com/end-r/guardian/compiler/parser"
-
-	"github.com/end-r/firevm"
+	"github.com/end-r/guardian"
 )
 
 func TestBytecodeContractDeclaration(t *testing.T) {
-	p := parser.ParseString(
+	a := new(Arsonist)
+	guardian.New(a).CompileString(
 		`contract Tester {
             var x = 5
             const y = 10
         }`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		"PUSH", // push hash(x)
 		"PUSH", // push offset (0)
@@ -25,15 +22,14 @@ func TestBytecodeContractDeclaration(t *testing.T) {
 }
 
 func TestBytecodeFuncDeclaration(t *testing.T) {
-	p := parser.ParseString(
+	a := new(Arsonist)
+	guardian.New(a).CompileString(
 		`contract Tester {
             add(a, b int) int {
                 return a + b
             }
         }`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH",   // push string data
 		"PUSH",   // push hash(x)
 		"ADD",    // push offset (0)
@@ -42,44 +38,42 @@ func TestBytecodeFuncDeclaration(t *testing.T) {
 }
 
 func TestBytecodeInterfaceDeclaration(t *testing.T) {
-	p := parser.ParseString(
+	a := new(Arsonist)
+	guardian.New(a).CompileString(
 		`contract Tester {
 			interface Animalistic {
 
 			}
 		}`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{})
+	checkMnemonics(t, a.VM.Instructions, []string{})
 }
 
 func TestBytecodeClassDeclaration(t *testing.T) {
-	p := parser.ParseString(
+	a := new(Arsonist)
+	guardian.New(a).CompileString(
 		`contract Tester {
 			class Animal {
 
 			}
 		}`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{})
+	checkMnemonics(t, a.VM.Instructions, []string{})
 }
 
 func TestBytecodeClassDeclarationWithFields(t *testing.T) {
-	p := parser.ParseString(
+	a := new(Arsonist)
+	guardian.New(a).CompileString(
 		`contract Tester {
 			class Animal {
 				name string
 				genus string
 			}
 		}`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{})
+	checkMnemonics(t, a.VM.Instructions, []string{})
 }
 
 func TestBytecodeClassDeclarationWithMethods(t *testing.T) {
-	p := parser.ParseString(
+	a := new(Arsonist)
+	guardian.New(a).CompileString(
 		`contract Tester {
 			class Animal {
 				name string
@@ -90,7 +84,5 @@ func TestBytecodeClassDeclarationWithMethods(t *testing.T) {
 				}
 			}
 		}`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{})
+	checkMnemonics(t, a.VM.Instructions, []string{})
 }

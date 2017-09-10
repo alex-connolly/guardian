@@ -3,16 +3,13 @@ package vm
 import (
 	"testing"
 
-	"github.com/end-r/guardian/compiler/parser"
-
-	"github.com/end-r/firevm"
+	"github.com/end-r/guardian"
 )
 
 func TestBinaryExpressionBytecodeLiterals(t *testing.T) {
-	p := parser.ParseString("1 + 5")
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	a := new(Arsonist)
+	guardian.New(a).CompileString("1 + 5")
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		"PUSH", // push hash(x)
 		"ADD",
@@ -20,10 +17,9 @@ func TestBinaryExpressionBytecodeLiterals(t *testing.T) {
 }
 
 func TestBinaryExpressionBytecodeReferences(t *testing.T) {
-	p := parser.ParseString("a + b")
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	a := new(Arsonist)
+	guardian.New(a).CompileString("a + b")
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		"PUSH", // push hash(x)
 		"ADD",
@@ -31,10 +27,9 @@ func TestBinaryExpressionBytecodeReferences(t *testing.T) {
 }
 
 func TestBinaryExpressionBytecodeStringLiteralConcat(t *testing.T) {
-	p := parser.ParseString(`"my name is" + " who knows tbh"`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	a := new(Arsonist)
+	guardian.New(a).CompileString(`"my name is" + " who knows tbh"`)
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH",   // push string data
 		"PUSH",   // push hash(x)
 		"CONCAT", // concatenate bytes
@@ -42,16 +37,15 @@ func TestBinaryExpressionBytecodeStringLiteralConcat(t *testing.T) {
 }
 
 func TestBinaryExpressionBytecodeStringReferenceConcat(t *testing.T) {
-	p := parser.ParseString(`
+	a := new(Arsonist)
+	guardian.New(a).CompileString(`
 		var (
 			a = "hello"
 			b = "world"
 			c = a + b
 		)
 		`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH",   // push string data
 		"PUSH",   // push a reference
 		"STORE",  // store at a
@@ -66,7 +60,8 @@ func TestBinaryExpressionBytecodeStringReferenceConcat(t *testing.T) {
 }
 
 func TesExtendedBinaryExpressionBytecodeStringReferenceConcat(t *testing.T) {
-	p := parser.ParseString(`
+	a := new(Arsonist)
+	guardian.New(a).CompileString(`
 		var (
 			a = "hello"
 			b = "world"
@@ -75,9 +70,7 @@ func TesExtendedBinaryExpressionBytecodeStringReferenceConcat(t *testing.T) {
 		)
 		a + b + c + d
 		`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH",   // push hello
 		"PUSH",   // push world
 		"CONCAT", //
@@ -89,46 +82,42 @@ func TesExtendedBinaryExpressionBytecodeStringReferenceConcat(t *testing.T) {
 }
 
 func TestUnaryExpressionBytecodeLiteral(t *testing.T) {
-	p := parser.ParseString("!1")
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	a := new(Arsonist)
+	guardian.New(a).CompileString("!1")
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		"NOT",
 	})
 }
 
 func TestCallExpressionBytecodeLiteral(t *testing.T) {
-	p := parser.ParseString(`
+	a := new(Arsonist)
+	guardian.New(a).CompileString(`
 		doSomething("data")
 		`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		"NOT",
 	})
 }
 
 func TestCallExpressionBytecodeUseResult(t *testing.T) {
-	p := parser.ParseString(`
+	a := new(Arsonist)
+	guardian.New(a).CompileString(`
 		s := doSomething("data")
 		`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		"NOT",
 	})
 }
 
 func TestCallExpressionBytecodeUseMultipleResults(t *testing.T) {
-	p := parser.ParseString(`
+	a := new(Arsonist)
+	guardian.New(a).CompileString(`
 		s, a, p := doSomething("data")
 		`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		// this is where the function code would go
 		"PUSH", // push p
@@ -141,12 +130,11 @@ func TestCallExpressionBytecodeUseMultipleResults(t *testing.T) {
 }
 
 func TestCallExpressionBytecodeIgnoredResult(t *testing.T) {
-	p := parser.ParseString(`
+	a := new(Arsonist)
+	guardian.New(a).CompileString(`
 		s, _, p := doSomething("data")
 		`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		// this is where the function code would go
 		// stack ends: {R3, R2, R1}
@@ -159,12 +147,11 @@ func TestCallExpressionBytecodeIgnoredResult(t *testing.T) {
 }
 
 func TestCallExpressionBytecodeNestedCall(t *testing.T) {
-	p := parser.ParseString(`
+	a := new(Arsonist)
+	guardian.New(a).CompileString(`
 		err := saySomething(doSomething("data"))
 		`)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		// this is where the function code would go
 		// stack ends: {R1}

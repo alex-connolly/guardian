@@ -1,14 +1,13 @@
 package vm
 
 import (
+	"axia/guardian"
 	"testing"
-
-	"github.com/end-r/firevm"
-	"github.com/end-r/guardian/compiler/parser"
 )
 
 func TestParametrizedEvent(t *testing.T) {
-	p := parser.ParseString(`
+	a := new(Arsonist)
+	guardian.New(a).CompileString(`
             contract Dog {
 
                 event NameEvent(string)
@@ -21,9 +20,7 @@ func TestParametrizedEvent(t *testing.T) {
 
             }
         `)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
+	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH",  // push string data
 		"PUSH",  // push hash(name)
 		"STORE", // store result in memory
