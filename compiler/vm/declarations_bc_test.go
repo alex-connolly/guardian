@@ -8,7 +8,7 @@ import (
 
 func TestBytecodeContractDeclaration(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(
+	guardian.CompileString(a,
 		`contract Tester {
             var x = 5
             const y = 10
@@ -23,7 +23,7 @@ func TestBytecodeContractDeclaration(t *testing.T) {
 
 func TestBytecodeFuncDeclaration(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(
+	guardian.CompileString(a,
 		`contract Tester {
             add(a, b int) int {
                 return a + b
@@ -39,7 +39,7 @@ func TestBytecodeFuncDeclaration(t *testing.T) {
 
 func TestBytecodeInterfaceDeclaration(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(
+	guardian.CompileString(a,
 		`contract Tester {
 			interface Animalistic {
 
@@ -50,7 +50,7 @@ func TestBytecodeInterfaceDeclaration(t *testing.T) {
 
 func TestBytecodeClassDeclaration(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(
+	guardian.CompileString(a,
 		`contract Tester {
 			class Animal {
 
@@ -61,7 +61,7 @@ func TestBytecodeClassDeclaration(t *testing.T) {
 
 func TestBytecodeClassDeclarationWithFields(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(
+	guardian.CompileString(a,
 		`contract Tester {
 			class Animal {
 				name string
@@ -73,7 +73,7 @@ func TestBytecodeClassDeclarationWithFields(t *testing.T) {
 
 func TestBytecodeClassDeclarationWithMethods(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(
+	guardian.CompileString(a,
 		`contract Tester {
 			class Animal {
 				name string

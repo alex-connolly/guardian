@@ -7,7 +7,7 @@ import (
 
 func TestParametrizedEvent(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(`
+	guardian.CompileString(a, `
             contract Dog {
 
                 event NameEvent(string)

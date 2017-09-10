@@ -8,7 +8,7 @@ import (
 
 func TestStoreVariable(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(`
+	guardian.CompileString(a, `
             contract Dog {
                 var name = "Buffy"
             }
@@ -22,7 +22,7 @@ func TestStoreVariable(t *testing.T) {
 
 func TestStoreAndLoadVariable(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(`
+	guardian.CompileString(a, `
             contract Dog {
                 var name = "Buffy"
 

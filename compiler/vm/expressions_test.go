@@ -8,7 +8,7 @@ import (
 
 func TestBinaryExpressionBytecodeLiterals(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString("1 + 5")
+	guardian.CompileString(a, "1 + 5")
 	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		"PUSH", // push hash(x)
@@ -18,7 +18,7 @@ func TestBinaryExpressionBytecodeLiterals(t *testing.T) {
 
 func TestBinaryExpressionBytecodeReferences(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString("a + b")
+	guardian.CompileString(a, "a + b")
 	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		"PUSH", // push hash(x)
@@ -28,7 +28,7 @@ func TestBinaryExpressionBytecodeReferences(t *testing.T) {
 
 func TestBinaryExpressionBytecodeStringLiteralConcat(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(`"my name is" + " who knows tbh"`)
+	guardian.CompileString(a, `"my name is" + " who knows tbh"`)
 	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH",   // push string data
 		"PUSH",   // push hash(x)
@@ -38,7 +38,7 @@ func TestBinaryExpressionBytecodeStringLiteralConcat(t *testing.T) {
 
 func TestBinaryExpressionBytecodeStringReferenceConcat(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(`
+	guardian.CompileString(a, `
 		var (
 			a = "hello"
 			b = "world"
@@ -61,7 +61,7 @@ func TestBinaryExpressionBytecodeStringReferenceConcat(t *testing.T) {
 
 func TesExtendedBinaryExpressionBytecodeStringReferenceConcat(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(`
+	guardian.CompileString(a, `
 		var (
 			a = "hello"
 			b = "world"
@@ -83,7 +83,7 @@ func TesExtendedBinaryExpressionBytecodeStringReferenceConcat(t *testing.T) {
 
 func TestUnaryExpressionBytecodeLiteral(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString("!1")
+	guardian.CompileString(a, "!1")
 	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		"NOT",
@@ -92,7 +92,7 @@ func TestUnaryExpressionBytecodeLiteral(t *testing.T) {
 
 func TestCallExpressionBytecodeLiteral(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(`
+	guardian.CompileString(a, `
 		doSomething("data")
 		`)
 	checkMnemonics(t, a.VM.Instructions, []string{
@@ -103,7 +103,7 @@ func TestCallExpressionBytecodeLiteral(t *testing.T) {
 
 func TestCallExpressionBytecodeUseResult(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(`
+	guardian.CompileString(a, `
 		s := doSomething("data")
 		`)
 	checkMnemonics(t, a.VM.Instructions, []string{
@@ -114,7 +114,7 @@ func TestCallExpressionBytecodeUseResult(t *testing.T) {
 
 func TestCallExpressionBytecodeUseMultipleResults(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(`
+	guardian.CompileString(a, `
 		s, a, p := doSomething("data")
 		`)
 	checkMnemonics(t, a.VM.Instructions, []string{
@@ -131,7 +131,7 @@ func TestCallExpressionBytecodeUseMultipleResults(t *testing.T) {
 
 func TestCallExpressionBytecodeIgnoredResult(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(`
+	guardian.CompileString(a, `
 		s, _, p := doSomething("data")
 		`)
 	checkMnemonics(t, a.VM.Instructions, []string{
@@ -148,7 +148,7 @@ func TestCallExpressionBytecodeIgnoredResult(t *testing.T) {
 
 func TestCallExpressionBytecodeNestedCall(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(`
+	guardian.CompileString(a, `
 		err := saySomething(doSomething("data"))
 		`)
 	checkMnemonics(t, a.VM.Instructions, []string{

@@ -8,7 +8,7 @@ import (
 
 func TestStorageArrayDeclaration(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(
+	guardian.CompileString(a,
 		`contract ArrayTest {
             animals = [string]{
                 "Dog", "Cat"
@@ -22,7 +22,7 @@ func TestStorageArrayDeclaration(t *testing.T) {
 
 func TestStorageMapDeclaration(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(
+	guardian.CompileString(a,
 		`contract ArrayTest {
             animals = map[string]string{
                 "Dog":"canine", "Cat":"feline",
@@ -36,7 +36,7 @@ func TestStorageMapDeclaration(t *testing.T) {
 
 func TestMemoryArrayDeclaration(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(
+	guardian.CompileString(a,
 		`contract ArrayTest {
 
             func doThings(){
@@ -53,7 +53,7 @@ func TestMemoryArrayDeclaration(t *testing.T) {
 
 func TestMemoryMapDeclaration(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(
+	guardian.CompileString(a,
 		`contract ArrayTest {
 
             func doThings(){

@@ -8,7 +8,7 @@ import (
 
 func TestIncrementStatement(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(`x++`)
+	guardian.CompileString(a, `x++`)
 	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		"PUSH", // push hash(x)
@@ -19,7 +19,7 @@ func TestIncrementStatement(t *testing.T) {
 
 func TestAssignmentStatementLiteralDeclaration(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(`x := "this is a string"`)
+	guardian.CompileString(a, `x := "this is a string"`)
 	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		"PUSH", // push hash(x)
@@ -30,7 +30,7 @@ func TestAssignmentStatementLiteralDeclaration(t *testing.T) {
 
 func TestAssignmentStatementBinaryExpressionDeclaration(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString("x := 1 + 2")
+	guardian.CompileString(a, "x := 1 + 2")
 	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		"PUSH", // push hash(x)
@@ -41,7 +41,7 @@ func TestAssignmentStatementBinaryExpressionDeclaration(t *testing.T) {
 
 func TestAssignmentStatementReferencingDeclaration(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(`
+	guardian.CompileString(a, `
 		x := 5
 		y := x
 		`)
@@ -58,7 +58,7 @@ func TestAssignmentStatementReferencingDeclaration(t *testing.T) {
 
 func TestExclusiveSwitchStatement(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(`
+	guardian.CompileString(a, `
 		x := 1 + 5
 		exclusive switch x {
 		case 4, 5:
@@ -81,7 +81,7 @@ func TestExclusiveSwitchStatement(t *testing.T) {
 
 func TestSwitchStatement(t *testing.T) {
 	a := new(Arsonist)
-	guardian.New(a).CompileString(`
+	guardian.CompileString(a, `
 		x := 1 + 5
 		switch x {
 		case 4, 5:
