@@ -1,9 +1,9 @@
-package ast
+package vm
 
 import (
 	"testing"
 
-	"github.com/end-r/guardian/go/compiler/parser"
+	"github.com/end-r/guardian/compiler/parser"
 
 	"github.com/end-r/firevm"
 )
@@ -85,7 +85,7 @@ func TestBytecodeClassDeclarationWithMethods(t *testing.T) {
 				name string
 				genus string
 
-				public getName() string {
+				getName() string {
 					return name
 				}
 			}

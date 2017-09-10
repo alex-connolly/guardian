@@ -1,9 +1,10 @@
-package ast
+package vm
 
 import (
-	firevm "axia/fireVM"
-	"axia/guardian/go/compiler/parser"
 	"testing"
+
+	"github.com/end-r/firevm"
+	"github.com/end-r/guardian/compiler/parser"
 )
 
 func TestStorageArrayDeclaration(t *testing.T) {

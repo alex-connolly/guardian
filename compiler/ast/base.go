@@ -1,11 +1,8 @@
 package ast
 
-import "github.com/end-r/vmgen"
-
 // Node interface for storage in AST
 type Node interface {
 	Type() NodeType
-	Traverse(*vmgen.VM)
 }
 
 type ExpressionNode interface {
@@ -42,10 +39,6 @@ func (n *ScopeNode) Declare(key string, node Node) {
 
 func (n ScopeNode) Type() NodeType { return Scope }
 
-func (n ScopeNode) Traverse(vm *vmgen.VM) {
-
-}
-
 func (n *ScopeNode) IsValid(nt NodeType) bool {
 	for _, t := range n.ValidTypes {
 		if t == nt {
@@ -61,19 +54,11 @@ type FileNode struct {
 
 func (n FileNode) Type() NodeType { return File }
 
-func (n FileNode) Traverse(vm *vmgen.VM) {
-
-}
-
 type PackageNode struct {
 	name string
 }
 
 func (n PackageNode) Type() NodeType { return File }
-
-func (n PackageNode) Traverse(vm *vmgen.VM) {
-
-}
 
 type ProgramNode struct {
 }

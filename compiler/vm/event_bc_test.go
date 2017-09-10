@@ -1,4 +1,4 @@
-package ast
+package vm
 
 import (
 	"testing"
@@ -7,28 +7,16 @@ import (
 	"github.com/end-r/guardian/compiler/parser"
 )
 
-func TestStoreVariable(t *testing.T) {
+func TestParametrizedEvent(t *testing.T) {
 	p := parser.ParseString(`
             contract Dog {
-                var name = "Buffy"
-            }
-        `)
-	vm := firevm.NewVM()
-	p.Scope.Traverse(vm)
-	checkMnemonics(t, vm.Instructions, []string{
-		"PUSH", // push string data
-		"PUSH", // push hash(name)
-		"SET",  // store result in memory
-	})
-}
 
-func TestStoreAndLoadVariable(t *testing.T) {
-	p := parser.ParseString(`
-            contract Dog {
+                event NameEvent(string)
+
                 var name = "Buffy"
 
                 constructor(){
-                    log(name)
+                    NameEvent(name)
                 }
 
             }
