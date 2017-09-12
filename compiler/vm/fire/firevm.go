@@ -32,13 +32,66 @@ func (a *Arsonist) Traverse(node ast.Node) {
 	case ast.EventDeclaration:
 		a.traverseEvent(node.(ast.EventDeclarationNode))
 		break
+	case ast.TypeDeclaration:
+		a.traverseType(node.(ast.TypeDeclarationNode))
+		break
 	case ast.ContractDeclaration:
 		a.traverseContract(node.(ast.ContractDeclarationNode))
 		break
 	case ast.FuncDeclaration:
 		a.traverseFunc(node.(ast.FuncDeclarationNode))
 		break
+	case ast.ConstructorDeclaration:
+		a.traverseConstructor(node.(ast.ConstructorDeclarationNode))
+		break
+	case ast.IndexExpression:
+		a.traverseIndex(node.(ast.IndexExpressionNode))
+		break
+	case ast.CallExpression:
+		a.traverseCallExpr(node.(ast.CallExpressionNode))
+		break
+	case ast.BinaryExpression:
+		a.traverseBinaryExpr(node.(ast.BinaryExpressionNode))
+		break
+	case ast.UnaryExpression:
+		a.traverseUnaryExpr(node.(ast.UnaryExpressionNode))
+		break
+	case ast.Literal:
+		a.traverseLiteral(node.(ast.LiteralNode))
+		break
+	case ast.CompositeLiteral:
+		a.traverseCompositeLiteral(node.(ast.CompositeLiteralNode))
+		break
+	case ast.SliceExpression:
+		a.traverseSliceExpression(node.(ast.SliceExpressionNode))
+		break
+	case ast.ArrayLiteral:
+		a.traverseArrayLiteral(node.(ast.ArrayLiteralNode))
+		break
+	case ast.MapLiteral:
+		a.traverseMapLiteral(node.(ast.MapLiteralNode))
+		break
 	}
+}
+
+func (a *Arsonist) traverseArrayLiteral(n ast.ArrayLiteralNode) {
+
+}
+
+func (a *Arsonist) traverseSliceExpression(n ast.SliceExpressionNode) {
+
+}
+
+func (a *Arsonist) traverseCompositeLiteral(n ast.CompositeLiteralNode) {
+
+}
+
+func (a *Arsonist) traverseType(n ast.TypeDeclarationNode) {
+
+}
+
+func (a *Arsonist) traverseConstructor(n ast.ConstructorDeclarationNode) {
+
 }
 
 func (a *Arsonist) traverseClass(n ast.ClassDeclarationNode) {
