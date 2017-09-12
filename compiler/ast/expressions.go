@@ -78,7 +78,8 @@ type MapLiteralNode struct {
 func (n MapLiteralNode) Type() NodeType { return MapLiteral }
 
 type ReferenceNode struct {
-	Names []string
+	InStorage bool
+	Names     []string
 }
 
 func (n ReferenceNode) Type() NodeType { return Reference }

@@ -71,7 +71,49 @@ func (a *Arsonist) Traverse(node ast.Node) {
 	case ast.MapLiteral:
 		a.traverseMapLiteral(node.(ast.MapLiteralNode))
 		break
+	case ast.ForStatement:
+		a.traverseForStatement(node.(ast.ForStatementNode))
+		break
+	case ast.AssignmentStatement:
+		a.traverseAssignmentStatement(node.(ast.AssignmentStatementNode))
+		break
+	case ast.CaseStatement:
+		a.traverseCaseStatement(node.(ast.CaseStatementNode))
+		break
+	case ast.ReturnStatement:
+		a.traverseReturnStatement(node.(ast.ReturnStatementNode))
+		break
+	case ast.IfStatement:
+		a.traverseIfStatement(node.(ast.IfStatementNode))
+		break
+	case ast.SwitchStatement:
+		a.traverseSwitchStatement(node.(ast.SwitchStatementNode))
+		break
 	}
+}
+
+func (a *Arsonist) traverseSwitchStatement(n ast.SwitchStatementNode) {
+
+}
+
+func (a *Arsonist) traverseCaseStatement(n ast.CaseStatementNode) {
+
+}
+
+func (a *Arsonist) traverseForStatement(n ast.ForStatementNode) {
+
+}
+
+func (a *Arsonist) traverseReturnStatement(n ast.ReturnStatementNode) {
+
+}
+
+func (a *Arsonist) traverseIfStatement(n ast.IfStatementNode) {
+
+}
+
+func (a *Arsonist) traverseAssignmentStatement(n ast.AssignmentStatementNode) {
+
 }
 
 func (a *Arsonist) traverseArrayLiteral(n ast.ArrayLiteralNode) {
@@ -183,8 +225,19 @@ func (a *Arsonist) traverseMapLiteral(n ast.MapLiteralNode) {
 }
 
 func (a *Arsonist) traverseReference(n ast.ReferenceNode) {
+
 	// reference e.g. dog.tail.wag()
 	// get the object
-	// if in storage
-	a.VM.AddBytecode("LOAD")
+	if n.InStorage {
+		// if in storage
+		// only the top level name is accessible in storage
+		// everything else is accessed
+		a.VM.AddBytecode("PUSH", len(n.Names[0]), n.Names[0])
+		a.VM.AddBytecode("LOAD")
+
+		// now get the sub-references
+		// a.VM.AddBytecode("", params)
+	} else {
+		a.VM.AddBytecode("GET")
+	}
 }
