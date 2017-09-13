@@ -115,6 +115,17 @@ func (e *EVMTraverser) traverseIfStatement(n ast.IfStatementNode) {
 
 func (e *EVMTraverser) traverseAssignmentStatement(n ast.AssignmentStatementNode) {
 
+	if n.IsStorage {
+		for i, r := range n.Right {
+			e.Traverse(r)
+			if len(n.Left) == 1 {
+				e.Traverse(n.Left[0])
+			} else {
+				e.Traverse(n.Left[i])
+			}
+			e.VM.AddBytecode("STORE")
+		}
+	}
 }
 
 func (e *EVMTraverser) traverseArrayLiteral(n ast.ArrayLiteralNode) {
