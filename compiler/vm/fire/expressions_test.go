@@ -1,18 +1,23 @@
-package vm
+package fire
 
 import (
 	"testing"
 
+	"github.com/end-r/goutil"
 	"github.com/end-r/guardian"
 )
 
 func TestBinaryExpressionBytecodeLiterals(t *testing.T) {
 	a := new(Arsonist)
-	guardian.CompileString(a, "1 + 5")
+	guardian.CompileString(a, "x = 1 + 5")
+	goutil.AssertNow(t, a.VM != nil, "vm shouldn't be nil")
 	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		"PUSH", // push hash(x)
 		"ADD",
+	})
+	checkStack(t, a.VM.Stack, [][]byte{
+		[]byte{byte(6)},
 	})
 }
 

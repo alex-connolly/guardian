@@ -8,7 +8,7 @@ import (
 
 func TestBinaryExpressionBytecodeLiterals(t *testing.T) {
 	e := new(EVMTraverser)
-	guardian.CompileString(e, "1 + 5")
+	guardian.CompileString(e, "x = 1 + 5")
 	checkMnemonics(t, e.VM.Instructions, []string{
 		"PUSH", // push 1
 		"PUSH", // push 5
