@@ -18,7 +18,7 @@ func NewTraverser() EVMTraverser {
 }
 
 // Traverse ...
-func (e *EVMTraverser) Traverse(node ast.Node) {
+func (e EVMTraverser) Traverse(node ast.Node) {
 	// initialise the vm
 	if e.VM == nil {
 		e.VM = firevm.NewVM()

@@ -49,7 +49,7 @@ func NewTraverser() Arsonist {
 }
 
 // Traverse ...
-func (a *Arsonist) Traverse(node ast.Node) {
+func (a Arsonist) Traverse(node ast.Node) {
 	// initialise the vm
 	if a.VM == nil {
 		a.VM = firevm.NewVM()
