@@ -13,6 +13,10 @@ type EVMTraverser struct {
 	VM *vmgen.VM
 }
 
+func NewTraverser() EVMTraverser {
+	return EVMTraverser{}
+}
+
 // Traverse ...
 func (e *EVMTraverser) Traverse(node ast.Node) {
 	// initialise the vm

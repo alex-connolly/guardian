@@ -1,9 +1,10 @@
 package guardian
 
 import (
-	"github.com/end-r/guardian/compiler/parser"
-
 	"github.com/end-r/guardian/compiler/ast"
+	"github.com/end-r/guardian/compiler/parser"
+	"github.com/end-r/guardian/vm/evm"
+	"github.com/end-r/guardian/vm/fire"
 )
 
 // Traverser ...
@@ -37,4 +38,16 @@ func CompileBytes(t Traverser, bytes []byte) []string {
 	// Traverse AST
 	t.Traverse(p.Scope)
 	return nil
+}
+
+func EVM() Traverser {
+	return evm.NewTraverser()
+}
+
+func FireVM() Traverser {
+	return fire.NewTraverser()
+}
+
+func NeoVM() Traverser {
+	return evm.NewTraverser()
 }

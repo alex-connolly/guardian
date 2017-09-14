@@ -24,6 +24,7 @@ func TestBinaryExpressionBytecodeLiterals(t *testing.T) {
 func TestBinaryExpressionBytecodeReferences(t *testing.T) {
 	a := new(Arsonist)
 	guardian.CompileString(a, "a + b")
+	goutil.AssertNow(t, a.VM != nil, "vm shouldn't be nil")
 	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH", // push string data
 		"PUSH", // push hash(x)
@@ -34,6 +35,7 @@ func TestBinaryExpressionBytecodeReferences(t *testing.T) {
 func TestBinaryExpressionBytecodeStringLiteralConcat(t *testing.T) {
 	a := new(Arsonist)
 	guardian.CompileString(a, `"my name is" + " who knows tbh"`)
+	goutil.AssertNow(t, a.VM != nil, "vm shouldn't be nil")
 	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH",   // push string data
 		"PUSH",   // push hash(x)
@@ -50,6 +52,7 @@ func TestBinaryExpressionBytecodeStringReferenceConcat(t *testing.T) {
 			c = a + b
 		)
 		`)
+	goutil.AssertNow(t, a.VM != nil, "vm shouldn't be nil")
 	checkMnemonics(t, a.VM.Instructions, []string{
 		"PUSH",   // push string data
 		"PUSH",   // push a reference
@@ -66,6 +69,7 @@ func TestBinaryExpressionBytecodeStringReferenceConcat(t *testing.T) {
 
 func TesExtendedBinaryExpressionBytecodeStringReferenceConcat(t *testing.T) {
 	a := new(Arsonist)
+	goutil.AssertNow(t, a.VM != nil, "vm shouldn't be nil")
 	guardian.CompileString(a, `
 		var (
 			a = "hello"
@@ -90,7 +94,7 @@ func TestUnaryExpressionBytecodeLiteral(t *testing.T) {
 	a := new(Arsonist)
 	guardian.CompileString(a, "!1")
 	checkMnemonics(t, a.VM.Instructions, []string{
-		"PUSH", // push string data
+		"PUSH", // push data
 		"NOT",
 	})
 }

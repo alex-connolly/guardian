@@ -44,6 +44,10 @@ func (a *Arsonist) TraverseExpression(node ast.ExpressionNode) {
 	}
 }
 
+func NewTraverser() Arsonist {
+	return Arsonist{}
+}
+
 // Traverse ...
 func (a *Arsonist) Traverse(node ast.Node) {
 	// initialise the vm
