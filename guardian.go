@@ -42,14 +42,17 @@ func CompileBytes(t Traverser, bytes []byte) []string {
 	return nil
 }
 
+// EVM ...
 func EVM() Traverser {
 	return evm.NewTraverser()
 }
 
+// FireVM ...
 func FireVM() Traverser {
 	return firevm.NewTraverser()
 }
 
+// AVM ...
 func AVM() Traverser {
 	return avm.NewTraverser()
 }
