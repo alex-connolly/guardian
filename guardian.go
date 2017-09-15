@@ -1,10 +1,12 @@
 package guardian
 
 import (
+	"github.com/end-r/guardian/vm/avm"
+	"github.com/end-r/guardian/vm/firevm"
+
 	"github.com/end-r/guardian/compiler/ast"
 	"github.com/end-r/guardian/compiler/parser"
 	"github.com/end-r/guardian/vm/evm"
-	"github.com/end-r/guardian/vm/fire"
 )
 
 // Traverser ...
@@ -45,9 +47,9 @@ func EVM() Traverser {
 }
 
 func FireVM() Traverser {
-	return fire.NewTraverser()
+	return firevm.NewTraverser()
 }
 
-func NeoVM() Traverser {
-	return evm.NewTraverser()
+func AVM() Traverser {
+	return avm.NewTraverser()
 }

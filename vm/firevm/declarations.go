@@ -1,4 +1,4 @@
-package fire
+package firevm
 
 import "github.com/end-r/guardian/compiler/ast"
 

@@ -8,17 +8,17 @@ import (
 	"github.com/end-r/guardian/compiler/ast"
 )
 
-// EVMTraverser burns down trees
-type EVMTraverser struct {
+// Traverser burns down trees
+type Traverser struct {
 	VM *vmgen.VM
 }
 
-func NewTraverser() EVMTraverser {
-	return EVMTraverser{}
+func NewTraverser() Traverser {
+	return Traverser{}
 }
 
 // Traverse ...
-func (e EVMTraverser) Traverse(node ast.Node) {
+func (e Traverser) Traverse(node ast.Node) {
 	// initialise the vm
 	if e.VM == nil {
 		e.VM = firevm.NewVM()

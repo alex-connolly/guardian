@@ -1,4 +1,4 @@
-package fire
+package firevm
 
 import (
 	"fmt"

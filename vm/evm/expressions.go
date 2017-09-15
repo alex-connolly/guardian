@@ -1,21 +1,21 @@
 package evm
 
 import (
-    "github.com/end-r/guardian/compiler/ast"
-    "github.com/end-r/guardian/compiler/lexer"
+	"github.com/end-r/guardian/compiler/ast"
+	"github.com/end-r/guardian/compiler/lexer"
 )
 
-func (e *EVMTraverser) traverseArrayLiteral(n ast.ArrayLiteralNode) {
+func (e *Traverser) traverseArrayLiteral(n ast.ArrayLiteralNode) {
 	for _, expr := range n.Data {
 		e.Traverse(expr)
 	}
 }
 
-func (e *EVMTraverser) traverseSliceExpression(n ast.SliceExpressionNode) {
+func (e *Traverser) traverseSliceExpression(n ast.SliceExpressionNode) {
 
 }
 
-func (e *EVMTraverser) traverseCompositeLiteral(n ast.CompositeLiteralNode) {
+func (e *Traverser) traverseCompositeLiteral(n ast.CompositeLiteralNode) {
 
 }
 
@@ -32,7 +32,7 @@ var binaryOps = map[lexer.TokenType]string{
 	lexer.TknXor: "XOR",
 }
 
-func (e *EVMTraverser) traverseBinaryExpr(n ast.BinaryExpressionNode) {
+func (e *Traverser) traverseBinaryExpr(n ast.BinaryExpressionNode) {
 	e.Traverse(n.Left)
 	e.Traverse(n.Right)
 	// operation
@@ -43,12 +43,12 @@ var unaryOps = map[lexer.TokenType]string{
 	lexer.TknNot: "NOT",
 }
 
-func (e *EVMTraverser) traverseUnaryExpr(n ast.UnaryExpressionNode) {
+func (e *Traverser) traverseUnaryExpr(n ast.UnaryExpressionNode) {
 	e.VM.AddBytecode(unaryOps[n.Operator])
 	e.Traverse(n.Operand)
 }
 
-func (e *EVMTraverser) traverseCallExpr(n ast.CallExpressionNode) {
+func (e *Traverser) traverseCallExpr(n ast.CallExpressionNode) {
 	for _, arg := range n.Arguments {
 		e.Traverse(arg)
 	}
@@ -56,7 +56,7 @@ func (e *EVMTraverser) traverseCallExpr(n ast.CallExpressionNode) {
 	// jump to the top of the function
 }
 
-func (e *EVMTraverser) traverseLiteral(n ast.LiteralNode) {
+func (e *Traverser) traverseLiteral(n ast.LiteralNode) {
 	// Literal Nodes are directly converted to push instructions
 	var parameters []byte
 	bytes := n.GetBytes()
@@ -65,7 +65,7 @@ func (e *EVMTraverser) traverseLiteral(n ast.LiteralNode) {
 	e.VM.AddBytecode("PUSH", parameters...)
 }
 
-func (e *EVMTraverser) traverseIndex(n ast.IndexExpressionNode) {
+func (e *Traverser) traverseIndex(n ast.IndexExpressionNode) {
 	// evaluate the index
 	e.Traverse(n.Index)
 	// then MLOAD it at the index offset
@@ -73,7 +73,7 @@ func (e *EVMTraverser) traverseIndex(n ast.IndexExpressionNode) {
 	e.VM.AddBytecode("GET")
 }
 
-func (e *EVMTraverser) traverseMapLiteral(n ast.MapLiteralNode) {
+func (e *Traverser) traverseMapLiteral(n ast.MapLiteralNode) {
 	for k, v := range n.Data {
 		e.Traverse(k)
 		e.Traverse(v)
@@ -83,7 +83,7 @@ func (e *EVMTraverser) traverseMapLiteral(n ast.MapLiteralNode) {
 	e.VM.AddBytecode("MAP")
 }
 
-func (e *EVMTraverser) traverseReference(n ast.ReferenceNode) {
+func (e *Traverser) traverseReference(n ast.ReferenceNode) {
 
 	// reference e.g. dog.tail.wag()
 	// get the object
