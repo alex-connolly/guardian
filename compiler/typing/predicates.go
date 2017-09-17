@@ -34,6 +34,13 @@ func isInterfaceIdentical(x, y Type) bool {
 }
 
 func isMapIdentical(x, y Type) bool {
+	if y, ok := y.(*Map); ok {
+		return identical(x.key, y.key) && identical(x.value, y.value)
+	}
+	return false
+}
+
+func isStructIdentical(x, y Type) bool {
 	return false
 }
 
