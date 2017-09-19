@@ -19,7 +19,7 @@ func isInteger(t Type) bool {
 }
 
 func isArrayIdentical(x, y Type) bool {
-
+	return false
 }
 
 func isSliceIdentical(x, y Type) bool {
