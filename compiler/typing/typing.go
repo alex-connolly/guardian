@@ -8,6 +8,8 @@ Type system based on go's, with the following changes:
 
 // Type interface used by all types
 type Type interface {
+	Underlying() Type
+	Representation() string
 }
 
 type StandardType int

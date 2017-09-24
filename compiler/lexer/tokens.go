@@ -119,6 +119,8 @@ const (
 	TknPackage
 	TknReturn
 	TknNone
+	TknTrue
+	TknFalse
 )
 
 // TODO: protoToken{"Operator", isOperator, processOperator}
@@ -170,6 +172,9 @@ func getProtoTokens() []protoToken {
 
 		createDistinct("package", TknPackage),
 		createDistinct("return", TknReturn),
+
+		createDistinct("true", TknTrue),
+		createDistinct("false", TknFalse),
 
 		createFixed("+=", TknAddAssign),
 		createFixed("++", TknIncrement),
