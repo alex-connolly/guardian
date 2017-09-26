@@ -1,30 +1,30 @@
-package typing
+package validator
 
 import (
-	"axia/guardian/compiler/lexer"
+	"github.com/end-r/guardian/compiler/lexer"
 
 	"github.com/end-r/guardian/compiler/ast"
 )
 
-func ResolveExpression(e ast.ExpressionNode) Type {
-	return resolvers[e.Type()]()
+func (v *Validator) ResolveExpression(e ast.ExpressionNode) Type {
+	return resolvers[e.Type()](v, e)
 }
 
-type Resolver func(e ast.ExpressionNode) Type
+type Resolver func(v *Validator, e ast.ExpressionNode) Type
 
 var resolvers = map[ast.NodeType]Resolver{
-	ast.Literal:          resolveLiteralExpression,
-	ast.IndexExpression:  resolveIndexExpression,
+	ast.Literal: resolveLiteralExpression,
+	/*ast.IndexExpression:  resolveIndexExpression,
 	ast.CallExpression:   resolveCallExpression,
 	ast.SliceExpression:  resolveSliceExpression,
 	ast.MapLiteral:       resolveMapLiteralExpression,
 	ast.ArrayLiteral:     resolveArrayLiteralExpression,
 	ast.BinaryExpression: resolveBinaryExpression,
 	ast.UnaryExpression:  resolveUnaryExpression,
-	ast.Reference:        resolveReference,
+	ast.Reference:        resolveReference,*/
 }
 
-func resolveLiteralExpression(e ast.ExpressionNode) Type {
+func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	l := e.(ast.LiteralNode)
 	switch l.LiteralType {
@@ -35,47 +35,56 @@ func resolveLiteralExpression(e ast.ExpressionNode) Type {
 	case lexer.TknNumber:
 		return Int
 	}
+	return Invalid
 }
 
-func resolveIndexExpression(e ast.ExpressionNode) Type {
+func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
+	// must be literal
+	//m := e.(ast.ArrayLiteralNode)
+
+	arrayType := new(Array)
+	//arrayType.Value = parseType(m.Key)
+	return arrayType
+}
+
+/*
+func resolveIndexExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	i := e.(ast.IndexExpressionNode)
-	exprType := ResolveExpression(i.Expression)
+	exprType := v.ResolveExpression(i.Expression)
 	// enforce that this must be an array type
-	switch exprType {
+	switch exprType.(type) {
 	case Array:
-		return exprType.(Array).key
+		return exprType.(Array).Value
 	case Map:
-		return exprType.(Map).value
+		return exprType.(Map).Value
 	}
-	return InvalidType
+	return Invalid
 }
 
-func resolveCallExpression(e ast.ExpressionNode) Type {
+func resolveCallExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	c := e.(ast.CallExpressionNode)
 	// return type of a call expression is always a tuple
 	// tuple may be empty or single-valued
-	call := ResolveExpression(c.Call)
+	call := v.ResolveExpression(c.Call)
 	// enforce that this is a function pointer
-	fn := call.(Function)
-	return createTuple(fn.Results)
+	fn := call.(Func)
+	return fn.Results
 }
 
-func resolveSliceExpression(e ast.ExpressionNode) Type {
+func resolveSliceExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	s := e.(ast.SliceExpressionNode)
-	exprType := ResolveExpression(i.Expression)
+	exprType := v.ResolveExpression(s.Expression)
 	// must be an array
-	switch exprType {
+	switch exprType.(type) {
 	case Array:
-		a := exprType.(Array)
-		return createArray(a.key)
 	}
-	return InvalidType
+	return Invalid
 }
 
-func resolveMapLiteralExpression(e ast.ExpressionNode) Type {
+func resolveMapLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	m := e.(ast.MapLiteralNode)
 	mapType := new(Map)
@@ -84,16 +93,8 @@ func resolveMapLiteralExpression(e ast.ExpressionNode) Type {
 	return mapType
 }
 
-func resolveArrayLiteralExpression(e ast.ExpressionNode) Type {
-	// must be literal
-	m := e.(ast.ArrayLiteralNode)
 
-	arrayType := new(Array)
-	arrayType.key = parseType(m.Key)
-	return arrayType
-}
-
-func resolveBinaryExpression(e ast.ExpressionNode) Type {
+func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	b := e.(ast.BinaryExpressionNode)
 	// rules for binary Expressions
@@ -108,19 +109,19 @@ func resolveBinaryExpression(e ast.ExpressionNode) Type {
 		return Int
 	}
 	// else it is a type which is not defined for binary operators
-	return InvalidType
+	return Invalid
 }
 
-func resolveUnaryExpression(e ast.ExpressionNode) Type {
+func resolveUnaryExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	m := e.(ast.UnaryExpressionNode)
 	operandType := ResolveExpression(m.Operand)
 
 }
 
-func resolveReference(e ast.ExpressionNode) Type {
+func resolveReference(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	m := e.(ast.ReferenceNode)
 	// go up through table
 
-}
+}*/
