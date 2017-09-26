@@ -65,29 +65,62 @@ func resolveCallExpression(e ast.ExpressionNode) Type {
 func resolveSliceExpression(e ast.ExpressionNode) Type {
 	// must be literal
 	s := e.(ast.SliceExpressionNode)
+	exprType := ResolveExpression(i.Expression)
+	// must be an array
+	switch exprType {
+	case Array:
+		a := exprType.(Array)
+		return createArray(a.key)
+	}
+	return InvalidType
 }
 
 func resolveMapLiteralExpression(e ast.ExpressionNode) Type {
 	// must be literal
 	m := e.(ast.MapLiteralNode)
+	mapType := new(Map)
+	mapType.key = parseType(m.Key)
+	mapType.value = parseType(m.Value)
+	return mapType
 }
 
 func resolveArrayLiteralExpression(e ast.ExpressionNode) Type {
 	// must be literal
 	m := e.(ast.ArrayLiteralNode)
+
+	arrayType := new(Array)
+	arrayType.key = parseType(m.Key)
+	return arrayType
 }
 
 func resolveBinaryExpression(e ast.ExpressionNode) Type {
 	// must be literal
-	m := e.(ast.MapLiteralNode)
+	b := e.(ast.BinaryExpressionNode)
+	// rules for binary Expressions
+	leftType := ResolveExpression(b.Left)
+	rightType := ResolveExpression(b.Left)
+	switch leftType.Underlying() {
+	case String:
+		// TODO: error if rightType != string
+		return String
+	case Int:
+		// TODO: error if rightType != string
+		return Int
+	}
+	// else it is a type which is not defined for binary operators
+	return InvalidType
 }
 
 func resolveUnaryExpression(e ast.ExpressionNode) Type {
 	// must be literal
-	m := e.(ast.MapLiteralNode)
+	m := e.(ast.UnaryExpressionNode)
+	operandType := ResolveExpression(m.Operand)
+
 }
 
 func resolveReference(e ast.ExpressionNode) Type {
 	// must be literal
 	m := e.(ast.ReferenceNode)
+	// go up through table
+
 }

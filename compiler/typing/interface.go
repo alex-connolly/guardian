@@ -2,6 +2,43 @@ package typing
 
 import "github.com/end-r/guardian/compiler/ast"
 
+func ValidateScope(scope ast.ScopeNode) {
+	// Valid scopes have the following properties:
+	// all type assignments are valid
+	// all references are defined before they are called
+
+	// Process:
+	// declare ever
+
+}
+
+// validates whether a call expression matches the function signature in scope
+func ValidateCallExpression(scope ast.ScopeNode, ce ast.CallExpressionNode) {
+
+	fnType := ResolveExpression(ce.Call)
+
+	fn := fnType.(Func)
+
+	if !fn.params.equals(exprTuple(ce.Arguments)) {
+		// TODO: report error
+	}
+}
+
+// validates whether an index expression has:
+// maps: comparable index, map indexpression
+// arrays: int-resolvable index, array expression
+func ValidateIndexExpression(scope ast.ScopeNode, index ast.IndexExpressionNode) {
+
+}
+
+// validates that a slice expression has:
+// an int-resolvable low expression (or nothing)
+// an int-resolvable hgih expression (or nothing)
+// an array-resolvable base expression
+func ValidateSliceExpression(scope ast.ScopeNode, index ast.SliceExpressionNode) {
+
+}
+
 // AssertableTo reports whether a value of type V can be asserted to have type T.
 func AssertableTo(v *Interface, t Type) bool {
 	m, _ := assertableTo(v, t)

@@ -44,6 +44,10 @@ func isStructIdentical(x, y Type) bool {
 	return false
 }
 
+func isFuncIdentical(x, y Type) bool {
+	return false
+}
+
 func identical(x, y Type) bool {
 	if x == y {
 		return true
@@ -59,6 +63,8 @@ func identical(x, y Type) bool {
 		return isInterfaceIdentical(x, y)
 	case *Map:
 		return isMapIdentical(x, y)
+	case *Func:
+		return isFuncIdentical(x, y)
 	}
 	return false
 }

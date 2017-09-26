@@ -1,5 +1,7 @@
 package typing
 
+import "github.com/end-r/guardian/compiler/ast"
+
 /*
 Type system based on go's, with the following changes:
 
@@ -37,6 +39,55 @@ const (
 	// aliases
 	Byte = Uint8
 )
+
+type Func struct {
+	params  Tuple
+	results Tuple
+}
+
+func (f Func) Representation() string {
+	return nil
+}
+
+func (f Func) Underlying() Type {
+	return nil
+}
+
+type Tuple struct {
+	types []Type // order is important
+}
+
+func varsTuple(nodes []ast.Node) Tuple {
+	types := make([]Type, 0)
+	for _, n := range nodes {
+
+	}
+	return Tuple{
+		types: types,
+	}
+}
+
+func exprTuple(nodes []ast.ExpressionNode) Tuple {
+	types := make([]Type, 0)
+	for _, n := range nodes {
+		types = append(types, ResolveExpression(e))
+	}
+	return Tuple{
+		types: types,
+	}
+}
+
+func (t *Tuple) equals(other Tuple) bool {
+	if len(t.types) != len(other.types) {
+		return false
+	}
+	for i, typ := range t.types {
+		if typ != other.types[i] {
+			return false
+		}
+	}
+	return true
+}
 
 // Array type
 type Array struct {
