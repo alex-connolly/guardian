@@ -1,5 +1,7 @@
 package validator
 
+import "bytes"
+
 // There are 5 first-class guardian types:
 // Literal: int, string etc.
 // Array: arrays[Type]
@@ -11,13 +13,13 @@ package validator
 // Tuple: (Type...)
 
 type Type interface {
-	Base() BaseType
+	write(*bytes.Buffer)
 }
 
-type StandardType int
+type BaseType int
 
 const (
-	Invalid StandardType = iota
+	Invalid BaseType = iota
 	Int
 	Int8
 	Int16
@@ -41,40 +43,47 @@ const (
 	Byte = Uint8
 )
 
-func (s StandardType) Base() BaseType { return StandardBase }
+type StandardType struct {
+	name string
+}
 
-type BaseType int
+var standards = map[BaseType]StandardType{
+	Invalid: StandardType{"invalid"},
+	Int:     StandardType{"int"},
+	Int8:    StandardType{"int8"},
+	Int16:   StandardType{"int16"},
+	Int32:   StandardType{"int32"},
+	Int64:   StandardType{"int64"},
+	Int128:  StandardType{"int128"},
+	Int256:  StandardType{"int256"},
 
-const (
-	ArrayBase BaseType = iota
-	FuncBase
-	MapBase
-	TupleBase
-	StandardBase
-)
+	Uint:    StandardType{"uint"},
+	Uint8:   StandardType{"uint8"},
+	Uint16:  StandardType{"uint16"},
+	Uint32:  StandardType{"uint32"},
+	Uint64:  StandardType{"uint64"},
+	Uint128: StandardType{"uint128"},
+	Uint256: StandardType{"uint256"},
+
+	String: StandardType{"string"},
+	Bool:   StandardType{"bool"},
+	// just an alias
+}
 
 type Array struct {
 	Value Type
 }
-
-func (a Array) Base() BaseType { return ArrayBase }
 
 type Map struct {
 	Key   Type
 	Value Type
 }
 
-func (m Map) Base() BaseType { return MapBase }
-
 type Func struct {
 	Params  Tuple
 	Results Tuple
 }
 
-func (f Func) Base() BaseType { return FuncBase }
-
 type Tuple struct {
 	types []Type
 }
-
-func (t Tuple) Base() BaseType { return TupleBase }

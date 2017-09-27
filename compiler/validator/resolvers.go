@@ -13,12 +13,13 @@ func (v *Validator) ResolveExpression(e ast.ExpressionNode) Type {
 type Resolver func(v *Validator, e ast.ExpressionNode) Type
 
 var resolvers = map[ast.NodeType]Resolver{
-	ast.Literal: resolveLiteralExpression,
+	ast.Literal:      resolveLiteralExpression,
+	ast.MapLiteral:   resolveMapLiteralExpression,
+	ast.ArrayLiteral: resolveArrayLiteralExpression,
 	/*ast.IndexExpression:  resolveIndexExpression,
 	ast.CallExpression:   resolveCallExpression,
 	ast.SliceExpression:  resolveSliceExpression,
-	ast.MapLiteral:       resolveMapLiteralExpression,
-	ast.ArrayLiteral:     resolveArrayLiteralExpression,
+
 	ast.BinaryExpression: resolveBinaryExpression,
 	ast.UnaryExpression:  resolveUnaryExpression,
 	ast.Reference:        resolveReference,*/
@@ -29,13 +30,13 @@ func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	l := e.(ast.LiteralNode)
 	switch l.LiteralType {
 	case lexer.TknString:
-		return String
+		return standards[String]
 	case lexer.TknTrue, lexer.TknFalse:
-		return Bool
+		return standards[Bool]
 	case lexer.TknNumber:
-		return Int
+		return standards[Int]
 	}
-	return Invalid
+	return standards[Invalid]
 }
 
 func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
@@ -45,6 +46,13 @@ func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	arrayType := new(Array)
 	//arrayType.Value = parseType(m.Key)
 	return arrayType
+}
+
+func resolveMapLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
+	// must be literal
+	//m := e.(ast.MapLiteralNode)
+	mapType := new(Map)
+	return mapType
 }
 
 /*
@@ -84,14 +92,7 @@ func resolveSliceExpression(v *Validator, e ast.ExpressionNode) Type {
 	return Invalid
 }
 
-func resolveMapLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
-	// must be literal
-	m := e.(ast.MapLiteralNode)
-	mapType := new(Map)
-	mapType.key = parseType(m.Key)
-	mapType.value = parseType(m.Value)
-	return mapType
-}
+
 
 
 func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) Type {

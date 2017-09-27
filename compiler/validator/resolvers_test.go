@@ -14,16 +14,16 @@ func TestResolveLiteralExpressionString(t *testing.T) {
 	v := new(Validator)
 	r := ast.LiteralNode{}
 	r.LiteralType = lexer.TknString
-	goutil.Assert(t, v.ResolveExpression(r) == String, "wrong expression type")
+	goutil.Assert(t, v.ResolveExpression(r) == standards[String], "wrong expression type")
 }
 
 func TestResolveLiteralExpressionBool(t *testing.T) {
 	v := new(Validator)
 	r := ast.LiteralNode{}
 	r.LiteralType = lexer.TknTrue
-	goutil.Assert(t, v.ResolveExpression(r) == Bool, "wrong true expression type")
+	goutil.Assert(t, v.ResolveExpression(r) == standards[Bool], "wrong true expression type")
 	r.LiteralType = lexer.TknFalse
-	goutil.Assert(t, v.ResolveExpression(r) == Bool, "wrong false expression type")
+	goutil.Assert(t, v.ResolveExpression(r) == standards[Bool], "wrong false expression type")
 }
 
 func TestResolveArrayLiteralExpression(t *testing.T) {
@@ -32,5 +32,38 @@ func TestResolveArrayLiteralExpression(t *testing.T) {
 	a.Key = ast.ReferenceNode{
 		Names: []string{"dog"},
 	}
-	goutil.Assert(t, v.ResolveExpression(a).Base() == ArrayBase, "wrong base type")
+	_, ok := v.ResolveExpression(a).(Array)
+	goutil.Assert(t, ok, "wrong base type")
+}
+
+func TestResolveMapLiteralExpression(t *testing.T) {
+	v := new(Validator)
+	a := ast.MapLiteralNode{}
+	a.Key = ast.ReferenceNode{
+		Names: []string{"dog"},
+	}
+	a.Value = ast.ReferenceNode{
+		Names: []string{"cat"},
+	}
+	_, ok := v.ResolveExpression(a).(Map)
+	goutil.Assert(t, ok, "wrong base type")
+}
+
+func TestResolveIndexExpressionArrayLiteral(t *testing.T) {
+	v := new(Validator)
+	a := ast.ArrayLiteralNode{}
+	a.Key = ast.ReferenceNode{
+		Names: []string{"cat"},
+	}
+	e := ast.IndexExpressionNode{}
+	e.Expression = a
+	e.Index = createIndex()
+	m := v.ResolveExpression(e)
+	goutil.Assert(t, WriteType(m) == "[cat]", "wrong base type")
+}
+
+func createIndex() ast.ExpressionNode {
+	idx := ast.LiteralNode{}
+	idx.LiteralType = lexer.TknNumber
+	return idx
 }
