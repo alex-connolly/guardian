@@ -6,24 +6,22 @@ import (
 	"github.com/end-r/guardian/compiler/ast"
 )
 
-func (v *Validator) ResolveExpression(e ast.ExpressionNode) Type {
+func (v *Validator) resolveExpression(e ast.ExpressionNode) Type {
+	resolvers := map[ast.NodeType]resolver{
+		ast.Literal:          resolveLiteralExpression,
+		ast.MapLiteral:       resolveMapLiteralExpression,
+		ast.ArrayLiteral:     resolveArrayLiteralExpression,
+		ast.IndexExpression:  resolveIndexExpression,
+		ast.CallExpression:   resolveCallExpression,
+		ast.SliceExpression:  resolveSliceExpression,
+		ast.BinaryExpression: resolveBinaryExpression,
+		ast.UnaryExpression:  resolveUnaryExpression,
+		ast.Reference:        resolveReference,
+	}
 	return resolvers[e.Type()](v, e)
 }
 
-type Resolver func(v *Validator, e ast.ExpressionNode) Type
-
-var resolvers = map[ast.NodeType]Resolver{
-	ast.Literal:      resolveLiteralExpression,
-	ast.MapLiteral:   resolveMapLiteralExpression,
-	ast.ArrayLiteral: resolveArrayLiteralExpression,
-	/*ast.IndexExpression:  resolveIndexExpression,
-	ast.CallExpression:   resolveCallExpression,
-	ast.SliceExpression:  resolveSliceExpression,
-
-	ast.BinaryExpression: resolveBinaryExpression,
-	ast.UnaryExpression:  resolveUnaryExpression,
-	ast.Reference:        resolveReference,*/
-}
+type resolver func(v *Validator, e ast.ExpressionNode) Type
 
 func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
@@ -41,25 +39,25 @@ func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 
 func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
-	//m := e.(ast.ArrayLiteralNode)
-
-	arrayType := new(Array)
-	//arrayType.Value = parseType(m.Key)
+	m := e.(ast.ArrayLiteralNode)
+	keyType := v.findReference(m.Key.Names...)
+	arrayType := NewArray(keyType)
 	return arrayType
 }
 
 func resolveMapLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
-	//m := e.(ast.MapLiteralNode)
-	mapType := new(Map)
+	m := e.(ast.MapLiteralNode)
+	keyType := v.findReference(m.Key.Names...)
+	valueType := v.findReference(m.Value.Names...)
+	mapType := NewMap(keyType, valueType)
 	return mapType
 }
 
-/*
 func resolveIndexExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	i := e.(ast.IndexExpressionNode)
-	exprType := v.ResolveExpression(i.Expression)
+	exprType := v.resolveExpression(i.Expression)
 	// enforce that this must be an array type
 	switch exprType.(type) {
 	case Array:
@@ -67,15 +65,15 @@ func resolveIndexExpression(v *Validator, e ast.ExpressionNode) Type {
 	case Map:
 		return exprType.(Map).Value
 	}
-	return Invalid
+	return standards[Invalid]
 }
 
 func resolveCallExpression(v *Validator, e ast.ExpressionNode) Type {
-	// must be literal
+	// must be call expression
 	c := e.(ast.CallExpressionNode)
 	// return type of a call expression is always a tuple
 	// tuple may be empty or single-valued
-	call := v.ResolveExpression(c.Call)
+	call := v.resolveExpression(c.Call)
 	// enforce that this is a function pointer
 	fn := call.(Func)
 	return fn.Results
@@ -84,45 +82,42 @@ func resolveCallExpression(v *Validator, e ast.ExpressionNode) Type {
 func resolveSliceExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	s := e.(ast.SliceExpressionNode)
-	exprType := v.ResolveExpression(s.Expression)
+	exprType := v.resolveExpression(s.Expression)
 	// must be an array
 	switch exprType.(type) {
 	case Array:
 	}
-	return Invalid
+	return standards[Invalid]
 }
-
-
-
 
 func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
-	b := e.(ast.BinaryExpressionNode)
+	/*b := e.(ast.BinaryExpressionNode)
 	// rules for binary Expressions
-	leftType := ResolveExpression(b.Left)
-	rightType := ResolveExpression(b.Left)
-	switch leftType.Underlying() {
-	case String:
+	leftType := v.resolveExpression(b.Left)
+	rightType := v.resolveExpression(b.Left)
+	switch leftType.(type) {
+	case standards[String]:
 		// TODO: error if rightType != string
-		return String
-	case Int:
+		return standards[String]
+	case standards[Int]:
 		// TODO: error if rightType != string
-		return Int
-	}
+		return standards[Int]
+	}*/
 	// else it is a type which is not defined for binary operators
-	return Invalid
+	return standards[Invalid]
 }
 
 func resolveUnaryExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
-	m := e.(ast.UnaryExpressionNode)
-	operandType := ResolveExpression(m.Operand)
-
+	//m := e.(ast.UnaryExpressionNode)
+	//operandType := v.resolveExpression(m.Operand)
+	return standards[Invalid]
 }
 
 func resolveReference(v *Validator, e ast.ExpressionNode) Type {
-	// must be literal
+	// must be reference
 	m := e.(ast.ReferenceNode)
 	// go up through table
-
-}*/
+	return v.findReference(m.Names...)
+}

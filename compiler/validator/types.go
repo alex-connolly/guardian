@@ -74,9 +74,22 @@ type Array struct {
 	Value Type
 }
 
+func NewArray(value Type) Array {
+	return Array{
+		Value: value,
+	}
+}
+
 type Map struct {
 	Key   Type
 	Value Type
+}
+
+func NewMap(key, value Type) Map {
+	return Map{
+		Key:   key,
+		Value: value,
+	}
 }
 
 type Func struct {
@@ -84,6 +97,19 @@ type Func struct {
 	Results Tuple
 }
 
+func NewFunc(params, results Tuple) Func {
+	return Func{
+		Params:  params,
+		Results: results,
+	}
+}
+
 type Tuple struct {
 	types []Type
+}
+
+func NewTuple(types ...Type) Tuple {
+	return Tuple{
+		types: types,
+	}
 }
