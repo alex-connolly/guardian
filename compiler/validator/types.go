@@ -9,11 +9,13 @@ import "bytes"
 // Map: map[Type]Type
 // Func: func(Tuple)Tuple
 
-// There is 1 second-class guardian type:
+// There are 2 second-class guardian types:
 // Tuple: (Type...)
+// Aliased: string -> Type
 
 type Type interface {
 	write(*bytes.Buffer)
+	compare(Type) bool
 }
 
 type BaseType int
