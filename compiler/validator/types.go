@@ -1,6 +1,10 @@
 package validator
 
-import "bytes"
+import (
+	"bytes"
+
+	"github.com/end-r/guardian/compiler/ast"
+)
 
 // There are 5 first-class guardian types:
 // Literal: int, string etc.
@@ -114,6 +118,14 @@ func NewTuple(types ...Type) Tuple {
 	return Tuple{
 		types: types,
 	}
+}
+
+func (v *Validator) ExpressionTuple(exprs []ast.ExpressionNode) Tuple {
+	types := make([]Type, len(exprs))
+	for i, expression := range exprs {
+		types[i] = v.resolveExpression(expression)
+	}
+	return NewTuple(types...)
 }
 
 type Aliased struct {

@@ -30,6 +30,18 @@ func TestCompareArraysImplicitlyWrongKey(t *testing.T) {
 	goutil.Assert(t, !one.compare(two), "should not be equal")
 }
 
+func TestCompareArraysExplicitlyWrongType(t *testing.T) {
+	one := NewArray(standards[Int])
+	two := NewFunc(NewTuple(), NewTuple())
+	goutil.Assert(t, !one.compare(two), "should not be equal")
+}
+
+func TestCompareArraysImplicitlyWrongType(t *testing.T) {
+	one := NewArray(standards[Int])
+	two := NewAliased("a", NewFunc(NewTuple(), NewTuple()))
+	goutil.Assert(t, !one.compare(two), "should not be equal")
+}
+
 func TestCompareMapsExplicitlyEqual(t *testing.T) {
 	one := NewMap(standards[Int], standards[Int])
 	two := NewMap(standards[Int], standards[Int])
@@ -42,18 +54,38 @@ func TestCompareMapsImplicitlyEqual(t *testing.T) {
 	goutil.Assert(t, one.compare(two), "should be equal")
 }
 
-func TestCompareFuncs(t *testing.T) {
-
+func TestCompareEmptyFuncs(t *testing.T) {
+	one := NewFunc(NewTuple(), NewTuple())
+	two := NewAliased("a", NewFunc(NewTuple(), NewTuple()))
+	goutil.Assert(t, one.compare(two), "should be equal")
 }
 
 func TestCompareTuples(t *testing.T) {
-
+	one := NewTuple()
+	two := NewTuple()
+	goutil.Assert(t, one.compare(two), "should be equal")
 }
 
-func TestCompareAliased(t *testing.T) {
-
+func TestCompareTuplesWrongLength(t *testing.T) {
+	one := NewTuple(standards[Int], standards[String])
+	two := NewTuple()
+	goutil.Assert(t, !one.compare(two), "should not be equal")
 }
 
-func TestCompareStandard(t *testing.T) {
+func TestCompareTuplesWrongType(t *testing.T) {
+	one := NewTuple(standards[Int], standards[String])
+	two := NewTuple(standards[String], standards[Int])
+	goutil.Assert(t, !one.compare(two), "should not be equal")
+}
 
+func TestCompareStandards(t *testing.T) {
+	one := standards[Bool]
+	two := standards[Bool]
+	goutil.Assert(t, one.compare(two), "should be equal")
+}
+
+func TestCompareStandardsWrongType(t *testing.T) {
+	one := standards[Int]
+	two := standards[String]
+	goutil.Assert(t, !one.compare(two), "should not be equal")
 }
