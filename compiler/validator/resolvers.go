@@ -74,9 +74,16 @@ func resolveCallExpression(v *Validator, e ast.ExpressionNode) Type {
 	// return type of a call expression is always a tuple
 	// tuple may be empty or single-valued
 	call := v.resolveExpression(c.Call)
-	// enforce that this is a function pointer
-	fn := call.(Func)
+	// enforce that this is a function pointer (at whatever depth)
+	fn := resolveUnderlying(call).(Func)
 	return fn.Results
+}
+
+func resolveUnderlying(t Type) Type {
+	for al, ok := t.(Aliased); ok; al, ok = t.(Aliased) {
+		t = al.underlying
+	}
+	return t
 }
 
 func resolveSliceExpression(v *Validator, e ast.ExpressionNode) Type {

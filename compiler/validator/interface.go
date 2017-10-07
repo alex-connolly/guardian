@@ -33,18 +33,21 @@ func NewValidator() *Validator {
 	}
 }
 
+// BUG: type lookup, should check that "a" is a valid type
+// BUG: shouldn't return the underlying type --> abstraction
 func (v *Validator) DeclareType(name string, t Type) {
 	if v.scope.declaredTypes == nil {
 		v.scope.declaredTypes = make(map[string]Type)
 	}
-	v.scope.declaredTypes[name] = t
+	v.scope.declaredTypes[name] = NewAliased(name, t)
 }
 
 func (v *Validator) findReference(names ...string) Type {
+	search := makeName(names)
 	for s := v.scope; s != nil; s = s.parent {
 		if s.declaredTypes != nil {
 			for k, typ := range s.declaredTypes {
-				if k == makeName(names) {
+				if k == search {
 					return typ
 				}
 			}

@@ -113,3 +113,15 @@ func NewTuple(types ...Type) Tuple {
 		types: types,
 	}
 }
+
+type Aliased struct {
+	alias      string
+	underlying Type
+}
+
+func NewAliased(alias string, underlying Type) Aliased {
+	return Aliased{
+		alias:      alias,
+		underlying: underlying,
+	}
+}

@@ -23,6 +23,10 @@ func (t Tuple) write(b *bytes.Buffer) {
 	b.WriteByte(')')
 }
 
+func (a Aliased) write(b *bytes.Buffer) {
+	b.WriteString(a.alias)
+}
+
 func (a Array) write(b *bytes.Buffer) {
 	b.WriteByte('[')
 	a.Value.write(b)

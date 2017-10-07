@@ -64,6 +64,8 @@ func TestResolveArrayLiteralExpression(t *testing.T) {
 func TestResolveMapLiteralExpression(t *testing.T) {
 	v := NewValidator()
 	a := ast.MapLiteralNode{}
+	v.DeclareType("dog", standards[String])
+	v.DeclareType("cat", standards[String])
 	a.Key = ast.ReferenceNode{
 		Names: []string{"dog"},
 	}
