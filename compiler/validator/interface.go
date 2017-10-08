@@ -66,3 +66,11 @@ func makeName(names []string) string {
 	}
 	return name
 }
+
+func (v *Validator) requireType(expected, actual Type) bool {
+	if resolveUnderlying(expected) != resolveUnderlying(actual) {
+		// TODO: add error
+		return false
+	}
+	return true
+}

@@ -139,3 +139,6 @@ func NewAliased(alias string, underlying Type) Aliased {
 		underlying: underlying,
 	}
 }
+
+type Class struct {
+}

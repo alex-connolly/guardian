@@ -33,3 +33,33 @@ func validateAssignment(v *Validator, node *ast.AssignmentStatementNode) {
 	}
 
 }
+
+func (v *Validator) validateIfStatement(node *ast.IfStatementNode) {
+	//v.Validate(node.Init)
+	for _, cond := range node.Conditions {
+		// condition must be of type bool
+		v.requireType(standards[Bool], v.resolveExpression(cond.Condition))
+		//v.validateScope(cond.Body)
+	}
+}
+
+func (v *Validator) validateSwitchStatement(node *ast.SwitchStatementNode) {
+
+	switchType := v.resolveExpression(node.Target)
+	// target must be matched by all cases
+	for _, clause := range node.Clauses {
+		for _, expr := range clause.Expressions {
+			v.requireType(switchType, v.resolveExpression(expr))
+		}
+		//v.validateScope(clause.Block)
+	}
+
+}
+
+func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
+
+}
+
+func (v *Validator) validateForStatement(node *ast.ForStatementNode) {
+
+}
