@@ -94,13 +94,7 @@ func parseClassDeclaration(p *Parser) {
 		}
 	}
 
-	p.parseRequired(lexer.TknOpenBrace)
-
-	body := ast.ScopeNode{
-		ValidTypes: []ast.NodeType{},
-	}
-
-	p.parseEnclosedScope(&body)
+	body := p.parseEnclosedScope()
 
 	node := ast.ClassDeclarationNode{
 		Identifier: identifier,
@@ -225,13 +219,7 @@ func parseFuncDeclaration(p *Parser) {
 
 	results := p.parseResults()
 
-	body := ast.ScopeNode{
-		ValidTypes: []ast.NodeType{
-			ast.ExplicitVarDeclaration, ast.FuncDeclaration,
-		},
-	}
-
-	p.parseEnclosedScope(&body)
+	body := p.parseEnclosedScope(ast.ExplicitVarDeclaration, ast.FuncDeclaration)
 
 	node := ast.FuncDeclarationNode{
 		Identifier: identifier,
@@ -250,13 +238,7 @@ func parseConstructorDeclaration(p *Parser) {
 
 	params := p.parseParameters()
 
-	body := ast.ScopeNode{
-		ValidTypes: []ast.NodeType{
-			ast.ExplicitVarDeclaration, ast.FuncDeclaration,
-		},
-	}
-
-	p.parseEnclosedScope(&body)
+	body := p.parseEnclosedScope(ast.ExplicitVarDeclaration, ast.FuncDeclaration)
 
 	node := ast.ConstructorDeclarationNode{
 		Parameters: params,
