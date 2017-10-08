@@ -45,13 +45,43 @@ func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 func parseIfStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknIf)
-	//	init := p.parseStatement()
-	//	expr := p.parseExpression()
+
+	// parse init expr, can be nil
+	init := p.parseAssignment()
+
+	conditions := make([]ast.ConditionNode, 0)
+
+	// parse initial if condition, required
+	cond := p.parseExpression()
+	body := p.parseEnclosedScope()
+
+	conditions = append(conditions, ast.ConditionNode{
+		Condition: cond,
+		Body:      body,
+	})
 
 	// parse elif cases
+	for p.parseOptional(lexer.TknElif) {
+		condition := p.parseExpression()
+		body := p.parseEnclosedScope()
+		conditions = append(conditions, ast.ConditionNode{
+			Condition: condition,
+			Body:      body,
+		})
+	}
 
+	var elseBlock *ast.ScopeNode
 	// parse else case
+	if p.parseOptional(lexer.TknElse) {
+		elseBlock = p.parseEnclosedScope()
+	}
 
+	node := ast.IfStatementNode{
+		Init:       init,
+		Conditions: conditions,
+		Else:       elseBlock,
+	}
+	p.Scope.Declare(flowKey, node)
 }
 
 func parseForStatement(p *Parser) {
@@ -64,9 +94,7 @@ func parseForStatement(p *Parser) {
 	// parse statement
 	post := p.parseAssignment()
 
-	body := ast.ScopeNode{}
-
-	p.parseEnclosedScope(&body)
+	body := p.parseEnclosedScope()
 
 	node := ast.ForStatementNode{
 		Init:  init,
@@ -84,9 +112,7 @@ func parseCaseStatement(p *Parser) {
 
 	exprs := p.parseExpressionList()
 
-	body := ast.ScopeNode{}
-
-	p.parseScope(&body)
+	body := p.parseScope()
 
 	node := ast.CaseStatementNode{
 		Expressions: exprs,

@@ -6,6 +6,14 @@ import (
 	"github.com/end-r/goutil"
 )
 
+func TestMakeName(t *testing.T) {
+	// single name
+	names := []string{"hi"}
+	goutil.Assert(t, makeName(names) == "hi", "wrong single make name")
+	names = []string{"hi", "you"}
+	goutil.Assert(t, makeName(names) == "hi.you", "wrong multiple make name")
+}
+
 func TestRequireTypeMatched(t *testing.T) {
 	v := NewValidator()
 	goutil.Assert(t, v.requireType(standards[Bool], standards[Bool]), "direct should be equal")

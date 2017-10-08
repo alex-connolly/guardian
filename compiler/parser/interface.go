@@ -16,12 +16,7 @@ func ParseFile(path string) *Parser {
 	}
 	p := new(Parser)
 	p.lexer = lexer.LexBytes(bytes)
-	p.Scope = &ast.ScopeNode{
-		ValidTypes: []ast.NodeType{
-			ast.ContractDeclaration,
-		},
-	}
-	p.parseScope(p.Scope)
+	p.parseScope(ast.ContractDeclaration)
 	return p
 }
 
@@ -35,11 +30,6 @@ func ParseBytes(data []byte) *Parser {
 	p := new(Parser)
 	p.Scope = &ast.ScopeNode{}
 	p.lexer = lexer.LexBytes(data)
-	p.Scope = &ast.ScopeNode{
-		ValidTypes: []ast.NodeType{
-			ast.ContractDeclaration,
-		},
-	}
-	p.parseScope(p.Scope)
+	p.Scope = p.parseScope(ast.ContractDeclaration)
 	return p
 }

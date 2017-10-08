@@ -1,6 +1,10 @@
 package validator
 
-import "github.com/end-r/guardian/compiler/ast"
+import (
+	"fmt"
+
+	"github.com/end-r/guardian/compiler/ast"
+)
 
 // ValidateScope validates an ast...
 func ValidateScope(scope *ast.ScopeNode) {
@@ -18,13 +22,22 @@ func (v *Validator) validateScope(scope *ast.ScopeNode) {
 }
 
 type Validator struct {
-	scope *TypeScope
+	scope  *TypeScope
+	errors []string
 }
 
 type TypeScope struct {
 	parent        *TypeScope
 	scope         *ast.ScopeNode
 	declaredTypes map[string]Type
+}
+
+func (v *Validator) validateStatement(node ast.Node) {
+	switch node.Type() {
+	case ast.AssignmentStatement:
+		v.validateAssignment(node.(ast.AssignmentStatementNode))
+		break
+	}
 }
 
 func NewValidator() *Validator {
@@ -69,8 +82,12 @@ func makeName(names []string) string {
 
 func (v *Validator) requireType(expected, actual Type) bool {
 	if resolveUnderlying(expected) != resolveUnderlying(actual) {
-		// TODO: add error
+		v.addError("required type %s, got %s", WriteType(expected), WriteType(actual))
 		return false
 	}
 	return true
+}
+
+func (v *Validator) addError(err string, data ...interface{}) {
+	v.errors = append(v.errors, fmt.Sprintf(err, data))
 }

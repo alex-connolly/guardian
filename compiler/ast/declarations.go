@@ -12,7 +12,7 @@ type FuncDeclarationNode struct {
 	Identifier string
 	Parameters []ExplicitVarDeclarationNode
 	Results    []ReferenceNode
-	Body       ScopeNode
+	Body       *ScopeNode
 	IsAbstract bool
 }
 
@@ -23,7 +23,7 @@ type ClassDeclarationNode struct {
 	IsAbstract   bool
 	Supers       []ReferenceNode
 	Interfaces   []ReferenceNode
-	Body         ScopeNode
+	Body         *ScopeNode
 	declarations map[string][]Node
 }
 
@@ -32,7 +32,7 @@ func (n ClassDeclarationNode) Type() NodeType { return ClassDeclaration }
 type InterfaceDeclarationNode struct {
 	Identifier string
 	IsAbstract bool
-	Body       ScopeNode
+	Body       *ScopeNode
 	Supers     []ReferenceNode
 }
 
@@ -43,7 +43,7 @@ type ContractDeclarationNode struct {
 	IsAbstract bool
 	Supers     []ReferenceNode
 	Interfaces []ReferenceNode
-	Body       ScopeNode
+	Body       *ScopeNode
 }
 
 func (n ContractDeclarationNode) Type() NodeType { return ContractDeclaration }
@@ -88,7 +88,7 @@ func (n EventDeclarationNode) Type() NodeType { return EventDeclaration }
 // }
 type ConstructorDeclarationNode struct {
 	Parameters []ExplicitVarDeclarationNode
-	Body       ScopeNode
+	Body       *ScopeNode
 }
 
 func (n ConstructorDeclarationNode) Type() NodeType { return ConstructorDeclaration }
@@ -97,7 +97,7 @@ type EnumDeclarationNode struct {
 	Identifier string
 	IsAbstract bool
 	Inherits   []ReferenceNode
-	Body       ScopeNode
+	Body       *ScopeNode
 }
 
 func (n EnumDeclarationNode) Type() NodeType { return EnumDeclaration }

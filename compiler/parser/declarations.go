@@ -135,16 +135,14 @@ func parseContractDeclaration(p *Parser) {
 		}
 	}
 
-	body := ast.ScopeNode{
-		ValidTypes: []ast.NodeType{
-			ast.ClassDeclaration, ast.InterfaceDeclaration,
-			ast.EventDeclaration, ast.ExplicitVarDeclaration,
-			ast.TypeDeclaration, ast.EnumDeclaration,
-			ast.ConstructorDeclaration, ast.FuncDeclaration,
-		},
+	valids := []ast.NodeType{
+		ast.ClassDeclaration, ast.InterfaceDeclaration,
+		ast.EventDeclaration, ast.ExplicitVarDeclaration,
+		ast.TypeDeclaration, ast.EnumDeclaration,
+		ast.ConstructorDeclaration, ast.FuncDeclaration,
 	}
 
-	p.parseEnclosedScope(&body)
+	body := p.parseEnclosedScope(valids...)
 
 	node := ast.ContractDeclarationNode{
 		Identifier: identifier,

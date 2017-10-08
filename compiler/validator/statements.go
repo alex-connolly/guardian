@@ -2,7 +2,7 @@ package validator
 
 import "github.com/end-r/guardian/compiler/ast"
 
-func validateAssignment(v *Validator, node *ast.AssignmentStatementNode) {
+func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 	// valid assignments must have
 	// 1. valid left hand expression (cannot be a call, literal, slice)
 	// 2. type of left == type of right
@@ -12,24 +12,19 @@ func validateAssignment(v *Validator, node *ast.AssignmentStatementNode) {
 		switch l.Type() {
 		case ast.CallExpression, ast.Literal, ast.MapLiteral,
 			ast.ArrayLiteral, ast.SliceExpression:
-			// TODO: add error here
-			// break?
+			v.addError("Cannot assign to expression")
 		}
 	}
 
 	// special case where right side is of length 1:
-
-	// short circuit if different lengths
-	if len(node.Left) != len(node.Right) {
-		// TODO: add error here
-	}
+	// TODO:
 
 	// else, just do a tuple comparison
 	leftTuple := v.ExpressionTuple(node.Left)
 	rightTuple := v.ExpressionTuple(node.Right)
 
 	if !leftTuple.compare(rightTuple) {
-		// TODO: add error here
+		v.addError("Cannot assign %s to %s", WriteType(rightTuple), WriteType(leftTuple))
 	}
 
 }
@@ -57,9 +52,25 @@ func (v *Validator) validateSwitchStatement(node *ast.SwitchStatementNode) {
 }
 
 func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
+	// must be in the context of a function (checked during ast generation)
+	// resolved tuple must match function expression
+	scope := v.scope
+	for scope.parent.scope.Type() != ast.FuncDeclaration {
+		scope = scope.parent
+	}
+	//fd := scope.scope
 
 }
 
 func (v *Validator) validateForStatement(node *ast.ForStatementNode) {
+	// init statement must be valid
+	v.validateStatement(node.Init)
 
+	// cond statement must be a boolean
+	v.requireType(standards[Bool], v.resolveExpression(node.Cond))
+
+	// post statement must be valid
+	// v.Validate(node.Init)
+
+	// v.ValidateScope(node.Block)
 }

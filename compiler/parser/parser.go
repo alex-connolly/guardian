@@ -118,20 +118,21 @@ func (p *Parser) addError(err string) {
 	p.Errs = append(p.Errs, err)
 }
 
-func (p *Parser) parseEnclosedScope(scope *ast.ScopeNode) {
+func (p *Parser) parseEnclosedScope(valids ...ast.NodeType) *ast.ScopeNode {
 	p.parseRequired(lexer.TknOpenBrace)
-	p.parseScope(scope)
+	scope := p.parseScope()
 	p.parseRequired(lexer.TknCloseBrace)
+	return scope
 }
 
-func (p *Parser) parseScope(scope *ast.ScopeNode) {
-
+func (p *Parser) parseScope(valids ...ast.NodeType) *ast.ScopeNode {
+	scope := new(ast.ScopeNode)
 	scope.Parent = p.Scope
 	p.Scope = scope
 
 	for p.hasTokens(1) {
 		if p.current().Type == lexer.TknCloseBrace {
-			return
+			return scope
 		}
 		found := false
 		for _, c := range getPrimaryConstructs() {
@@ -148,4 +149,5 @@ func (p *Parser) parseScope(scope *ast.ScopeNode) {
 			p.next()
 		}
 	}
+	return nil
 }
