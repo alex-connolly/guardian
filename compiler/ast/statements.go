@@ -35,8 +35,7 @@ func (n IfStatementNode) Type() NodeType { return IfStatement }
 
 type SwitchStatementNode struct {
 	Target      ExpressionNode
-	Clauses     []CaseStatementNode
-	Default     *ScopeNode
+	Cases       *ScopeNode
 	IsExclusive bool
 }
 

@@ -123,12 +123,20 @@ func parseCaseStatement(p *Parser) {
 
 func parseSwitchStatement(p *Parser) {
 
+	exclusive := p.parseOptional(lexer.TknExclusive)
+
 	p.parseRequired(lexer.TknSwitch)
-	//expr := p.parseExpression()
-	p.parseRequired(lexer.TknOpenBrace)
 
-	//s := ast.SwitchStatementNode{}
+	target := p.parseExpression()
 
-	//p.Scope.Declare("", s)
+	cases := p.parseEnclosedScope(ast.CaseStatement)
+
+	s := ast.SwitchStatementNode{
+		IsExclusive: exclusive,
+		Target:      target,
+		Cases:       cases,
+	}
+
+	p.Scope.Declare(flowKey, s)
 
 }

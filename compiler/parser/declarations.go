@@ -17,11 +17,7 @@ func parseInterfaceDeclaration(p *Parser) {
 		inherits = p.parseReferenceList()
 	}
 
-	body := ast.ScopeNode{
-		ValidTypes: []ast.NodeType{},
-	}
-
-	p.parseEnclosedScope(&body)
+	body := p.parseEnclosedScope()
 
 	node := ast.InterfaceDeclarationNode{
 		Identifier: identifier,
@@ -45,11 +41,7 @@ func parseEnumDeclaration(p *Parser) {
 		inherits = p.parseReferenceList()
 	}
 
-	body := ast.ScopeNode{
-		ValidTypes: []ast.NodeType{ast.Reference},
-	}
-
-	p.parseEnclosedScope(&body)
+	body := p.parseEnclosedScope(ast.Reference)
 
 	node := ast.EnumDeclarationNode{
 		IsAbstract: abstract,
