@@ -49,7 +49,7 @@ func parseIfStatement(p *Parser) {
 	// parse init expr, can be nil
 	init := p.parseAssignment()
 
-	conditions := make([]ast.ConditionNode, 0)
+	var conditions []ast.ConditionNode
 
 	// parse initial if condition, required
 	cond := p.parseExpression()

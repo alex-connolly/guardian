@@ -620,16 +620,6 @@ func TestParseChainedExpressionSimple(t *testing.T) {
 	goutil.AssertNow(t, b.Operator == lexer.TknAdd, "wrong operator")
 }
 
-func TestFullParseChainedExpressionSimple(t *testing.T) {
-	p := ParseString("5 + 4")
-	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
-	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
-	b := expr.(ast.BinaryExpressionNode)
-	goutil.AssertNow(t, b.Left.Type() == ast.Literal, "wrong left type")
-	goutil.AssertNow(t, b.Right.Type() == ast.Literal, "wrong right type")
-	goutil.AssertNow(t, b.Operator == lexer.TknAdd, "wrong operator")
-}
-
 func TestParseChainedExpressionThreeLiterals(t *testing.T) {
 	p := createParser("5 + 4 - 3")
 	expr := p.parseExpression()

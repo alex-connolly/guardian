@@ -4,19 +4,30 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/end-r/guardian/go/ast"
+	"github.com/end-r/guardian/compiler/ast"
 
 	"github.com/end-r/goutil"
 )
 
-func TestParseReturnStatementSingleConstant(t *testing.T) {
-	p := createParser("return 6")
-	goutil.Assert(t, isReturnStatement(p), "should detect return statement")
-	parseReturnStatement(p)
-}
-
 func TestParseAssignmentStatementSingleConstant(t *testing.T) {
 	p := createParser("x = 6")
+	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
+	parseAssignmentStatement(p)
+	nodes := p.Scope.Nodes(flowKey)
+	goutil.AssertNow(t, len(nodes) == 1, "wrong node length")
+	first := nodes[0]
+	goutil.AssertNow(t, first.Type() == ast.AssignmentStatement, "wrong node type")
+	assignmentStmt := first.(ast.AssignmentStatementNode)
+	goutil.AssertNow(t, len(assignmentStmt.Left) == 1, "wrong left length")
+	goutil.AssertNow(t, len(assignmentStmt.Right) == 1, "wrong right length")
+	left := assignmentStmt.Left[0]
+	right := assignmentStmt.Right[0]
+	goutil.AssertNow(t, left.Type() == ast.Reference, "wrong left type")
+	goutil.AssertNow(t, right.Type() == ast.Literal, "wrong right type")
+}
+
+func TestParseAssignmentStatementIncrement(t *testing.T) {
+	p := createParser("x++")
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 }
@@ -31,24 +42,56 @@ func TestParseIfStatement(t *testing.T) {
 	}`)
 	goutil.Assert(t, isIfStatement(p), "should detect if statement")
 	parseIfStatement(p)
+	nodes := p.Scope.Nodes(flowKey)
+	goutil.Assert(t, len(nodes) == 1, "wrong node length")
+	goutil.Assert(t, nodes[0].Type() == ast.IfStatement, "wrong node type")
+	ifStat := nodes[0].(ast.IfStatementNode)
+	goutil.Assert(t, ifStat.Init == nil, "init should be nil")
+	goutil.AssertNow(t, len(ifStat.Conditions) == 2, "should have two conditions")
+	first := ifStat.Conditions[0]
+	goutil.AssertNow(t, first.Condition.Type() == ast.BinaryExpression, "first binary expr not recognised")
+	second := ifStat.Conditions[1]
+	goutil.AssertNow(t, second.Condition.Type() == ast.BinaryExpression, "second binary expr not recognised")
+	goutil.AssertNow(t, ifStat.Else != nil, "else should not be nil")
 }
 
 func TestParseForStatementCondition(t *testing.T) {
 	p := createParser(`for x < 5 {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
 	parseForStatement(p)
+	nodes := p.Scope.Nodes(flowKey)
+	goutil.Assert(t, len(nodes) == 1, "wrong node length")
+	goutil.Assert(t, nodes[0].Type() == ast.ForStatement, "wrong node type")
+	forStat := nodes[0].(ast.ForStatementNode)
+	goutil.Assert(t, forStat.Init == nil, "init should be nil")
+	goutil.Assert(t, forStat.Cond != nil, "cond should not be nil")
+	goutil.Assert(t, forStat.Post == nil, "post should be nil")
 }
 
 func TestParseForStatementInitCondition(t *testing.T) {
 	p := createParser(`for x := 0; x < 5 {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
 	parseForStatement(p)
+	nodes := p.Scope.Nodes(flowKey)
+	goutil.Assert(t, len(nodes) == 1, "wrong node length")
+	goutil.Assert(t, nodes[0].Type() == ast.ForStatement, "wrong node type")
+	forStat := nodes[0].(ast.ForStatementNode)
+	goutil.Assert(t, forStat.Init != nil, "init should not be nil")
+	goutil.Assert(t, forStat.Cond != nil, "cond should not be nil")
+	goutil.Assert(t, forStat.Post == nil, "post should be nil")
 }
 
 func TestParseForStatementInitConditionStatement(t *testing.T) {
-	p := createParser(`for x = 0; x < 5; x+=1 {}`)
+	p := createParser(`for x := 0; x < 5; x++ {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
 	parseForStatement(p)
+	nodes := p.Scope.Nodes(flowKey)
+	goutil.Assert(t, len(nodes) == 1, "wrong node length")
+	goutil.Assert(t, nodes[0].Type() == ast.ForStatement, "wrong node type")
+	forStat := nodes[0].(ast.ForStatementNode)
+	goutil.Assert(t, forStat.Init != nil, "init should not be nil")
+	goutil.Assert(t, forStat.Cond != nil, "cond should not be nil")
+	goutil.Assert(t, forStat.Post != nil, "post should not be nil")
 }
 
 func TestParseSwitchStatement(t *testing.T) {
