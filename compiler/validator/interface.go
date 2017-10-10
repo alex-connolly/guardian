@@ -18,7 +18,26 @@ func (v *Validator) validateScope(scope *ast.ScopeNode) {
 		scope:         scope,
 		declaredTypes: nil,
 	}
+
+	switch scope.Type() {
+	case ast.ContractDeclaration, ast.ClassDeclaration:
+		// in some scopes, order is ignored
+
+		break
+	default:
+		// in some scopes, order is preserved
+		for _, n := range scope.Nodes(flowKey) {
+
+		}
+		break
+	}
+	// if global scope, order is ignored
+	// validate and add all signatures and type declarations
 	validateTypeDeclarations(v)
+	// validateClassDeclarations()
+	// validateInterfaceDeclarations()
+	// validateFuncDeclarations()
+	// validateContractDeclaration
 }
 
 type Validator struct {

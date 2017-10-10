@@ -149,5 +149,8 @@ func (p *Parser) parseScope(valids ...ast.NodeType) *ast.ScopeNode {
 			p.next()
 		}
 	}
+	hi()
 	return nil
 }
+
+func hi() {}

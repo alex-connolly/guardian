@@ -47,7 +47,7 @@ func parseIfStatement(p *Parser) {
 	p.parseRequired(lexer.TknIf)
 
 	// parse init expr, can be nil
-	init := p.parseAssignment()
+	// init := p.parseAssignment()
 
 	var conditions []ast.ConditionNode
 
@@ -77,7 +77,7 @@ func parseIfStatement(p *Parser) {
 	}
 
 	node := ast.IfStatementNode{
-		Init:       init,
+		Init:       nil,
 		Conditions: conditions,
 		Else:       elseBlock,
 	}
@@ -88,7 +88,7 @@ func parseForStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknFor)
 	// parse init expr, can be nil
-	init := p.parseAssignment()
+	//init := p.parseAssignment()
 	// parse condition, required
 	cond := p.parseExpression()
 	// parse statement
@@ -97,7 +97,7 @@ func parseForStatement(p *Parser) {
 	body := p.parseEnclosedScope()
 
 	node := ast.ForStatementNode{
-		Init:  init,
+		Init:  nil,
 		Cond:  cond,
 		Post:  post,
 		Block: body,
