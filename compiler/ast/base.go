@@ -18,23 +18,27 @@ type StatementNode interface {
 }
 
 type ScopeNode struct {
-	Parent     *ScopeNode
-	ValidTypes []NodeType
-	nodes      map[string][]Node
+	Parent       *ScopeNode
+	ValidTypes   []NodeType
+	Declarations map[string]Node
+	Sequence     []Node
 }
 
-func (n *ScopeNode) Nodes(key string) []Node {
-	return n.nodes[key]
+func (n *ScopeNode) AddSequential(node Node) {
+	if n.Sequence == nil {
+		n.Sequence = make([]Node, 0)
+	}
+	n.Sequence = append(n.Sequence, node)
 }
 
-func (n *ScopeNode) Declare(key string, node Node) {
-	if n.nodes == nil {
-		n.nodes = make(map[string][]Node)
+func (n *ScopeNode) AddDeclaration(key string, node Node) {
+	// declarations is a map to shortcut lookups
+	// could change value to array for overloaded methods etc
+	// don't think supporting overloading is a good idea at this stage
+	if n.Declarations == nil {
+		n.Declarations = make(map[string]Node)
 	}
-	if n.nodes[key] == nil {
-		n.nodes[key] = make([]Node, 0)
-	}
-	n.nodes[key] = append(n.nodes[key], node)
+	n.Declarations[key] = node
 }
 
 func (n ScopeNode) Type() NodeType { return Scope }
