@@ -22,6 +22,13 @@ type ScopeNode struct {
 	ValidTypes   []NodeType
 	Declarations map[string]Node
 	Sequence     []Node
+	index        int
+}
+
+func (n *ScopeNode) Next() Node {
+	node := n.Sequence[n.index]
+	n.index++
+	return node
 }
 
 func (n *ScopeNode) AddSequential(node Node) {
@@ -29,6 +36,10 @@ func (n *ScopeNode) AddSequential(node Node) {
 		n.Sequence = make([]Node, 0)
 	}
 	n.Sequence = append(n.Sequence, node)
+}
+
+func (n *ScopeNode) GetDeclaration(key string) Node {
+	return n.Declarations[key]
 }
 
 func (n *ScopeNode) AddDeclaration(key string, node Node) {

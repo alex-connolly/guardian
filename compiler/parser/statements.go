@@ -11,12 +11,12 @@ func parseReturnStatement(p *Parser) {
 	node := ast.ReturnStatementNode{
 		Results: p.parseExpressionList(),
 	}
-	p.Scope.Declare(flowKey, node)
+	p.Scope.AddSequential(node)
 }
 
 func parseAssignmentStatement(p *Parser) {
 	node := p.parseAssignment()
-	p.Scope.Declare(flowKey, node)
+	p.Scope.AddSequential(node)
 }
 
 func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
@@ -81,7 +81,7 @@ func parseIfStatement(p *Parser) {
 		Conditions: conditions,
 		Else:       elseBlock,
 	}
-	p.Scope.Declare(flowKey, node)
+	p.Scope.AddSequential(node)
 }
 
 func parseForStatement(p *Parser) {
@@ -102,7 +102,7 @@ func parseForStatement(p *Parser) {
 		Post:  post,
 		Block: body,
 	}
-	p.Scope.Declare(flowKey, node)
+	p.Scope.AddSequential(node)
 
 }
 
@@ -118,7 +118,7 @@ func parseCaseStatement(p *Parser) {
 		Expressions: exprs,
 		Block:       body,
 	}
-	p.Scope.Declare(flowKey, node)
+	p.Scope.AddSequential(node)
 }
 
 func parseSwitchStatement(p *Parser) {
@@ -131,12 +131,12 @@ func parseSwitchStatement(p *Parser) {
 
 	cases := p.parseEnclosedScope(ast.CaseStatement)
 
-	s := ast.SwitchStatementNode{
+	node := ast.SwitchStatementNode{
 		IsExclusive: exclusive,
 		Target:      target,
 		Cases:       cases,
 	}
 
-	p.Scope.Declare(flowKey, s)
+	p.Scope.AddSequential(node)
 
 }

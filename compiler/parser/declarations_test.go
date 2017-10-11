@@ -26,8 +26,7 @@ func TestParseInterfaceDeclarationSingleInheritance(t *testing.T) {
 	p := createParser(`interface Wagable inherits Visible {}`)
 	goutil.Assert(t, isInterfaceDeclaration(p), "should detect interface decl")
 	parseInterfaceDeclaration(p)
-	goutil.Assert(t, len(p.Scope.Nodes("interface")) == 1, "wrong node count")
-	n := p.Scope.Nodes(interfaceKey)[0]
+	n := p.Scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.InterfaceDeclaration, "wrong node type")
 	i := n.(ast.InterfaceDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")

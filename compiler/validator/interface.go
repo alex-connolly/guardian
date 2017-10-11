@@ -21,23 +21,33 @@ func (v *Validator) validateScope(scope *ast.ScopeNode) {
 
 	switch scope.Type() {
 	case ast.ContractDeclaration, ast.ClassDeclaration:
-		// in some scopes, order is ignored
-
+		// scope where declarations can be made
+		for k, node := range scope.Declarations {
+			v.addDeclaration(k, node)
+		}
+		for k, node := range scope.Declarations {
+			v.validateDeclaration(node)
+		}
 		break
 	default:
-		// in some scopes, order is preserved
-		for _, n := range scope.Nodes(flowKey) {
-
+		// scope where order is preserved
+		for _, node := range scope.Sequence {
+			v.validate(node)
 		}
 		break
 	}
-	// if global scope, order is ignored
-	// validate and add all signatures and type declarations
-	validateTypeDeclarations(v)
-	// validateClassDeclarations()
-	// validateInterfaceDeclarations()
-	// validateFuncDeclarations()
-	// validateContractDeclaration
+}
+
+func (v *Validator) addDeclaration(name string, node ast.Node) {
+	//v.scope.declaredTypes[name]
+}
+
+func (v *Validator) validate(node ast.Node) {
+	if node.Type() == ast.CallExpression {
+
+	} else {
+		v.validateStatement(node)
+	}
 }
 
 type Validator struct {

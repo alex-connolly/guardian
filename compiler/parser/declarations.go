@@ -26,7 +26,7 @@ func parseInterfaceDeclaration(p *Parser) {
 		Body:       body,
 	}
 
-	p.Scope.Declare(interfaceKey, node)
+	p.Scope.AddDeclaration(identifier, node)
 }
 
 func parseEnumDeclaration(p *Parser) {
@@ -50,7 +50,7 @@ func parseEnumDeclaration(p *Parser) {
 		Body:       body,
 	}
 
-	p.Scope.Declare(enumKey, node)
+	p.Scope.AddDeclaration(identifier, node)
 }
 
 // like any list parser, but enforces that each node must be a reference
@@ -96,7 +96,7 @@ func parseClassDeclaration(p *Parser) {
 		Body:       body,
 	}
 
-	p.Scope.Declare(classKey, node)
+	p.Scope.AddDeclaration(identifier, node)
 }
 
 func parseContractDeclaration(p *Parser) {
@@ -138,7 +138,7 @@ func parseContractDeclaration(p *Parser) {
 		Body:       body,
 	}
 
-	p.Scope.Declare(contractKey, node)
+	p.Scope.AddDeclaration(identifier, node)
 }
 
 func (p *Parser) parseType() ast.Node {
@@ -221,7 +221,7 @@ func parseFuncDeclaration(p *Parser) {
 		Body:       body,
 	}
 
-	p.Scope.Declare(funcKey, node)
+	p.Scope.AddDeclaration(identifier, node)
 }
 
 func parseConstructorDeclaration(p *Parser) {
@@ -237,7 +237,7 @@ func parseConstructorDeclaration(p *Parser) {
 		Body:       body,
 	}
 
-	p.Scope.Declare(constructorKey, node)
+	p.Scope.AddDeclaration(constructorKey, node)
 }
 
 func parseTypeDeclaration(p *Parser) {
@@ -251,7 +251,7 @@ func parseTypeDeclaration(p *Parser) {
 		Value:      value,
 	}
 
-	p.Scope.Declare(typeKey, n)
+	p.Scope.AddDeclaration(identifier, n)
 }
 
 func (p *Parser) parseMapType() ast.Node {
@@ -304,8 +304,8 @@ func parseExplicitVarDeclaration(p *Parser) {
 		Identifiers:  names,
 		DeclaredType: dType,
 	}
-
-	p.Scope.Declare(varKey, node)
+	// surely needs to be a declaration in some contexts
+	p.Scope.AddSequential(node)
 }
 
 func parseEventDeclaration(p *Parser) {
@@ -323,5 +323,5 @@ func parseEventDeclaration(p *Parser) {
 		Identifier: name,
 		Parameters: types,
 	}
-	p.Scope.Declare(eventKey, node)
+	p.Scope.AddDeclaration(name, node)
 }
