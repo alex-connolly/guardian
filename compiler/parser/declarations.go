@@ -224,15 +224,16 @@ func parseFuncDeclaration(p *Parser) {
 	p.Scope.AddDeclaration(identifier, node)
 }
 
-func parseConstructorDeclaration(p *Parser) {
+func parseLifecycleDeclaration(p *Parser) {
 
-	p.parseRequired(lexer.TknConstructor)
+	typ := p.parseRequired(lexer.GetLifecycles()...)
 
 	params := p.parseParameters()
 
 	body := p.parseEnclosedScope(ast.ExplicitVarDeclaration, ast.FuncDeclaration)
 
-	node := ast.ConstructorDeclarationNode{
+	node := ast.LifecycleDeclarationNode{
+		Type:       typ,
 		Parameters: params,
 		Body:       body,
 	}

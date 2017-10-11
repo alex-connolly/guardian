@@ -61,14 +61,6 @@ type TypeScope struct {
 	declaredTypes map[string]Type
 }
 
-func (v *Validator) validateStatement(node ast.Node) {
-	switch node.Type() {
-	case ast.AssignmentStatement:
-		v.validateAssignment(node.(ast.AssignmentStatementNode))
-		break
-	}
-}
-
 func NewValidator() *Validator {
 	return &Validator{
 		scope: new(TypeScope),

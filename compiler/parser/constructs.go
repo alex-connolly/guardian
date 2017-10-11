@@ -12,7 +12,7 @@ func getPrimaryConstructs() []construct {
 		construct{"contract declaration", isContractDeclaration, parseContractDeclaration},
 		construct{"interface declaration", isInterfaceDeclaration, parseInterfaceDeclaration},
 		construct{"func declaration", isFuncDeclaration, parseFuncDeclaration},
-		construct{"constructor declaration", isConstructorDeclaration, parseConstructorDeclaration},
+		construct{"lifecycle declaration", isLifecycleDeclaration, parseLifecycleDeclaration},
 		construct{"enum declaration", isEnumDeclaration, parseEnumDeclaration},
 		construct{"type declaration", isTypeDeclaration, parseTypeDeclaration},
 		construct{"event declaration", isEventDeclaration, parseEventDeclaration},

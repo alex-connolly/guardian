@@ -54,8 +54,8 @@ func isInterfaceDeclaration(p *Parser) bool {
 	return p.isNextToken(lexer.TknInterface)
 }
 
-func isConstructorDeclaration(p *Parser) bool {
-	return p.isNextToken(lexer.TknConstructor)
+func isLifecycleDeclaration(p *Parser) bool {
+	return p.isNextToken(lexer.GetLifecycles()...)
 }
 
 func isEnumDeclaration(p *Parser) bool {

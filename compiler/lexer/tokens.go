@@ -23,6 +23,10 @@ func (t TokenType) IsUnaryOperator() bool {
 	return false
 }
 
+func GetLifecycles() []TokenType {
+	return []TokenType{TknConstructor, TknDestructor}
+}
+
 const (
 	TknIdentifier TokenType = iota
 	TknNumber
