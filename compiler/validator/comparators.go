@@ -42,7 +42,7 @@ func (f Func) compare(t Type) bool {
 	if !ok {
 		return false
 	}
-	// funcs are equal if they share the same params and results
+	// func types are equal if they share the same params and results
 	return f.Params.compare(other.Params) && f.Results.compare(other.Results)
 }
 

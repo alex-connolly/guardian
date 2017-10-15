@@ -1,6 +1,6 @@
 package ast
 
-import "axia/guardian/compiler/lexer"
+import "github.com/end-r/guardian/compiler/lexer"
 
 type TypeDeclarationNode struct {
 	Identifier string
@@ -71,7 +71,7 @@ func (n FuncTypeNode) Type() NodeType { return FuncType }
 
 type ExplicitVarDeclarationNode struct {
 	Identifiers  []string
-	DeclaredType Node
+	DeclaredType ReferenceNode
 }
 
 func (n ExplicitVarDeclarationNode) Type() NodeType { return ExplicitVarDeclaration }

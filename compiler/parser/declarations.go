@@ -125,7 +125,7 @@ func parseContractDeclaration(p *Parser) {
 		ast.ClassDeclaration, ast.InterfaceDeclaration,
 		ast.EventDeclaration, ast.ExplicitVarDeclaration,
 		ast.TypeDeclaration, ast.EnumDeclaration,
-		ast.ConstructorDeclaration, ast.FuncDeclaration,
+		ast.LifecycleDeclaration, ast.FuncDeclaration,
 	}
 
 	body := p.parseEnclosedScope(valids...)

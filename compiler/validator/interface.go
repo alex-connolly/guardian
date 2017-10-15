@@ -67,6 +67,12 @@ func NewValidator() *Validator {
 	}
 }
 
+func (v *Validator) requireVisibleType(names ...string) {
+	if v.findReference(names...) == standards[Invalid] {
+		v.addError("Type %s is not visible", makeName(names))
+	}
+}
+
 // BUG: type lookup, should check that "a" is a valid type
 // BUG: shouldn't return the underlying type --> abstraction
 func (v *Validator) DeclareType(name string, t Type) {

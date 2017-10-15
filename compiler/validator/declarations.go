@@ -22,8 +22,8 @@ func (v *Validator) validateDeclaration(node ast.Node) {
 	case ast.EventDeclaration:
 		v.validateEventDeclaration(node.(ast.EventDeclarationNode))
 		break
-	case ast.ConstructorDeclaration:
-		v.validateConstructorDeclaration(node.(ast.ConstructorDeclarationNode))
+	case ast.LifecycleDeclaration:
+		v.validateLifecycleDeclaration(node.(ast.LifecycleDeclarationNode))
 		break
 	}
 }
@@ -43,12 +43,23 @@ func (v *Validator) validateTypeDeclaration(node ast.TypeDeclarationNode) {
 func (v *Validator) validateClassDeclaration(node ast.ClassDeclarationNode) {
 	// a valid class satisfies the following properties:
 	// interfaces must be valid types
+	for _, inter := range node.Interfaces {
+		v.requireVisibleType(inter.Names...)
+	}
+	// TODO: add a reporting mechanism for non-implemented interfaces
 	// superclasses must be valid types
+	for _, super := range node.Supers {
+		v.requireVisibleType(super.Names...)
+	}
 }
 
 func (v *Validator) validateContractDeclaration(node ast.ContractDeclarationNode) {
 	// a valid contract satisfies the following properties:
 	// superclasses must be valid types
+	for _, super := range node.Supers {
+		v.requireVisibleType(super.Names...)
+	}
+
 }
 
 func (v *Validator) validateEnumDeclaration(node ast.EnumDeclarationNode) {
@@ -60,10 +71,18 @@ func (v *Validator) validateEventDeclaration(node ast.EventDeclarationNode) {
 	// a valid event satisfies the following properties:
 	// no repeated parameter names
 	// all parameter types are visible in scope
+	for _, n := range node.Parameters {
+		v.requireVisibleType(n.Names...)
+	}
 }
 
-func (v *Validator) validateConstructorDeclaration(node ast.EventDeclarationNode) {
+func (v *Validator) validateLifecycleDeclaration(node ast.LifecycleDeclarationNode) {
 	// a valid constructor satisfies the following properties:
 	// no repeated parameter names
 	// all parameter types are visible in scope
+	for _, p := range node.Parameters {
+		for _, n := range p.DeclaredType {
+			v.requireVisibleType(n.Names...)
+		}
+	}
 }
