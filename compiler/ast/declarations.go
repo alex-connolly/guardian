@@ -71,7 +71,7 @@ func (n FuncTypeNode) Type() NodeType { return FuncType }
 
 type ExplicitVarDeclarationNode struct {
 	Identifiers  []string
-	DeclaredType ReferenceNode
+	DeclaredType Node
 }
 
 func (n ExplicitVarDeclarationNode) Type() NodeType { return ExplicitVarDeclaration }
@@ -83,11 +83,7 @@ type EventDeclarationNode struct {
 
 func (n EventDeclarationNode) Type() NodeType { return EventDeclaration }
 
-// constructors are functions
-// have their own type to distinguish them from functions
-// declared as construtor(params) {
-//
-// }
+// LifecycleDeclarationNode ...
 type LifecycleDeclarationNode struct {
 	Category   lexer.TokenType
 	Parameters []ExplicitVarDeclarationNode
