@@ -54,8 +54,10 @@ func TestResolveArrayLiteralExpression(t *testing.T) {
 	v := NewValidator()
 
 	a := ast.ArrayLiteralNode{}
-	a.Key = ast.ReferenceNode{
-		Names: []string{"dog"},
+	a.Signature = ast.ArrayTypeNode{
+		Value: ast.ReferenceNode{
+			Names: []string{"dog"},
+		},
 	}
 	_, ok := v.resolveExpression(a).(Array)
 	goutil.Assert(t, ok, "wrong base type")
@@ -66,12 +68,15 @@ func TestResolveMapLiteralExpression(t *testing.T) {
 	a := ast.MapLiteralNode{}
 	v.DeclareType("dog", standards[String])
 	v.DeclareType("cat", standards[String])
-	a.Key = ast.ReferenceNode{
-		Names: []string{"dog"},
+	a.Signature = ast.MapTypeNode{
+		Key: ast.ReferenceNode{
+			Names: []string{"dog"},
+		},
+		Value: ast.ReferenceNode{
+			Names: []string{"cat"},
+		},
 	}
-	a.Value = ast.ReferenceNode{
-		Names: []string{"cat"},
-	}
+
 	m, ok := v.resolveExpression(a).(Map)
 	goutil.AssertNow(t, ok, "wrong base type")
 	goutil.Assert(t, WriteType(m.Key) == "dog", fmt.Sprintf("wrong key written: %s", WriteType(m.Key)))
@@ -81,8 +86,10 @@ func TestResolveMapLiteralExpression(t *testing.T) {
 func TestResolveIndexExpressionArrayLiteral(t *testing.T) {
 	//v := NewValidator()
 	a := ast.ArrayLiteralNode{}
-	a.Key = ast.ReferenceNode{
-		Names: []string{"cat"},
+	a.Signature = ast.ArrayTypeNode{
+		Value: ast.ReferenceNode{
+			Names: []string{"cat"},
+		},
 	}
 	e := ast.IndexExpressionNode{}
 	e.Expression = a

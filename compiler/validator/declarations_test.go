@@ -22,39 +22,39 @@ func TestValidateEnumDecl(t *testing.T) {
 
 func TestValidateEventDeclEmpty(t *testing.T) {
 	p := parser.ParseString("event Dog()")
-	errs := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(errs) == 0, fmt.Sprintf("wrong err length: %s", len(errs)))
+	v := ValidateScope(p.Scope)
+	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %s", len(v.errors)))
 }
 
 func TestValidateEventDeclValidSingle(t *testing.T) {
 	p := parser.ParseString("event Dog(int)")
-	errs := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(errs) == 0, fmt.Sprintf("wrong err length: %s", len(errs)))
+	v := ValidateScope(p.Scope)
+	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %s", len(v.errors)))
 }
 
 func TestValidateEventDeclValidMultiple(t *testing.T) {
 	p := parser.ParseString("event Dog(int, string)")
-	errs := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(errs) == 0, fmt.Sprintf("wrong err length: %s", len(errs)))
+	v := ValidateScope(p.Scope)
+	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %s", len(v.errors)))
 }
 
 func TestValidateEventDeclInvalidSingle(t *testing.T) {
 	p := parser.ParseString("event Dog(Cat)")
-	errs := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(errs) == 1, fmt.Sprintf("wrong err length: %s", len(errs)))
+	v := ValidateScope(p.Scope)
+	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %s", len(v.errors)))
 }
 
 func TestValidateEventDeclInvalidMultiple(t *testing.T) {
 	p := parser.ParseString("event Dog(Cat, Animal)")
-	errs := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(errs) == 2, fmt.Sprintf("wrong err length: %s", len(errs)))
+	v := ValidateScope(p.Scope)
+	goutil.AssertNow(t, len(v.errors) == 2, fmt.Sprintf("wrong err length: %s", len(v.errors)))
 
 }
 
 func TestValidateEventDeclMixed(t *testing.T) {
 	p := parser.ParseString("event Dog(int, Cat)")
-	errs := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(errs) == 1, fmt.Sprintf("wrong err length: %s", len(errs)))
+	v := ValidateScope(p.Scope)
+	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %s", len(v.errors)))
 }
 
 func TestValidateFuncDecl(t *testing.T) {

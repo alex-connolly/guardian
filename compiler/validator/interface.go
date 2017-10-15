@@ -7,9 +7,10 @@ import (
 )
 
 // ValidateScope validates an ast...
-func ValidateScope(scope *ast.ScopeNode) {
+func ValidateScope(scope *ast.ScopeNode) *Validator {
 	v := new(Validator)
 	v.validateScope(scope)
+	return v
 }
 
 func (v *Validator) validateScope(scope *ast.ScopeNode) {

@@ -8,6 +8,7 @@ import (
 
 func TestValidateAssignment(t *testing.T) {
 	v := NewValidator()
-	node := new(ast.AssignmentStatementNode)
+	node := ast.AssignmentStatementNode{}
+
 	v.validateAssignment(node)
 }
