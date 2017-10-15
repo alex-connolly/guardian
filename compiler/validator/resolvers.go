@@ -6,6 +6,80 @@ import (
 	"github.com/end-r/guardian/compiler/ast"
 )
 
+func (v *Validator) resolveType(node ast.Node) Type {
+	switch node.Type() {
+	case ast.Reference:
+		ref := node.(ast.ReferenceNode)
+		return v.findReference(ref.Names...)
+	case ast.MapType:
+		m := node.(ast.MapTypeNode)
+		return v.resolveMapType(m)
+	case ast.ArrayType:
+		a := node.(ast.ArrayTypeNode)
+		return v.resolveArrayType(a)
+	case ast.FuncType:
+		f := node.(ast.FuncTypeNode)
+		return v.resolveFuncType(f)
+	}
+	return standards[Invalid]
+}
+
+func (v *Validator) resolveArrayType(node ast.ArrayTypeNode) Array {
+	a := Array{}
+	a.Value = v.resolveType(node.Value)
+	return a
+}
+
+func (v *Validator) resolveMapType(node ast.MapTypeNode) Map {
+	m := Map{}
+	m.Key = v.resolveType(node.Key)
+	m.Value = v.resolveType(node.Value)
+	return m
+}
+
+func (v *Validator) resolveFuncType(node ast.FuncTypeNode) Func {
+	f := Func{}
+	f.Params = v.resolveTuple(node.Parameters)
+	f.Results = v.resolveTuple(node.Results)
+	return f
+}
+
+func (v *Validator) resolveTuple(nodes []ast.Node) Tuple {
+	t := Tuple{}
+	t.types = make([]Type, len(nodes))
+	for i, n := range nodes {
+		t.types[i] = v.resolveType(n)
+	}
+	return t
+}
+
+func (v *Validator) validateType(node ast.Node) {
+	switch node.Type() {
+	case ast.Reference:
+		ref := node.(ast.ReferenceNode)
+		v.requireVisibleType(ref.Names...)
+		break
+	case ast.MapType:
+		ref := node.(ast.MapTypeNode)
+		v.validateType(ref.Key)
+		v.validateType(ref.Value)
+		break
+	case ast.ArrayType:
+		ref := node.(ast.ArrayTypeNode)
+		v.validateType(ref.Value)
+		break
+	case ast.FuncType:
+		ref := node.(ast.FuncTypeNode)
+		for _, p := range ref.Parameters {
+			v.validateType(p)
+		}
+		for _, r := range ref.Results {
+			v.validateType(r)
+		}
+		break
+	}
+}
+
 func (v *Validator) resolveExpression(e ast.ExpressionNode) Type {
 	resolvers := map[ast.NodeType]resolver{
 		ast.Literal:          resolveLiteralExpression,
@@ -99,27 +173,27 @@ func resolveSliceExpression(v *Validator, e ast.ExpressionNode) Type {
 
 func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
-	/*b := e.(ast.BinaryExpressionNode)
+	b := e.(ast.BinaryExpressionNode)
 	// rules for binary Expressions
 	leftType := v.resolveExpression(b.Left)
 	rightType := v.resolveExpression(b.Left)
-	switch leftType.(type) {
-	case standards[String]:
-		// TODO: error if rightType != string
+	if leftType.compare(standards[String]) {
+		if !rightType.compare(standards[String]) {
+			v.addError(errInvalidBinaryOpTypes, "placeholder", WriteType(leftType), WriteType(rightType))
+		}
 		return standards[String]
-	case standards[Int]:
-		// TODO: error if rightType != string
-		return standards[Int]
-	}*/
+	} else if leftType.compare(standards[Int]) {
+
+	}
+
 	// else it is a type which is not defined for binary operators
 	return standards[Invalid]
 }
 
 func resolveUnaryExpression(v *Validator, e ast.ExpressionNode) Type {
-	// must be literal
-	//m := e.(ast.UnaryExpressionNode)
-	//operandType := v.resolveExpression(m.Operand)
-	return standards[Invalid]
+	m := e.(ast.UnaryExpressionNode)
+	operandType := v.resolveExpression(m.Operand)
+	return operandType
 }
 
 func resolveReference(v *Validator, e ast.ExpressionNode) Type {

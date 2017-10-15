@@ -13,7 +13,7 @@ func (n TypeDeclarationNode) Type() NodeType { return TypeDeclaration }
 type FuncDeclarationNode struct {
 	Identifier string
 	Parameters []ExplicitVarDeclarationNode
-	Results    []ReferenceNode
+	Results    []Node
 	Body       *ScopeNode
 	IsAbstract bool
 }

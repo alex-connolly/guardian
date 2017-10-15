@@ -32,6 +32,17 @@ func (v *Validator) validateFuncDeclaration(node ast.FuncDeclarationNode) {
 	// a valid function satisfies the following properties:
 	// no repeated parameter names
 	// all parameter types are visible in scope
+
+	for _, p := range node.Parameters {
+		for _, i := range p.Identifiers {
+			v.addDeclaration(i, p.DeclaredType)
+			v.validateType(p.DeclaredType)
+		}
+	}
+
+	for _, r := range node.Results {
+		v.validateType(r)
+	}
 }
 
 func (v *Validator) validateTypeDeclaration(node ast.TypeDeclarationNode) {

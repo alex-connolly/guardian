@@ -151,6 +151,16 @@ func (p *Parser) parseType() ast.Node {
 	return p.parseReference()
 }
 
+func (p *Parser) parseTypeList() []ast.Node {
+	types := make([]ast.Node, 0)
+	first := p.parseType()
+	types = append(types, first)
+	for p.parseOptional(lexer.TknComma) {
+		types = append(types, p.parseType())
+	}
+	return types
+}
+
 func (p *Parser) parseVarDeclaration() ast.ExplicitVarDeclarationNode {
 	var names []string
 	names = append(names, p.parseIdentifier())
@@ -187,14 +197,14 @@ func (p *Parser) parseParameters() []ast.ExplicitVarDeclarationNode {
 // (string, string) {
 // or none
 // {
-func (p *Parser) parseResults() []ast.ReferenceNode {
+func (p *Parser) parseResults() []ast.Node {
 	if p.parseOptional(lexer.TknOpenBracket) {
-		refs := p.parseReferenceList()
+		types := p.parseTypeList()
 		p.parseRequired(lexer.TknCloseBracket)
-		return refs
+		return types
 	}
 	if p.current().Type == lexer.TknIdentifier {
-		return p.parseReferenceList()
+		return p.parseTypeList()
 	}
 	return nil
 }
