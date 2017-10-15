@@ -25,7 +25,7 @@ func (v *Validator) validateScope(scope *ast.ScopeNode) {
 		for k, node := range scope.Declarations {
 			v.addDeclaration(k, node)
 		}
-		for k, node := range scope.Declarations {
+		for _, node := range scope.Declarations {
 			v.validateDeclaration(node)
 		}
 		break
@@ -94,6 +94,80 @@ func (v *Validator) findReference(names ...string) Type {
 		}
 	}
 	return standards[Invalid]
+}
+
+func (v *Validator) resolveType(node ast.Node) Type {
+	switch node.Type() {
+	case ast.Reference:
+		ref := node.(ast.ReferenceNode)
+		return v.findReference(ref.Names...)
+	case ast.MapType:
+		m := node.(ast.MapTypeNode)
+		return v.resolveMapType(m)
+	case ast.ArrayType:
+		a := node.(ast.ArrayTypeNode)
+		return v.resolveArrayType(a)
+	case ast.FuncType:
+		f := node.(ast.FuncTypeNode)
+		return v.resolveFuncType(f)
+	}
+	return standards[Invalid]
+}
+
+func (v *Validator) resolveArrayType(node ast.ArrayTypeNode) Array {
+	a := Array{}
+	a.Value = v.resolveType(node.Value)
+	return a
+}
+
+func (v *Validator) resolveMapType(node ast.MapTypeNode) Map {
+	m := Map{}
+	m.Key = v.resolveType(node.Key)
+	m.Value = v.resolveType(node.Value)
+	return m
+}
+
+func (v *Validator) resolveFuncType(node ast.FuncTypeNode) Func {
+	f := Func{}
+	f.Params = v.resolveTuple(node.Parameters)
+	f.Results = v.resolveTuple(node.Results)
+	return f
+}
+
+func (v *Validator) resolveTuple(nodes []ast.Node) Tuple {
+	t := Tuple{}
+	t.types = make([]Type, len(nodes))
+	for i, n := range nodes {
+		t.types[i] = v.resolveType(n)
+	}
+	return t
+}
+
+func (v *Validator) validateType(node ast.Node) {
+	switch node.Type() {
+	case ast.Reference:
+		ref := node.(ast.ReferenceNode)
+		v.requireVisibleType(ref.Names...)
+		break
+	case ast.MapType:
+		ref := node.(ast.MapTypeNode)
+		v.validateType(ref.Key)
+		v.validateType(ref.Value)
+		break
+	case ast.ArrayType:
+		ref := node.(ast.ArrayTypeNode)
+		v.validateType(ref.Value)
+		break
+	case ast.FuncType:
+		ref := node.(ast.FuncTypeNode)
+		for _, p := range ref.Parameters {
+			v.validateType(p)
+		}
+		for _, r := range ref.Results {
+			v.validateType(r)
+		}
+		break
+	}
 }
 
 func makeName(names []string) string {

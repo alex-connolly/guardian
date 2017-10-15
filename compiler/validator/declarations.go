@@ -84,30 +84,3 @@ func (v *Validator) validateLifecycleDeclaration(node ast.LifecycleDeclarationNo
 		v.validateType(p.DeclaredType)
 	}
 }
-
-func (v *Validator) validateType(node ast.Node) {
-	switch node.Type() {
-	case ast.Reference:
-		ref := node.(ast.ReferenceNode)
-		v.requireVisibleType(ref.Names...)
-		break
-	case ast.MapType:
-		ref := node.(ast.MapTypeNode)
-		v.validateType(ref.Key)
-		v.validateType(ref.Value)
-		break
-	case ast.ArrayType:
-		ref := node.(ast.ArrayTypeNode)
-		v.validateType(ref.Value)
-		break
-	case ast.FuncType:
-		ref := node.(ast.FuncTypeNode)
-		for _, p := range ref.Parameters {
-			v.validateType(p)
-		}
-		for _, r := range ref.Results {
-			v.validateType(r)
-		}
-		break
-	}
-}

@@ -67,9 +67,9 @@ func (v *Validator) validateSwitchStatement(node ast.SwitchStatementNode) {
 	// target must be matched by all cases
 	for _, clause := range node.Cases.Sequence {
 
-		/*for _, expr := range clause.Expressions {
+		for _, expr := range clause.Expressions {
 			v.requireType(switchType, v.resolveExpression(expr))
-		}*/
+		}
 		//v.validateScope(clause.Block)
 	}
 

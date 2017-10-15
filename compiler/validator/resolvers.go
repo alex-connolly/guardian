@@ -40,7 +40,7 @@ func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	m := e.(ast.ArrayLiteralNode)
-	keyType := v.findReference(m.Key.Names...)
+	keyType := v.resolveType(m.Signature.Value)
 	arrayType := NewArray(keyType)
 	return arrayType
 }
@@ -48,8 +48,8 @@ func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 func resolveMapLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	m := e.(ast.MapLiteralNode)
-	keyType := v.findReference(m.Key.Names...)
-	valueType := v.findReference(m.Value.Names...)
+	keyType := v.resolveType(m.Signature.Key)
+	valueType := v.resolveType(m.Signature.Value)
 	mapType := NewMap(keyType, valueType)
 	return mapType
 }
