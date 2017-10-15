@@ -108,7 +108,6 @@ func TestParseContractDeclarationMultipleInterfaceMultipleInheritance(t *testing
 	p := createParser(`contract Wagable inherits A,B is Visible, Movable  {}`)
 	goutil.Assert(t, isContractDeclaration(p), "should detect contract decl")
 	parseContractDeclaration(p)
-	goutil.Assert(t, len(p.Scope.Nodes("contract")) == 1, "wrong node count")
 	n := p.Scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.ContractDeclaration, "wrong node type")
 	i := n.(ast.ContractDeclarationNode)
@@ -467,8 +466,8 @@ func TestParseFuncNoParameters(t *testing.T) {
 	p := createParser(`func foo(){}`)
 	goutil.Assert(t, isFuncDeclaration(p), "should detect func decl")
 	parseFuncDeclaration(p)
-	goutil.Assert(t, len(p.Scope.Nodes(funcKey)) == 1, "wrong node count")
-	n := p.Scope.Nodes(funcKey)[0]
+
+	n := p.Scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
 	f := n.(ast.FuncDeclarationNode)
 	goutil.AssertNow(t, len(f.Parameters) == 0,
@@ -479,8 +478,8 @@ func TestParseFuncOneParameter(t *testing.T) {
 	p := createParser(`func foo(a int){}`)
 	goutil.Assert(t, isFuncDeclaration(p), "should detect func decl")
 	parseFuncDeclaration(p)
-	goutil.Assert(t, len(p.Scope.Nodes(funcKey)) == 1, "wrong node count")
-	n := p.Scope.Nodes(funcKey)[0]
+
+	n := p.Scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
 	f := n.(ast.FuncDeclarationNode)
 	goutil.AssertNow(t, len(f.Parameters) == 1, "wrong param length")
@@ -490,8 +489,8 @@ func TestParseFuncParameters(t *testing.T) {
 	p := createParser(`func foo(a int, b string){}`)
 	goutil.Assert(t, isFuncDeclaration(p), "should detect func decl")
 	parseFuncDeclaration(p)
-	goutil.Assert(t, len(p.Scope.Nodes(funcKey)) == 1, "wrong node count")
-	n := p.Scope.Nodes(funcKey)[0]
+
+	n := p.Scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
 	f := n.(ast.FuncDeclarationNode)
 	goutil.AssertNow(t, len(f.Parameters) == 2, "wrong param length")
@@ -501,8 +500,7 @@ func TestParseFuncMultiplePerType(t *testing.T) {
 	p := createParser(`func foo(a, b int){}`)
 	goutil.Assert(t, isFuncDeclaration(p), "should detect func decl")
 	parseFuncDeclaration(p)
-	goutil.Assert(t, len(p.Scope.Nodes(funcKey)) == 1, "wrong node count")
-	n := p.Scope.Nodes(funcKey)[0]
+	n := p.Scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
 	f := n.(ast.FuncDeclarationNode)
 	goutil.AssertNow(t, len(f.Parameters) == 1, "wrong param length")
@@ -512,8 +510,8 @@ func TestParseFuncMultiplePerTypeExtra(t *testing.T) {
 	p := createParser(`func foo(a, b int, c string){}`)
 	goutil.Assert(t, isFuncDeclaration(p), "should detect func decl")
 	parseFuncDeclaration(p)
-	goutil.Assert(t, len(p.Scope.Nodes(funcKey)) == 1, "wrong node count")
-	n := p.Scope.Nodes(funcKey)[0]
+
+	n := p.Scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
 	f := n.(ast.FuncDeclarationNode)
 	goutil.AssertNow(t, len(f.Parameters) == 2, "wrong param length")
@@ -521,55 +519,50 @@ func TestParseFuncMultiplePerTypeExtra(t *testing.T) {
 
 func TestParseConstructorNoParameters(t *testing.T) {
 	p := createParser(`constructor(){}`)
-	goutil.Assert(t, isConstructorDeclaration(p), "should detect Constructor decl")
-	parseConstructorDeclaration(p)
-	goutil.Assert(t, len(p.Scope.Nodes(constructorKey)) == 1, "wrong node count")
-	n := p.Scope.Nodes(constructorKey)[0]
-	goutil.AssertNow(t, n.Type() == ast.ConstructorDeclaration, "wrong node type")
-	c := n.(ast.ConstructorDeclarationNode)
+	goutil.Assert(t, isLifecycleDeclaration(p), "should detect Constructor decl")
+	parseLifecycleDeclaration(p)
+	n := p.Scope.Next()
+	goutil.AssertNow(t, n.Type() == ast.LifecycleDeclaration, "wrong node type")
+	c := n.(ast.LifecycleDeclarationNode)
 	goutil.AssertNow(t, len(c.Parameters) == 0, "wrong param length")
 }
 
 func TestParseConstructorOneParameter(t *testing.T) {
 	p := createParser(`constructor(a int){}`)
-	goutil.Assert(t, isConstructorDeclaration(p), "should detect Constructor decl")
-	parseConstructorDeclaration(p)
-	goutil.Assert(t, len(p.Scope.Nodes(constructorKey)) == 1, "wrong node count")
-	n := p.Scope.Nodes(constructorKey)[0]
-	goutil.AssertNow(t, n.Type() == ast.ConstructorDeclaration, "wrong node type")
-	c := n.(ast.ConstructorDeclarationNode)
+	goutil.Assert(t, isLifecycleDeclaration(p), "should detect Constructor decl")
+	parseLifecycleDeclaration(p)
+	n := p.Scope.Next()
+	goutil.AssertNow(t, n.Type() == ast.LifecycleDeclaration, "wrong node type")
+	c := n.(ast.LifecycleDeclarationNode)
 	goutil.AssertNow(t, len(c.Parameters) == 1, "wrong param length")
 }
 
 func TestParseConstructorParameters(t *testing.T) {
 	p := createParser(`constructor(a int, b string){}`)
-	goutil.Assert(t, isConstructorDeclaration(p), "should detect Constructor decl")
-	parseConstructorDeclaration(p)
-	goutil.Assert(t, len(p.Scope.Nodes(constructorKey)) == 1, "wrong node count")
-	n := p.Scope.Nodes(constructorKey)[0]
-	goutil.AssertNow(t, n.Type() == ast.ConstructorDeclaration, "wrong node type")
-	c := n.(ast.ConstructorDeclarationNode)
+	goutil.Assert(t, isLifecycleDeclaration(p), "should detect Constructor decl")
+	parseLifecycleDeclaration(p)
+	n := p.Scope.Next()
+	goutil.AssertNow(t, n.Type() == ast.LifecycleDeclaration, "wrong node type")
+	c := n.(ast.LifecycleDeclarationNode)
 	goutil.AssertNow(t, len(c.Parameters) == 2, "wrong param length")
 }
 
 func TestParseConstructorMultiplePerType(t *testing.T) {
 	p := createParser(`constructor(a, b int){}`)
-	goutil.Assert(t, isConstructorDeclaration(p), "should detect Constructor decl")
-	parseConstructorDeclaration(p)
-	goutil.Assert(t, len(p.Scope.Nodes(constructorKey)) == 1, "wrong node count")
-	n := p.Scope.Nodes(constructorKey)[0]
-	goutil.AssertNow(t, n.Type() == ast.ConstructorDeclaration, "wrong node type")
-	c := n.(ast.ConstructorDeclarationNode)
+	goutil.Assert(t, isLifecycleDeclaration(p), "should detect Constructor decl")
+	parseLifecycleDeclaration(p)
+	n := p.Scope.Next()
+	goutil.AssertNow(t, n.Type() == ast.LifecycleDeclaration, "wrong node type")
+	c := n.(ast.LifecycleDeclarationNode)
 	goutil.AssertNow(t, len(c.Parameters) == 1, "wrong param length")
 }
 
 func TestParseConstructorMultiplePerTypeExtra(t *testing.T) {
 	p := createParser(`constructor(a, b int, c string){}`)
-	goutil.Assert(t, isConstructorDeclaration(p), "should detect Constructor decl")
-	parseConstructorDeclaration(p)
-	goutil.Assert(t, len(p.Scope.Nodes(constructorKey)) == 1, "wrong node count")
-	n := p.Scope.Nodes(constructorKey)[0]
-	goutil.AssertNow(t, n.Type() == ast.ConstructorDeclaration, "wrong node type")
-	c := n.(ast.ConstructorDeclarationNode)
+	goutil.Assert(t, isLifecycleDeclaration(p), "should detect Constructor decl")
+	parseLifecycleDeclaration(p)
+	n := p.Scope.Next()
+	goutil.AssertNow(t, n.Type() == ast.LifecycleDeclaration, "wrong node type")
+	c := n.(ast.LifecycleDeclarationNode)
 	goutil.AssertNow(t, len(c.Parameters) == 2, "wrong param length")
 }
