@@ -209,12 +209,9 @@ func (p *Parser) parseCallExpression(expr ast.ExpressionNode) (n ast.CallExpress
 
 func (p *Parser) parseArrayLiteral() (n ast.ArrayLiteralNode) {
 	// [string:3]{"Dog", "Cat", ""}
-	p.parseRequired(lexer.TknOpenSquare)
-	n.Key = p.parseReference()
-	if !p.parseOptional(lexer.TknCloseSquare) {
-		n.Size = p.parseExpression()
-		p.parseRequired(lexer.TknCloseSquare)
-	}
+
+	n.Signature = p.parseArrayType()
+
 	p.parseRequired(lexer.TknOpenBrace)
 	if !p.parseOptional(lexer.TknCloseBrace) {
 		n.Data = append(n.Data, p.parseExpression())
@@ -227,11 +224,9 @@ func (p *Parser) parseArrayLiteral() (n ast.ArrayLiteralNode) {
 }
 
 func (p *Parser) parseMapLiteral() (n ast.MapLiteralNode) {
-	p.parseRequired(lexer.TknMap)
-	p.parseRequired(lexer.TknOpenSquare)
-	n.Key = p.parseReference()
-	p.parseRequired(lexer.TknCloseSquare)
-	n.Value = p.parseReference()
+
+	n.Signature = p.parseMapType()
+
 	p.parseRequired(lexer.TknOpenBrace)
 	if !p.parseOptional(lexer.TknCloseBrace) {
 		firstKey := p.parseExpression()

@@ -255,7 +255,7 @@ func parseTypeDeclaration(p *Parser) {
 	p.Scope.AddDeclaration(identifier, n)
 }
 
-func (p *Parser) parseMapType() ast.Node {
+func (p *Parser) parseMapType() ast.MapTypeNode {
 
 	p.parseRequired(lexer.TknMap)
 	p.parseRequired(lexer.TknOpenSquare)
@@ -274,7 +274,7 @@ func (p *Parser) parseMapType() ast.Node {
 	return mapType
 }
 
-func (p *Parser) parseArrayType() ast.Node {
+func (p *Parser) parseArrayType() ast.ArrayTypeNode {
 	p.parseRequired(lexer.TknOpenSquare)
 
 	typ := p.parseType()
