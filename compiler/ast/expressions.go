@@ -62,24 +62,29 @@ type CallExpressionNode struct {
 func (n CallExpressionNode) Type() NodeType { return CallExpression }
 
 type ArrayLiteralNode struct {
-	Key  ReferenceNode
-	Size ExpressionNode
-	Data []ExpressionNode
+	Signature ArrayTypeNode
+	Data      []ExpressionNode
 }
 
 func (n ArrayLiteralNode) Type() NodeType { return ArrayLiteral }
 
 type MapLiteralNode struct {
-	Key   ReferenceNode
-	Value ReferenceNode
-	Data  map[ExpressionNode]ExpressionNode
+	Signature MapTypeNode
+	Data      map[ExpressionNode]ExpressionNode
 }
 
 func (n MapLiteralNode) Type() NodeType { return MapLiteral }
 
+type FuncLiteralNode struct {
+	Signature FuncTypeNode
+	Scope     ScopeNode
+}
+
+// Type ...
+func (n FuncLiteralNode) Type() NodeType { return FuncLiteral }
+
 type ReferenceNode struct {
-	InStorage bool
-	Names     []string
+	Names []string
 }
 
 func (n ReferenceNode) Type() NodeType { return Reference }

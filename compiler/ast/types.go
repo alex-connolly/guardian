@@ -22,6 +22,7 @@ const (
 	CompositeLiteral
 	MapLiteral
 	ArrayLiteral
+	FuncLiteral
 	BinaryExpression
 	UnaryExpression
 	GenericExpression
@@ -42,6 +43,26 @@ const (
 	File
 	Scope
 )
+
+type MapTypeNode struct {
+	Key   Node
+	Value Node
+}
+
+func (n MapTypeNode) Type() NodeType { return MapType }
+
+type ArrayTypeNode struct {
+	Value Node
+}
+
+func (n ArrayTypeNode) Type() NodeType { return ArrayType }
+
+type FuncTypeNode struct {
+	Parameters []Node
+	Results    []Node
+}
+
+func (n FuncTypeNode) Type() NodeType { return FuncType }
 
 func (t NodeType) isExpression() bool {
 	switch t {

@@ -50,25 +50,6 @@ type ContractDeclarationNode struct {
 
 func (n ContractDeclarationNode) Type() NodeType { return ContractDeclaration }
 
-type MapTypeNode struct {
-	Key   Node
-	Value Node
-}
-
-func (n MapTypeNode) Type() NodeType { return MapType }
-
-type ArrayTypeNode struct {
-	Value Node
-}
-
-func (n ArrayTypeNode) Type() NodeType { return ArrayType }
-
-type FuncTypeNode struct {
-	Value Node
-}
-
-func (n FuncTypeNode) Type() NodeType { return FuncType }
-
 type ExplicitVarDeclarationNode struct {
 	Identifiers  []string
 	DeclaredType Node
