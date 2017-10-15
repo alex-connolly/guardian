@@ -1,5 +1,7 @@
 package ast
 
+import "axia/guardian/compiler/lexer"
+
 type TypeDeclarationNode struct {
 	Identifier string
 	Value      Node
@@ -86,12 +88,13 @@ func (n EventDeclarationNode) Type() NodeType { return EventDeclaration }
 // declared as construtor(params) {
 //
 // }
-type ConstructorDeclarationNode struct {
+type LifecycleDeclarationNode struct {
+	Category   lexer.TokenType
 	Parameters []ExplicitVarDeclarationNode
 	Body       *ScopeNode
 }
 
-func (n ConstructorDeclarationNode) Type() NodeType { return ConstructorDeclaration }
+func (n LifecycleDeclarationNode) Type() NodeType { return LifecycleDeclaration }
 
 type EnumDeclarationNode struct {
 	Identifier string

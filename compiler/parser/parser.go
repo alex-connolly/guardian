@@ -73,18 +73,20 @@ func (p *Parser) parseOptional(t lexer.TokenType) bool {
 	return false
 }
 
-func (p *Parser) parseRequired(types ...lexer.TokenType) bool {
+// TODO: clarify what this actually returns
+func (p *Parser) parseRequired(types ...lexer.TokenType) lexer.TokenType {
 	if !p.hasTokens(1) {
-		return false
+		p.addError(fmt.Sprintf("Required %s, found nothing", "x"))
+		return p.current().Type
 	}
 	for _, t := range types {
 		if p.current().Type == t {
 			p.next()
-			return true
+			return t
 		}
 	}
 	p.addError(fmt.Sprintf("Required %s, found %d", "x", p.current().Type))
-	return false
+	return p.current().Type
 }
 
 func (p *Parser) parseIdentifier() string {
@@ -149,8 +151,5 @@ func (p *Parser) parseScope(valids ...ast.NodeType) *ast.ScopeNode {
 			p.next()
 		}
 	}
-	hi()
 	return nil
 }
-
-func hi() {}

@@ -226,14 +226,14 @@ func parseFuncDeclaration(p *Parser) {
 
 func parseLifecycleDeclaration(p *Parser) {
 
-	typ := p.parseRequired(lexer.GetLifecycles()...)
+	category := p.parseRequired(lexer.GetLifecycles()...)
 
 	params := p.parseParameters()
 
 	body := p.parseEnclosedScope(ast.ExplicitVarDeclaration, ast.FuncDeclaration)
 
 	node := ast.LifecycleDeclarationNode{
-		Type:       typ,
+		Category:   category,
 		Parameters: params,
 		Body:       body,
 	}
