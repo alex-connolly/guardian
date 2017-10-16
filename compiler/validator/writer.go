@@ -45,3 +45,8 @@ func (f Func) write(b *bytes.Buffer) {
 	f.Params.write(b)
 	f.Results.write(b)
 }
+
+func (c Class) write(b *bytes.Buffer) {
+	b.WriteString("class")
+	b.WriteString(c.Name)
+}

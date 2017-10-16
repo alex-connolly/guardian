@@ -32,6 +32,7 @@ func TestValidateEventDeclValidSingle(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
 	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	fmt.Println(v.errors)
 }
 
 func TestValidateEventDeclValidMultiple(t *testing.T) {

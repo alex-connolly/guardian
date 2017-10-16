@@ -54,3 +54,7 @@ func TestWriteFuncMultipleParamsMultipleResults(t *testing.T) {
 	expected := "func(int, string)(int, string)"
 	goutil.Assert(t, WriteType(m) == expected, fmt.Sprintf("wrong type written: %s\n", WriteType(m)))
 }
+
+func TestWriteClass(t *testing.T) {
+
+}

@@ -57,3 +57,12 @@ func (s StandardType) compare(t Type) bool {
 	}
 	return s.name == other.name
 }
+
+func (c Class) compare(t Type) bool {
+	_, ok := resolveUnderlying(t).(Class)
+	if !ok {
+		return false
+	}
+	// TODO:
+	return true
+}

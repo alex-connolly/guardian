@@ -186,6 +186,28 @@ func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) Type {
 
 	}
 
+	switch b.Operator {
+	case lexer.TknAdd:
+		// can be numeric or a string
+		if v.resolveExpression(b.Left).compare(standards[String]) {
+			return standards[String]
+		} else {
+			return standards[Int]
+		}
+	case lexer.TknSub, lexer.TknDiv, lexer.TknMul, lexer.TknMod:
+		// must be numeric
+		return standards[Int]
+	case lexer.TknGeq, lexer.TknLeq, lexer.TknLss, lexer.TknGtr, lexer.TknEql:
+		// must be numeric
+		return standards[Int]
+	case lexer.TknShl, lexer.TknShr, lexer.TknAnd, lexer.TknOr, lexer.TknXor:
+		// must be numeric
+		return standards[Int]
+	case lexer.TknLogicalAnd, lexer.TknLogicalOr:
+		// must be boolean
+		return standards[Bool]
+	}
+
 	// else it is a type which is not defined for binary operators
 	return standards[Invalid]
 }

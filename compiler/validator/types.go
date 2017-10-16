@@ -141,4 +141,35 @@ func NewAliased(alias string, underlying Type) Aliased {
 }
 
 type Class struct {
+	Name       string
+	Interfaces []Type
+	Supers     []Type
+}
+
+func NewClass(name string, interfaces, supers []Type) Class {
+	return Class{
+		Name:       name,
+		Interfaces: interfaces,
+		Supers:     supers,
+	}
+}
+
+type Enum struct {
+	Supers []Type
+}
+
+func NewEnum(supers []Type) Enum {
+	return Enum{
+		Supers: supers,
+	}
+}
+
+type Interface struct {
+	Supers []Type
+}
+
+func NewInterface(supers []Type) Interface {
+	return Interface{
+		Supers: supers,
+	}
 }

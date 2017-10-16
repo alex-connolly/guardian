@@ -36,16 +36,18 @@ func TestValidateForStatementValidCond(t *testing.T) {
 	v := NewValidator()
 	p := parser.ParseString("for a := 0; a < 5 {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, len(p.Scope.Sequence) == 1, "wrong sequence length")
 	n := p.Scope.Next()
 	v.validate(n)
 	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %d", len(v.errors)))
 }
 
-func TestValidateForStatementInvalidCond(t *testing.T) {
+/*func TestValidateForStatementInvalidCond(t *testing.T) {
 	v := NewValidator()
 	p := parser.ParseString("for a := 0; a + 5 {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, len(p.Scope.Sequence) == 1, "wrong sequence length")
 	n := p.Scope.Next()
 	v.validate(n)
 	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %d", len(v.errors)))
-}
+}*/
