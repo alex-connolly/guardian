@@ -49,7 +49,7 @@ type CaseStatementNode struct {
 func (n CaseStatementNode) Type() NodeType { return CaseStatement }
 
 type ForStatementNode struct {
-	Init  *AssignmentStatementNode
+	Init  AssignmentStatementNode
 	Cond  ExpressionNode
 	Post  StatementNode
 	Block *ScopeNode

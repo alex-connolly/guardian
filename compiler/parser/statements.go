@@ -88,7 +88,7 @@ func parseForStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknFor)
 	// parse init expr, can be nil
-	//init := p.parseAssignment()
+	init := p.parseAssignment()
 	// parse condition, required
 	cond := p.parseExpression()
 	// parse statement
@@ -97,13 +97,12 @@ func parseForStatement(p *Parser) {
 	body := p.parseEnclosedScope()
 
 	node := ast.ForStatementNode{
-		Init:  nil,
+		Init:  init,
 		Cond:  cond,
 		Post:  post,
 		Block: body,
 	}
 	p.Scope.AddSequential(node)
-
 }
 
 func parseCaseStatement(p *Parser) {

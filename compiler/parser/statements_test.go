@@ -84,7 +84,7 @@ func TestParseForStatementInitConditionStatement(t *testing.T) {
 	p := createParser(`for x := 0; x < 5; x++ {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
 	parseForStatement(p)
-
+	goutil.Assert(t, p.Scope != nil, "scope should not be nil")
 	first := p.Scope.Next()
 	goutil.Assert(t, first.Type() == ast.ForStatement, "wrong node type")
 	forStat := first.(ast.ForStatementNode)

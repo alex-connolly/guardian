@@ -20,11 +20,11 @@ func (v *Validator) validateScope(scope *ast.ScopeNode) {
 		declaredTypes: nil,
 	}
 	// there should be no declarations outside certain contexts
-	for k, pair := range scope.Declarations.Map {
-		v.addDeclaration(k, pair.Node)
+	for k, i := range scope.Declarations.Map() {
+		v.addDeclaration(k, i.(ast.Node))
 	}
-	for _, pair := range scope.Declarations.Array {
-		v.validateDeclaration(pair.Node)
+	for _, i := range scope.Declarations.Array() {
+		v.validateDeclaration(i.(ast.Node))
 	}
 	for _, node := range scope.Sequence {
 		v.validate(node)
