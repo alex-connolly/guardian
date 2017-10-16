@@ -19,24 +19,15 @@ func (v *Validator) validateScope(scope *ast.ScopeNode) {
 		scope:         scope,
 		declaredTypes: nil,
 	}
-
-	switch scope.Type() {
-	case ast.ContractDeclaration, ast.ClassDeclaration:
-		// scope where order-less declarations can be made
-
-		for s := scope.NextDeclaration(); s != nil; {
-			v.addDeclaration(k, pair.node)
-		}
-		for _, node := range scope.Declarations.Array {
-			v.validateDeclaration(node)
-		}
-		break
-	default:
-		// scope where order is preserved
-		for _, node := range scope.Sequence {
-			v.validate(node)
-		}
-		break
+	// there should be no declarations outside certain contexts
+	for k, pair := range scope.Declarations.Map {
+		v.addDeclaration(k, pair.node)
+	}
+	for _, node := range scope.Declarations.Array {
+		v.validateDeclaration(node)
+	}
+	for _, node := range scope.Sequence {
+		v.validate(node)
 	}
 }
 
