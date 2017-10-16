@@ -23,10 +23,10 @@ func (v *Validator) validateScope(scope *ast.ScopeNode) {
 	switch scope.Type() {
 	case ast.ContractDeclaration, ast.ClassDeclaration:
 		// scope where order-less declarations can be made
-		for k, node := range scope.Declarations {
-			v.addDeclaration(k, node)
+		for k, pair := range scope.Declarations.Map {
+			v.addDeclaration(k, pair.node)
 		}
-		for _, node := range scope.Declarations {
+		for _, node := range scope.Declarations.Array {
 			v.validateDeclaration(node)
 		}
 		break

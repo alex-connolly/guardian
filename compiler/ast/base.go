@@ -42,7 +42,7 @@ func (n *ScopeNode) NextDeclaration() Node {
 	if n.Declarations == nil {
 		return nil
 	}
-	return n.Declarations.Next()
+	return n.Declarations.Next().Node
 }
 
 func (n *ScopeNode) GetDeclaration(key string) Node {
