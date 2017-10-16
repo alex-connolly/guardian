@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/end-r/guardian/compiler/lexer"
-
 	"github.com/end-r/guardian/compiler/ast"
+	"github.com/end-r/guardian/compiler/lexer"
+	"github.com/end-r/guardian/compiler/parser"
 
 	"github.com/end-r/goutil"
 )
@@ -100,4 +100,8 @@ func createIndex() ast.ExpressionNode {
 	idx := ast.LiteralNode{}
 	idx.LiteralType = lexer.TknNumber
 	return idx
+}
+
+func TestResolveBinaryExpressionSimpleNumeric(t *testing.T) {
+	p := parser.ParseExpression("5 + 5")
 }

@@ -7,6 +7,13 @@ import (
 	"github.com/end-r/guardian/compiler/lexer"
 )
 
+// ParseExpression ...
+func ParseExpression(expr string) ast.ExpressionNode {
+	p := new(Parser)
+	p.lexer = lexer.LexString(expr)
+	return p.parseExpression()
+}
+
 // ParseFile ...
 func ParseFile(path string) *Parser {
 	p := new(Parser)
@@ -28,7 +35,6 @@ func ParseString(data string) *Parser {
 // ParseBytes ...
 func ParseBytes(data []byte) *Parser {
 	p := new(Parser)
-	p.Scope = new(ast.ScopeNode)
 	p.lexer = lexer.LexBytes(data)
 	p.Scope = p.parseScope(ast.ContractDeclaration)
 	return p
