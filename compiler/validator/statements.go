@@ -13,9 +13,6 @@ func (v *Validator) validateStatement(node ast.Node) {
 	case ast.IfStatement:
 		v.validateIfStatement(node.(ast.IfStatementNode))
 		break
-	case ast.CaseStatement:
-		v.validateCaseStatement(node.(ast.CaseStatementNode))
-		break
 	case ast.ReturnStatement:
 		v.validateReturnStatement(node.(ast.ReturnStatementNode))
 		break
@@ -53,11 +50,11 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 }
 
 func (v *Validator) validateIfStatement(node ast.IfStatementNode) {
-	//v.Validate(node.Init)
+	v.validateStatement(node.Init)
 	for _, cond := range node.Conditions {
 		// condition must be of type bool
 		v.requireType(standards[Bool], v.resolveExpression(cond.Condition))
-		//v.validateScope(cond.Body)
+		v.validateScope(cond.Body)
 	}
 }
 
@@ -67,18 +64,17 @@ func (v *Validator) validateSwitchStatement(node ast.SwitchStatementNode) {
 	// target must be matched by all cases
 	for _, node := range node.Cases.Sequence {
 		if node.Type() == ast.CaseStatement {
-			clause := node.(ast.CaseStatementNode)
-			for _, expr := range clause.Expressions {
-				v.requireType(switchType, v.resolveExpression(expr))
-			}
-			v.validateScope(clause.Block)
+			v.validateCaseStatement(switchType, node.(ast.CaseStatementNode))
 		}
 	}
 
 }
 
-func (v *Validator) validateCaseStatement(node ast.CaseStatementNode) {
-
+func (v *Validator) validateCaseStatement(switchType Type, clause ast.CaseStatementNode) {
+	for _, expr := range clause.Expressions {
+		v.requireType(switchType, v.resolveExpression(expr))
+	}
+	v.validateScope(clause.Block)
 }
 
 func (v *Validator) validateReturnStatement(node ast.ReturnStatementNode) {
@@ -88,6 +84,7 @@ func (v *Validator) validateReturnStatement(node ast.ReturnStatementNode) {
 	for scope.parent.scope.Type() != ast.FuncDeclaration {
 		scope = scope.parent
 	}
+
 	//fd := scope.scope
 
 }
@@ -100,7 +97,7 @@ func (v *Validator) validateForStatement(node ast.ForStatementNode) {
 	v.requireType(standards[Bool], v.resolveExpression(node.Cond))
 
 	// post statement must be valid
-	// v.Validate(node.Init)
+	v.validateStatement(node.Post)
 
-	// v.ValidateScope(node.Block)
+	v.validateScope(node.Block)
 }

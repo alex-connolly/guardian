@@ -9,12 +9,12 @@ import (
 
 // ParseFile ...
 func ParseFile(path string) *Parser {
+	p := new(Parser)
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
-		//log.Println(err)
+		p.addError("Unable to read file")
 		return nil
 	}
-	p := new(Parser)
 	p.lexer = lexer.LexBytes(bytes)
 	p.parseScope(ast.ContractDeclaration)
 	return p
@@ -28,7 +28,7 @@ func ParseString(data string) *Parser {
 // ParseBytes ...
 func ParseBytes(data []byte) *Parser {
 	p := new(Parser)
-	p.Scope = &ast.ScopeNode{}
+	p.Scope = new(ast.ScopeNode)
 	p.lexer = lexer.LexBytes(data)
 	p.Scope = p.parseScope(ast.ContractDeclaration)
 	return p

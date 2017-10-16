@@ -1,14 +1,51 @@
 package validator
 
 import (
+	"axia/guardian/compiler/parser"
+	"fmt"
 	"testing"
 
-	"github.com/end-r/guardian/compiler/ast"
+	"github.com/end-r/goutil"
 )
 
-func TestValidateAssignment(t *testing.T) {
+func TestValidateAssignmentValid(t *testing.T) {
 	v := NewValidator()
-	node := ast.AssignmentStatementNode{}
+	p := parser.ParseString(`
+			a := 0
+			a = 5
+		`)
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	n := p.Scope.Next()
+	v.validate(n)
+	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %s", len(v.errors)))
+}
 
-	v.validateAssignment(node)
+func TestValidateAssignmentInvalid(t *testing.T) {
+	v := NewValidator()
+	p := parser.ParseString(`
+			a := 0
+			a = "hello world"
+		`)
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	n := p.Scope.Next()
+	v.validate(n)
+	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %s", len(v.errors)))
+}
+
+func TestValidateForStatementValidCond(t *testing.T) {
+	v := NewValidator()
+	p := parser.ParseString("for a := 0; a < 5 {}")
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	n := p.Scope.Next()
+	v.validate(n)
+	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %s", len(v.errors)))
+}
+
+func TestValidateForStatementInvalidCond(t *testing.T) {
+	v := NewValidator()
+	p := parser.ParseString("for a := 0; a + 5 {}")
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	n := p.Scope.Next()
+	v.validate(n)
+	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %s", len(v.errors)))
 }

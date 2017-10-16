@@ -248,7 +248,7 @@ func parseLifecycleDeclaration(p *Parser) {
 		Body:       body,
 	}
 
-	p.Scope.AddDeclaration(constructorKey, node)
+	p.Scope.AddDeclaration("constructor", node)
 }
 
 func parseTypeDeclaration(p *Parser) {

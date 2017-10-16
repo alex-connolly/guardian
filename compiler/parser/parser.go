@@ -7,19 +7,6 @@ import (
 	"github.com/end-r/guardian/compiler/lexer"
 )
 
-const (
-	classKey       = "class"
-	contractKey    = "contract"
-	enumKey        = "enum"
-	flowKey        = "flow"
-	interfaceKey   = "interface"
-	varKey         = "var"
-	eventKey       = "event"
-	constructorKey = "constructor"
-	funcKey        = "func"
-	typeKey        = "type"
-)
-
 // Parser ...
 type Parser struct {
 	Scope      *ast.ScopeNode
@@ -147,7 +134,7 @@ func (p *Parser) parseScope(valids ...ast.NodeType) *ast.ScopeNode {
 		}
 		if !found {
 			//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.lexer.TokenString(p.current()))
-			p.addError(fmt.Sprintf("unrecognised construct: %s", p.lexer.TokenString(p.current())))
+			p.addError(fmt.Sprintf("Unrecognised construct: %s", p.lexer.TokenString(p.current())))
 			p.next()
 		}
 	}

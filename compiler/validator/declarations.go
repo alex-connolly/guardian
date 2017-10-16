@@ -49,6 +49,7 @@ func (v *Validator) validateTypeDeclaration(node ast.TypeDeclarationNode) {
 	// a valid function satisfies the following properties:
 	// cannot be self-referential
 	// must use a name without a previous definition in this scope
+	v.validateType(node.Value)
 }
 
 func (v *Validator) validateClassDeclaration(node ast.ClassDeclarationNode) {
@@ -75,7 +76,10 @@ func (v *Validator) validateContractDeclaration(node ast.ContractDeclarationNode
 
 func (v *Validator) validateEnumDeclaration(node ast.EnumDeclarationNode) {
 	// a valid enum satisfies the following properties:
-
+	// superclasses must be valid types
+	for _, super := range node.Inherits {
+		v.requireVisibleType(super.Names...)
+	}
 }
 
 func (v *Validator) validateEventDeclaration(node ast.EventDeclarationNode) {

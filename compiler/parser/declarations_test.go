@@ -14,6 +14,7 @@ func TestParseInterfaceDeclarationEmpty(t *testing.T) {
 	goutil.AssertNow(t, len(p.lexer.Tokens) == 4, "wrong token length")
 	goutil.Assert(t, isInterfaceDeclaration(p), "should detect interface decl")
 	parseInterfaceDeclaration(p)
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	n := p.Scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.InterfaceDeclaration, "wrong node type")
 	i := n.(ast.InterfaceDeclarationNode)

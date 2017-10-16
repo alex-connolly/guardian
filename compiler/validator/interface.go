@@ -48,7 +48,7 @@ func (v *Validator) addDeclaration(name string, node ast.Node) {
 
 func (v *Validator) validate(node ast.Node) {
 	if node.Type() == ast.CallExpression {
-
+		v.validateCallExpression(node.(ast.CallExpressionNode))
 	} else {
 		v.validateStatement(node)
 	}

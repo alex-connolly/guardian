@@ -20,7 +20,7 @@ type StatementNode interface {
 type ScopeNode struct {
 	Parent       *ScopeNode
 	ValidTypes   []NodeType
-	Declarations map[string]Node
+	Declarations *DMap
 	Sequence     []Node
 	index        int
 }
@@ -38,8 +38,18 @@ func (n *ScopeNode) AddSequential(node Node) {
 	n.Sequence = append(n.Sequence, node)
 }
 
+func (n *ScopeNode) NextDeclaration() Node {
+	if n.Declarations == nil {
+		return nil
+	}
+	return n.Declarations.Next()
+}
+
 func (n *ScopeNode) GetDeclaration(key string) Node {
-	return n.Declarations[key]
+	if n.Declarations == nil {
+		return nil
+	}
+	return n.Declarations.Get(key)
 }
 
 func (n *ScopeNode) AddDeclaration(key string, node Node) {
@@ -47,9 +57,9 @@ func (n *ScopeNode) AddDeclaration(key string, node Node) {
 	// could change value to array for overloaded methods etc
 	// don't think supporting overloading is a good idea at this stage
 	if n.Declarations == nil {
-		n.Declarations = make(map[string]Node)
+		n.Declarations = new(DMap)
 	}
-	n.Declarations[key] = node
+	n.Declarations.Add(key, node)
 }
 
 func (n ScopeNode) Type() NodeType { return Scope }
