@@ -19,7 +19,7 @@ func parseAssignmentStatement(p *Parser) {
 	p.Scope.AddSequential(node)
 }
 
-func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
+func (p *Parser) parseAssignment() *ast.AssignmentStatementNode {
 	var assigned []ast.ExpressionNode
 	assigned = append(assigned, p.parseExpression())
 	for p.parseOptional(lexer.TknComma) {
@@ -36,7 +36,7 @@ func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 		to = append(to, p.parseExpression())
 	}
 
-	return ast.AssignmentStatementNode{
+	return &ast.AssignmentStatementNode{
 		Left:  assigned,
 		Right: to,
 	}
