@@ -118,7 +118,6 @@ func (p *Parser) parseScope(valids ...ast.NodeType) *ast.ScopeNode {
 	scope := new(ast.ScopeNode)
 	scope.Parent = p.Scope
 	p.Scope = scope
-
 	for p.hasTokens(1) {
 		if p.current().Type == lexer.TknCloseBrace {
 			return scope
@@ -138,5 +137,5 @@ func (p *Parser) parseScope(valids ...ast.NodeType) *ast.ScopeNode {
 			p.next()
 		}
 	}
-	return nil
+	return scope
 }

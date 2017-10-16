@@ -8,7 +8,8 @@ type TokenType int
 // IsBinaryOperator ...
 func (t TokenType) IsBinaryOperator() bool {
 	switch t {
-	case TknAdd, TknSub, TknMul, TknDiv:
+	case TknAdd, TknSub, TknMul, TknDiv, TknGtr, TknLss, TknGeq, TknLeq,
+		TknAs, TknAnd, TknOr, TknEql, TknXor, TknIs, TknShl, TknShr:
 		return true
 	}
 	return false

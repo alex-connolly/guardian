@@ -19,7 +19,15 @@ func parseAssignmentStatement(p *Parser) {
 	p.Scope.AddSequential(node)
 }
 
-func (p *Parser) parseAssignment() *ast.AssignmentStatementNode {
+func (p *Parser) parseOptionalAssignment() *ast.AssignmentStatementNode {
+	if isAssignmentStatement(p) {
+		assigned := p.parseAssignment()
+		return &assigned
+	}
+	return nil
+}
+
+func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 	var assigned []ast.ExpressionNode
 	assigned = append(assigned, p.parseExpression())
 	for p.parseOptional(lexer.TknComma) {
@@ -36,7 +44,7 @@ func (p *Parser) parseAssignment() *ast.AssignmentStatementNode {
 		to = append(to, p.parseExpression())
 	}
 
-	return &ast.AssignmentStatementNode{
+	return ast.AssignmentStatementNode{
 		Left:  assigned,
 		Right: to,
 	}
@@ -88,10 +96,10 @@ func parseForStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknFor)
 	// parse init expr, can be nil
-	init := p.parseAssignment()
+	init := p.parseOptionalAssignment()
 	// parse condition, required
 	cond := p.parseExpression()
-	// parse statement
+	// TODO: parse post statement properly
 	post := p.parseAssignment()
 
 	body := p.parseEnclosedScope()
@@ -126,7 +134,8 @@ func parseSwitchStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknSwitch)
 
-	target := p.parseExpression()
+	// TODO: currently only works with reference
+	target := p.parseReference()
 
 	cases := p.parseEnclosedScope(ast.CaseStatement)
 

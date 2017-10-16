@@ -29,6 +29,7 @@ func TestParseAssignmentStatementIncrement(t *testing.T) {
 	p := createParser("x++")
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
+
 }
 
 func TestParseIfStatement(t *testing.T) {
@@ -84,7 +85,8 @@ func TestParseForStatementInitConditionStatement(t *testing.T) {
 	p := createParser(`for x := 0; x < 5; x++ {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
 	parseForStatement(p)
-	goutil.Assert(t, p.Scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, len(p.Scope.Sequence) == 1, "scope should not be nil")
 	first := p.Scope.Next()
 	goutil.Assert(t, first.Type() == ast.ForStatement, "wrong node type")
 	forStat := first.(ast.ForStatementNode)
@@ -95,7 +97,7 @@ func TestParseForStatementInitConditionStatement(t *testing.T) {
 
 func TestParseSwitchStatement(t *testing.T) {
 	p := createParser(`switch x {}`)
-	goutil.Assert(t, isSwitchStatement(p), "should detect switch statement")
+	goutil.AssertNow(t, isSwitchStatement(p), "should detect switch statement")
 	parseSwitchStatement(p)
 }
 
