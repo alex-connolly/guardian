@@ -17,7 +17,7 @@ func TestValidateAssignmentValid(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	n := p.Scope.Next()
 	v.validate(n)
-	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %s", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %d", len(v.errors)))
 }
 
 func TestValidateAssignmentInvalid(t *testing.T) {
@@ -29,7 +29,7 @@ func TestValidateAssignmentInvalid(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	n := p.Scope.Next()
 	v.validate(n)
-	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %s", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %d", len(v.errors)))
 }
 
 func TestValidateForStatementValidCond(t *testing.T) {
@@ -38,7 +38,7 @@ func TestValidateForStatementValidCond(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	n := p.Scope.Next()
 	v.validate(n)
-	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %s", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %d", len(v.errors)))
 }
 
 func TestValidateForStatementInvalidCond(t *testing.T) {
@@ -47,5 +47,5 @@ func TestValidateForStatementInvalidCond(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	n := p.Scope.Next()
 	v.validate(n)
-	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %s", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %d", len(v.errors)))
 }

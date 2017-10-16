@@ -1,5 +1,7 @@
 package ast
 
+import "github.com/end-r/goutil"
+
 // Node interface for storage in AST
 type Node interface {
 	Type() NodeType
@@ -20,7 +22,7 @@ type StatementNode interface {
 type ScopeNode struct {
 	Parent       *ScopeNode
 	ValidTypes   []NodeType
-	Declarations *DMap
+	Declarations *goutil.DMap
 	Sequence     []Node
 	index        int
 }
@@ -42,14 +44,14 @@ func (n *ScopeNode) NextDeclaration() Node {
 	if n.Declarations == nil {
 		return nil
 	}
-	return n.Declarations.Next().Node
+	return n.Declarations.Next().(Node)
 }
 
 func (n *ScopeNode) GetDeclaration(key string) Node {
 	if n.Declarations == nil {
 		return nil
 	}
-	return n.Declarations.Get(key)
+	return n.Declarations.Get(key).(Node)
 }
 
 func (n *ScopeNode) AddDeclaration(key string, node Node) {
@@ -57,7 +59,7 @@ func (n *ScopeNode) AddDeclaration(key string, node Node) {
 	// could change value to array for overloaded methods etc
 	// don't think supporting overloading is a good idea at this stage
 	if n.Declarations == nil {
-		n.Declarations = new(DMap)
+		n.Declarations = new(goutil.DMap)
 	}
 	n.Declarations.Add(key, node)
 }
