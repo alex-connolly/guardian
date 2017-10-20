@@ -109,7 +109,7 @@ func (p *Parser) addError(err string) {
 
 func (p *Parser) parseEnclosedScope(valids ...ast.NodeType) *ast.ScopeNode {
 	p.parseRequired(lexer.TknOpenBrace)
-	scope := p.parseScope()
+	scope := p.parseScope(valids...)
 	p.parseRequired(lexer.TknCloseBrace)
 	return scope
 }

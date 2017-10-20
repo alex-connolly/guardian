@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/compiler/ast"
 	"github.com/end-r/guardian/compiler/lexer"
 )
@@ -85,7 +83,6 @@ func (p *Parser) parseExpression() ast.ExpressionNode {
 main:
 	for p.hasTokens(1) {
 		current = p.current().Type
-		fmt.Println("getting current")
 		switch current {
 		case lexer.TknOpenBracket:
 			p.next()
@@ -106,7 +103,6 @@ main:
 			return finalise(expStack, opStack)
 		default:
 			if o1, ok := operators[current]; ok {
-				fmt.Println("parsing operator")
 				p.next()
 				for len(opStack) > 0 {
 					// consider top item on stack
@@ -122,11 +118,9 @@ main:
 				opStack = append(opStack, current)
 			} else {
 				expr := p.parseExpressionComponent()
-				fmt.Println("parsing component")
 
 				// if it isn't an expression
 				if expr == nil {
-					fmt.Println("yo")
 					return finalise(expStack, opStack)
 				}
 				expStack = append(expStack, expr)
@@ -167,7 +161,6 @@ func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 			expr = p.parseArrayLiteral()
 			break
 		case lexer.TknString, lexer.TknCharacter, lexer.TknNumber:
-			fmt.Println("lit")
 			expr = p.parseLiteral()
 			break
 		case lexer.TknIdentifier:
@@ -192,7 +185,6 @@ func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 			expr = p.parseIndexExpression(expr)
 			break
 		default:
-			fmt.Println("cmp done")
 			return expr
 		}
 	}
@@ -302,7 +294,6 @@ func (p *Parser) parseLiteral() (n ast.LiteralNode) {
 	n.LiteralType = p.current().Type
 	n.Data = p.lexer.TokenString(p.current())
 	p.next()
-	fmt.Println("done lit")
 	return n
 }
 

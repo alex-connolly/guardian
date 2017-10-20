@@ -72,7 +72,7 @@ func TestParseForStatementInitCondition(t *testing.T) {
 	p := createParser(`for x := 0; x < 5 {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
 	parseForStatement(p)
-
+	goutil.AssertNow(t, len(p.Errs) == 0, fmt.Sprintln(p.Errs))
 	first := p.Scope.Next()
 	goutil.Assert(t, first.Type() == ast.ForStatement, "wrong node type")
 	forStat := first.(ast.ForStatementNode)
@@ -306,6 +306,17 @@ func TestSimpleLiteralAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
+	n := p.Scope.Next()
+	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
+	a := n.(ast.AssignmentStatementNode)
+	goutil.AssertNow(t, len(a.Left) == 1, "should be one left value")
+	goutil.AssertNow(t, a.Left[0].Type() == ast.Reference, "wrong left type")
+}
+
+func TestIncrementLiteralAssignmentStatement(t *testing.T) {
+	p := createParser("x++")
+	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
+	parseAssignmentStatement(p)
 	n := p.Scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)

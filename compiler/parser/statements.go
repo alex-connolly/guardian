@@ -12,16 +12,20 @@ func parseReturnStatement(p *Parser) {
 		Results: p.parseExpressionList(),
 	}
 	p.Scope.AddSequential(node)
+	p.parseOptional(lexer.TknSemicolon)
 }
 
 func parseAssignmentStatement(p *Parser) {
 	node := p.parseAssignment()
 	p.Scope.AddSequential(node)
+	p.parseOptional(lexer.TknSemicolon)
 }
 
 func (p *Parser) parseOptionalAssignment() *ast.AssignmentStatementNode {
 	if isAssignmentStatement(p) {
 		assigned := p.parseAssignment()
+		p.parseOptional(lexer.TknSemicolon)
+
 		return &assigned
 	}
 	return nil
@@ -36,7 +40,7 @@ func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 
 	p.parseRequired(lexer.TknAssign, lexer.TknAddAssign, lexer.TknSubAssign, lexer.TknMulAssign,
 		lexer.TknDivAssign, lexer.TknShrAssign, lexer.TknShlAssign, lexer.TknModAssign, lexer.TknAndAssign,
-		lexer.TknOrAssign, lexer.TknXorAssign)
+		lexer.TknOrAssign, lexer.TknXorAssign, lexer.TknDefine)
 
 	var to []ast.ExpressionNode
 	to = append(to, p.parseExpression())
@@ -98,9 +102,16 @@ func parseForStatement(p *Parser) {
 	// parse init expr, can be nil
 	init := p.parseOptionalAssignment()
 	// parse condition, required
+
 	cond := p.parseExpression()
+
 	// TODO: parse post statement properly
-	post := p.parseOptionalAssignment()
+
+	var post *ast.AssignmentStatementNode
+
+	if p.parseOptional(lexer.TknSemicolon) {
+		post = p.parseOptionalAssignment()
+	}
 
 	body := p.parseEnclosedScope()
 
@@ -109,6 +120,13 @@ func parseForStatement(p *Parser) {
 		Cond:  cond,
 		Post:  post,
 		Block: body,
+	}
+
+	// BUG: I have absolutely no idea why this is necessary, BUT IT IS
+	// BUG: surely the literal should do the job
+	// TODO: Is this a golang bug?
+	if post == nil {
+		node.Post = nil
 	}
 	p.Scope.AddSequential(node)
 }
