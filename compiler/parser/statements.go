@@ -100,7 +100,7 @@ func parseForStatement(p *Parser) {
 	// parse condition, required
 	cond := p.parseExpression()
 	// TODO: parse post statement properly
-	post := p.parseAssignment()
+	post := p.parseOptionalAssignment()
 
 	body := p.parseEnclosedScope()
 

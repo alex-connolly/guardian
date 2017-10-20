@@ -198,8 +198,6 @@ func getProtoTokens() []protoToken {
 		createFixed(">>=", TknShrAssign),
 		createFixed(">>", TknShr),
 
-		createFixed("<-", TknArrowLeft),
-		createFixed(">-", TknArrowRight),
 		createDistinct("and", TknLogicalAnd),
 		createFixed("&", TknAnd),
 		createDistinct("or", TknLogicalOr),
@@ -214,8 +212,8 @@ func getProtoTokens() []protoToken {
 
 		createFixed("{", TknOpenBrace),
 		createFixed("}", TknCloseBrace),
-		createFixed("<", TknOpenCorner),
-		createFixed(">", TknCloseCorner),
+		createFixed("<", TknLss),
+		createFixed(">", TknGtr),
 		createFixed("[", TknOpenSquare),
 		createFixed("]", TknCloseSquare),
 		createFixed("(", TknOpenBracket),

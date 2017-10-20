@@ -132,6 +132,11 @@ func TestLexerIncrement(t *testing.T) {
 	checkTokens(t, l.Tokens, []TokenType{TknIdentifier, TknDecrement})
 }
 
+func TestLexerComparators(t *testing.T) {
+	l := LexString("> < >= <= ==")
+	checkTokens(t, l.Tokens, []TokenType{TknGtr, TknLss, TknGeq, TknLeq, TknEql})
+}
+
 func TestHasByte(t *testing.T) {
 	text := "interface"
 	l := new(Lexer)

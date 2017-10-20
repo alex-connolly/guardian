@@ -86,7 +86,7 @@ func TestParseForStatementInitConditionStatement(t *testing.T) {
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
 	parseForStatement(p)
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
-	goutil.AssertNow(t, len(p.Scope.Sequence) == 1, "scope should not be nil")
+	goutil.AssertNow(t, len(p.Scope.Sequence) == 1, fmt.Sprintf("wrong sequence length: %d", len(p.Scope.Sequence)))
 	first := p.Scope.Next()
 	goutil.Assert(t, first.Type() == ast.ForStatement, "wrong node type")
 	forStat := first.(ast.ForStatementNode)
