@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/end-r/goutil"
@@ -46,6 +47,7 @@ func TestEnumsContract(t *testing.T) {
 	p := ParseFile("tests/enums.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
 	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
+	fmt.Println(p.Errs)
 }
 
 func TestTypesContract(t *testing.T) {

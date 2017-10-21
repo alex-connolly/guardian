@@ -4,19 +4,9 @@ contract EnumsContract {
 
     }
 
-    enum B {
-
-    }
-
     enum Weekdays {
         Monday, Tuesday, Wednesday, Thursday, Friday
     }
 
-    enum Weekends {
-        Saturday, Sunday
-    }
-
-    enum Week inherits Weekdays, Weekends {
-        
-    }
+    
 }

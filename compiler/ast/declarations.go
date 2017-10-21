@@ -77,7 +77,8 @@ type EnumDeclarationNode struct {
 	Identifier string
 	IsAbstract bool
 	Inherits   []ReferenceNode
-	Body       *ScopeNode
+	// consider whether to change this
+	Enums []string
 }
 
 func (n EnumDeclarationNode) Type() NodeType { return EnumDeclaration }

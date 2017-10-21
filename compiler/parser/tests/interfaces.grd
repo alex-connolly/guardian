@@ -1,17 +1,17 @@
 contract C {
 
     interface A {
-        doStuff()
-        doOtherStuff()
+        func doStuff()
+        func doOtherStuff()
     }
 
     interface B inherits A {
-        doMoreStuff()
+        func doMoreStuff()
     }
 
     interface Full {
-        doEventMoreStuff(string) string
-        wowALotOfStuff(map[string]int) map[string]int
-        iCantBelieveIveDoneThis([string]...) map[string]int
+        func doEventMoreStuff(string) string
+        func wowALotOfStuff(map[string]int) map[string]int
+        func iCantBelieveIveDoneThis([string]...) map[string]int
     }
 }

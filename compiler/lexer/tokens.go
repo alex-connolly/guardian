@@ -29,7 +29,8 @@ func GetLifecycles() []TokenType {
 }
 
 const (
-	TknIdentifier TokenType = iota
+	TknInvalid TokenType = iota
+	TknIdentifier
 	TknNumber
 	TknString
 	TknCharacter

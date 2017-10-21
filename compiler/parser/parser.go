@@ -64,7 +64,8 @@ func (p *Parser) parseOptional(t lexer.TokenType) bool {
 func (p *Parser) parseRequired(types ...lexer.TokenType) lexer.TokenType {
 	if !p.hasTokens(1) {
 		p.addError(fmt.Sprintf("Required %s, found nothing", "x"))
-		return p.current().Type
+		// TODO: what should be returned here
+		return lexer.TknReturn
 	}
 	for _, t := range types {
 		if p.current().Type == t {
@@ -137,12 +138,14 @@ func (p *Parser) parseScope(valids ...ast.NodeType) *ast.ScopeNode {
 			saved := p.index
 			expr := p.parseExpression()
 			if expr == nil {
+				fmt.Println("expr nil")
 				p.index = saved
 				//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.lexer.TokenString(p.current()))
 				p.addError(fmt.Sprintf("Unrecognised construct: %s", p.lexer.TokenString(p.current())))
 				p.next()
 			} else {
 				// ?
+				fmt.Println("expr not nil", expr.Type())
 				p.Scope.AddSequential(expr)
 			}
 

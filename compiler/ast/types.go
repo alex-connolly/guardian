@@ -58,6 +58,7 @@ type ArrayTypeNode struct {
 func (n ArrayTypeNode) Type() NodeType { return ArrayType }
 
 type FuncTypeNode struct {
+	Identifier string
 	Parameters []Node
 	Results    []Node
 }

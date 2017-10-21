@@ -17,16 +17,52 @@ func parseInterfaceDeclaration(p *Parser) {
 		inherits = p.parseReferenceList()
 	}
 
-	body := p.parseEnclosedScope()
+	signatures := p.parseInterfaceSignatures()
 
 	node := ast.InterfaceDeclarationNode{
 		Identifier: identifier,
 		Supers:     inherits,
 		IsAbstract: abstract,
-		Body:       body,
+		Signatures: signatures,
 	}
 
 	p.Scope.AddDeclaration(identifier, node)
+}
+
+func (p *Parser) parseInterfaceSignatures() []ast.FuncTypeNode {
+	p.parseRequired(lexer.TknOpenBrace)
+
+	var sigs []ast.FuncTypeNode
+	first := p.parseFuncType()
+	sigs = append(sigs, first)
+	for !p.parseOptional(lexer.TknCloseBrace) {
+		if !p.isFuncType() {
+			p.addError("Everything in an interface must be a func type")
+			//p.parseConstruct()
+			p.next()
+		} else {
+			sigs = append(sigs, p.parseFuncType())
+		}
+	}
+	return sigs
+}
+
+func (p *Parser) parseEnumBody() []string {
+	p.parseRequired(lexer.TknOpenBrace)
+
+	// can only contain identifiers
+	var enums []string
+	first := p.parseIdentifier()
+	enums = append(enums, first)
+	for p.parseOptional(lexer.TknComma) {
+		if p.current().Type != lexer.TknIdentifier {
+			p.addError("Everything in an enum must be an identifier")
+		} else {
+			enums = append(enums, p.parseIdentifier())
+		}
+	}
+	p.parseRequired(lexer.TknCloseBrace)
+	return enums
 }
 
 func parseEnumDeclaration(p *Parser) {
@@ -41,13 +77,13 @@ func parseEnumDeclaration(p *Parser) {
 		inherits = p.parseReferenceList()
 	}
 
-	body := p.parseEnclosedScope(ast.Reference)
+	enums := p.parseEnumBody()
 
 	node := ast.EnumDeclarationNode{
 		IsAbstract: abstract,
 		Identifier: identifier,
 		Inherits:   inherits,
-		Body:       body,
+		Enums:      enums,
 	}
 
 	p.Scope.AddDeclaration(identifier, node)
