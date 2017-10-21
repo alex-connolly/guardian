@@ -15,14 +15,14 @@ type FuncDeclarationNode struct {
 	Parameters []ExplicitVarDeclarationNode
 	Results    []Node
 	Body       *ScopeNode
-	IsAbstract bool
+	Modifiers  []string
 }
 
 func (n FuncDeclarationNode) Type() NodeType { return FuncDeclaration }
 
 type ClassDeclarationNode struct {
 	Identifier   string
-	IsAbstract   bool
+	Modifiers    []string
 	Supers       []ReferenceNode
 	Interfaces   []ReferenceNode
 	Body         *ScopeNode
@@ -33,7 +33,7 @@ func (n ClassDeclarationNode) Type() NodeType { return ClassDeclaration }
 
 type InterfaceDeclarationNode struct {
 	Identifier string
-	IsAbstract bool
+	Modifiers  []string
 	Signatures []FuncTypeNode
 	Supers     []ReferenceNode
 }
@@ -42,7 +42,7 @@ func (n InterfaceDeclarationNode) Type() NodeType { return InterfaceDeclaration 
 
 type ContractDeclarationNode struct {
 	Identifier string
-	IsAbstract bool
+	Modifiers  []string
 	Supers     []ReferenceNode
 	Interfaces []ReferenceNode
 	Body       *ScopeNode
@@ -51,6 +51,7 @@ type ContractDeclarationNode struct {
 func (n ContractDeclarationNode) Type() NodeType { return ContractDeclaration }
 
 type ExplicitVarDeclarationNode struct {
+	Modifiers    []string
 	Identifiers  []string
 	DeclaredType Node
 }
@@ -58,6 +59,7 @@ type ExplicitVarDeclarationNode struct {
 func (n ExplicitVarDeclarationNode) Type() NodeType { return ExplicitVarDeclaration }
 
 type EventDeclarationNode struct {
+	Modifiers  []string
 	Identifier string
 	Parameters []ReferenceNode
 }
@@ -75,7 +77,7 @@ func (n LifecycleDeclarationNode) Type() NodeType { return LifecycleDeclaration 
 
 type EnumDeclarationNode struct {
 	Identifier string
-	IsAbstract bool
+	Modifiers  []string
 	Inherits   []ReferenceNode
 	// consider whether to change this
 	Enums []string

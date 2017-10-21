@@ -127,6 +127,12 @@ const (
 	TknNone
 	TknTrue
 	TknFalse
+	TknExternal
+	TknInternal
+	TknPublic
+	TknPrivate
+	TknProtected
+	TknStatic
 )
 
 // TODO: protoToken{"Operator", isOperator, processOperator}
@@ -139,7 +145,6 @@ func getProtoTokens() []protoToken {
 		createDistinct("event", TknEvent),
 		createDistinct("enum", TknEnum),
 		createDistinct("interface", TknInterface),
-		createDistinct("abstract", TknAbstract),
 		createDistinct("inherits", TknInherits),
 
 		createDistinct("const", TknConst),
@@ -171,6 +176,14 @@ func getProtoTokens() []protoToken {
 		createDistinct("as", TknAs),
 		createDistinct("typeof", TknTypeOf),
 		createDistinct("type", TknType),
+
+		createDistinct("external", TknExternal),
+		createDistinct("internal", TknInternal),
+		createDistinct("public", TknPublic),
+		createDistinct("private", TknPrivate),
+		createDistinct("protected", TknProtected),
+		createDistinct("abstract", TknAbstract),
+		createDistinct("static", TknStatic),
 
 		createDistinct("in", TknIn),
 		createDistinct("map", TknMap),
