@@ -33,7 +33,7 @@ func (n ClassDeclarationNode) Type() NodeType { return ClassDeclaration }
 
 type InterfaceDeclarationNode struct {
 	Identifier string
-	Modifiers  []string
+	Modifiers  []lexer.TokenType
 	Signatures []FuncTypeNode
 	Supers     []ReferenceNode
 }
@@ -42,7 +42,7 @@ func (n InterfaceDeclarationNode) Type() NodeType { return InterfaceDeclaration 
 
 type ContractDeclarationNode struct {
 	Identifier string
-	Modifiers  []string
+	Modifiers  []lexer.TokenType
 	Supers     []ReferenceNode
 	Interfaces []ReferenceNode
 	Body       *ScopeNode
@@ -59,7 +59,7 @@ type ExplicitVarDeclarationNode struct {
 func (n ExplicitVarDeclarationNode) Type() NodeType { return ExplicitVarDeclaration }
 
 type EventDeclarationNode struct {
-	Modifiers  []string
+	Modifiers  []lexer.TokenType
 	Identifier string
 	Parameters []ReferenceNode
 }
@@ -77,7 +77,7 @@ func (n LifecycleDeclarationNode) Type() NodeType { return LifecycleDeclaration 
 
 type EnumDeclarationNode struct {
 	Identifier string
-	Modifiers  []string
+	Modifiers  []lexer.TokenType
 	Inherits   []ReferenceNode
 	// consider whether to change this
 	Enums []string

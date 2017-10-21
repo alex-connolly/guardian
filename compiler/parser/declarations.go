@@ -9,13 +9,13 @@ func (p *Parser) parseModifiers(target lexer.TokenType) []lexer.TokenType {
 	var mods []lexer.TokenType
 	for p.current().Type != target {
 		if p.current().Type.IsModifier() {
-			mods = append(mods, p.current())
+			mods = append(mods, p.current().Type)
 			p.next()
 		} else {
 			p.addError("Invalid modifier")
 		}
 	}
-	return types
+	return mods
 }
 
 func parseInterfaceDeclaration(p *Parser) {
@@ -304,7 +304,7 @@ func (p *Parser) parseResults() []ast.Node {
 
 func parseFuncDeclaration(p *Parser) {
 
-	abstract := p.parseOptional(lexer.TknAbstract)
+	modifiers := p.parseModifiers(lexer.TknFunc)
 
 	p.parseRequired(lexer.TknFunc)
 
@@ -320,7 +320,7 @@ func parseFuncDeclaration(p *Parser) {
 		Identifier: identifier,
 		Parameters: params,
 		Results:    results,
-		IsAbstract: abstract,
+		Modifiers:  modifiers,
 		Body:       body,
 	}
 
