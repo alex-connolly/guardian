@@ -1,0 +1,84 @@
+contract Ballot {
+
+    class Voter {
+        weight uint
+        voted bool
+        delegate address
+        vote uint
+    }
+
+    class Proposal {
+        name bytes32
+        voteCount uint
+    }
+
+    expose chairperson address
+    expose voters map[address]Voter
+    expose proposals [Proposal]
+
+    func Ballot(proposalNames [bytes32]){
+        chairperson = msg.sender
+        voters[chairperson].weight = 1
+
+        for i := 0; i < proposalNames.length; i++ {
+            proposals = append(proposals, Proposal{
+                name: proposalNames[i],
+                voteCount: 0
+            })
+        }
+    }
+
+    func giveRightToVote(voter address){
+        enforce(msg.sender == chairperson)
+        enforce(!voters[voter].voted)
+        enforce(voters[voter].weight == 0)
+        voters[voter].weight = 1
+    }
+
+    func delegate(to address){
+
+        storage sender := voters[msg.sender]
+        enforce(!sender.voted)
+        enforce(to != msg.sender)
+
+        for voters[to].delegate != address(0) {
+            to = voters[to].delegate
+            enforce(to != msg.sender)
+        }
+
+        sender.vote = true
+        sender.delegate = to
+        storage delegate := voters[to]
+        if delegate.voted {
+            proposals[delegate.vote].voteCount += sender.weight
+        } else {
+            delegate.weight += sender.weight
+        }
+
+    }
+
+    func vote(proposal uint) {
+        storage sender := voters[msg.sender]
+        enforce(!sender.voted)
+
+        sender.voted = true
+        sender.vote = proposal
+
+        proposals[proposal].voteCount += sender.weight
+    }
+
+    func winningProposal() uint {
+        winningVoteCount := 0 as uint
+        for p := 0; p < proposals.length; p++ {
+            if proposals[p].voteCount > winningVoteCount {
+                winningVoteCount = proposals[p].voteCount
+                winningProposal = p
+            }
+        }
+        return winningProposal
+    }
+
+    func winnerName() bytes32 {
+        return proposals[winningProposal()].name
+    }
+}

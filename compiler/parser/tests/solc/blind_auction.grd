@@ -1,0 +1,102 @@
+contract BlindAuction {
+
+    class Bid {
+        blindedBid bytes32
+        deposit uint
+    }
+
+    expose beneficiary address
+    expose biddingEnd uint
+    expose revealEnd uint
+    expose ended bool
+
+    expose bids map[address][Bid]
+    expose highestBidder address
+    expose highestBid uint
+
+    pendingReturns map[address]uint
+
+    event AuctionEnded(winner address, highestBid uint)
+
+    func onlyBefore(time uint){
+        enforce(now() < time)
+    }
+
+    func onlyAfter(time uint){
+        enforce(now() > time)
+    }
+
+    constructor(biddingTime uint, revealTime uint, beneficiary address){
+        this.beneficiary = beneficiary
+        this.biddingEnd = now() + biddingTime
+        this.revealEnd = this.biddingEnd + revealTime
+    }
+
+    func bid(blindedBid bytes32) {
+        onlyBefore(biddingEnd)
+        bids[msg.sender] = append(bids[msg.sender], Bid{
+            blindedBid: blindedBid,
+            deposit: msg.value
+        });
+    }
+
+    func reveal(values [uint], fake [bool], secret [bytes32]) {
+
+        onlyAfter(biddingEnd)
+        onlyBefore(revealEnd)
+
+        length := bids[msg.sender].length
+
+        enforce(values.length == length)
+        enforce(fake.length == length)
+        enforce(secret.length == length)
+
+        refund uint
+        for i := 0; i < length; i++ {
+            bid := bids[msg.sender][i]
+            v, f, s := values[i], fake[i], secret[i]
+            if bid.blindedBid != keccak256(v, f, s) {
+                continue
+            }
+            refund += bid.deposit
+            if !fake and bid.deposit >= value {
+                if placeBid(msg.sender, value) {
+                    refund -= value
+                }
+            }
+            bid.blindedBid = 0 as bytes32
+        }
+        transfer(msg.sender, refund)
+
+    }
+
+
+    func placeBid(bidder address, value uint) bool {
+        if value <= highestBid {
+            return false
+        }
+        if highestBidder != 0 {
+            pendingReturns[highestBidder] += highestBid
+        }
+        highestBid = value
+        highestBidder = bidder
+        return true
+    }
+
+    func withdraw() {
+        amount := pendingReturns[msg.sender]
+        if amount > 0 {
+            pendingReturns[msg.sender] = 0
+            transfer(msg.sender, amount)
+        }
+    }
+
+    func auctionEnd(){
+        onlyAfter(revealEnd)
+        enforce(!ended)
+        AuctionEnded(highestBidder, highestBid)
+        ended = true
+        transfer(beneficiary, this.balance)
+    }
+
+}

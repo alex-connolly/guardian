@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/compiler/ast"
 	"github.com/end-r/guardian/compiler/lexer"
 )
@@ -40,10 +38,10 @@ func (p *Parser) parseInterfaceSignatures() []ast.FuncTypeNode {
 	}
 
 	var sigs []ast.FuncTypeNode
-	fmt.Println(p.Errs)
+
 	first := p.parseFuncType()
 	sigs = append(sigs, first)
-	fmt.Println(p.Errs)
+
 	for isNewLine(p) {
 		parseNewLine(p)
 	}

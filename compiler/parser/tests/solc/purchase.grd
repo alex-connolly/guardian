@@ -1,0 +1,46 @@
+contract Purchase {
+
+    expose value uint
+    expose seller address
+    expose buyer address
+
+    enum State { Created, Locked, Inactive}
+
+    expose state State
+
+    constructor(){
+        seller = msg.sender
+        value = msg.value / 2
+        enforce((2 * value) == msg.value)
+    }
+
+    event Aborted();
+    event PurchaseConfirmed();
+    event ItemReceived();
+
+    func abort(){
+        enforce(msg.sender == seller)
+        enforce(state == State.Created)
+        Aborted()
+        state = State.Inactive
+        transfer(seller, this.balance)
+    }
+
+    func confirmPurchase(){
+        enforce(state == State.Created)
+        enforce(msg.value == (2 * value))
+
+        PurchaseConfirmed()
+        buyer = msg.sender
+        state = State.Locked
+    }
+
+    func confirmReceived() {
+        enforce(msg.sender == buyer)
+        enforce(state == State.Locked)
+        ItemReceived()
+        state = State.Inactive
+        transfer(buyer, value)
+        transfer(seller, this.balance)
+    }
+}
