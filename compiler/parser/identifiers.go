@@ -10,6 +10,8 @@ func isExplicitVarDeclaration(p *Parser) bool {
 		return false
 	}
 	savedIndex := p.index
+	for p.parseOptional(lexer.GetModifiers()...) {
+	}
 	if !p.parseOptional(lexer.TknIdentifier) {
 		return false
 	}
@@ -42,48 +44,43 @@ func (p *Parser) isMapType() bool {
 	return p.isNextToken(lexer.TknMap)
 }
 
-func isClassDeclaration(p *Parser) bool {
-	if p.hasTokens(2) {
-		return p.isNextToken(lexer.TknClass) ||
-			(p.current().Type == lexer.TknAbstract && p.token(1).Type == lexer.TknClass)
+func (p *Parser) modifiersUntilToken(types ...lexer.TokenType) bool {
+	saved := p.index
+	for p.current().Type.IsModifier() {
+		p.next()
 	}
-	return p.isNextToken(lexer.TknClass)
+	for _, t := range types {
+		if p.current().Type == t {
+			p.index = saved
+			return true
+		}
+	}
+	p.index = saved
+	return false
+}
+
+func isClassDeclaration(p *Parser) bool {
+	return p.modifiersUntilToken(lexer.TknClass)
 }
 
 func isInterfaceDeclaration(p *Parser) bool {
-	if p.hasTokens(2) {
-		return p.isNextToken(lexer.TknInterface) ||
-			(p.current().Type == lexer.TknAbstract && p.token(1).Type == lexer.TknInterface)
-	}
-	return p.isNextToken(lexer.TknInterface)
+	return p.modifiersUntilToken(lexer.TknInterface)
 }
 
 func isLifecycleDeclaration(p *Parser) bool {
-	return p.isNextToken(lexer.GetLifecycles()...)
+	return p.modifiersUntilToken(lexer.GetLifecycles()...)
 }
 
 func isEnumDeclaration(p *Parser) bool {
-	if p.hasTokens(2) {
-		return p.isNextToken(lexer.TknEnum) ||
-			(p.current().Type == lexer.TknAbstract && p.token(1).Type == lexer.TknEnum)
-	}
-	return p.isNextToken(lexer.TknEnum)
+	return p.modifiersUntilToken(lexer.TknEnum)
 }
 
 func isContractDeclaration(p *Parser) bool {
-	if p.hasTokens(2) {
-		return p.isNextToken(lexer.TknContract) ||
-			p.isNextToken(lexer.TknAbstract) && p.token(1).Type == lexer.TknContract
-	}
-	return p.isNextToken(lexer.TknContract)
+	return p.modifiersUntilToken(lexer.TknContract)
 }
 
 func isFuncDeclaration(p *Parser) bool {
-	if p.hasTokens(2) {
-		return p.isNextToken(lexer.TknFunc) ||
-			(p.current().Type == lexer.TknAbstract && p.token(1).Type == lexer.TknFunc)
-	}
-	return p.isNextToken(lexer.TknFunc)
+	return p.modifiersUntilToken(lexer.TknFunc)
 }
 
 func (p *Parser) isNextToken(types ...lexer.TokenType) bool {
@@ -102,11 +99,11 @@ func isNewLine(p *Parser) bool {
 }
 
 func isEventDeclaration(p *Parser) bool {
-	return p.isNextToken(lexer.TknEvent)
+	return p.modifiersUntilToken(lexer.TknEvent)
 }
 
 func isTypeDeclaration(p *Parser) bool {
-	return p.isNextToken(lexer.TknType)
+	return p.modifiersUntilToken(lexer.TknType)
 }
 
 func isForStatement(p *Parser) bool {

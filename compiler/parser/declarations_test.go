@@ -54,7 +54,6 @@ func TestParseInterfaceDeclarationAbstract(t *testing.T) {
 	n := p.Scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.InterfaceDeclaration, "wrong node type")
 	i := n.(ast.InterfaceDeclarationNode)
-	goutil.AssertNow(t, i.IsAbstract, "wrong abstract")
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 0, "wrong supers length")
 }
@@ -312,7 +311,6 @@ func TestParseClassDeclarationAbstract(t *testing.T) {
 	goutil.AssertNow(t, n.Type() == ast.ClassDeclaration, "wrong node type")
 	i := n.(ast.ClassDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
-	goutil.AssertNow(t, i.IsAbstract, "wrong abstract")
 }
 
 func TestParseTypeDeclaration(t *testing.T) {

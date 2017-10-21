@@ -25,11 +25,16 @@ func (t TokenType) IsUnaryOperator() bool {
 }
 
 func (t TokenType) IsModifier() bool {
-	switch t {
-	case TknInternal, TknExternal, TknPublic, TknPrivate, TknProtected, TknStatic, TknAbstract:
-		return true
+	for _, m := range GetModifiers() {
+		if t == m {
+			return true
+		}
 	}
 	return false
+}
+
+func GetModifiers() []TokenType {
+	return []TokenType{TknInternal, TknExternal, TknPublic, TknPrivate, TknProtected, TknStatic, TknAbstract}
 }
 
 func GetLifecycles() []TokenType {

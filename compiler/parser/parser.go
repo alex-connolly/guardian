@@ -49,13 +49,15 @@ func (p *Parser) hasTokens(offset int) bool {
 	return p.index+offset <= len(p.lexer.Tokens)
 }
 
-func (p *Parser) parseOptional(t lexer.TokenType) bool {
+func (p *Parser) parseOptional(types ...lexer.TokenType) bool {
 	if !p.hasTokens(1) {
 		return false
 	}
-	if p.current().Type == t {
-		p.next()
-		return true
+	for _, t := range types {
+		if p.current().Type == t {
+			p.next()
+			return true
+		}
 	}
 	return false
 }
@@ -134,7 +136,7 @@ func (p *Parser) parseScope(valids ...ast.NodeType) *ast.ScopeNode {
 			}
 		}
 		if !found {
-			// try interpreting it as a call expression
+			// try interpreting it as an expression
 			saved := p.index
 			expr := p.parseExpression()
 			if expr == nil {
