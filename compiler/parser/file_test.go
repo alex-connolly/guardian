@@ -34,7 +34,7 @@ func TestClassesContract(t *testing.T) {
 func TestInterfacesContract(t *testing.T) {
 	p := ParseFile("tests/interfaces.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
-	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
+	goutil.Assert(t, p.Errs == nil, fmt.Sprintln(p.Errs))
 }
 
 func TestEventsContract(t *testing.T) {
@@ -47,7 +47,6 @@ func TestEnumsContract(t *testing.T) {
 	p := ParseFile("tests/enums.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
 	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
-	fmt.Println(p.Errs)
 }
 
 func TestTypesContract(t *testing.T) {

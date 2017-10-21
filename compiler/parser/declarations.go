@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/compiler/ast"
 	"github.com/end-r/guardian/compiler/lexer"
 )
@@ -30,12 +32,24 @@ func parseInterfaceDeclaration(p *Parser) {
 }
 
 func (p *Parser) parseInterfaceSignatures() []ast.FuncTypeNode {
+
 	p.parseRequired(lexer.TknOpenBrace)
 
+	for isNewLine(p) {
+		parseNewLine(p)
+	}
+
 	var sigs []ast.FuncTypeNode
+	fmt.Println(p.Errs)
 	first := p.parseFuncType()
 	sigs = append(sigs, first)
+	fmt.Println(p.Errs)
+	for isNewLine(p) {
+		parseNewLine(p)
+	}
+
 	for !p.parseOptional(lexer.TknCloseBrace) {
+
 		if !p.isFuncType() {
 			p.addError("Everything in an interface must be a func type")
 			//p.parseConstruct()
@@ -43,30 +57,51 @@ func (p *Parser) parseInterfaceSignatures() []ast.FuncTypeNode {
 		} else {
 			sigs = append(sigs, p.parseFuncType())
 		}
+
+		for isNewLine(p) {
+			parseNewLine(p)
+		}
+
 	}
 	return sigs
 }
 
 func (p *Parser) parseEnumBody() []string {
-	p.parseRequired(lexer.TknOpenBrace)
 
-	// can only contain identifiers
+	p.parseRequired(lexer.TknOpenBrace)
 	var enums []string
-	first := p.parseIdentifier()
-	enums = append(enums, first)
-	for p.parseOptional(lexer.TknComma) {
-		if p.current().Type != lexer.TknIdentifier {
-			p.addError("Everything in an enum must be an identifier")
-		} else {
-			enums = append(enums, p.parseIdentifier())
-		}
+	// remove all new lines before the fist identifier
+	for isNewLine(p) {
+		parseNewLine(p)
 	}
-	p.parseRequired(lexer.TknCloseBrace)
+
+	if !p.parseOptional(lexer.TknCloseBrace) {
+		// can only contain identifiers split by commas and newlines
+		first := p.parseIdentifier()
+		enums = append(enums, first)
+		for p.parseOptional(lexer.TknComma) {
+
+			for isNewLine(p) {
+				parseNewLine(p)
+			}
+
+			if p.current().Type == lexer.TknIdentifier {
+				enums = append(enums, p.parseIdentifier())
+			} else {
+				p.addError("Everything in an enum must be an identifier")
+			}
+		}
+
+		for isNewLine(p) {
+			parseNewLine(p)
+		}
+
+		p.parseRequired(lexer.TknCloseBrace)
+	}
 	return enums
 }
 
 func parseEnumDeclaration(p *Parser) {
-
 	abstract := p.parseOptional(lexer.TknAbstract)
 	p.parseRequired(lexer.TknEnum)
 	identifier := p.parseIdentifier()
@@ -328,10 +363,12 @@ func (p *Parser) parseFuncType() ast.FuncTypeNode {
 
 	f := ast.FuncTypeNode{}
 	p.parseRequired(lexer.TknFunc)
-	p.parseRequired(lexer.TknOpenBracket)
-	if p.parseOptional(lexer.TknIdentifier) {
+
+	if p.current().Type == lexer.TknIdentifier {
 		f.Identifier = p.parseIdentifier()
 	}
+	p.parseRequired(lexer.TknOpenBracket)
+
 	if !p.parseOptional(lexer.TknCloseBracket) {
 		f.Parameters = p.parseTypeList()
 		p.parseRequired(lexer.TknCloseBracket)

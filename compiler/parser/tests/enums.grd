@@ -4,9 +4,23 @@ contract EnumsContract {
 
     }
 
+    enum Inline { Monday, Tuesday }
+
     enum Weekdays {
         Monday, Tuesday, Wednesday, Thursday, Friday
     }
 
-    
+    enum Weekends {
+        Saturday, Sunday }
+
+    enum Split {
+        Dog,
+        Cat,
+        Animal,
+        Mouse, Rat
+    }
+
+    enum Week inherits Weekdays, Weekends {
+
+    }
 }
