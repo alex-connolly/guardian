@@ -34,7 +34,7 @@ func (n ClassDeclarationNode) Type() NodeType { return ClassDeclaration }
 type InterfaceDeclarationNode struct {
 	Identifier string
 	IsAbstract bool
-	Body       *ScopeNode
+	Signatures []FuncTypeNode
 	Supers     []ReferenceNode
 }
 

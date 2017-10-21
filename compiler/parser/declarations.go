@@ -329,6 +329,9 @@ func (p *Parser) parseFuncType() ast.FuncTypeNode {
 	f := ast.FuncTypeNode{}
 	p.parseRequired(lexer.TknFunc)
 	p.parseRequired(lexer.TknOpenBracket)
+	if p.parseOptional(lexer.TknIdentifier) {
+		f.Identifier = p.parseIdentifier()
+	}
 	if !p.parseOptional(lexer.TknCloseBracket) {
 		f.Parameters = p.parseTypeList()
 		p.parseRequired(lexer.TknCloseBracket)
