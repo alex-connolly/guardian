@@ -3,6 +3,7 @@ package ast
 import "github.com/end-r/guardian/compiler/lexer"
 
 type TypeDeclarationNode struct {
+	Modifiers  []lexer.TokenType
 	Identifier string
 	Value      Node
 }
@@ -15,7 +16,7 @@ type FuncDeclarationNode struct {
 	Parameters []ExplicitVarDeclarationNode
 	Results    []Node
 	Body       *ScopeNode
-	Modifiers  []string
+	Modifiers  []lexer.TokenType
 }
 
 func (n FuncDeclarationNode) Type() NodeType { return FuncDeclaration }
@@ -68,6 +69,7 @@ func (n EventDeclarationNode) Type() NodeType { return EventDeclaration }
 
 // LifecycleDeclarationNode ...
 type LifecycleDeclarationNode struct {
+	Modifiers  []lexer.TokenType
 	Category   lexer.TokenType
 	Parameters []ExplicitVarDeclarationNode
 	Body       *ScopeNode
