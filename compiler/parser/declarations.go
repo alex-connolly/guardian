@@ -5,9 +5,23 @@ import (
 	"github.com/end-r/guardian/compiler/lexer"
 )
 
+func (p *Parser) parseModifiers(target lexer.TokenType) []lexer.TokenType {
+	var mods []lexer.TokenType
+	for p.current().Type != target {
+		if p.current().Type.IsModifier() {
+			mods = append(mods, p.current())
+			p.next()
+		} else {
+			p.addError("Invalid modifier")
+		}
+	}
+	return types
+}
+
 func parseInterfaceDeclaration(p *Parser) {
 
-	abstract := p.parseOptional(lexer.TknAbstract)
+	modifiers := p.parseModifiers(lexer.TknInterface)
+
 	p.parseRequired(lexer.TknInterface)
 	identifier := p.parseIdentifier()
 
@@ -22,7 +36,7 @@ func parseInterfaceDeclaration(p *Parser) {
 	node := ast.InterfaceDeclarationNode{
 		Identifier: identifier,
 		Supers:     inherits,
-		IsAbstract: abstract,
+		Modifiers:  modifiers,
 		Signatures: signatures,
 	}
 
@@ -100,7 +114,9 @@ func (p *Parser) parseEnumBody() []string {
 }
 
 func parseEnumDeclaration(p *Parser) {
-	abstract := p.parseOptional(lexer.TknAbstract)
+
+	modifiers := p.parseModifiers(lexer.TknEnum)
+
 	p.parseRequired(lexer.TknEnum)
 	identifier := p.parseIdentifier()
 
@@ -113,7 +129,7 @@ func parseEnumDeclaration(p *Parser) {
 	enums := p.parseEnumBody()
 
 	node := ast.EnumDeclarationNode{
-		IsAbstract: abstract,
+		Modifiers:  modifiers,
 		Identifier: identifier,
 		Inherits:   inherits,
 		Enums:      enums,
@@ -135,7 +151,8 @@ func (p *Parser) parseReferenceList() []ast.ReferenceNode {
 
 func parseClassDeclaration(p *Parser) {
 
-	abstract := p.parseOptional(lexer.TknAbstract)
+	modifiers := p.parseModifiers(lexer.TknClass)
+
 	p.parseRequired(lexer.TknClass)
 	identifier := p.parseIdentifier()
 
@@ -161,7 +178,7 @@ func parseClassDeclaration(p *Parser) {
 		Identifier: identifier,
 		Supers:     inherits,
 		Interfaces: interfaces,
-		IsAbstract: abstract,
+		Modifiers:  modifiers,
 		Body:       body,
 	}
 
@@ -170,7 +187,8 @@ func parseClassDeclaration(p *Parser) {
 
 func parseContractDeclaration(p *Parser) {
 
-	abstract := p.parseOptional(lexer.TknAbstract)
+	modifiers := p.parseModifiers(lexer.TknContract)
+
 	p.parseRequired(lexer.TknContract)
 	identifier := p.parseIdentifier()
 
@@ -203,7 +221,7 @@ func parseContractDeclaration(p *Parser) {
 		Identifier: identifier,
 		Supers:     inherits,
 		Interfaces: interfaces,
-		IsAbstract: abstract,
+		Modifiers:  modifiers,
 		Body:       body,
 	}
 
@@ -235,6 +253,7 @@ func (p *Parser) parseTypeList() []ast.Node {
 }
 
 func (p *Parser) parseVarDeclaration() ast.ExplicitVarDeclarationNode {
+	modifiers := p.parseModifiers(lexer.TknIdentifier)
 	var names []string
 	names = append(names, p.parseIdentifier())
 	for p.parseOptional(lexer.TknComma) {
@@ -244,6 +263,7 @@ func (p *Parser) parseVarDeclaration() ast.ExplicitVarDeclarationNode {
 	dType := p.parseType()
 
 	return ast.ExplicitVarDeclarationNode{
+		Modifiers:    modifiers,
 		DeclaredType: dType,
 		Identifiers:  names,
 	}

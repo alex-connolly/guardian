@@ -22,7 +22,7 @@ func (n FuncDeclarationNode) Type() NodeType { return FuncDeclaration }
 
 type ClassDeclarationNode struct {
 	Identifier   string
-	Modifiers    []string
+	Modifiers    []lexer.TokenType
 	Supers       []ReferenceNode
 	Interfaces   []ReferenceNode
 	Body         *ScopeNode
@@ -51,7 +51,7 @@ type ContractDeclarationNode struct {
 func (n ContractDeclarationNode) Type() NodeType { return ContractDeclaration }
 
 type ExplicitVarDeclarationNode struct {
-	Modifiers    []string
+	Modifiers    []lexer.TokenType
 	Identifiers  []string
 	DeclaredType Node
 }

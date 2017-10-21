@@ -24,6 +24,14 @@ func (t TokenType) IsUnaryOperator() bool {
 	return false
 }
 
+func (t TokenType) IsModifier() bool {
+	switch t {
+	case TknInternal, TknExternal, TknPublic, TknPrivate, TknProtected, TknStatic, TknAbstract:
+		return true
+	}
+	return false
+}
+
 func GetLifecycles() []TokenType {
 	return []TokenType{TknConstructor, TknDestructor}
 }
