@@ -1,14 +1,17 @@
 contract C {
 
     interface A {
-
+        doStuff()
+        doOtherStuff()
     }
 
     interface B inherits A {
-
+        doMoreStuff()
     }
 
     interface Full {
-        
+        doEventMoreStuff(string) string
+        wowALotOfStuff(map[string]int) map[string]int
+        iCantBelieveIveDoneThis([string]...) map[string]int
     }
 }

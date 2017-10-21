@@ -147,12 +147,16 @@ func (p *Parser) parseType() ast.Node {
 		return p.parseArrayType()
 	case p.isMapType():
 		return p.parseMapType()
+	case p.isFuncType():
+		return p.parseFuncType()
+	case p.current().Type == lexer.TknIdentifier:
+		return p.parseReference()
 	}
-	return p.parseReference()
+	return nil
 }
 
 func (p *Parser) parseTypeList() []ast.Node {
-	types := make([]ast.Node, 0)
+	var types []ast.Node
 	first := p.parseType()
 	types = append(types, first)
 	for p.parseOptional(lexer.TknComma) {
@@ -203,7 +207,7 @@ func (p *Parser) parseResults() []ast.Node {
 		p.parseRequired(lexer.TknCloseBracket)
 		return types
 	}
-	if p.current().Type == lexer.TknIdentifier {
+	if p.current().Type != lexer.TknOpenBrace {
 		return p.parseTypeList()
 	}
 	return nil
@@ -284,6 +288,23 @@ func (p *Parser) parseMapType() ast.MapTypeNode {
 	return mapType
 }
 
+func (p *Parser) parseFuncType() ast.FuncTypeNode {
+
+	f := ast.FuncTypeNode{}
+	p.parseRequired(lexer.TknFunc)
+	p.parseRequired(lexer.TknOpenBracket)
+	if !p.parseOptional(lexer.TknCloseBracket) {
+		f.Parameters = p.parseTypeList()
+		p.parseRequired(lexer.TknCloseBracket)
+	}
+	if p.parseOptional(lexer.TknOpenBracket) {
+		f.Results = p.parseTypeList()
+		p.parseRequired(lexer.TknCloseBracket)
+	}
+	f.Results = p.parseTypeList()
+	return f
+}
+
 func (p *Parser) parseArrayType() ast.ArrayTypeNode {
 	p.parseRequired(lexer.TknOpenSquare)
 
@@ -301,7 +322,6 @@ func (p *Parser) parseArrayType() ast.ArrayTypeNode {
 }
 
 func parseExplicitVarDeclaration(p *Parser) {
-
 	// parse variable Names
 	var names []string
 	names = append(names, p.parseIdentifier())
@@ -309,11 +329,11 @@ func parseExplicitVarDeclaration(p *Parser) {
 		names = append(names, p.parseIdentifier())
 	}
 	// parse type
-	dType := p.parseReference()
+	typ := p.parseType()
 
 	node := ast.ExplicitVarDeclarationNode{
 		Identifiers:  names,
-		DeclaredType: dType,
+		DeclaredType: typ,
 	}
 	// surely needs to be a declaration in some contexts
 	p.Scope.AddSequential(node)

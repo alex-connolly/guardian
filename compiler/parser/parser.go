@@ -120,6 +120,7 @@ func (p *Parser) parseScope(valids ...ast.NodeType) *ast.ScopeNode {
 	p.Scope = scope
 	for p.hasTokens(1) {
 		if p.current().Type == lexer.TknCloseBrace {
+			p.Scope = scope.Parent
 			return scope
 		}
 		found := false
@@ -132,9 +133,19 @@ func (p *Parser) parseScope(valids ...ast.NodeType) *ast.ScopeNode {
 			}
 		}
 		if !found {
-			//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.lexer.TokenString(p.current()))
-			p.addError(fmt.Sprintf("Unrecognised construct: %s", p.lexer.TokenString(p.current())))
-			p.next()
+			// try interpreting it as a call expression
+			saved := p.index
+			expr := p.parseExpression()
+			if expr == nil {
+				p.index = saved
+				//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.lexer.TokenString(p.current()))
+				p.addError(fmt.Sprintf("Unrecognised construct: %s", p.lexer.TokenString(p.current())))
+				p.next()
+			} else {
+				// ?
+				p.Scope.AddSequential(expr)
+			}
+
 		}
 	}
 	return scope

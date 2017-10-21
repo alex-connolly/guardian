@@ -1,4 +1,24 @@
 contract ClassContract {
 
-    
+    class Dog {
+
+    }
+
+    class Poodle inherits Dog {
+
+    }
+
+    class Spaniel inherits Dog {
+
+    }
+
+    abstract class Purebreed inherits Dog {
+
+    }
+
+    class Spoodle inherits Poodle, Spaniel {
+        
+    }
+
+
 }

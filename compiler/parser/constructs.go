@@ -8,6 +8,8 @@ type construct struct {
 
 func getPrimaryConstructs() []construct {
 	return []construct{
+
+		construct{"explict var declaration", isExplicitVarDeclaration, parseExplicitVarDeclaration},
 		construct{"class declaration", isClassDeclaration, parseClassDeclaration},
 		construct{"contract declaration", isContractDeclaration, parseContractDeclaration},
 		construct{"interface declaration", isInterfaceDeclaration, parseInterfaceDeclaration},
@@ -16,7 +18,6 @@ func getPrimaryConstructs() []construct {
 		construct{"enum declaration", isEnumDeclaration, parseEnumDeclaration},
 		construct{"type declaration", isTypeDeclaration, parseTypeDeclaration},
 		construct{"event declaration", isEventDeclaration, parseEventDeclaration},
-		construct{"explict var declaration", isExplicitVarDeclaration, parseExplicitVarDeclaration},
 
 		construct{"new line", isNewLine, parseNewLine},
 

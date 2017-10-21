@@ -28,7 +28,6 @@ func (v *Validator) validateScope(scope *ast.ScopeNode) {
 			v.validateDeclaration(i.(ast.Node))
 		}
 	}
-
 	for _, node := range scope.Sequence {
 		v.validate(node)
 	}
@@ -83,6 +82,14 @@ func (v *Validator) DeclareType(name string, t Type) {
 
 func (v *Validator) findReference(names ...string) Type {
 	search := makeName(names)
+	// always check standards first
+	// not declaring them in top scope means not having to go up each time
+	// can simply go to the local scope
+	for _, s := range standards {
+		if search == s.name {
+			return s
+		}
+	}
 	for s := v.scope; s != nil; s = s.parent {
 		if s.declaredTypes != nil {
 			for k, typ := range s.declaredTypes {

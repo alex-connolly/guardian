@@ -1,7 +1,7 @@
 contract Funcs {
 
     func doThing(){
-
+        withParams("hi", "me")
     }
 
     func withParams(a, b string){
@@ -17,6 +17,6 @@ contract Funcs {
     }
 
     func withDifferentTypes(a, b string, c int) {
-        
+
     }
 }

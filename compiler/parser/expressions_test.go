@@ -705,3 +705,23 @@ func TestParseHighlyChainedExpressionCallsOverridePrecedence(t *testing.T) {
 	goutil.AssertNow(t, b.Right.Type() == ast.BinaryExpression, "wrong right type")
 	goutil.AssertNow(t, b.Operator == lexer.TknMul, "wrong operator")
 }
+
+func TestParseCallExpressionSingleParameter(t *testing.T) {
+	p := createParser("do(6)")
+	expr := p.parseExpression()
+	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
+	goutil.AssertNow(t, expr.Type() == ast.CallExpression, "wrong expr type")
+	c := expr.(ast.CallExpressionNode)
+	goutil.AssertNow(t, c.Call.Type() == ast.Reference, "wrong call type")
+	goutil.AssertNow(t, len(c.Arguments) == 1, "wrong arg length")
+}
+
+func TestParseCallExpressionMultipleParameters(t *testing.T) {
+	p := createParser("do(6, 5)")
+	expr := p.parseExpression()
+	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
+	goutil.AssertNow(t, expr.Type() == ast.CallExpression, "wrong expr type")
+	c := expr.(ast.CallExpressionNode)
+	goutil.AssertNow(t, c.Call.Type() == ast.Reference, "wrong call type")
+	goutil.AssertNow(t, len(c.Arguments) == 2, "wrong arg length")
+}

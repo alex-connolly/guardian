@@ -17,7 +17,7 @@ contract Basic {
     }
 
     constructor(name int, name2 string){
-        
+
     }
 
 }

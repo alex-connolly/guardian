@@ -27,11 +27,15 @@ func isExplicitVarDeclaration(p *Parser) bool {
 }
 
 func (p *Parser) isNextAType() bool {
-	return p.isNextToken(lexer.TknIdentifier) || p.isArrayType() || p.isMapType()
+	return p.isNextToken(lexer.TknIdentifier) || p.isArrayType() || p.isMapType() || p.isFuncType()
 }
 
 func (p *Parser) isArrayType() bool {
 	return p.isNextToken(lexer.TknOpenSquare)
+}
+
+func (p *Parser) isFuncType() bool {
+	return p.isNextToken(lexer.TknFunc)
 }
 
 func (p *Parser) isMapType() bool {

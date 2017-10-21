@@ -55,7 +55,7 @@ func (s StandardType) compare(t Type) bool {
 	if !ok {
 		return false
 	}
-	return s.name == other.name
+	return s == other
 }
 
 func (c Class) compare(t Type) bool {

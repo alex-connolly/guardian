@@ -1,6 +1,10 @@
 package validator
 
-import "github.com/end-r/guardian/compiler/ast"
+import (
+	"fmt"
+
+	"github.com/end-r/guardian/compiler/ast"
+)
 
 func (v *Validator) validateDeclaration(node ast.Node) {
 	switch node.Type() {
@@ -32,6 +36,8 @@ func (v *Validator) validateFuncDeclaration(node ast.FuncDeclarationNode) {
 	// a valid function satisfies the following properties:
 	// no repeated parameter names
 	// all parameter types are visible in scope
+
+	fmt.Println("validating func decl")
 
 	for _, p := range node.Parameters {
 		for _, i := range p.Identifiers {
@@ -86,6 +92,7 @@ func (v *Validator) validateEventDeclaration(node ast.EventDeclarationNode) {
 	// a valid event satisfies the following properties:
 	// no repeated parameter names
 	// all parameter types are visible in scope
+	// TODO: events should be able to take any type
 	for _, n := range node.Parameters {
 		v.requireVisibleType(n.Names...)
 	}

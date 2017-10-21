@@ -15,6 +15,12 @@ func TestParseString(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 }
 
+func TestParseStringDeclaration(t *testing.T) {
+	p := ParseString("func hello() {}")
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, p.Scope.Declarations != nil, "decls should not be nil")
+}
+
 func TestParseFile(t *testing.T) {
 	ParseFile("tests/empty.grd")
 }
