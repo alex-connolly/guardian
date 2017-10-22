@@ -28,11 +28,12 @@ contract Ballot {
         }
     }
 
+
     external func giveRightToVote(voter address){
         enforce(msg.sender == chairperson)
         enforce(!voters[voter].voted)
         enforce(voters[voter].weight == 0)
-        voters[voter].weight = 1
+        voters[voter].weight  = 1
     }
 
     external func delegate(to address){
@@ -41,7 +42,7 @@ contract Ballot {
         enforce(!sender.voted)
         enforce(to != msg.sender)
 
-        for voters[to].delegate != address(0) {
+        for voters[to].delegate != 0 as address {
             to = voters[to].delegate
             enforce(to != msg.sender)
         }
@@ -66,6 +67,7 @@ contract Ballot {
 
         proposals[proposal].voteCount += sender.weight
     }
+
 
     external func winningProposal() uint {
         winningVoteCount := 0 as uint

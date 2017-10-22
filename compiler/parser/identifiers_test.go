@@ -19,6 +19,10 @@ func TestIsClassDeclaration(t *testing.T) {
 	goutil.Assert(t, isClassDeclaration(p), "class declaration not recognised")
 	p = createParser("abstract class Dog {")
 	goutil.Assert(t, isClassDeclaration(p), "abstract class declaration not recognised")
+	p = createParser("external class Box {")
+	goutil.Assert(t, isClassDeclaration(p), "modifier statement not recognised")
+	p = createParser("abstract external class Box {")
+	goutil.Assert(t, isClassDeclaration(p), "double modifier statement not recognised")
 }
 
 func TestIsInterfaceDeclaration(t *testing.T) {
@@ -26,6 +30,10 @@ func TestIsInterfaceDeclaration(t *testing.T) {
 	goutil.Assert(t, isInterfaceDeclaration(p), "interface declaration not recognised")
 	p = createParser("abstract interface Box {")
 	goutil.Assert(t, isInterfaceDeclaration(p), "abstract interface declaration not recognised")
+	p = createParser("external interface Box {")
+	goutil.Assert(t, isInterfaceDeclaration(p), "modifier statement not recognised")
+	p = createParser("abstract external interface Box {")
+	goutil.Assert(t, isInterfaceDeclaration(p), "double modifier statement not recognised")
 }
 
 func TestIsContractDeclaration(t *testing.T) {
@@ -33,6 +41,10 @@ func TestIsContractDeclaration(t *testing.T) {
 	goutil.Assert(t, isContractDeclaration(p), "contract declaration not recognised")
 	p = createParser("abstract contract Box {")
 	goutil.Assert(t, isContractDeclaration(p), "abstract contract declaration not recognised")
+	p = createParser("external func main() (int, int) {")
+	goutil.Assert(t, isFuncDeclaration(p), "modifier statement not recognised")
+	p = createParser("abstract external func main() (int, int) {")
+	goutil.Assert(t, isFuncDeclaration(p), "double modifier statement not recognised")
 }
 
 func TestIsFuncDeclaration(t *testing.T) {
@@ -44,6 +56,10 @@ func TestIsFuncDeclaration(t *testing.T) {
 	goutil.Assert(t, isFuncDeclaration(p), "returning function declaration not recognised")
 	p = createParser("func main() (int, int) {")
 	goutil.Assert(t, isFuncDeclaration(p), "tuple returning function declaration not recognised")
+	p = createParser("external func main() (int, int) {")
+	goutil.Assert(t, isFuncDeclaration(p), "modifier statement not recognised")
+	p = createParser("abstract external func main() (int, int) {")
+	goutil.Assert(t, isFuncDeclaration(p), "double modifier statement not recognised")
 }
 
 func TestIsTypeDeclaration(t *testing.T) {
@@ -53,6 +69,10 @@ func TestIsTypeDeclaration(t *testing.T) {
 	goutil.Assert(t, isTypeDeclaration(p), "array type declaration not recognised")
 	p = createParser("type Large map[int]string")
 	goutil.Assert(t, isTypeDeclaration(p), "map type declaration not recognised")
+	p = createParser("external type Large int")
+	goutil.Assert(t, isTypeDeclaration(p), "modifier statement not recognised")
+	p = createParser("abstract external type Large int")
+	goutil.Assert(t, isTypeDeclaration(p), "double modifier statement not recognised")
 }
 
 func TestIsReturnStatement(t *testing.T) {
@@ -89,6 +109,10 @@ func TestIsExplicitVarDeclaration(t *testing.T) {
 	goutil.Assert(t, isExplicitVarDeclaration(p), "map expvar statement not recognised")
 	p = createParser("x [string]")
 	goutil.Assert(t, isExplicitVarDeclaration(p), "array expvar statement not recognised")
+	p = createParser("external x string")
+	goutil.Assert(t, isExplicitVarDeclaration(p), "modifier statement not recognised")
+	p = createParser("abstract external x string")
+	goutil.Assert(t, isExplicitVarDeclaration(p), "double modifier statement not recognised")
 }
 
 func TestIsSwitchStatement(t *testing.T) {

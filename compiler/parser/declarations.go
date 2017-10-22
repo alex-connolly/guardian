@@ -6,15 +6,19 @@ import (
 )
 
 func (p *Parser) parseModifiers(target lexer.TokenType) []lexer.TokenType {
+
 	var mods []lexer.TokenType
 	for p.current().Type != target {
+
 		if p.current().Type.IsModifier() {
 			mods = append(mods, p.current().Type)
 			p.next()
 		} else {
 			p.addError("Invalid modifier")
+			p.next()
 		}
 	}
+
 	return mods
 }
 
@@ -253,7 +257,7 @@ func (p *Parser) parseTypeList() []ast.Node {
 }
 
 func (p *Parser) parseVarDeclaration() ast.ExplicitVarDeclarationNode {
-	modifiers := p.parseModifiers(lexer.TknIdentifier)
+
 	var names []string
 	names = append(names, p.parseIdentifier())
 	for p.parseOptional(lexer.TknComma) {
@@ -263,7 +267,6 @@ func (p *Parser) parseVarDeclaration() ast.ExplicitVarDeclarationNode {
 	dType := p.parseType()
 
 	return ast.ExplicitVarDeclarationNode{
-		Modifiers:    modifiers,
 		DeclaredType: dType,
 		Identifiers:  names,
 	}
@@ -417,6 +420,9 @@ func (p *Parser) parseArrayType() ast.ArrayTypeNode {
 
 func parseExplicitVarDeclaration(p *Parser) {
 	// parse variable Names
+
+	modifiers := p.parseModifiers(lexer.TknIdentifier)
+
 	var names []string
 	names = append(names, p.parseIdentifier())
 	for p.parseOptional(lexer.TknComma) {
@@ -426,6 +432,7 @@ func parseExplicitVarDeclaration(p *Parser) {
 	typ := p.parseType()
 
 	node := ast.ExplicitVarDeclarationNode{
+		Modifiers:    modifiers,
 		Identifiers:  names,
 		DeclaredType: typ,
 	}

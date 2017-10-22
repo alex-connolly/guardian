@@ -5,9 +5,10 @@ import (
 )
 
 type AssignmentStatementNode struct {
-	Left     []ExpressionNode
-	Operator lexer.TokenType
-	Right    []ExpressionNode
+	Modifiers []lexer.TokenType
+	Left      []ExpressionNode
+	Operator  lexer.TokenType
+	Right     []ExpressionNode
 }
 
 func (n AssignmentStatementNode) Type() NodeType { return AssignmentStatement }

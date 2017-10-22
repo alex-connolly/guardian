@@ -32,6 +32,9 @@ func (p *Parser) parseOptionalAssignment() *ast.AssignmentStatementNode {
 }
 
 func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
+
+	modifiers := p.parseModifiers(lexer.TknIdentifier)
+
 	var assigned []ast.ExpressionNode
 	assigned = append(assigned, p.parseExpression())
 	for p.parseOptional(lexer.TknComma) {
@@ -49,8 +52,9 @@ func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 	}
 
 	return ast.AssignmentStatementNode{
-		Left:  assigned,
-		Right: to,
+		Modifiers: modifiers,
+		Left:      assigned,
+		Right:     to,
 	}
 }
 

@@ -5,28 +5,28 @@ contract BlindAuction {
         deposit uint
     }
 
-    expose beneficiary address
-    expose biddingEnd uint
-    expose revealEnd uint
-    expose ended bool
+    external beneficiary address
+    external biddingEnd uint
+    external revealEnd uint
+    external ended bool
 
-    expose bids map[address][Bid]
-    expose highestBidder address
-    expose highestBid uint
+    external bids map[address][Bid]
+    external highestBidder address
+    external highestBid uint
 
     pendingReturns map[address]uint
 
     event AuctionEnded(winner address, highestBid uint)
 
-    func onlyBefore(time uint){
+    internal func onlyBefore(time uint){
         enforce(now() < time)
     }
 
-    func onlyAfter(time uint){
+    internal func onlyAfter(time uint){
         enforce(now() > time)
     }
 
-    constructor(biddingTime uint, revealTime uint, beneficiary address){
+    constructor(biddingTime, revealTime uint, beneficiary address){
         this.beneficiary = beneficiary
         this.biddingEnd = now() + biddingTime
         this.revealEnd = this.biddingEnd + revealTime

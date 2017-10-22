@@ -1,12 +1,12 @@
 contract Purchase {
 
-    expose value uint
-    expose seller address
-    expose buyer address
+    external value uint
+    external seller address
+    external buyer address
 
-    enum State { Created, Locked, Inactive}
+    enum State { Created, Locked, Inactive }
 
-    expose state State
+    external state State
 
     constructor(){
         seller = msg.sender
@@ -14,11 +14,11 @@ contract Purchase {
         enforce((2 * value) == msg.value)
     }
 
-    event Aborted();
-    event PurchaseConfirmed();
-    event ItemReceived();
+    event Aborted()
+    event PurchaseConfirmed()
+    event ItemReceived()
 
-    func abort(){
+    external func abort(){
         enforce(msg.sender == seller)
         enforce(state == State.Created)
         Aborted()
@@ -26,7 +26,7 @@ contract Purchase {
         transfer(seller, this.balance)
     }
 
-    func confirmPurchase(){
+    external func confirmPurchase(){
         enforce(state == State.Created)
         enforce(msg.value == (2 * value))
 
@@ -35,7 +35,7 @@ contract Purchase {
         state = State.Locked
     }
 
-    func confirmReceived() {
+    external func confirmReceived() {
         enforce(msg.sender == buyer)
         enforce(state == State.Locked)
         ItemReceived()

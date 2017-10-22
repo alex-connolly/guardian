@@ -146,3 +146,8 @@ func TestHasByte(t *testing.T) {
 	l.byteOffset = 0
 	goutil.Assert(t, l.hasBytes(1), "start should have bytes")
 }
+
+func TestLexerModifiers(t *testing.T) {
+	l := LexString("protected abstract external internal")
+	checkTokens(t, l.Tokens, []TokenType{TknProtected, TknAbstract, TknExternal, TknInternal})
+}

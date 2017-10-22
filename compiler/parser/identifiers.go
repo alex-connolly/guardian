@@ -46,13 +46,15 @@ func (p *Parser) isMapType() bool {
 
 func (p *Parser) modifiersUntilToken(types ...lexer.TokenType) bool {
 	saved := p.index
-	for p.current().Type.IsModifier() {
-		p.next()
-	}
-	for _, t := range types {
-		if p.current().Type == t {
-			p.index = saved
-			return true
+	if p.hasTokens(1) {
+		for p.current().Type.IsModifier() {
+			p.next()
+		}
+		for _, t := range types {
+			if p.current().Type == t {
+				p.index = saved
+				return true
+			}
 		}
 	}
 	p.index = saved

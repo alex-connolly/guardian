@@ -25,7 +25,15 @@ func (t TokenType) IsUnaryOperator() bool {
 }
 
 func (t TokenType) IsModifier() bool {
-	for _, m := range GetModifiers() {
+	return t.isToken(GetModifiers())
+}
+
+func (t TokenType) IsAssignment() bool {
+	return t.isToken(GetAssignments())
+}
+
+func (t TokenType) isToken(list []TokenType) bool {
+	for _, m := range list {
 		if t == m {
 			return true
 		}
@@ -34,11 +42,17 @@ func (t TokenType) IsModifier() bool {
 }
 
 func GetModifiers() []TokenType {
-	return []TokenType{TknInternal, TknExternal, TknPublic, TknPrivate, TknProtected, TknStatic, TknAbstract}
+	return []TokenType{TknConst, TknInternal, TknExternal, TknPublic, TknPrivate, TknProtected, TknStatic, TknAbstract}
 }
 
 func GetLifecycles() []TokenType {
 	return []TokenType{TknConstructor, TknDestructor}
+}
+
+func GetAssignments() []TokenType {
+	return []TokenType{TknAssign, TknAddAssign, TknSubAssign, TknMulAssign,
+		TknDivAssign, TknShrAssign, TknShlAssign, TknModAssign, TknAndAssign,
+		TknOrAssign, TknXorAssign, TknDefine}
 }
 
 const (
