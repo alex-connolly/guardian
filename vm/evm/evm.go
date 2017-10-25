@@ -45,9 +45,6 @@ func (e Traverser) Traverse(node ast.Node) {
 	case ast.FuncDeclaration:
 		e.traverseFunc(node.(ast.FuncDeclarationNode))
 		break
-	case ast.ConstructorDeclaration:
-		e.traverseConstructor(node.(ast.ConstructorDeclarationNode))
-		break
 	case ast.IndexExpression:
 		e.traverseIndex(node.(ast.IndexExpressionNode))
 		break
@@ -94,4 +91,8 @@ func (e Traverser) Traverse(node ast.Node) {
 		e.traverseSwitchStatement(node.(ast.SwitchStatementNode))
 		break
 	}
+}
+
+func (e *Traverser) inStorage() bool {
+	return false
 }

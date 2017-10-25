@@ -5,6 +5,9 @@ import "github.com/end-r/guardian/compiler/ast"
 func (e *Traverser) traverseSwitchStatement(n ast.SwitchStatementNode) {
 	// always traverse the target
 	e.Traverse(n.Target)
+	// switch statements are implicitly converted to if statements
+	// may be a better way to do this
+	// Solidity doesn't have a switch so shrug
 
 }
 
@@ -36,5 +39,12 @@ func (e *Traverser) traverseIfStatement(n ast.IfStatementNode) {
 
 func (e *Traverser) traverseAssignmentStatement(n ast.AssignmentStatementNode) {
 	// assignments are either in memory or storage depending on the context
+	if e.inStorage() || hasModifier(n, "storage") {
 
+	}
+
+}
+
+func hasModifier(n ast.Node, modifier string) bool {
+	return false
 }

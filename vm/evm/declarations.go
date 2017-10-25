@@ -6,10 +6,6 @@ func (e *Traverser) traverseType(n ast.TypeDeclarationNode) {
 
 }
 
-func (e *Traverser) traverseConstructor(n ast.ConstructorDeclarationNode) {
-
-}
-
 func (e *Traverser) traverseClass(n ast.ClassDeclarationNode) {
 
 }

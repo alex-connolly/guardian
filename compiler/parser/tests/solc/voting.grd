@@ -17,6 +17,7 @@ contract Ballot {
     external proposals [Proposal]
 
     constructor(proposalNames [bytes32]){
+
         chairperson = msg.sender
         voters[chairperson].weight = 1
 
