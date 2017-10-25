@@ -93,7 +93,7 @@ All types which explicitly implement an interface through the ```is``` keyword m
 
 ## Builtins
 
-Similarly to Solidity, data about the current block may be extracted from the environment using a series of builtins.
+Similarly to Solidity, data about the current block may be extracted from the environment using a series of builtins. However, Solidity uses syntax reminiscent of object fields (e.g. ```msg.sender```), which are misleading as to the true nature of these builtins, which are immutable. Guardian therefore replaces them with a series of builtin method calls.
 
 Builtin variables:
 
@@ -106,7 +106,7 @@ Builtin variables:
 | block.timestamp | block.timestamp | TIMESTAMP | TIMESTAMP  |
 | call.data | msg.data | CALLDATA | CALLDATA |
 | call.gas | msg.gas | GAS | FUEL |
-| call.caller | msg.sender | CALLER | CALLER |
+| caller() | msg.sender | CALLER | CALLER |
 | call.sig | msg.sig | H | H |
 | cn.gasPrice | tx.gasprice | GASPRICE | FUELPRICE |
 | cn.origin | tx.origin | ORIGIN | ORIGIN |
