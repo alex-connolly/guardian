@@ -7,12 +7,7 @@ type TokenType int
 
 // IsBinaryOperator ...
 func (t TokenType) IsBinaryOperator() bool {
-	switch t {
-	case TknAdd, TknSub, TknMul, TknDiv, TknGtr, TknLss, TknGeq, TknLeq,
-		TknAs, TknAnd, TknOr, TknEql, TknXor, TknIs, TknShl, TknShr:
-		return true
-	}
-	return false
+	return t.isToken(GetBinaryOperators())
 }
 
 // IsUnaryOperator ...
@@ -41,14 +36,25 @@ func (t TokenType) isToken(list []TokenType) bool {
 	return false
 }
 
+// GetBinaryOperators ...
+func GetBinaryOperators() []TokenType {
+	return []TokenType{
+		TknAdd, TknSub, TknMul, TknDiv, TknGtr, TknLss, TknGeq, TknLeq,
+		TknAs, TknAnd, TknOr, TknEql, TknXor, TknIs, TknShl, TknShr,
+	}
+}
+
+// GetModifiers ....
 func GetModifiers() []TokenType {
 	return []TokenType{TknConst, TknInternal, TknExternal, TknPublic, TknPrivate, TknProtected, TknStatic, TknAbstract}
 }
 
+// GetLifecycles ....
 func GetLifecycles() []TokenType {
 	return []TokenType{TknConstructor, TknDestructor}
 }
 
+// GetAssignments ...
 func GetAssignments() []TokenType {
 	return []TokenType{TknAssign, TknAddAssign, TknSubAssign, TknMulAssign,
 		TknDivAssign, TknShrAssign, TknShlAssign, TknModAssign, TknAndAssign,

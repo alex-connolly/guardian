@@ -38,9 +38,25 @@ func (e *Traverser) traverseIfStatement(n ast.IfStatementNode) {
 }
 
 func (e *Traverser) traverseAssignmentStatement(n ast.AssignmentStatementNode) {
-	// assignments are either in memory or storage depending on the context
-	if e.inStorage() || hasModifier(n, "storage") {
-
+	// consider mismatched lengths
+	if len(n.Left) > 1 && len(n.Right) == 1 {
+		for _, l := range n.Left {
+			e.Traverse(l)
+			e.Traverse(n.Right[0])
+			// assignments are either in memory or storage depending on the context
+			if e.inStorage() || hasModifier(n, "storage") {
+				e.AddBytecode("")
+			}
+		}
+	} else {
+		for i, l := range n.Left {
+			e.Traverse(l)
+			e.Traverse(n.Right[i])
+			// assignments are either in memory or storage depending on the context
+			if e.inStorage() || hasModifier(n, "storage") {
+				e.AddBytecode("")
+			}
+		}
 	}
 
 }

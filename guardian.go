@@ -12,6 +12,7 @@ import (
 // Traverser ...
 type Traverser interface {
 	Traverse(ast.Node)
+	AddBytecode(string, ...byte)
 }
 
 // CompileFile ...

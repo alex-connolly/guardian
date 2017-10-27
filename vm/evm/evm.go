@@ -13,6 +13,10 @@ type Traverser struct {
 	VM *vmgen.VM
 }
 
+func (t Traverser) AddBytecode(op string, params ...byte) {
+	t.VM.AddBytecode(op, params...)
+}
+
 func NewTraverser() Traverser {
 	return Traverser{}
 }

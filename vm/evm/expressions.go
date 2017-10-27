@@ -17,6 +17,14 @@ func (e *Traverser) traverseSliceExpression(n ast.SliceExpressionNode) {
 
 func (e *Traverser) traverseCompositeLiteral(n ast.CompositeLiteralNode) {
 
+	if e.inStorage() {
+
+	} else {
+		// the object exists in memory
+		// things will have a byte offset
+
+	}
+
 }
 
 var binaryOps = map[lexer.TokenType]string{
@@ -33,10 +41,18 @@ var binaryOps = map[lexer.TokenType]string{
 }
 
 func (e *Traverser) traverseBinaryExpr(n ast.BinaryExpressionNode) {
+	/* alter stack:
+
+	| Operand 1 |
+	| Operand 2 |
+	| Operator  |
+
+	Note that these operands may contain further expressions of arbitrary depth.
+	*/
 	e.Traverse(n.Left)
 	e.Traverse(n.Right)
 	// operation
-	e.VM.AddBytecode(binaryOps[n.Operator])
+	e.AddBytecode(binaryOps[n.Operator])
 }
 
 var unaryOps = map[lexer.TokenType]string{
@@ -44,8 +60,15 @@ var unaryOps = map[lexer.TokenType]string{
 }
 
 func (e *Traverser) traverseUnaryExpr(n ast.UnaryExpressionNode) {
-	e.VM.AddBytecode(unaryOps[n.Operator])
+	/* alter stack:
+
+	| Expression 1 |
+	| Operand      |
+
+	Note that these expressions may contain further expressions of arbitrary depth.
+	*/
 	e.Traverse(n.Operand)
+	e.AddBytecode(unaryOps[n.Operator])
 }
 
 func (e *Traverser) traverseCallExpr(n ast.CallExpressionNode) {
@@ -54,36 +77,55 @@ func (e *Traverser) traverseCallExpr(n ast.CallExpressionNode) {
 	}
 	// parameters are at the top of the stack
 	// jump to the top of the function
+
 }
 
 func (e *Traverser) traverseLiteral(n ast.LiteralNode) {
 	// Literal Nodes are directly converted to push instructions
-	var parameters []byte
+	// these nodes must be divided into blocks of 16 bytes
+	// in order to maintain
+
 	bytes := n.GetBytes()
-	parameters = append(parameters, byte(len(bytes)))
-	parameters = append(parameters, bytes...)
-	e.VM.AddBytecode("PUSH", parameters...)
+	const maxLength = 16
+
+	for remaining := len(bytes); remaining > maxLength; remaining -= maxLength {
+		base := len(bytes) - remaining
+		e.AddBytecode("PUSH", bytes[base:base+maxLength]...)
+	}
+
 }
 
 func (e *Traverser) traverseIndex(n ast.IndexExpressionNode) {
-	// evaluate the index
+
 	e.Traverse(n.Index)
-	// then MLOAD it at the index offset
 	e.Traverse(n.Expression)
-	e.VM.AddBytecode("GET")
+
+	if e.inStorage() {
+		e.AddBytecode("SLOAD")
+	} else {
+		e.AddBytecode("MLOAD")
+	}
+
 }
 
 func (e *Traverser) traverseMapLiteral(n ast.MapLiteralNode) {
-	for k, v := range n.Data {
-		e.Traverse(k)
-		e.Traverse(v)
-	}
-	// push the size of the map
-	e.VM.AddBytecode("PUSH", byte(1), byte(len(n.Data)))
-	e.VM.AddBytecode("MAP")
+	// the evm doesn't support maps in the same way firevm does
+	// Solidity converts things to a mapping
+	// all keys to all values etc
+	// precludes iteration
+	// TODO: can we do it better?
+	e.AddBytecode("")
 }
 
 func (e *Traverser) traverseReference(n ast.ReferenceNode) {
+
+	e.AddBytecode("PUSH")
+
+	if e.inStorage() {
+		e.AddBytecode("SLOAD")
+	} else {
+		e.AddBytecode("MLOAD")
+	}
 
 	// reference e.g. dog.tail.wag()
 	// get the object
@@ -91,12 +133,12 @@ func (e *Traverser) traverseReference(n ast.ReferenceNode) {
 		// if in storage
 		// only the top level name is accessible in storage
 		// everything else is accessed
-		e.VM.AddBytecode("PUSH", len(n.Names[0]), n.Names[0])
-		e.VM.AddBytecode("LOAD")
+		e.AddBytecode("PUSH", len(n.Names[0]), n.Names[0])
+		e.AddBytecode("LOAD")
 
 		// now get the sub-references
-		// e.VM.AddBytecode("", params)
+		// e.AddBytecode("", params)
 	} else {
-		e.VM.AddBytecode("GET")
+		e.AddBytecode("GET")
 	}*/
 }
