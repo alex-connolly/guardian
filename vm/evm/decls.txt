@@ -7,11 +7,12 @@ func (e *Traverser) traverseType(n ast.TypeDeclarationNode) {
 }
 
 func (e *Traverser) traverseClass(n ast.ClassDeclarationNode) {
-
+    
 }
 
 func (e *Traverser) traverseInterface(n ast.InterfaceDeclarationNode) {
-
+    // don't need to be interacted with
+    // all interfaces are dealt with by the type system
 }
 
 func (e *Traverser) traverseEnum(n ast.EnumDeclarationNode) {
