@@ -17,6 +17,7 @@ const (
 	MapType
 	FuncType
 
+	Identifier
 	Reference
 	Literal
 	CompositeLiteral

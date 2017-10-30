@@ -41,7 +41,7 @@ func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 		assigned = append(assigned, p.parseExpression())
 	}
 
-	p.parseRequired(lexer.GetAssignments())
+	p.parseRequired(lexer.GetAssignments()...)
 
 	var to []ast.ExpressionNode
 	to = append(to, p.parseExpression())

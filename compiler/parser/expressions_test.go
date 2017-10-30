@@ -366,6 +366,19 @@ func TestParseCompositeLiteralInline(t *testing.T) {
 	goutil.AssertNow(t, len(n.Fields) == 1, "wrong number of fields")
 }
 
+func TestParseCompositeLiteralMultiline(t *testing.T) {
+	p := createParser(`Dog{
+		name: "Mr Woof",
+		age: 17,
+		weight: calculateWeight(),
+		colour: estimateColour("blueish"),
+		height: 180,
+		}`)
+	expr := p.parseExpression()
+	goutil.AssertNow(t, expr != nil, "expression shouldn't be nil")
+	goutil.AssertNow(t, expr.Type() == ast.CompositeLiteral, "wrong node type")
+}
+
 func TestParseIndexExpressionReferenceReference(t *testing.T) {
 	p := createParser(`array[index]`)
 	expr := p.parseExpression()
@@ -724,4 +737,11 @@ func TestParseCallExpressionMultipleParameters(t *testing.T) {
 	c := expr.(ast.CallExpressionNode)
 	goutil.AssertNow(t, c.Call.Type() == ast.Reference, "wrong call type")
 	goutil.AssertNow(t, len(c.Arguments) == 2, "wrong arg length")
+}
+
+func TestParseReferenceExpressionIndexExpression(t *testing.T) {
+	p := createParser("data[5].hello")
+	expr := p.parseExpression()
+	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
+	goutil.AssertNow(t, expr.Type() == ast.Identifier, "wrong expr type")
 }

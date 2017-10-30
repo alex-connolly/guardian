@@ -83,8 +83,15 @@ type FuncLiteralNode struct {
 // Type ...
 func (n FuncLiteralNode) Type() NodeType { return FuncLiteral }
 
+type IdentifierNode struct {
+	Name string
+}
+
+func (n IdentifierNode) Type() NodeType { return Identifier }
+
 type ReferenceNode struct {
-	Names []string
+	Parent    ExpressionNode
+	Reference ExpressionNode
 }
 
 func (n ReferenceNode) Type() NodeType { return Reference }
