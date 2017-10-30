@@ -202,6 +202,7 @@ func (p *Parser) parsePrefixUnaryExpression() (n ast.UnaryExpressionNode) {
 }
 
 func (p *Parser) parseReference(expr ast.ExpressionNode) (n ast.ReferenceNode) {
+	p.parseRequired(lexer.TknDot)
 	n.Parent = expr
 	n.Reference = p.parseExpression()
 	return n
@@ -304,8 +305,8 @@ func (p *Parser) parseLiteral() (n ast.LiteralNode) {
 }
 
 func (p *Parser) parseCompositeLiteral(expr ast.ExpressionNode) (n ast.CompositeLiteralNode) {
-	// expr must be a reference node
-	n.Reference = expr.(ast.ReferenceNode)
+	// expr must be a reference or identifier node
+	n.Reference = expr
 	p.parseRequired(lexer.TknOpenBrace)
 	if !p.parseOptional(lexer.TknCloseBrace) {
 		firstKey := p.parseIdentifier()

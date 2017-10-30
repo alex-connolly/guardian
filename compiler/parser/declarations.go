@@ -32,7 +32,7 @@ func parseInterfaceDeclaration(p *Parser) {
 	var inherits []ast.ReferenceNode
 
 	if p.parseOptional(lexer.TknInherits) {
-		inherits = p.parseReferenceIdentifierList()
+		inherits = p.parseIdentifierReferenceList()
 	}
 
 	signatures := p.parseInterfaceSignatures()
@@ -127,7 +127,7 @@ func parseEnumDeclaration(p *Parser) {
 	var inherits []ast.ReferenceNode
 
 	if p.parseOptional(lexer.TknInherits) {
-		inherits = p.parseReferenceIdentifierList()
+		inherits = p.parseIdentifierReferenceList()
 	}
 
 	enums := p.parseEnumBody()
@@ -142,31 +142,28 @@ func parseEnumDeclaration(p *Parser) {
 	p.Scope.AddDeclaration(identifier, node)
 }
 
-// like any list parser, but enforces that each node must be a reference
-func (p *Parser) parseReferenceIdentifierList() []ast.ReferenceNode {
-	// TODO: this is a very messy way of doing this
-	var refs []ast.ReferenceNode
-	id := p.parseIdentifierExpression()
+func (p *Parser) parseIdentifierReference() ast.ReferenceNode {
+	// TODO: this is a very messy way of doing this, is there a better one
 	var ref ast.ReferenceNode
 	current := ref
-	if p.parseOptional(lexer.TknDot) {
-		current.Parent = id
+	id := p.parseIdentifierExpression()
+	current.Parent = id
+	for p.parseOptional(lexer.TknDot) {
 		id = p.parseIdentifierExpression()
 		current.Reference = id
-		current = current.Reference.(ast.ReferenceNode)
-	}
-	refs = append(refs, ref)
-	for p.parseOptional(lexer.TknComma) {
-		id := p.parseIdentifierExpression()
-		var ref ast.ReferenceNode
-		current := ref
-		if p.parseOptional(lexer.TknDot) {
-			current.Parent = id
-			id = p.parseIdentifierExpression()
-			current.Reference = id
-			current = current.Reference.(ast.ReferenceNode)
+		current = ast.ReferenceNode{
+			Parent: current.Reference,
 		}
-		refs = append(refs, ref)
+	}
+	return ref
+}
+
+// like any list parser, but enforces that each node must be a reference
+func (p *Parser) parseIdentifierReferenceList() []ast.ReferenceNode {
+	var refs []ast.ReferenceNode
+	refs = append(refs, p.parseIdentifierReference())
+	for p.parseOptional(lexer.TknComma) {
+		refs = append(refs, p.parseIdentifierReference())
 	}
 	return refs
 }
@@ -183,14 +180,14 @@ func parseClassDeclaration(p *Parser) {
 	var inherits, interfaces []ast.ReferenceNode
 
 	if p.parseOptional(lexer.TknInherits) {
-		inherits = p.parseReferenceIdentifierList()
+		inherits = p.parseIdentifierReferenceList()
 		if p.parseOptional(lexer.TknIs) {
-			interfaces = p.parseReferenceIdentifierList()
+			interfaces = p.parseIdentifierReferenceList()
 		}
 	} else if p.parseOptional(lexer.TknIs) {
-		interfaces = p.parseReferenceIdentifierList()
+		interfaces = p.parseIdentifierReferenceList()
 		if p.parseOptional(lexer.TknInherits) {
-			inherits = p.parseReferenceIdentifierList()
+			inherits = p.parseIdentifierReferenceList()
 		}
 	}
 
@@ -219,14 +216,14 @@ func parseContractDeclaration(p *Parser) {
 	var inherits, interfaces []ast.ReferenceNode
 
 	if p.parseOptional(lexer.TknInherits) {
-		inherits = p.parseReferenceIdentifierList()
+		inherits = p.parseIdentifierReferenceList()
 		if p.parseOptional(lexer.TknIs) {
-			interfaces = p.parseReferenceIdentifierList()
+			interfaces = p.parseIdentifierReferenceList()
 		}
 	} else if p.parseOptional(lexer.TknIs) {
-		interfaces = p.parseReferenceIdentifierList()
+		interfaces = p.parseIdentifierReferenceList()
 		if p.parseOptional(lexer.TknInherits) {
-			inherits = p.parseReferenceIdentifierList()
+			inherits = p.parseIdentifierReferenceList()
 		}
 	}
 
@@ -259,7 +256,7 @@ func (p *Parser) parseType() ast.Node {
 	case p.isFuncType():
 		return p.parseFuncType()
 	case p.current().Type == lexer.TknIdentifier:
-		return p.parseIdentifierExpression()
+		return p.parseIdentifierReference()
 	}
 	return nil
 }
@@ -465,7 +462,7 @@ func parseEventDeclaration(p *Parser) {
 	p.parseRequired(lexer.TknOpenBracket)
 	var types []ast.ReferenceNode
 	if !p.parseOptional(lexer.TknCloseBracket) {
-		types = p.parseReferenceIdentifierList()
+		types = p.parseIdentifierReferenceList()
 		p.parseRequired(lexer.TknCloseBracket)
 	}
 

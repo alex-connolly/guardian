@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/compiler/ast"
 	"github.com/end-r/guardian/compiler/lexer"
 )
@@ -16,9 +18,11 @@ func parseReturnStatement(p *Parser) {
 }
 
 func parseAssignmentStatement(p *Parser) {
+	fmt.Println("xxx")
 	node := p.parseAssignment()
 	p.Scope.AddSequential(node)
 	p.parseOptional(lexer.TknSemicolon)
+	fmt.Println("done")
 }
 
 func (p *Parser) parseOptionalAssignment() *ast.AssignmentStatementNode {

@@ -21,7 +21,7 @@ func TestParseAssignmentStatementSingleConstant(t *testing.T) {
 	goutil.AssertNow(t, len(assignmentStmt.Right) == 1, "wrong right length")
 	left := assignmentStmt.Left[0]
 	right := assignmentStmt.Right[0]
-	goutil.AssertNow(t, left.Type() == ast.Reference, "wrong left type")
+	goutil.AssertNow(t, left.Type() == ast.Identifier, "wrong left type")
 	goutil.AssertNow(t, right.Type() == ast.Literal, "wrong right type")
 }
 
@@ -183,7 +183,7 @@ func TestSingleReferenceReturnStatement(t *testing.T) {
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 1, "wrong result length")
-	goutil.AssertNow(t, r.Results[0].Type() == ast.Reference, "wrong result 0 type")
+	goutil.AssertNow(t, r.Results[0].Type() == ast.Identifier, "wrong result 0 type")
 }
 
 func TestMultipleReferenceReturnStatement(t *testing.T) {
@@ -195,8 +195,8 @@ func TestMultipleReferenceReturnStatement(t *testing.T) {
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 2, "wrong result length")
-	goutil.AssertNow(t, r.Results[0].Type() == ast.Reference, "wrong result 0 type")
-	goutil.AssertNow(t, r.Results[1].Type() == ast.Reference, "wrong result 1 type")
+	goutil.AssertNow(t, r.Results[0].Type() == ast.Identifier, "wrong result 0 type")
+	goutil.AssertNow(t, r.Results[1].Type() == ast.Identifier, "wrong result 1 type")
 }
 
 func TestSingleCallReturnStatement(t *testing.T) {
@@ -310,10 +310,10 @@ func TestSimpleLiteralAssignmentStatement(t *testing.T) {
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be one left value")
-	goutil.AssertNow(t, a.Left[0].Type() == ast.Reference, "wrong left type")
+	goutil.AssertNow(t, a.Left[0].Type() == ast.Identifier, "wrong left type")
 }
 
-func TestIncrementLiteralAssignmentStatement(t *testing.T) {
+func TestIncrementReferenceAssignmentStatement(t *testing.T) {
 	p := createParser("x++")
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
@@ -321,7 +321,7 @@ func TestIncrementLiteralAssignmentStatement(t *testing.T) {
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be one left value")
-	goutil.AssertNow(t, a.Left[0].Type() == ast.Reference, "wrong left type")
+	goutil.AssertNow(t, a.Left[0].Type() == ast.Identifier, "wrong left type")
 }
 
 func TestMultiToSingleLiteralAssignmentStatement(t *testing.T) {
@@ -333,7 +333,14 @@ func TestMultiToSingleLiteralAssignmentStatement(t *testing.T) {
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
-	goutil.AssertNow(t, a.Left[0].Type() == ast.Reference, "wrong left type")
+	goutil.AssertNow(t, a.Left[0].Type() == ast.Identifier, "wrong left type")
+}
+
+func TestIndexReferenceAssignmentStatement(t *testing.T) {
+	p := ParseString("voters[chairperson].weight = 1")
+	n := p.Scope.Next()
+	goutil.AssertNow(t, len(p.Scope.Sequence) == 1, "wrong sequence length")
+	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong type")
 }
 
 func TestMultiLiteralAssignmentStatement(t *testing.T) {

@@ -113,6 +113,12 @@ func TestIsExplicitVarDeclaration(t *testing.T) {
 	goutil.Assert(t, isExplicitVarDeclaration(p), "modifier statement not recognised")
 	p = createParser("abstract external x string")
 	goutil.Assert(t, isExplicitVarDeclaration(p), "double modifier statement not recognised")
+	p = createParser("x = 5")
+	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not recognise simple assignment")
+	p = createParser("a[b] = 5")
+	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not recognise index assignment")
+	p = createParser("a[b].c = 5")
+	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not recognise reference assignment")
 }
 
 func TestIsSwitchStatement(t *testing.T) {
