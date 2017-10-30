@@ -154,8 +154,8 @@ func parseSwitchStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknSwitch)
 
-	// TODO: currently only works with reference
-	target := p.parseReference()
+	// TODO: currently only works with identifier
+	target := p.parseIdentifierExpression()
 
 	cases := p.parseEnclosedScope(ast.CaseStatement)
 

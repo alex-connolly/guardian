@@ -31,7 +31,6 @@ func TestParseInterfaceDeclarationSingleInheritance(t *testing.T) {
 	i := n.(ast.InterfaceDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 1, "wrong supers length")
-	goutil.AssertNow(t, i.Supers[0].Names[0] == "Visible", "wrong supers 0 name")
 }
 
 func TestParseInterfaceDeclarationMultipleInheritance(t *testing.T) {
@@ -43,8 +42,6 @@ func TestParseInterfaceDeclarationMultipleInheritance(t *testing.T) {
 	i := n.(ast.InterfaceDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 2, "wrong supers length")
-	goutil.AssertNow(t, i.Supers[0].Names[0] == "Visible", "wrong supers 0 name")
-	goutil.AssertNow(t, i.Supers[1].Names[0] == "Movable", "wrong supers 1 name")
 }
 
 func TestParseInterfaceDeclarationAbstract(t *testing.T) {
@@ -404,9 +401,6 @@ func TestParseVarDeclarationSimple(t *testing.T) {
 	goutil.AssertNow(t, d.Identifiers[0] == "a", "wrong id 0 value")
 	dt := d.DeclaredType
 	goutil.AssertNow(t, dt.Type() == ast.Reference, "wrong node type")
-	r := dt.(ast.ReferenceNode)
-	goutil.AssertNow(t, len(r.Names) == 1, "wrong ref length")
-	goutil.AssertNow(t, r.Names[0] == "int", "wrong ref 0 value")
 }
 
 func TestParseVarDeclarationMultiple(t *testing.T) {
@@ -415,11 +409,6 @@ func TestParseVarDeclarationMultiple(t *testing.T) {
 	goutil.AssertNow(t, len(d.Identifiers) == 2, "wrong id length")
 	goutil.AssertNow(t, d.Identifiers[0] == "a", "wrong id 0 value")
 	goutil.AssertNow(t, d.Identifiers[1] == "b", "wrong id 1 value")
-	dt := d.DeclaredType
-	goutil.AssertNow(t, dt.Type() == ast.Reference, "wrong node type")
-	r := dt.(ast.ReferenceNode)
-	goutil.AssertNow(t, len(r.Names) == 1, "wrong ref length")
-	goutil.AssertNow(t, r.Names[0] == "int", "wrong ref 0 value")
 }
 
 func TestParseVarDeclarationMultipleExternal(t *testing.T) {
@@ -430,10 +419,6 @@ func TestParseVarDeclarationMultipleExternal(t *testing.T) {
 	goutil.AssertNow(t, d.Identifiers[1] == "b", "wrong id 1 value")
 	dt := d.DeclaredType
 	goutil.AssertNow(t, dt.Type() == ast.Reference, "wrong node type")
-	r := dt.(ast.ReferenceNode)
-	goutil.AssertNow(t, len(r.Names) == 2, fmt.Sprintf("wrong ref length: %d", len(r.Names)))
-	goutil.AssertNow(t, r.Names[0] == "pkg", "wrong ref 0 value")
-	goutil.AssertNow(t, r.Names[1] == "Type", "wrong ref 1 value")
 }
 
 func TestParseVarDeclarationMap(t *testing.T) {

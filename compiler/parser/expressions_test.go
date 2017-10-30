@@ -10,31 +10,21 @@ import (
 	"github.com/end-r/goutil"
 )
 
-func TestParseReferenceSingle(t *testing.T) {
+func TestParseIdentifierSingle(t *testing.T) {
 	p := createParser(`hello`)
 	goutil.AssertNow(t, p.lexer != nil, "lexer should not be nil")
 	goutil.AssertNow(t, len(p.lexer.Tokens) == 1, "wrong token length")
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr should not be nil")
-	goutil.AssertNow(t, expr.Type() == ast.Reference, "wrong expr type")
-	ref := expr.(ast.ReferenceNode)
-	goutil.AssertNow(t, ref.Names != nil, "ref should not be nil")
-	goutil.AssertNow(t, len(ref.Names) == 1, "wrong name length")
-	goutil.Assert(t, ref.Names[0] == "hello", "wrong name data")
+	goutil.AssertNow(t, expr.Type() == ast.Identifier, "wrong expr type")
 }
 
-func TestParseReferenceMultiple(t *testing.T) {
+func TestParseReference(t *testing.T) {
 	p := createParser(`hello.aaa.bb`)
 	goutil.AssertNow(t, len(p.lexer.Tokens) == 5, "wrong token length")
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr should not be nil")
 	goutil.AssertNow(t, expr.Type() == ast.Reference, "wrong expr type")
-	ref := expr.(ast.ReferenceNode)
-	goutil.AssertNow(t, ref.Names != nil, "ref should not be nil")
-	goutil.AssertNow(t, len(ref.Names) == 3, "wrong name length")
-	goutil.Assert(t, ref.Names[0] == "hello", "wrong name data 0")
-	goutil.Assert(t, ref.Names[1] == "aaa", "wrong name data 1")
-	goutil.Assert(t, ref.Names[2] == "bb", "wrong name data 2")
 }
 
 func TestParseLiteralInteger(t *testing.T) {
@@ -91,9 +81,6 @@ func TestParseSliceExpressionReferenceLowLiteral(t *testing.T) {
 	s := expr.(ast.SliceExpressionNode)
 	goutil.AssertNow(t, s.Expression != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, s.Expression.Type() == ast.Reference, "wrong expression type")
-	r := s.Expression.(ast.ReferenceNode)
-	goutil.AssertNow(t, len(r.Names) == 1, "wrong expr name length")
-	goutil.AssertNow(t, r.Names[0] == "slice", "wrong expr name 0")
 	goutil.AssertNow(t, s.Low.Type() == ast.Literal, "wrong low type")
 	l := s.Low.(ast.LiteralNode)
 	goutil.AssertNow(t, l.Data == "6", "wrong data")
@@ -106,13 +93,6 @@ func TestParseSliceExpressionReferenceLowReference(t *testing.T) {
 	goutil.AssertNow(t, expr.Type() == ast.SliceExpression, "wrong node type")
 	s := expr.(ast.SliceExpressionNode)
 	goutil.AssertNow(t, s.Expression.Type() == ast.Reference, "wrong expression type")
-	r := s.Expression.(ast.ReferenceNode)
-	goutil.AssertNow(t, len(r.Names) == 1, "wrong expr name length")
-	goutil.AssertNow(t, r.Names[0] == "slice", "wrong expr name 0")
-	goutil.AssertNow(t, s.Low.Type() == ast.Reference, "wrong low type")
-	l := s.Low.(ast.ReferenceNode)
-	goutil.AssertNow(t, len(l.Names) == 1, "wrong reference length")
-	goutil.AssertNow(t, l.Names[0] == "low", "wrong ref 0")
 }
 
 func TestParseSliceExpressionReferenceLowCall(t *testing.T) {
@@ -122,16 +102,10 @@ func TestParseSliceExpressionReferenceLowCall(t *testing.T) {
 	goutil.AssertNow(t, expr.Type() == ast.SliceExpression, "wrong node type")
 	s := expr.(ast.SliceExpressionNode)
 	goutil.AssertNow(t, s.Expression.Type() == ast.Reference, "wrong expression type")
-	r := s.Expression.(ast.ReferenceNode)
-	goutil.AssertNow(t, len(r.Names) == 1, "wrong expr name length")
-	goutil.AssertNow(t, r.Names[0] == "slice", "wrong expr name 0")
 	goutil.AssertNow(t, s.Low.Type() == ast.CallExpression, "wrong low type")
 	l := s.Low.(ast.CallExpressionNode)
 	goutil.AssertNow(t, l.Arguments == nil, "call arguments should be nil")
 	goutil.AssertNow(t, l.Call.Type() == ast.Reference, "wrong call type")
-	c := l.Call.(ast.ReferenceNode)
-	goutil.AssertNow(t, len(c.Names) == 1, "wrong call name length")
-	goutil.AssertNow(t, c.Names[0] == "low", "wrong call name 0")
 }
 
 func TestParseSliceExpressionCallLowLiteral(t *testing.T) {
@@ -144,9 +118,6 @@ func TestParseSliceExpressionCallLowLiteral(t *testing.T) {
 	c := s.Expression.(ast.CallExpressionNode)
 	goutil.AssertNow(t, c.Arguments == nil, "arguments should be nil")
 	goutil.AssertNow(t, c.Call.Type() == ast.Reference, "wrong call type")
-	r := c.Call.(ast.ReferenceNode)
-	goutil.AssertNow(t, len(r.Names) == 1, "wrong call name length")
-	goutil.AssertNow(t, r.Names[0] == "getSlice", "wrong call name 0")
 }
 
 func TestParseSliceExpressionCallLowReference(t *testing.T) {
@@ -159,9 +130,6 @@ func TestParseSliceExpressionCallLowReference(t *testing.T) {
 	c := s.Expression.(ast.CallExpressionNode)
 	goutil.AssertNow(t, c.Arguments == nil, "arguments should be nil")
 	goutil.AssertNow(t, c.Call.Type() == ast.Reference, "wrong call type")
-	r := c.Call.(ast.ReferenceNode)
-	goutil.AssertNow(t, len(r.Names) == 1, "wrong call name length")
-	goutil.AssertNow(t, r.Names[0] == "getSlice", "wrong call name 0")
 }
 
 func TestParseSliceExpressionCallLowCall(t *testing.T) {
@@ -174,9 +142,6 @@ func TestParseSliceExpressionCallLowCall(t *testing.T) {
 	c := s.Expression.(ast.CallExpressionNode)
 	goutil.AssertNow(t, c.Arguments == nil, "arguments should be nil")
 	goutil.AssertNow(t, c.Call.Type() == ast.Reference, "wrong call type")
-	r := c.Call.(ast.ReferenceNode)
-	goutil.AssertNow(t, len(r.Names) == 1, "wrong call name length")
-	goutil.AssertNow(t, r.Names[0] == "getSlice", "wrong call name 0")
 }
 
 func TestParseSliceExpressionArrayLiteralowLiteral(t *testing.T) {
@@ -333,9 +298,6 @@ func TestParseCompositeLiteralEmpty(t *testing.T) {
 	goutil.AssertNow(t, expr.Type() == ast.CompositeLiteral, "wrong node type")
 	n := expr.(ast.CompositeLiteralNode)
 	goutil.AssertNow(t, n.Reference.Type() == ast.Reference, "wrong type type")
-	r := n.Reference.(ast.ReferenceNode)
-	goutil.AssertNow(t, len(r.Names) == 1, "wrong reference name length")
-	goutil.Assert(t, r.Names[0] == "Dog", "wrong reference name")
 }
 
 func TestParseCompositeLiteralDeepReferenceEmpty(t *testing.T) {
@@ -345,10 +307,7 @@ func TestParseCompositeLiteralDeepReferenceEmpty(t *testing.T) {
 	goutil.AssertNow(t, expr.Type() == ast.CompositeLiteral, "wrong node type")
 	n := expr.(ast.CompositeLiteralNode)
 	goutil.AssertNow(t, n.Reference.Type() == ast.Reference, "wrong type type")
-	r := n.Reference.(ast.ReferenceNode)
-	goutil.AssertNow(t, len(r.Names) == 2, "wrong reference name length")
-	goutil.Assert(t, r.Names[0] == "animals", "wrong reference name 0")
-	goutil.Assert(t, r.Names[1] == "Dog", "wrong reference name 1")
+
 }
 
 func TestParseCompositeLiteralInline(t *testing.T) {
@@ -359,9 +318,6 @@ func TestParseCompositeLiteralInline(t *testing.T) {
 	n := expr.(ast.CompositeLiteralNode)
 	goutil.AssertNow(t, n.Reference != nil, "reference shouldn't be nil")
 	goutil.AssertNow(t, n.Reference.Type() == ast.Reference, "wrong reference type")
-	r := n.Reference.(ast.ReferenceNode)
-	goutil.AssertNow(t, len(r.Names) == 1, "wrong reference name length")
-	goutil.Assert(t, r.Names[0] == "Dog", "wrong reference name 0")
 	goutil.AssertNow(t, n.Fields != nil, "fields shouldn't be nil")
 	goutil.AssertNow(t, len(n.Fields) == 1, "wrong number of fields")
 }

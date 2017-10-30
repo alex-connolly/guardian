@@ -164,7 +164,7 @@ func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 			expr = p.parseLiteral()
 			break
 		case lexer.TknIdentifier:
-			expr = p.parseIdentifier()
+			expr = p.parseIdentifierExpression()
 			break
 		case lexer.TknNot:
 			expr = p.parsePrefixUnaryExpression()
@@ -185,7 +185,7 @@ func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 			expr = p.parseIndexExpression(expr)
 			break
 		case t == lexer.TknDot:
-			expr = p.parseReferenceExpression(expr)
+			expr = p.parseReference(expr)
 			break
 		default:
 			return expr
@@ -291,7 +291,7 @@ func (p *Parser) parseSliceExpression(expr ast.ExpressionNode,
 	return n
 }
 
-func (p *Parser) parseIdentifier() (n ast.IdentifierNode) {
+func (p *Parser) parseIdentifierExpression() (n ast.IdentifierNode) {
 	n.Name = p.parseIdentifier()
 	return n
 }

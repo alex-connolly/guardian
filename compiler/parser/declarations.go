@@ -32,7 +32,7 @@ func parseInterfaceDeclaration(p *Parser) {
 	var inherits []ast.ReferenceNode
 
 	if p.parseOptional(lexer.TknInherits) {
-		inherits = p.parseReferenceList()
+		inherits = p.parseReferenceIdentifierList()
 	}
 
 	signatures := p.parseInterfaceSignatures()
@@ -127,7 +127,7 @@ func parseEnumDeclaration(p *Parser) {
 	var inherits []ast.ReferenceNode
 
 	if p.parseOptional(lexer.TknInherits) {
-		inherits = p.parseReferenceList()
+		inherits = p.parseReferenceIdentifierList()
 	}
 
 	enums := p.parseEnumBody()
@@ -143,12 +143,30 @@ func parseEnumDeclaration(p *Parser) {
 }
 
 // like any list parser, but enforces that each node must be a reference
-func (p *Parser) parseReferenceList() []ast.ReferenceNode {
+func (p *Parser) parseReferenceIdentifierList() []ast.ReferenceNode {
+	// TODO: this is a very messy way of doing this
 	var refs []ast.ReferenceNode
-	first := p.parseReference()
-	refs = append(refs, first)
+	id := p.parseIdentifierExpression()
+	var ref ast.ReferenceNode
+	current := ref
+	if p.parseOptional(lexer.TknDot) {
+		current.Parent = id
+		id = p.parseIdentifierExpression()
+		current.Reference = id
+		current = current.Reference.(ast.ReferenceNode)
+	}
+	refs = append(refs, ref)
 	for p.parseOptional(lexer.TknComma) {
-		refs = append(refs, p.parseReference())
+		id := p.parseIdentifierExpression()
+		var ref ast.ReferenceNode
+		current := ref
+		if p.parseOptional(lexer.TknDot) {
+			current.Parent = id
+			id = p.parseIdentifierExpression()
+			current.Reference = id
+			current = current.Reference.(ast.ReferenceNode)
+		}
+		refs = append(refs, ref)
 	}
 	return refs
 }
@@ -165,14 +183,14 @@ func parseClassDeclaration(p *Parser) {
 	var inherits, interfaces []ast.ReferenceNode
 
 	if p.parseOptional(lexer.TknInherits) {
-		inherits = p.parseReferenceList()
+		inherits = p.parseReferenceIdentifierList()
 		if p.parseOptional(lexer.TknIs) {
-			interfaces = p.parseReferenceList()
+			interfaces = p.parseReferenceIdentifierList()
 		}
 	} else if p.parseOptional(lexer.TknIs) {
-		interfaces = p.parseReferenceList()
+		interfaces = p.parseReferenceIdentifierList()
 		if p.parseOptional(lexer.TknInherits) {
-			inherits = p.parseReferenceList()
+			inherits = p.parseReferenceIdentifierList()
 		}
 	}
 
@@ -201,14 +219,14 @@ func parseContractDeclaration(p *Parser) {
 	var inherits, interfaces []ast.ReferenceNode
 
 	if p.parseOptional(lexer.TknInherits) {
-		inherits = p.parseReferenceList()
+		inherits = p.parseReferenceIdentifierList()
 		if p.parseOptional(lexer.TknIs) {
-			interfaces = p.parseReferenceList()
+			interfaces = p.parseReferenceIdentifierList()
 		}
 	} else if p.parseOptional(lexer.TknIs) {
-		interfaces = p.parseReferenceList()
+		interfaces = p.parseReferenceIdentifierList()
 		if p.parseOptional(lexer.TknInherits) {
-			inherits = p.parseReferenceList()
+			inherits = p.parseReferenceIdentifierList()
 		}
 	}
 
@@ -241,7 +259,7 @@ func (p *Parser) parseType() ast.Node {
 	case p.isFuncType():
 		return p.parseFuncType()
 	case p.current().Type == lexer.TknIdentifier:
-		return p.parseReference()
+		return p.parseIdentifierExpression()
 	}
 	return nil
 }
@@ -447,7 +465,7 @@ func parseEventDeclaration(p *Parser) {
 	p.parseRequired(lexer.TknOpenBracket)
 	var types []ast.ReferenceNode
 	if !p.parseOptional(lexer.TknCloseBracket) {
-		types = p.parseReferenceList()
+		types = p.parseReferenceIdentifierList()
 		p.parseRequired(lexer.TknCloseBracket)
 	}
 
