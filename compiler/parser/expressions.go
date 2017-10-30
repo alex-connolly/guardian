@@ -208,36 +208,26 @@ func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 	return expr
 }
 
-// if 5 > Dog{age: 6}.age {} = true
-// if 5 > 4 {} = false
-// if 5 > dog {} = false
-// if 5 > Dog{} {}
-// x = dog {}
+func (p *Parser) parseSimpleExpression() ast.ExpressionNode {
+	p.simple = true
+	expr := p.parseExpression()
+	p.simple = false
+	return expr
+}
+
+// Dog{age: 6}.age {} = true
+// 4 {} = false
+// dog {} = false
+// if 5 > Dog{} {} = true
+// x = dog {} = false
 func (p *Parser) isCompositeLiteral(expr ast.ExpressionNode) bool {
-	savedIndex := p.index
-	if p.current().Type != lexer.TknOpenBrace {
+	if p.simple {
 		return false
 	}
-
-	{
-
-	}
-
 	if expr.Type() != ast.Reference && expr.Type() != ast.Identifier {
 		return false
 	}
-
-	p.parseRequired(lexer.TknOpenBrace)
-	for p.parseOptional(lexer.TknNewLine) {
-	}
-	if p.parseOptional(lexer.TknCloseBrace) {
-
-	}
-	if !p.parseOptional(lexer.TknIdentifier) {
-		return false
-	}
-	p.index = savedIndex
-	return true
+	return p.current().Type == lexer.TknOpenBrace
 }
 
 func (p *Parser) parsePrefixUnaryExpression() (n ast.UnaryExpressionNode) {

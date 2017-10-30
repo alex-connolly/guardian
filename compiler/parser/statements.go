@@ -69,23 +69,23 @@ func parseIfStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknIf)
 
-	fmt.Printf("a: %d\n", len(p.Errs))
+	fmt.Printf("open asst: %d\n", len(p.Errs))
 
 	// parse init expr, can be nil
 	init := p.parseOptionalAssignment()
 
-	fmt.Printf("b: %d\n", len(p.Errs))
+	fmt.Printf("close asst: %d\n", len(p.Errs))
 
 	var conditions []ast.ConditionNode
 
-	// parse initial if condition, required
-	cond := p.parseExpression()
+	fmt.Printf("open expr: %d\n", len(p.Errs))
 
-	fmt.Printf("c: %d\n", len(p.Errs))
+	// parse initial if condition, required
+	cond := p.parseSimpleExpression()
+
+	fmt.Printf("close scope: %d\n", len(p.Errs))
 
 	body := p.parseEnclosedScope()
-
-	fmt.Printf("d: %d\n", len(p.Errs))
 
 	conditions = append(conditions, ast.ConditionNode{
 		Condition: cond,
@@ -94,7 +94,7 @@ func parseIfStatement(p *Parser) {
 
 	// parse elif cases
 	for p.parseOptional(lexer.TknElif) {
-		condition := p.parseExpression()
+		condition := p.parseSimpleExpression()
 		body := p.parseEnclosedScope()
 		conditions = append(conditions, ast.ConditionNode{
 			Condition: condition,
@@ -125,12 +125,14 @@ func parseIfStatement(p *Parser) {
 func parseForStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknFor)
+
 	// parse init expr, can be nil
 	init := p.parseOptionalAssignment()
 	// parse condition, required
 
 	// must evaluate to boolean, checked at validation
-	cond := p.parseExpression()
+
+	cond := p.parseSimpleExpression()
 
 	// TODO: parse post statement properly
 

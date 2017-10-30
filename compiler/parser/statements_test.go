@@ -44,7 +44,9 @@ func TestParseIfStatement(t *testing.T) {
 }
 
 func TestParseIfStatementComplex(t *testing.T) {
-	p := createParser(`if proposals[p].voteCount > winningVoteCount {}`)
+	p := createParser(`if proposals[p].voteCount > winningVoteCount {
+
+	}`)
 	goutil.Assert(t, isIfStatement(p), "should detect if statement")
 	parseIfStatement(p)
 	goutil.AssertNow(t, len(p.Errs) == 0, fmt.Sprintln(p.Errs))

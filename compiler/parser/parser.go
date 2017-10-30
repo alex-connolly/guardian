@@ -15,6 +15,7 @@ type Parser struct {
 	index      int
 	Errs       []string
 	line       int
+	simple     bool
 }
 
 func createParser(data string) *Parser {
@@ -111,13 +112,9 @@ func (p *Parser) addError(err string) {
 }
 
 func (p *Parser) parseEnclosedScope(valids ...ast.NodeType) *ast.ScopeNode {
-	fmt.Printf("1: %d\n", len(p.Errs))
 	p.parseRequired(lexer.TknOpenBrace)
-	fmt.Printf("2: %d\n", len(p.Errs))
 	scope := p.parseScope(valids...)
-	fmt.Printf("3: %d\n", len(p.Errs))
 	p.parseRequired(lexer.TknCloseBrace)
-	fmt.Printf("4: %d\n", len(p.Errs))
 	return scope
 }
 

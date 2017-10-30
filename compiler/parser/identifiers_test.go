@@ -168,8 +168,18 @@ func TestIsAssignmentStatementReferenceLiteral(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "simple definition not recognised")
 	p = createParser("x > 5")
 	goutil.Assert(t, !isAssignmentStatement(p), "comparison should not be recognised")
+
+	goutil.Assert(t, len(p.Errs) == 0, "should be no errs before cmplx")
 	p = createParser("proposals[p].voteCount > winningVoteCount")
-	goutil.Assert(t, !isAssignmentStatement(p), "complex comparison shoudl not be recognised")
+	goutil.Assert(t, !isAssignmentStatement(p), "complex comparison should not be recognised")
+	goutil.Assert(t, len(p.Errs) == 0, "should be no errs after cmplx")
+
+	p = createParser(`proposals[p].voteCount > winningVoteCount {
+		
+		}`)
+	goutil.Assert(t, len(p.Errs) == 0, "should be no errs")
+	goutil.Assert(t, !isAssignmentStatement(p), "complex comparison + braces should not be recognised")
+	goutil.Assert(t, len(p.Errs) == 0, "should be no errs after")
 }
 
 func TestIsAssignmentStatementIncrementDecrement(t *testing.T) {
