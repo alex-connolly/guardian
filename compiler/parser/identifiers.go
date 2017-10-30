@@ -110,10 +110,6 @@ func (p *Parser) isNextToken(types ...lexer.TokenType) bool {
 	return false
 }
 
-func isNewLine(p *Parser) bool {
-	return p.isNextToken(lexer.TknNewLine)
-}
-
 func isEventDeclaration(p *Parser) bool {
 	return p.modifiersUntilToken(lexer.TknEvent)
 }

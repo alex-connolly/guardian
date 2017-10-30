@@ -59,16 +59,14 @@ func TestLexerLiterals(t *testing.T) {
 func TestLexerFileConstants(t *testing.T) {
 	l := LexFile("tests/constants.grd")
 	checkTokens(t, l.Tokens, []TokenType{
-		TknContract, TknIdentifier, TknOpenBrace, TknNewLine,
-		TknNewLine,
-		TknConst, TknOpenBracket, TknNewLine,
-		TknIdentifier, TknAssign, TknNumber, TknNewLine,
-		TknIdentifier, TknAssign, TknString, TknNewLine,
-		TknIdentifier, TknAssign, TknCharacter, TknNewLine,
-		TknIdentifier, TknAssign, TknNumber, TknNewLine,
-		TknCloseBracket, TknNewLine,
-		TknNewLine,
-		TknCloseBrace, TknNewLine,
+		TknContract, TknIdentifier, TknOpenBrace,
+		TknConst, TknOpenBracket,
+		TknIdentifier, TknAssign, TknNumber,
+		TknIdentifier, TknAssign, TknString,
+		TknIdentifier, TknAssign, TknCharacter,
+		TknIdentifier, TknAssign, TknNumber,
+		TknCloseBracket,
+		TknCloseBrace,
 	})
 }
 
@@ -85,16 +83,16 @@ func TestLexerFileDeclarations(t *testing.T) {
 		}
 	`)
 	checkTokens(t, l.Tokens, []TokenType{
-		TknNewLine,
-		TknContract, TknIdentifier, TknOpenBrace, TknNewLine,
-		TknClass, TknIdentifier, TknOpenBrace, TknNewLine,
-		TknNewLine,
-		TknCloseBrace, TknNewLine,
-		TknInterface, TknIdentifier, TknOpenBrace, TknNewLine,
-		TknNewLine,
-		TknCloseBrace, TknNewLine,
-		TknEvent, TknIdentifier, TknOpenBracket, TknIdentifier, TknCloseBracket, TknNewLine,
-		TknCloseBrace, TknNewLine})
+
+		TknContract, TknIdentifier, TknOpenBrace,
+		TknClass, TknIdentifier, TknOpenBrace,
+
+		TknCloseBrace,
+		TknInterface, TknIdentifier, TknOpenBrace,
+
+		TknCloseBrace,
+		TknEvent, TknIdentifier, TknOpenBracket, TknIdentifier, TknCloseBracket,
+		TknCloseBrace})
 }
 
 func TestLexerReference(t *testing.T) {

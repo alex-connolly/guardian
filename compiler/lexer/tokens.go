@@ -120,7 +120,6 @@ const (
 	TknDot          // .
 	TknSemicolon    // ;
 	TknTernary      // ?
-	TknNewLine
 	TknBreak
 	TknContinue
 	TknContract
@@ -273,7 +272,7 @@ func getProtoTokens() []protoToken {
 		createFixed(",", TknComma),
 		createFixed("=", TknAssign),
 
-		protoToken{"New Line", isNewLine, processNewLine},
+		protoToken{"New Line", isNewLine, processNewLineIgnored},
 		protoToken{"Whitespace", isWhitespace, processIgnored},
 		protoToken{"String", isString, processString},
 		protoToken{"Number", isNumber, processNumber},

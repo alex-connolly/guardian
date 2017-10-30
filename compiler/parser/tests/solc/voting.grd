@@ -21,6 +21,10 @@ contract Ballot {
         chairperson = msg.sender
         voters[chairperson].weight = 1
 
+        for i := 0; i < proposalNames.length; i++ {
+            proposals = append(proposals, p)
+        }
+
     }
 
     external func giveRightToVote(voter address){
@@ -49,6 +53,29 @@ contract Ballot {
             }
         }
         return winningProposal
+    }
+
+
+    external func delegate(to address){
+
+        storage sender := voters[msg.sender]
+        enforce(!sender.voted)
+        enforce(to != msg.sender)
+
+        for voters[to].delegate != 0 as address {
+            to = voters[to].delegate
+            enforce(to != msg.sender)
+        }
+
+        sender.vote = true
+        sender.delegate = to
+        storage delegate := voters[to]
+        if delegate.voted {
+            proposals[delegate.vote].voteCount += sender.weight
+        } else {
+            delegate.weight += sender.weight
+        }
+
     }
 
 

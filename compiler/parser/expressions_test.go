@@ -320,6 +320,22 @@ func TestParseCompositeLiteralInline(t *testing.T) {
 	goutil.AssertNow(t, len(n.Fields) == 1, "wrong number of fields")
 }
 
+func TestParseCompositeLiteralMixed(t *testing.T) {
+	expr := ParseExpression(`Proposal{
+		name: proposalNames[i],
+		voteCount: 0,
+	}`)
+	goutil.Assert(t, expr.Type() == ast.CompositeLiteral, "wrong expr type")
+}
+
+func TestParseCallExpressionCompositeLiteral(t *testing.T) {
+	expr := ParseExpression(`append(proposals, Proposal{
+		name: proposalNames[i],
+		voteCount: 0,
+	}`)
+	goutil.Assert(t, expr.Type() == ast.CallExpression, "wrong expr type")
+}
+
 func TestParseCompositeLiteralMultiline(t *testing.T) {
 	p := createParser(`Dog{
 		name: "Mr Woof",

@@ -109,11 +109,11 @@ func LexFile(path string) *Lexer {
 	return LexBytes(bytes)
 }
 
-func processNewLine(l *Lexer) Token {
+func processNewLineIgnored(l *Lexer) Token {
 	l.line++
 	l.byteOffset++
 	return Token{
-		Type: TknNewLine,
+		Type: TknNone,
 	}
 }
 

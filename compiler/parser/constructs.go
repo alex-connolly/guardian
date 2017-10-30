@@ -19,8 +19,6 @@ func getPrimaryConstructs() []construct {
 		construct{"type declaration", isTypeDeclaration, parseTypeDeclaration},
 		construct{"event declaration", isEventDeclaration, parseEventDeclaration},
 
-		construct{"new line", isNewLine, parseNewLine},
-
 		construct{"if statement", isIfStatement, parseIfStatement},
 		construct{"for statement", isForStatement, parseForStatement},
 		construct{"assignment statement", isAssignmentStatement, parseAssignmentStatement},

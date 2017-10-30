@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/compiler/ast"
 	"github.com/end-r/guardian/compiler/lexer"
 )
@@ -69,21 +67,13 @@ func parseIfStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknIf)
 
-	fmt.Printf("open asst: %d\n", len(p.Errs))
-
 	// parse init expr, can be nil
 	init := p.parseOptionalAssignment()
 
-	fmt.Printf("close asst: %d\n", len(p.Errs))
-
 	var conditions []ast.ConditionNode
-
-	fmt.Printf("open expr: %d\n", len(p.Errs))
 
 	// parse initial if condition, required
 	cond := p.parseSimpleExpression()
-
-	fmt.Printf("close scope: %d\n", len(p.Errs))
 
 	body := p.parseEnclosedScope()
 

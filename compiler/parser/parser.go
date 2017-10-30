@@ -102,11 +102,6 @@ func (p *Parser) validate(t ast.NodeType) {
 	}
 }
 
-func parseNewLine(p *Parser) {
-	p.line++
-	p.next()
-}
-
 func (p *Parser) addError(err string) {
 	p.Errs = append(p.Errs, err)
 }
@@ -130,7 +125,7 @@ func (p *Parser) parseScope(valids ...ast.NodeType) *ast.ScopeNode {
 		found := false
 		for _, c := range getPrimaryConstructs() {
 			if c.is(p) {
-				//fmt.Printf("FOUND: %s at index %d\n", c.name, p.index)
+				fmt.Printf("FOUND: %s at index %d\n", c.name, p.index)
 				c.parse(p)
 				found = true
 				break

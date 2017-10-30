@@ -408,6 +408,16 @@ func TestIndexReferenceAssignmentStatement(t *testing.T) {
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong type")
 }
 
+func TestCompositeLiteralAssignmentStatement(t *testing.T) {
+	p := ParseString(`proposals = append(proposals, Proposal{
+		name: proposalNames[i],
+		voteCount: 0,
+	})`)
+	n := p.Scope.Next()
+	goutil.AssertNow(t, len(p.Scope.Sequence) == 1, fmt.Sprintf("wrong sequence length: %d\n", len(p.Scope.Sequence)))
+	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong type")
+}
+
 func TestMultiLiteralAssignmentStatement(t *testing.T) {
 	p := createParser("x, y = 5, 3")
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
