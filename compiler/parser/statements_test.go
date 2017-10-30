@@ -33,6 +33,67 @@ func TestParseAssignmentStatementIncrement(t *testing.T) {
 }
 
 func TestParseIfStatement(t *testing.T) {
+	p := createParser(`if x == 2 {
+
+	}`)
+	goutil.Assert(t, isIfStatement(p), "should detect if statement")
+	parseIfStatement(p)
+	goutil.AssertNow(t, len(p.Errs) == 0, fmt.Sprintln(p.Errs))
+	first := p.Scope.Next()
+	goutil.Assert(t, first.Type() == ast.IfStatement, "wrong node type")
+}
+
+func TestParseIfStatementComplex(t *testing.T) {
+	p := createParser(`if proposals[p].voteCount > winningVoteCount {}`)
+	goutil.Assert(t, isIfStatement(p), "should detect if statement")
+	parseIfStatement(p)
+	goutil.AssertNow(t, len(p.Errs) == 0, fmt.Sprintln(p.Errs))
+	first := p.Scope.Next()
+	goutil.Assert(t, first.Type() == ast.IfStatement, "wrong node type")
+}
+
+func TestParseIfStatementInit(t *testing.T) {
+	p := createParser(`if x := 0; x > 5 {
+
+	}`)
+	goutil.Assert(t, isIfStatement(p), "should detect if statement")
+	parseIfStatement(p)
+	goutil.AssertNow(t, len(p.Errs) == 0, fmt.Sprintln(p.Errs))
+	first := p.Scope.Next()
+	goutil.Assert(t, first.Type() == ast.IfStatement, "wrong node type")
+}
+
+func TestParseIfStatementElse(t *testing.T) {
+	p := createParser(`if x == 2 {
+
+	} else {
+
+	}`)
+	goutil.Assert(t, isIfStatement(p), "should detect if statement")
+	parseIfStatement(p)
+	goutil.AssertNow(t, len(p.Errs) == 0, fmt.Sprintln(p.Errs))
+	first := p.Scope.Next()
+	goutil.Assert(t, first.Type() == ast.IfStatement, "wrong node type")
+	ifStat := first.(ast.IfStatementNode)
+	goutil.Assert(t, ifStat.Init == nil, "init should be nil")
+}
+
+func TestParseIfStatementInitElse(t *testing.T) {
+	p := createParser(`if x := 0; x > 5 {
+
+	} else {
+
+	}`)
+	goutil.Assert(t, isIfStatement(p), "should detect if statement")
+	parseIfStatement(p)
+	goutil.AssertNow(t, len(p.Errs) == 0, fmt.Sprintln(p.Errs))
+	first := p.Scope.Next()
+	goutil.Assert(t, first.Type() == ast.IfStatement, "wrong node type")
+	ifStat := first.(ast.IfStatementNode)
+	goutil.Assert(t, ifStat.Init != nil, "init shouldn't be nil")
+}
+
+func TestParseIfStatementElifElse(t *testing.T) {
 	p := createParser(`if x > 4 {
 
 	} elif x < 4 {
@@ -42,7 +103,7 @@ func TestParseIfStatement(t *testing.T) {
 	}`)
 	goutil.Assert(t, isIfStatement(p), "should detect if statement")
 	parseIfStatement(p)
-
+	goutil.AssertNow(t, len(p.Errs) == 0, fmt.Sprintln(p.Errs))
 	first := p.Scope.Next()
 	goutil.Assert(t, first.Type() == ast.IfStatement, "wrong node type")
 	ifStat := first.(ast.IfStatementNode)
@@ -59,6 +120,7 @@ func TestParseForStatementCondition(t *testing.T) {
 	p := createParser(`for x < 5 {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
 	parseForStatement(p)
+	goutil.Assert(t, len(p.Errs) == 0, "should be error-free")
 
 	first := p.Scope.Next()
 	goutil.Assert(t, first.Type() == ast.ForStatement, "wrong node type")
@@ -85,6 +147,7 @@ func TestParseForStatementInitConditionStatement(t *testing.T) {
 	p := createParser(`for x := 0; x < 5; x++ {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
 	parseForStatement(p)
+	goutil.Assert(t, len(p.Errs) == 0, "should be error-free")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, len(p.Scope.Sequence) == 1, fmt.Sprintf("wrong sequence length: %d", len(p.Scope.Sequence)))
 	first := p.Scope.Next()

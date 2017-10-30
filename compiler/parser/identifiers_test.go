@@ -166,7 +166,10 @@ func TestIsAssignmentStatementReferenceLiteral(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "multiple l/r not recognised")
 	p = createParser("x := 5")
 	goutil.Assert(t, isAssignmentStatement(p), "simple definition not recognised")
-
+	p = createParser("x > 5")
+	goutil.Assert(t, !isAssignmentStatement(p), "comparison should not be recognised")
+	p = createParser("proposals[p].voteCount > winningVoteCount")
+	goutil.Assert(t, !isAssignmentStatement(p), "complex comparison shoudl not be recognised")
 }
 
 func TestIsAssignmentStatementIncrementDecrement(t *testing.T) {

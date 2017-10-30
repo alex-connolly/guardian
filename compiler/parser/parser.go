@@ -111,9 +111,13 @@ func (p *Parser) addError(err string) {
 }
 
 func (p *Parser) parseEnclosedScope(valids ...ast.NodeType) *ast.ScopeNode {
+	fmt.Printf("1: %d\n", len(p.Errs))
 	p.parseRequired(lexer.TknOpenBrace)
+	fmt.Printf("2: %d\n", len(p.Errs))
 	scope := p.parseScope(valids...)
+	fmt.Printf("3: %d\n", len(p.Errs))
 	p.parseRequired(lexer.TknCloseBrace)
+	fmt.Printf("4: %d\n", len(p.Errs))
 	return scope
 }
 
@@ -129,7 +133,7 @@ func (p *Parser) parseScope(valids ...ast.NodeType) *ast.ScopeNode {
 		found := false
 		for _, c := range getPrimaryConstructs() {
 			if c.is(p) {
-				fmt.Printf("FOUND: %s at index %d\n", c.name, p.index)
+				//fmt.Printf("FOUND: %s at index %d\n", c.name, p.index)
 				c.parse(p)
 				found = true
 				break

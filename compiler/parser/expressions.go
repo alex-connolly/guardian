@@ -115,6 +115,7 @@ main:
 						expStack = pushNode(expStack, op)
 					}
 				}
+
 				opStack = append(opStack, current)
 			} else {
 				expr := p.parseExpressionComponent()
@@ -136,6 +137,7 @@ main:
 
 func finalise(expStack []ast.ExpressionNode, opStack []lexer.TokenType) ast.ExpressionNode {
 	for len(opStack) > 0 {
+
 		n := ast.BinaryExpressionNode{}
 		n.Right, expStack = expStack[len(expStack)-1], expStack[:len(expStack)-1]
 		n.Left, expStack = expStack[len(expStack)-1], expStack[:len(expStack)-1]
@@ -145,10 +147,12 @@ func finalise(expStack []ast.ExpressionNode, opStack []lexer.TokenType) ast.Expr
 	if len(expStack) == 0 {
 		return nil
 	}
+
 	return expStack[len(expStack)-1]
 }
 
 func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
+
 	var expr ast.ExpressionNode
 	expr = nil
 	//fmt.Printf("index: %d, tokens: %d\n", p.index, len(p.lexer.Tokens))
@@ -158,19 +162,24 @@ func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 			expr = p.parseMapLiteral()
 			break
 		case lexer.TknOpenSquare:
+
 			expr = p.parseArrayLiteral()
 			break
-		case lexer.TknString, lexer.TknCharacter, lexer.TknNumber:
+		case lexer.TknString, lexer.TknCharacter, lexer.TknNumber, lexer.TknTrue, lexer.TknFalse:
+
 			expr = p.parseLiteral()
 			break
 		case lexer.TknIdentifier:
+
 			expr = p.parseIdentifierExpression()
+
 			break
 		case lexer.TknNot:
 			expr = p.parsePrefixUnaryExpression()
 			break
 		}
 	}
+
 	// parse composite expressions
 	for p.hasTokens(1) && expr != nil {
 		t := p.current().Type
@@ -178,20 +187,57 @@ func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 		case t == lexer.TknOpenBracket:
 			expr = p.parseCallExpression(expr)
 			break
-		case t == lexer.TknOpenBrace && expr.Type() != ast.Literal:
+		case p.isCompositeLiteral(expr):
 			expr = p.parseCompositeLiteral(expr)
 			break
 		case t == lexer.TknOpenSquare:
+
 			expr = p.parseIndexExpression(expr)
 			break
 		case t == lexer.TknDot:
+
 			expr = p.parseReference(expr)
+
 			break
 		default:
+
 			return expr
 		}
 	}
+
 	return expr
+}
+
+// if 5 > Dog{age: 6}.age {} = true
+// if 5 > 4 {} = false
+// if 5 > dog {} = false
+// if 5 > Dog{} {}
+// x = dog {}
+func (p *Parser) isCompositeLiteral(expr ast.ExpressionNode) bool {
+	savedIndex := p.index
+	if p.current().Type != lexer.TknOpenBrace {
+		return false
+	}
+
+	{
+
+	}
+
+	if expr.Type() != ast.Reference && expr.Type() != ast.Identifier {
+		return false
+	}
+
+	p.parseRequired(lexer.TknOpenBrace)
+	for p.parseOptional(lexer.TknNewLine) {
+	}
+	if p.parseOptional(lexer.TknCloseBrace) {
+
+	}
+	if !p.parseOptional(lexer.TknIdentifier) {
+		return false
+	}
+	p.index = savedIndex
+	return true
 }
 
 func (p *Parser) parsePrefixUnaryExpression() (n ast.UnaryExpressionNode) {
@@ -204,7 +250,7 @@ func (p *Parser) parsePrefixUnaryExpression() (n ast.UnaryExpressionNode) {
 func (p *Parser) parseReference(expr ast.ExpressionNode) (n ast.ReferenceNode) {
 	p.parseRequired(lexer.TknDot)
 	n.Parent = expr
-	n.Reference = p.parseExpression()
+	n.Reference = p.parseExpressionComponent()
 	return n
 }
 
@@ -277,6 +323,7 @@ func (p *Parser) parseIndexExpression(expr ast.ExpressionNode) ast.ExpressionNod
 	p.parseRequired(lexer.TknCloseSquare)
 	n.Expression = expr
 	n.Index = index
+
 	return n
 }
 

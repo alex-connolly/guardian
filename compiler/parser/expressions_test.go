@@ -304,9 +304,7 @@ func TestParseCompositeLiteralDeepReferenceEmpty(t *testing.T) {
 	p := createParser("animals.Dog{}")
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
-	goutil.AssertNow(t, expr.Type() == ast.CompositeLiteral, "wrong node type")
-	n := expr.(ast.CompositeLiteralNode)
-	goutil.AssertNow(t, n.Reference.Type() == ast.Reference, "wrong type type")
+	goutil.AssertNow(t, expr.Type() == ast.Reference, "wrong node type")
 
 }
 
@@ -700,4 +698,25 @@ func TestParseReferenceExpressionIndexExpression(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.Reference, "wrong expr type")
+}
+
+func TestParsenIndexExpressionAddition(t *testing.T) {
+	p := createParser("proposals[p] + 99")
+	expr := p.parseExpression()
+	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
+	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
+}
+
+func TestParsenIndexExpressionAdditionReference(t *testing.T) {
+	p := createParser("proposals[p].voteCount + 99")
+	expr := p.parseExpression()
+	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
+	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
+}
+
+func TestParseReferenceExpressionIndexExpressionComparison(t *testing.T) {
+	p := createParser("proposals[p].voteCount > 99")
+	expr := p.parseExpression()
+	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
+	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
 }

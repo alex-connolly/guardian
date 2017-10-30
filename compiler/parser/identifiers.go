@@ -13,19 +13,33 @@ func isExplicitVarDeclaration(p *Parser) bool {
 	for p.parseOptional(lexer.GetModifiers()...) {
 	}
 	if !p.parseOptional(lexer.TknIdentifier) {
+		p.index = savedIndex
 		return false
 	}
 	for p.parseOptional(lexer.TknComma) {
 		if !p.parseOptional(lexer.TknIdentifier) {
+			p.index = savedIndex
 			return false
 		}
 	}
 	if !p.hasTokens(1) {
+		p.index = savedIndex
 		return false
 	}
-	flag := p.isNextAType()
+	if !p.isNextAType() {
+		p.index = savedIndex
+		return false
+	}
+	p.parseType()
+	// if next is an assignment, not an expvar
+	if p.hasTokens(1) {
+		if !p.isNextToken(lexer.TknSemicolon, lexer.TknNewLine) {
+			p.index = savedIndex
+			return false
+		}
+	}
 	p.index = savedIndex
-	return flag
+	return true
 }
 
 func (p *Parser) isNextAType() bool {
@@ -118,6 +132,8 @@ func isIfStatement(p *Parser) bool {
 
 func isAssignmentStatement(p *Parser) bool {
 	savedIndex := p.index
+	for p.parseOptional(lexer.GetModifiers()...) {
+	}
 	expr := p.parseExpression()
 	if expr == nil {
 		return false

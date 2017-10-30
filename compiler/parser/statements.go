@@ -18,18 +18,15 @@ func parseReturnStatement(p *Parser) {
 }
 
 func parseAssignmentStatement(p *Parser) {
-	fmt.Println("xxx")
 	node := p.parseAssignment()
 	p.Scope.AddSequential(node)
 	p.parseOptional(lexer.TknSemicolon)
-	fmt.Println("done")
 }
 
 func (p *Parser) parseOptionalAssignment() *ast.AssignmentStatementNode {
 	if isAssignmentStatement(p) {
 		assigned := p.parseAssignment()
 		p.parseOptional(lexer.TknSemicolon)
-
 		return &assigned
 	}
 	return nil
@@ -45,7 +42,15 @@ func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 		assigned = append(assigned, p.parseExpression())
 	}
 
-	p.parseRequired(lexer.GetAssignments()...)
+	if !p.parseOptional(lexer.GetAssignments()...) {
+		if p.parseOptional(lexer.TknIncrement, lexer.TknDecrement) {
+			return ast.AssignmentStatementNode{
+				Modifiers: modifiers,
+				Left:      assigned,
+				Right:     nil,
+			}
+		}
+	}
 
 	var to []ast.ExpressionNode
 	to = append(to, p.parseExpression())
@@ -64,14 +69,23 @@ func parseIfStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknIf)
 
+	fmt.Printf("a: %d\n", len(p.Errs))
+
 	// parse init expr, can be nil
-	// init := p.parseAssignment()
+	init := p.parseOptionalAssignment()
+
+	fmt.Printf("b: %d\n", len(p.Errs))
 
 	var conditions []ast.ConditionNode
 
 	// parse initial if condition, required
 	cond := p.parseExpression()
+
+	fmt.Printf("c: %d\n", len(p.Errs))
+
 	body := p.parseEnclosedScope()
+
+	fmt.Printf("d: %d\n", len(p.Errs))
 
 	conditions = append(conditions, ast.ConditionNode{
 		Condition: cond,
@@ -95,10 +109,16 @@ func parseIfStatement(p *Parser) {
 	}
 
 	node := ast.IfStatementNode{
-		Init:       nil,
+		Init:       init,
 		Conditions: conditions,
 		Else:       elseBlock,
 	}
+
+	// BUG: again, why is this necessary?
+	if init == nil {
+		node.Init = nil
+	}
+
 	p.Scope.AddSequential(node)
 }
 
@@ -109,6 +129,7 @@ func parseForStatement(p *Parser) {
 	init := p.parseOptionalAssignment()
 	// parse condition, required
 
+	// must evaluate to boolean, checked at validation
 	cond := p.parseExpression()
 
 	// TODO: parse post statement properly
