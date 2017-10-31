@@ -13,9 +13,14 @@ type Parser struct {
 	Expression ast.ExpressionNode
 	lexer      *lexer.Lexer
 	index      int
-	Errs       []string
+	Errs       []Error
 	line       int
 	simple     bool
+}
+
+type Error struct {
+	lineNumber int
+	message    string
 }
 
 func createParser(data string) *Parser {
@@ -76,17 +81,17 @@ func (p *Parser) parseRequired(types ...lexer.TokenType) lexer.TokenType {
 			return t
 		}
 	}
-	p.addError(fmt.Sprintf("Required %s, found %d", "x", p.current().Type))
+	p.addError(fmt.Sprintf("Required %s, found %d", "x", p.current().Name()))
 	return p.current().Type
 }
 
 func (p *Parser) parseIdentifier() string {
 	if !p.hasTokens(1) {
-		p.addError("Required indentifier, nothing found")
+		p.addError("Required identifier, nothing found")
 		return ""
 	}
 	if p.current().Type != lexer.TknIdentifier {
-		p.addError("Required identifier, found {add token type}")
+		p.addError(fmt.Sprintf("Required identifier, found %s", p.current().Name()))
 		return ""
 	}
 	s := p.lexer.TokenString(p.current())
@@ -107,21 +112,34 @@ func parseNewLine(p *Parser) {
 	p.next()
 }
 
-func parseLineComment(p *Parser) {
+func parseSingleLineComment(p *Parser) {
 	p.parseRequired(lexer.TknLineComment)
 	for p.current().Type != lexer.TknNewLine {
 		p.next()
 	}
 }
 
-func parseMultilineComment(p *Parser) {
-	p.parseRequired(lexer.TknOpenComment)
-	for p.current().Type != lexer.TknCloseComment {
+func parseMultiLineComment(p *Parser) {
+	p.parseRequired(lexer.TknCommentOpen)
+	for p.current().Type != lexer.TknCommentClose {
 		p.next()
 	}
 }
 
-func (p *Parser) addError(err string) {
+func (p *Parser) formatErrors() string {
+	whole := ""
+	whole += fmt.Sprintf("%d errors\n", len(p.Errs))
+	for _, e := range p.Errs {
+		whole += fmt.Sprintf("Line %d: %s\n", e.lineNumber, e.message)
+	}
+	return whole
+}
+
+func (p *Parser) addError(message string) {
+	err := Error{
+		message:    message,
+		lineNumber: p.line,
+	}
 	p.Errs = append(p.Errs, err)
 }
 

@@ -192,7 +192,7 @@ func isSingleLineComment(p *Parser) bool {
 }
 
 func isMultiLineComment(p *Parser) bool {
-	return p.isNextToken(lexer.TknOpenComment)
+	return p.isNextToken(lexer.TknCommentOpen)
 }
 
 func isSwitchStatement(p *Parser) bool {

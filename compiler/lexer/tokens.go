@@ -360,7 +360,7 @@ func createFixed(kw string, tkn TokenType) protoToken {
 }
 
 func createDistinct(kw string, tkn TokenType) protoToken {
-	return protoToken{"KW: " + kw, isDistinct(kw), processFixed(len(kw), tkn)}
+	return protoToken{kw, isDistinct(kw), processFixed(len(kw), tkn)}
 }
 
 type isFunc func(*Lexer) bool
@@ -370,6 +370,10 @@ type protoToken struct {
 	name       string // for debugging
 	identifier isFunc
 	process    processorFunc
+}
+
+func (t Token) Name() string {
+	return t.proto.name
 }
 
 // Token ...
