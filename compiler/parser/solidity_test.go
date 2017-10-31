@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/end-r/goutil"
@@ -11,16 +12,16 @@ import (
 func TestParseVotingExample(t *testing.T) {
 	p := ParseFile("tests/solc/voting.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
-	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
+	goutil.Assert(t, p.Errs == nil, fmt.Sprintln(p.Errs))
 }
 
-/*func TestParseSimpleAuctionExample(t *testing.T) {
+func TestParseSimpleAuctionExample(t *testing.T) {
 	p := ParseFile("tests/solc/simple_auction.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
-	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
+	goutil.Assert(t, p.Errs == nil, fmt.Sprintln(p.Errs))
 }
 
-func TestParseBlindAuctionExample(t *testing.T) {
+/*func TestParseBlindAuctionExample(t *testing.T) {
 	p := ParseFile("tests/solc/blind_auction.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
 	goutil.Assert(t, p.Errs == nil, "parser should not have errors")

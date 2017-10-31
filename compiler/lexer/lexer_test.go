@@ -151,3 +151,8 @@ func TestLexerModifiers(t *testing.T) {
 	l := LexString("protected abstract external internal")
 	checkTokens(t, l.Tokens, []TokenType{TknProtected, TknAbstract, TknExternal, TknInternal})
 }
+
+func TestLexerExpVar(t *testing.T) {
+	l := LexString("x string")
+	checkTokens(t, l.Tokens, []TokenType{TknIdentifier, TknIdentifier})
+}

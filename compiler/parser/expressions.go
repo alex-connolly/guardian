@@ -166,13 +166,10 @@ func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 			expr = p.parseArrayLiteral()
 			break
 		case lexer.TknString, lexer.TknCharacter, lexer.TknNumber, lexer.TknTrue, lexer.TknFalse:
-
 			expr = p.parseLiteral()
 			break
 		case lexer.TknIdentifier:
-
 			expr = p.parseIdentifierExpression()
-
 			break
 		case lexer.TknNot:
 			expr = p.parsePrefixUnaryExpression()
@@ -343,6 +340,8 @@ func (p *Parser) parseCompositeLiteral(expr ast.ExpressionNode) (n ast.Composite
 	// expr must be a reference or identifier node
 	n.Reference = expr
 	p.parseRequired(lexer.TknOpenBrace)
+	for p.parseOptional(lexer.TknNewLine) {
+	}
 	if !p.parseOptional(lexer.TknCloseBrace) {
 		firstKey := p.parseIdentifier()
 		p.parseRequired(lexer.TknColon)
@@ -352,6 +351,11 @@ func (p *Parser) parseCompositeLiteral(expr ast.ExpressionNode) (n ast.Composite
 		}
 		n.Fields[firstKey] = expr
 		for p.parseOptional(lexer.TknComma) {
+			for p.parseOptional(lexer.TknNewLine) {
+			}
+			if p.parseOptional(lexer.TknCloseBrace) {
+				return n
+			}
 			key := p.parseIdentifier()
 			p.parseRequired(lexer.TknColon)
 			exp := p.parseExpression()

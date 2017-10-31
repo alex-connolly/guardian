@@ -22,12 +22,46 @@ func parseAssignmentStatement(p *Parser) {
 }
 
 func (p *Parser) parseOptionalAssignment() *ast.AssignmentStatementNode {
-	if isAssignmentStatement(p) {
-		assigned := p.parseAssignment()
+	// all optional assignments must be simple
+	if isSimpleAssignmentStatement(p) {
+		assigned := p.parseSimpleAssignment()
 		p.parseOptional(lexer.TknSemicolon)
 		return &assigned
 	}
 	return nil
+}
+
+func (p *Parser) parseSimpleAssignment() ast.AssignmentStatementNode {
+
+	modifiers := p.parseModifiers(lexer.TknIdentifier)
+
+	var assigned []ast.ExpressionNode
+	assigned = append(assigned, p.parseSimpleExpression())
+	for p.parseOptional(lexer.TknComma) {
+		assigned = append(assigned, p.parseSimpleExpression())
+	}
+
+	if !p.parseOptional(lexer.GetAssignments()...) {
+		if p.parseOptional(lexer.TknIncrement, lexer.TknDecrement) {
+			return ast.AssignmentStatementNode{
+				Modifiers: modifiers,
+				Left:      assigned,
+				Right:     nil,
+			}
+		}
+	}
+
+	var to []ast.ExpressionNode
+	to = append(to, p.parseSimpleExpression())
+	for p.parseOptional(lexer.TknComma) {
+		to = append(to, p.parseSimpleExpression())
+	}
+
+	return ast.AssignmentStatementNode{
+		Modifiers: modifiers,
+		Left:      assigned,
+		Right:     to,
+	}
 }
 
 func (p *Parser) parseAssignment() ast.AssignmentStatementNode {

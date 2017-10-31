@@ -9,6 +9,9 @@ type construct struct {
 func getPrimaryConstructs() []construct {
 	return []construct{
 
+		construct{"single line comment", isSingleLineComment, parseSingleLineComment},
+		construct{"multi line comment", isMultiLineComment, parseMultiLineComment},
+
 		construct{"explict var declaration", isExplicitVarDeclaration, parseExplicitVarDeclaration},
 		construct{"class declaration", isClassDeclaration, parseClassDeclaration},
 		construct{"contract declaration", isContractDeclaration, parseContractDeclaration},
@@ -18,6 +21,8 @@ func getPrimaryConstructs() []construct {
 		construct{"enum declaration", isEnumDeclaration, parseEnumDeclaration},
 		construct{"type declaration", isTypeDeclaration, parseTypeDeclaration},
 		construct{"event declaration", isEventDeclaration, parseEventDeclaration},
+
+		construct{"new line", isNewLine, parseNewLine},
 
 		construct{"if statement", isIfStatement, parseIfStatement},
 		construct{"for statement", isForStatement, parseForStatement},

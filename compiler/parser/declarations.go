@@ -51,18 +51,18 @@ func (p *Parser) parseInterfaceSignatures() []ast.FuncTypeNode {
 
 	p.parseRequired(lexer.TknOpenBrace)
 
-	/*for isNewLine(p) {
+	for isNewLine(p) {
 		parseNewLine(p)
-	}*/
+	}
 
 	var sigs []ast.FuncTypeNode
 
 	first := p.parseFuncType()
 	sigs = append(sigs, first)
 
-	/*for isNewLine(p) {
+	for isNewLine(p) {
 		parseNewLine(p)
-	}*/
+	}
 
 	for !p.parseOptional(lexer.TknCloseBrace) {
 
@@ -74,9 +74,9 @@ func (p *Parser) parseInterfaceSignatures() []ast.FuncTypeNode {
 			sigs = append(sigs, p.parseFuncType())
 		}
 
-		/*for isNewLine(p) {
+		for isNewLine(p) {
 			parseNewLine(p)
-		}*/
+		}
 
 	}
 	return sigs
@@ -87,9 +87,9 @@ func (p *Parser) parseEnumBody() []string {
 	p.parseRequired(lexer.TknOpenBrace)
 	var enums []string
 	// remove all new lines before the fist identifier
-	/*for isNewLine(p) {
+	for isNewLine(p) {
 		parseNewLine(p)
-	}*/
+	}
 
 	if !p.parseOptional(lexer.TknCloseBrace) {
 		// can only contain identifiers split by commas and newlines
@@ -97,9 +97,9 @@ func (p *Parser) parseEnumBody() []string {
 		enums = append(enums, first)
 		for p.parseOptional(lexer.TknComma) {
 
-			/*for isNewLine(p) {
+			for isNewLine(p) {
 				parseNewLine(p)
-			}*/
+			}
 
 			if p.current().Type == lexer.TknIdentifier {
 				enums = append(enums, p.parseIdentifier())
@@ -108,9 +108,9 @@ func (p *Parser) parseEnumBody() []string {
 			}
 		}
 
-		/*for isNewLine(p) {
+		for isNewLine(p) {
 			parseNewLine(p)
-		}*/
+		}
 
 		p.parseRequired(lexer.TknCloseBrace)
 	}

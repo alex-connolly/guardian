@@ -102,7 +102,7 @@ func TestIsIfStatement(t *testing.T) {
 
 func TestIsExplicitVarDeclaration(t *testing.T) {
 	p := createParser("x string")
-	goutil.Assert(t, isExplicitVarDeclaration(p), "var expvar statement not recognised")
+	goutil.Assert(t, isExplicitVarDeclaration(p), "expvar statement not recognised")
 	p = createParser("x, a string")
 	goutil.Assert(t, isExplicitVarDeclaration(p), "multiple var expvar statement not recognised")
 	p = createParser("x map[string]string")
@@ -125,6 +125,14 @@ func TestIsExplicitVarDeclaration(t *testing.T) {
 	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not recognise empty string")
 	p = createParser("contract Dog {}")
 	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not recognise contract opening")
+	p = createParser("empty()")
+	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not recognise empty call")
+}
+
+func TestIsExpVarCall(t *testing.T) {
+
+	p := createParser(`full("hi", "bye")`)
+	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not recognise empty call")
 }
 
 func TestIsSwitchStatement(t *testing.T) {
@@ -186,6 +194,8 @@ func TestIsAssignmentStatementReferenceLiteral(t *testing.T) {
 	goutil.Assert(t, len(p.Errs) == 0, "should be no errs")
 	goutil.Assert(t, !isAssignmentStatement(p), "complex comparison + braces should not be recognised")
 	goutil.Assert(t, len(p.Errs) == 0, "should be no errs after")
+	p = createParser(`winningVoteCount = proposals[p].voteCount`)
+	goutil.Assert(t, isAssignmentStatement(p), "complex to should be recognised")
 }
 
 func TestIsAssignmentStatementIncrementDecrement(t *testing.T) {
@@ -231,4 +241,11 @@ func TestIsPlainType(t *testing.T) {
 	goutil.Assert(t, !p.isPlainType(), "index array type should not be recognised")
 	p = createParser("a[b]")
 	goutil.Assert(t, !p.isPlainType(), "index array type should not be recognised")
+	p = createParser("call()")
+	goutil.Assert(t, !p.isPlainType(), "empty call type should not be recognised")
+	p = createParser(`full("hi", "bye")`)
+	goutil.Assert(t, !p.isPlainType(), "full call type should not be recognised")
+	p = createParser(`full("hi", "bye")
+	`)
+	goutil.Assert(t, !p.isPlainType(), "multiline full call type should not be recognised")
 }

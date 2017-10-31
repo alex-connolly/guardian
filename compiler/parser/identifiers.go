@@ -6,6 +6,10 @@ import (
 	"github.com/end-r/guardian/compiler/lexer"
 )
 
+func isNewLine(p *Parser) bool {
+	return p.isNextToken(lexer.TknNewLine)
+}
+
 // e.g. name string
 func isExplicitVarDeclaration(p *Parser) bool {
 	if !p.hasTokens(2) {
@@ -14,13 +18,12 @@ func isExplicitVarDeclaration(p *Parser) bool {
 	saved := *p
 	for p.parseOptional(lexer.GetModifiers()...) {
 	}
-
-	if p.current().Type != lexer.TknIdentifier {
+	if !p.parseOptional(lexer.TknIdentifier) {
 		*p = saved
 		return false
 	}
 	for p.parseOptional(lexer.TknComma) {
-		if p.current().Type != lexer.TknIdentifier {
+		if !p.parseOptional(lexer.TknIdentifier) {
 			*p = saved
 			return false
 		}
@@ -34,9 +37,11 @@ func isExplicitVarDeclaration(p *Parser) bool {
 		return false
 	}
 	p.parseType()
-	if !p.isNextTerminating() {
-		*p = saved
-		return false
+	if p.hasTokens(1) {
+		if !p.isNextTerminating() {
+			*p = saved
+			return false
+		}
 	}
 	*p = saved
 	return true
@@ -52,8 +57,11 @@ func (p *Parser) isNextAType() bool {
 
 func (p *Parser) isPlainType() bool {
 	saved := *p
-	expr := p.parseExpression()
+	expr := p.parseExpressionComponent()
 	*p = saved
+	if expr == nil {
+		return false
+	}
 	return expr.Type() == ast.Reference || expr.Type() == ast.Identifier
 }
 
@@ -155,10 +163,36 @@ func isAssignmentStatement(p *Parser) bool {
 	return flag
 }
 
+func isSimpleAssignmentStatement(p *Parser) bool {
+	saved := *p
+	for p.parseOptional(lexer.GetModifiers()...) {
+	}
+	expr := p.parseSimpleExpression()
+	if expr == nil {
+		*p = saved
+		return false
+	}
+	for p.parseOptional(lexer.TknComma) {
+		// assume these will be expressions
+		p.parseSimpleExpression()
+	}
+	flag := p.isNextTokenAssignment()
+	*p = saved
+	return flag
+}
+
 func (p *Parser) isNextTokenAssignment() bool {
 	return p.isNextToken(lexer.TknAssign, lexer.TknAddAssign, lexer.TknSubAssign, lexer.TknMulAssign,
 		lexer.TknDivAssign, lexer.TknShrAssign, lexer.TknShlAssign, lexer.TknModAssign, lexer.TknAndAssign,
 		lexer.TknOrAssign, lexer.TknXorAssign, lexer.TknIncrement, lexer.TknDecrement, lexer.TknDefine)
+}
+
+func isSingleLineComment(p *Parser) bool {
+	return p.isNextToken(lexer.TknLineComment)
+}
+
+func isMultiLineComment(p *Parser) bool {
+	return p.isNextToken(lexer.TknOpenComment)
 }
 
 func isSwitchStatement(p *Parser) bool {

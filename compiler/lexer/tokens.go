@@ -166,6 +166,9 @@ const (
 	TknProtected
 	TknStatic
 	TknNewLine
+	TknLineComment
+	TknCommentOpen
+	TknCommentClose
 )
 
 // TODO: protoToken{"Operator", isOperator, processOperator}
@@ -227,6 +230,10 @@ func getProtoTokens() []protoToken {
 
 		createDistinct("true", TknTrue),
 		createDistinct("false", TknFalse),
+
+		createFixed("/*", TknCommentOpen),
+		createFixed("*/", TknCommentClose),
+		createFixed("//", TknLineComment),
 
 		createFixed("+=", TknAddAssign),
 		createFixed("++", TknIncrement),

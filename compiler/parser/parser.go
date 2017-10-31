@@ -102,6 +102,25 @@ func (p *Parser) validate(t ast.NodeType) {
 	}
 }
 
+func parseNewLine(p *Parser) {
+	p.line++
+	p.next()
+}
+
+func parseLineComment(p *Parser) {
+	p.parseRequired(lexer.TknLineComment)
+	for p.current().Type != lexer.TknNewLine {
+		p.next()
+	}
+}
+
+func parseMultilineComment(p *Parser) {
+	p.parseRequired(lexer.TknOpenComment)
+	for p.current().Type != lexer.TknCloseComment {
+		p.next()
+	}
+}
+
 func (p *Parser) addError(err string) {
 	p.Errs = append(p.Errs, err)
 }
@@ -119,7 +138,6 @@ func (p *Parser) parseScope(valids ...ast.NodeType) *ast.ScopeNode {
 	p.Scope = scope
 	for p.hasTokens(1) {
 		if p.current().Type == lexer.TknCloseBrace {
-			//fmt.Printf("closing scope at index %d\n", p.index)
 			p.Scope = scope.Parent
 			return scope
 		}

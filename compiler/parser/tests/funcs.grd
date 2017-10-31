@@ -1,6 +1,8 @@
 contract Funcs {
 
-    
+    func doThing(){
+        withParams("hi", "me")
+    }
 
     func withParams(a, b string){
 
