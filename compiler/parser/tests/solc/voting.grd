@@ -14,15 +14,18 @@ contract Ballot {
 
     external chairperson address
     external voters map[address]Voter
-    external proposals [Proposal]
+    external proposals []Proposal
 
-    constructor(proposalNames [bytes32]){
+    constructor(proposalNames []bytes32){
 
         chairperson = msg.sender
         voters[chairperson].weight = 1
 
         for i := 0; i < proposalNames.length; i++ {
-            proposals = append(proposals, p)
+            proposals = append(proposals, Proposal{
+                name: proposalNames[i],
+                voteCount: 0,
+            })
         }
 
     }
@@ -77,7 +80,6 @@ contract Ballot {
         }
 
     }
-
 
     external func winnerName() bytes32 {
         return proposals[winningProposal()].name

@@ -435,7 +435,7 @@ func TestParseVarDeclarationMap(t *testing.T) {
 }
 
 func TestParseVarDeclarationArray(t *testing.T) {
-	p := createParser("a, b [string]")
+	p := createParser("a, b []string")
 	d := p.parseVarDeclaration()
 	goutil.AssertNow(t, len(d.Identifiers) == 2, "wrong id length")
 	goutil.AssertNow(t, d.Identifiers[0] == "a", "wrong id 0 value")

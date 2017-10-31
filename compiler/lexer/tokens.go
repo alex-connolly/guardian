@@ -165,6 +165,7 @@ const (
 	TknPrivate
 	TknProtected
 	TknStatic
+	TknNewLine
 )
 
 // TODO: protoToken{"Operator", isOperator, processOperator}
@@ -272,7 +273,7 @@ func getProtoTokens() []protoToken {
 		createFixed(",", TknComma),
 		createFixed("=", TknAssign),
 
-		protoToken{"New Line", isNewLine, processNewLineIgnored},
+		protoToken{"New Line", isNewLine, processNewLine},
 		protoToken{"Whitespace", isWhitespace, processIgnored},
 		protoToken{"String", isString, processString},
 		protoToken{"Number", isNumber, processNumber},

@@ -40,7 +40,7 @@ contract BlindAuction {
         });
     }
 
-    func reveal(values [uint], fake [bool], secret [bytes32]) {
+    func reveal(values []uint, fake []bool, secret []bytes32) {
 
         onlyAfter(biddingEnd)
         onlyBefore(revealEnd)

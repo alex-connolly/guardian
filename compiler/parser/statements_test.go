@@ -291,8 +291,8 @@ func TestMultipleCallReturnStatement(t *testing.T) {
 	goutil.AssertNow(t, r.Results[1].Type() == ast.CallExpression, "wrong result 1 type")
 }
 
-func TestSingleArrayLiterallReturnStatement(t *testing.T) {
-	p := createParser(`return [int]{}`)
+func TestSingleArrayLiteralReturnStatement(t *testing.T) {
+	p := createParser(`return []int{}`)
 	goutil.Assert(t, isReturnStatement(p), "should detect return statement")
 	parseReturnStatement(p)
 
@@ -304,7 +304,7 @@ func TestSingleArrayLiterallReturnStatement(t *testing.T) {
 }
 
 func TestMultipleArrayLiteralReturnStatement(t *testing.T) {
-	p := createParser(`return [string]{"one", "two"}, [Dog]{}`)
+	p := createParser(`return []string{"one", "two"}, []Dog{}`)
 	goutil.Assert(t, isReturnStatement(p), "should detect return statement")
 	parseReturnStatement(p)
 
@@ -316,7 +316,7 @@ func TestMultipleArrayLiteralReturnStatement(t *testing.T) {
 	goutil.AssertNow(t, r.Results[1].Type() == ast.ArrayLiteral, "wrong result 1 type")
 }
 
-func TestSingleMapLiterallReturnStatement(t *testing.T) {
+func TestSingleMapLiteralReturnStatement(t *testing.T) {
 	p := createParser(`return map[string]int{"one":2, "two":3}`)
 	goutil.Assert(t, isReturnStatement(p), "should detect return statement")
 	parseReturnStatement(p)
@@ -404,7 +404,7 @@ func TestMultiToSingleLiteralAssignmentStatement(t *testing.T) {
 func TestIndexReferenceAssignmentStatement(t *testing.T) {
 	p := ParseString("voters[chairperson].weight = 1")
 	n := p.Scope.Next()
-	goutil.AssertNow(t, len(p.Scope.Sequence) == 1, "wrong sequence length")
+	goutil.AssertNow(t, len(p.Scope.Sequence) == 1, fmt.Sprintf("wrong sequence length: %d", len(p.Scope.Sequence)))
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong type")
 }
 
@@ -529,7 +529,7 @@ func TestMultiCompositeLiteralAssignmentStatement(t *testing.T) {
 }
 
 func TestSimpleArrayLiteralAssignmentStatement(t *testing.T) {
-	p := createParser("x = [int]{3, 5}")
+	p := createParser("x = []int{3, 5}")
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
@@ -540,7 +540,7 @@ func TestSimpleArrayLiteralAssignmentStatement(t *testing.T) {
 }
 
 func TestMultiToSingleArrayLiteralAssignmentStatement(t *testing.T) {
-	p := createParser("x, y = [int]{3, 5}")
+	p := createParser("x, y = []int{3, 5}")
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
@@ -551,7 +551,7 @@ func TestMultiToSingleArrayLiteralAssignmentStatement(t *testing.T) {
 }
 
 func TestMultiArrayLiteralAssignmentStatement(t *testing.T) {
-	p := createParser("x, y = [int]{1, 2}, [int]{}")
+	p := createParser("x, y = []int{1, 2}, [int]{}")
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
@@ -562,7 +562,7 @@ func TestMultiArrayLiteralAssignmentStatement(t *testing.T) {
 }
 
 func TestSimpleMapLiteralAssignmentStatement(t *testing.T) {
-	p := createParser("x = [int]{3, 5}")
+	p := createParser("x = []int{3, 5}")
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
@@ -573,7 +573,7 @@ func TestSimpleMapLiteralAssignmentStatement(t *testing.T) {
 }
 
 func TestMultiToSingleMapLiteralAssignmentStatement(t *testing.T) {
-	p := createParser("x, y = [int]{3, 5}")
+	p := createParser("x, y = []int{3, 5}")
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 

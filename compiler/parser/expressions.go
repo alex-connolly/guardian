@@ -261,10 +261,8 @@ func (p *Parser) parseArrayLiteral() (n ast.ArrayLiteralNode) {
 
 	p.parseRequired(lexer.TknOpenBrace)
 	if !p.parseOptional(lexer.TknCloseBrace) {
-		n.Data = append(n.Data, p.parseExpression())
-		for p.parseOptional(lexer.TknComma) {
-			n.Data = append(n.Data, p.parseExpression())
-		}
+		// TODO: check this is right
+		n.Data = p.parseExpressionList()
 		p.parseRequired(lexer.TknCloseBrace)
 	}
 	return n

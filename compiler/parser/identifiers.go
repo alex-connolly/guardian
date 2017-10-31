@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"github.com/end-r/guardian/compiler/ast"
+
 	"github.com/end-r/guardian/compiler/lexer"
 )
 
@@ -12,12 +14,13 @@ func isExplicitVarDeclaration(p *Parser) bool {
 	saved := *p
 	for p.parseOptional(lexer.GetModifiers()...) {
 	}
-	if !p.parseOptional(lexer.TknIdentifier) {
+
+	if p.current().Type != lexer.TknIdentifier {
 		*p = saved
 		return false
 	}
 	for p.parseOptional(lexer.TknComma) {
-		if !p.parseOptional(lexer.TknIdentifier) {
+		if p.current().Type != lexer.TknIdentifier {
 			*p = saved
 			return false
 		}
@@ -31,23 +34,31 @@ func isExplicitVarDeclaration(p *Parser) bool {
 		return false
 	}
 	p.parseType()
-	// if next is an assignment, not an expvar
-	if p.hasTokens(1) {
-		if !p.isNextToken(lexer.TknSemicolon, lexer.TknNewLine) {
-			*p = saved
-			return false
-		}
+	if !p.isNextTerminating() {
+		*p = saved
+		return false
 	}
 	*p = saved
 	return true
 }
 
+func (p *Parser) isNextTerminating() bool {
+	return p.parseOptional(lexer.TknNewLine, lexer.TknSemicolon, lexer.TknComma)
+}
+
 func (p *Parser) isNextAType() bool {
-	return p.isNextToken(lexer.TknIdentifier) || p.isArrayType() || p.isMapType() || p.isFuncType()
+	return p.isPlainType() || p.isArrayType() || p.isMapType() || p.isFuncType()
+}
+
+func (p *Parser) isPlainType() bool {
+	saved := *p
+	expr := p.parseExpression()
+	*p = saved
+	return expr.Type() == ast.Reference || expr.Type() == ast.Identifier
 }
 
 func (p *Parser) isArrayType() bool {
-	return p.isNextToken(lexer.TknOpenSquare)
+	return p.isNextToken(lexer.TknOpenSquare) && p.token(1).Type == lexer.TknCloseSquare
 }
 
 func (p *Parser) isFuncType() bool {

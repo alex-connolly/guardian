@@ -12,7 +12,7 @@ contract C {
     interface Full {
         func doEvenMoreStuff(string) string
         func wowALotOfStuff(map[string]int) map[string]int
-        func iCantBelieveIveDoneThis([string]) map[string]int
+        func iCantBelieveIveDoneThis([]string) map[string]int
     }
 
 }

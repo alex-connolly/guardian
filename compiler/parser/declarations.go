@@ -420,13 +420,13 @@ func (p *Parser) parseFuncType() ast.FuncTypeNode {
 func (p *Parser) parseArrayType() ast.ArrayTypeNode {
 	p.parseRequired(lexer.TknOpenSquare)
 
-	typ := p.parseType()
-
-	p.parseRequired(lexer.TknCloseSquare)
-
 	/*if p.parseOptional(lexer.TknColon) {
 		//	max = p.parseExpression()
 	}*/
+
+	p.parseRequired(lexer.TknCloseSquare)
+
+	typ := p.parseType()
 
 	return ast.ArrayTypeNode{
 		Value: typ,

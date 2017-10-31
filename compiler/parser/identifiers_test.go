@@ -107,7 +107,7 @@ func TestIsExplicitVarDeclaration(t *testing.T) {
 	goutil.Assert(t, isExplicitVarDeclaration(p), "multiple var expvar statement not recognised")
 	p = createParser("x map[string]string")
 	goutil.Assert(t, isExplicitVarDeclaration(p), "map expvar statement not recognised")
-	p = createParser("x [string]")
+	p = createParser("x []string")
 	goutil.Assert(t, isExplicitVarDeclaration(p), "array expvar statement not recognised")
 	p = createParser("external x string")
 	goutil.Assert(t, isExplicitVarDeclaration(p), "modifier statement not recognised")
@@ -117,8 +117,14 @@ func TestIsExplicitVarDeclaration(t *testing.T) {
 	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not recognise simple assignment")
 	p = createParser("a[b] = 5")
 	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not recognise index assignment")
-	p = createParser("a[b].c = 5")
-	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not recognise reference assignment")
+	p = createParser("a[b].c()")
+	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not recognise reference call")
+	p = createParser("")
+	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not recognise empty string")
+	p = createParser("}")
+	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not recognise empty string")
+	p = createParser("contract Dog {}")
+	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not recognise contract opening")
 }
 
 func TestIsSwitchStatement(t *testing.T) {
@@ -175,7 +181,7 @@ func TestIsAssignmentStatementReferenceLiteral(t *testing.T) {
 	goutil.Assert(t, len(p.Errs) == 0, "should be no errs after cmplx")
 
 	p = createParser(`proposals[p].voteCount > winningVoteCount {
-		
+
 		}`)
 	goutil.Assert(t, len(p.Errs) == 0, "should be no errs")
 	goutil.Assert(t, !isAssignmentStatement(p), "complex comparison + braces should not be recognised")
@@ -196,4 +202,33 @@ func TestIsNextAssignmentStatement(t *testing.T) {
 	p = createParser("--")
 	goutil.Assert(t, p.isNextTokenAssignment(), "simple decrement not recognised")
 
+}
+
+func TestIsMapType(t *testing.T) {
+	p := createParser("map[string]string")
+	goutil.Assert(t, p.isMapType(), "map type not recognised")
+	p = createParser("[string]")
+	goutil.Assert(t, !p.isMapType(), "index array type should not be recognised")
+	p = createParser("a[b]")
+	goutil.Assert(t, !p.isMapType(), "index array type should not be recognised")
+}
+
+func TestIsArrayType(t *testing.T) {
+	p := createParser("[]string")
+	goutil.Assert(t, p.isArrayType(), "array type not recognised")
+	p = createParser("[string]")
+	goutil.Assert(t, !p.isArrayType(), "index array type should not be recognised")
+	p = createParser("a[b]")
+	goutil.Assert(t, !p.isArrayType(), "index array type should not be recognised")
+}
+
+func TestIsPlainType(t *testing.T) {
+	p := createParser("string")
+	goutil.Assert(t, p.isPlainType(), "simple type not recognised")
+	p = createParser("string.hi")
+	goutil.Assert(t, p.isPlainType(), "reference type not recognised")
+	p = createParser("[string]")
+	goutil.Assert(t, !p.isPlainType(), "index array type should not be recognised")
+	p = createParser("a[b]")
+	goutil.Assert(t, !p.isPlainType(), "index array type should not be recognised")
 }

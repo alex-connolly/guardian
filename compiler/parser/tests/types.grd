@@ -3,9 +3,9 @@ contract T {
     a string
     b, c string
     d map[string]string
-    e [string]
+    e []string
     f func()()
-    g func(map[string]string, string) ([string], int)
+    g func(map[string]string, string) ([]string, int)
     h func(string)
 
 }
