@@ -62,7 +62,7 @@ func (n ExplicitVarDeclarationNode) Type() NodeType { return ExplicitVarDeclarat
 type EventDeclarationNode struct {
 	Modifiers  []lexer.TokenType
 	Identifier string
-	Parameters []ReferenceNode
+	Parameters []ExplicitVarDeclarationNode
 }
 
 func (n EventDeclarationNode) Type() NodeType { return EventDeclaration }

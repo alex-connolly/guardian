@@ -462,7 +462,7 @@ func parseEventDeclaration(p *Parser) {
 	p.parseRequired(lexer.TknOpenBracket)
 	var types []ast.ReferenceNode
 	if !p.parseOptional(lexer.TknCloseBracket) {
-		types = p.parseIdentifierReferenceList()
+		types = p.parseParameters()
 		p.parseRequired(lexer.TknCloseBracket)
 	}
 

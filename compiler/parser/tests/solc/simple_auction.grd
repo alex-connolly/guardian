@@ -13,42 +13,5 @@ contract SimpleAuction {
     event HighestBidIncreased(bidder address, amount uint)
     event AuctionEnded(winner address, amount uint)
 
-    constructor(biddingTime uint, beneficiary address) {
-        this.beneficiary = beneficiary
-        this.auctionEnd = now() + biddingTime
-    }
-
-    external func bid() {
-        enforce(now() <= auctionEnd)
-        enforce(msg.value > highestBid)
-        if highestBidder != 0 {
-            pendingReturns[highestBidder] += highestBid
-        }
-        highestBidder = msg.sender
-        highestBid = msg.value
-        HighestBidIncreased(msg.sender, msg.value)
-    }
-
-    external func withdraw() bool {
-        amount := pendingReturns[msg.sender]
-        if amount > 0 {
-            pendingReturns[msg.sender] = 0
-
-            if !send(msg.sender, amount) {
-                pendingReturns[msg.sender] = amount
-                return false
-            }
-        }
-        return true
-    }
-
-    external func auctionEnd(){
-        enforce(now() >= auctionEnd)
-        enforce(!ended)
-
-        ended = true
-        AuctionEnded(highestBidder, highestBid)
-
-        transfer(beneficiary, highestBid)
-    }
+    
 }
