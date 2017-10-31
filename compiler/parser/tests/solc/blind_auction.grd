@@ -10,7 +10,7 @@ contract BlindAuction {
     external revealEnd uint
     external ended bool
 
-    external bids map[address][Bid]
+    external bids map[address][]Bid
     external highestBidder address
     external highestBid uint
 
@@ -37,7 +37,7 @@ contract BlindAuction {
         bids[msg.sender] = append(bids[msg.sender], Bid{
             blindedBid: blindedBid,
             deposit: msg.value
-        });
+        })
     }
 
     func reveal(values []uint, fake []bool, secret []bytes32) {
@@ -53,7 +53,7 @@ contract BlindAuction {
 
         refund uint
         for i := 0; i < length; i++ {
-            bid := bids[msg.sender][i]
+            
             v, f, s := values[i], fake[i], secret[i]
             if bid.blindedBid != keccak256(v, f, s) {
                 continue

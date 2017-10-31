@@ -40,6 +40,7 @@ const (
 	CaseStatement
 	BlockStatement
 	ForStatement
+	FlowStatement
 
 	File
 	Scope

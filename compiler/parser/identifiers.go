@@ -187,6 +187,10 @@ func (p *Parser) isNextTokenAssignment() bool {
 		lexer.TknOrAssign, lexer.TknXorAssign, lexer.TknIncrement, lexer.TknDecrement, lexer.TknDefine)
 }
 
+func isFlowStatement(p *Parser) bool {
+	return p.isNextToken(lexer.TknBreak, lexer.TknContinue)
+}
+
 func isSingleLineComment(p *Parser) bool {
 	return p.isNextToken(lexer.TknLineComment)
 }

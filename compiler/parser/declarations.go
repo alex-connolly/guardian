@@ -457,14 +457,10 @@ func parseExplicitVarDeclaration(p *Parser) {
 
 func parseEventDeclaration(p *Parser) {
 	p.parseRequired(lexer.TknEvent)
-	name := p.lexer.TokenString(p.current())
-	p.next()
-	p.parseRequired(lexer.TknOpenBracket)
-	var types []ast.ReferenceNode
-	if !p.parseOptional(lexer.TknCloseBracket) {
-		types = p.parseParameters()
-		p.parseRequired(lexer.TknCloseBracket)
-	}
+
+	name := p.parseIdentifier()
+
+	var types = p.parseParameters()
 
 	node := ast.EventDeclarationNode{
 		Identifier: name,

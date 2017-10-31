@@ -81,7 +81,7 @@ func (p *Parser) parseRequired(types ...lexer.TokenType) lexer.TokenType {
 			return t
 		}
 	}
-	p.addError(fmt.Sprintf("Required %s, found %d", "x", p.current().Name()))
+	p.addError(fmt.Sprintf("Required %s, found %s", "x", p.current().Name()))
 	return p.current().Type
 }
 

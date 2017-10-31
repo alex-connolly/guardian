@@ -20,14 +20,14 @@ func TestParseSimpleAuctionExample(t *testing.T) {
 	goutil.Assert(t, p.Errs == nil, p.formatErrors())
 }
 
-/*func TestParseBlindAuctionExample(t *testing.T) {
+func TestParseBlindAuctionExample(t *testing.T) {
 	p := ParseFile("tests/solc/blind_auction.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
-	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
+	goutil.Assert(t, p.Errs == nil, p.formatErrors())
 }
 
 func TestParsePurchaseExample(t *testing.T) {
 	p := ParseFile("tests/solc/purchase.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
-	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
-}*/
+	goutil.Assert(t, p.Errs == nil, p.formatErrors())
+}

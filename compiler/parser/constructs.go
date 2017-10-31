@@ -30,5 +30,6 @@ func getPrimaryConstructs() []construct {
 		construct{"return statment", isReturnStatement, parseReturnStatement},
 		construct{"switch statement", isSwitchStatement, parseSwitchStatement},
 		construct{"case statement", isCaseStatement, parseCaseStatement},
+		construct{"flow statement", isFlowStatement, parseFlowStatement},
 	}
 }

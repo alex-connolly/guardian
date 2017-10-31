@@ -361,6 +361,8 @@ func (p *Parser) parseCompositeLiteral(expr ast.ExpressionNode) (n ast.Composite
 			exp := p.parseExpression()
 			n.Fields[key] = exp
 		}
+		// TODO: allow more than one?
+		p.parseOptional(lexer.TknNewLine)
 		p.parseRequired(lexer.TknCloseBrace)
 	}
 	return n

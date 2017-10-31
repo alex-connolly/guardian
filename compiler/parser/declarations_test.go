@@ -340,8 +340,7 @@ func TestParseEventDeclarationEmpty(t *testing.T) {
 }
 
 func TestParseEventDeclarationSingle(t *testing.T) {
-	p := createParser(`event Notification(string)`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 5, "wrong token length")
+	p := createParser(`event Notification(a string)`)
 	goutil.Assert(t, isEventDeclaration(p), "should detect event decl")
 	parseEventDeclaration(p)
 	n := p.Scope.NextDeclaration()
@@ -351,8 +350,7 @@ func TestParseEventDeclarationSingle(t *testing.T) {
 }
 
 func TestParseEventDeclarationMultiple(t *testing.T) {
-	p := createParser(`event Notification(string, string)`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 7, "wrong token length")
+	p := createParser(`event Notification(a string, b string)`)
 	goutil.Assert(t, isEventDeclaration(p), "should detect event decl")
 	parseEventDeclaration(p)
 	n := p.Scope.NextDeclaration()

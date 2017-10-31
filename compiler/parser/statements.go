@@ -184,6 +184,14 @@ func parseForStatement(p *Parser) {
 	p.Scope.AddSequential(node)
 }
 
+func parseFlowStatemetn(p *Parser) {
+	node := ast.FlowStatementNode{
+		Token: p.current().Type,
+	}
+	p.next()
+	p.Scope.AddSequential(node)
+}
+
 func parseCaseStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknCase)

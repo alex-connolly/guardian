@@ -57,3 +57,9 @@ type ForStatementNode struct {
 }
 
 func (n ForStatementNode) Type() NodeType { return ForStatement }
+
+type FlowStatementNode struct {
+	Token lexer.TokenType
+}
+
+func (n FlowStatementNode) Type() NodeType { return FlowStatement }
