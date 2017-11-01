@@ -398,7 +398,7 @@ func TestParseVarDeclarationSimple(t *testing.T) {
 	goutil.AssertNow(t, len(d.Identifiers) == 1, "wrong id length")
 	goutil.AssertNow(t, d.Identifiers[0] == "a", "wrong id 0 value")
 	dt := d.DeclaredType
-	goutil.AssertNow(t, dt.Type() == ast.Reference, "wrong node type")
+	goutil.AssertNow(t, dt.Type() == ast.PlainType, "wrong node type")
 }
 
 func TestParseVarDeclarationMultiple(t *testing.T) {
@@ -416,7 +416,7 @@ func TestParseVarDeclarationMultipleExternal(t *testing.T) {
 	goutil.AssertNow(t, d.Identifiers[0] == "a", "wrong id 0 value")
 	goutil.AssertNow(t, d.Identifiers[1] == "b", "wrong id 1 value")
 	dt := d.DeclaredType
-	goutil.AssertNow(t, dt.Type() == ast.Reference, "wrong node type")
+	goutil.AssertNow(t, dt.Type() == ast.PlainType, "wrong node type")
 }
 
 func TestParseVarDeclarationMap(t *testing.T) {
@@ -428,8 +428,8 @@ func TestParseVarDeclarationMap(t *testing.T) {
 	dt := d.DeclaredType
 	goutil.AssertNow(t, dt.Type() == ast.MapType, "wrong node type")
 	m := dt.(ast.MapTypeNode)
-	goutil.AssertNow(t, m.Key.Type() == ast.Reference, "wrong key type")
-	goutil.AssertNow(t, m.Value.Type() == ast.Reference, "wrong value type")
+	goutil.AssertNow(t, m.Key.Type() == ast.PlainType, "wrong key type")
+	goutil.AssertNow(t, m.Value.Type() == ast.PlainType, "wrong value type")
 }
 
 func TestParseVarDeclarationArray(t *testing.T) {
@@ -441,7 +441,7 @@ func TestParseVarDeclarationArray(t *testing.T) {
 	dt := d.DeclaredType
 	goutil.AssertNow(t, dt.Type() == ast.ArrayType, "wrong node type")
 	m := dt.(ast.ArrayTypeNode)
-	goutil.AssertNow(t, m.Value.Type() == ast.Reference, "wrong key type")
+	goutil.AssertNow(t, m.Value.Type() == ast.PlainType, "wrong key type")
 }
 
 func TestParseFuncNoParameters(t *testing.T) {

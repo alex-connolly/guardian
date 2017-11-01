@@ -266,7 +266,6 @@ func (p *Parser) parseArrayLiteral() (n ast.ArrayLiteralNode) {
 }
 
 func (p *Parser) parseMapLiteral() (n ast.MapLiteralNode) {
-
 	n.Signature = p.parseMapType()
 
 	p.parseRequired(lexer.TknOpenBrace)

@@ -29,7 +29,7 @@ func parseInterfaceDeclaration(p *Parser) {
 	p.parseRequired(lexer.TknInterface)
 	identifier := p.parseIdentifier()
 
-	var inherits []ast.ReferenceNode
+	var inherits []ast.PlainTypeNode
 
 	if p.parseOptional(lexer.TknInherits) {
 		inherits = p.parsePlainTypeList()
@@ -124,7 +124,7 @@ func parseEnumDeclaration(p *Parser) {
 	p.parseRequired(lexer.TknEnum)
 	identifier := p.parseIdentifier()
 
-	var inherits []ast.ReferenceNode
+	var inherits []ast.PlainTypeNode
 
 	if p.parseOptional(lexer.TknInherits) {
 		inherits = p.parsePlainTypeList()
@@ -148,7 +148,9 @@ func (p *Parser) parsePlainType() ast.PlainTypeNode {
 	for p.parseOptional(lexer.TknDot) {
 		names = append(names, p.parseIdentifier())
 	}
-	return names
+	return ast.PlainTypeNode{
+		Names: names,
+	}
 }
 
 // like any list parser, but enforces that each node must be a plain type
@@ -166,11 +168,12 @@ func parseClassDeclaration(p *Parser) {
 	modifiers := p.parseModifiers(lexer.TknClass)
 
 	p.parseRequired(lexer.TknClass)
+
 	identifier := p.parseIdentifier()
 
 	// is and inherits can be in any order
 
-	var inherits, interfaces []ast.ReferenceNode
+	var inherits, interfaces []ast.PlainTypeNode
 
 	if p.parseOptional(lexer.TknInherits) {
 		inherits = p.parsePlainTypeList()
@@ -206,7 +209,7 @@ func parseContractDeclaration(p *Parser) {
 
 	// is and inherits can be in any order
 
-	var inherits, interfaces []ast.ReferenceNode
+	var inherits, interfaces []ast.PlainTypeNode
 
 	if p.parseOptional(lexer.TknInherits) {
 		inherits = p.parsePlainTypeList()
@@ -248,7 +251,8 @@ func (p *Parser) parseType() ast.Node {
 		return p.parseMapType()
 	case p.isFuncType():
 		return p.parseFuncType()
-	case p.isPlainType():
+		// TODO: should be able to do with isPlainType() but causes crashes
+	case p.isNextToken(lexer.TknIdentifier):
 		return p.parsePlainType()
 	}
 	return nil
