@@ -1,0 +1,33 @@
+
+contract BasicIterator {
+
+    creator address
+    integers uint8[10]
+
+    constructor(){
+        creator = msg.sender
+        x := 0 as uint8
+        for x < len(integers) {
+        	integers[x] = x
+        	x++
+        }
+    }
+
+
+
+    func getSum() uint {
+        sum := 0 as uint
+        x := 0 as uint
+        for x < len(integers) {
+            sum += integers[x]
+            x++
+        }
+    }
+
+    func kill(){
+        if msg.sender == creator {
+            suicide(creator)
+        }
+    }
+
+}

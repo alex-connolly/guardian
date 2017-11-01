@@ -1,0 +1,31 @@
+contract CreatorBalanceChecker {
+
+    creator address
+    creatorBalance uint
+
+    constructor(){
+        creator = msg.sender
+        creatorbalance = creator.balance
+    }
+
+    func getContractAddress() address {
+        return address()
+    }
+
+
+    func getCreatorBalance() uint {
+        return creatorBalance
+    }
+
+
+    func getCreatorCurrentBalance() uint {
+        return creator.balance()
+    }
+
+    func kill(){
+        if msg.sender == creator {
+            suicide(creator);
+        }
+    }
+
+}

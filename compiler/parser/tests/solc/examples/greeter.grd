@@ -1,0 +1,32 @@
+
+contract Greeter {
+
+    creator address
+    greeting string
+
+    external constructor(greeting string){
+        this.creator = msg.sender
+        this.greeting = greeting
+    }
+
+    func greet() string {
+        return greeting
+    }
+
+
+
+    func getBlockNumber() uint {
+        return block.number
+    }
+
+    func setGreeting(newGreeting string){
+        greeting = newGreeting
+    }
+
+     func kill(){
+         if msg.sender == creator {
+             suicide(creator);
+         }
+     }
+
+}
