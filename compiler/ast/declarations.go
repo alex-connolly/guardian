@@ -24,8 +24,8 @@ func (n FuncDeclarationNode) Type() NodeType { return FuncDeclaration }
 type ClassDeclarationNode struct {
 	Identifier   string
 	Modifiers    []lexer.TokenType
-	Supers       []ReferenceNode
-	Interfaces   []ReferenceNode
+	Supers       []PlainTypeNode
+	Interfaces   []PlainTypeNode
 	Body         *ScopeNode
 	declarations map[string][]Node
 }
@@ -36,7 +36,7 @@ type InterfaceDeclarationNode struct {
 	Identifier string
 	Modifiers  []lexer.TokenType
 	Signatures []FuncTypeNode
-	Supers     []ReferenceNode
+	Supers     []PlainTypeNode
 }
 
 func (n InterfaceDeclarationNode) Type() NodeType { return InterfaceDeclaration }
@@ -44,8 +44,8 @@ func (n InterfaceDeclarationNode) Type() NodeType { return InterfaceDeclaration 
 type ContractDeclarationNode struct {
 	Identifier string
 	Modifiers  []lexer.TokenType
-	Supers     []ReferenceNode
-	Interfaces []ReferenceNode
+	Supers     []PlainTypeNode
+	Interfaces []PlainTypeNode
 	Body       *ScopeNode
 }
 
@@ -80,7 +80,7 @@ func (n LifecycleDeclarationNode) Type() NodeType { return LifecycleDeclaration 
 type EnumDeclarationNode struct {
 	Identifier string
 	Modifiers  []lexer.TokenType
-	Inherits   []ReferenceNode
+	Inherits   []PlainTypeNode
 	// consider whether to change this
 	Enums []string
 }
