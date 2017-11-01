@@ -32,7 +32,7 @@ func parseInterfaceDeclaration(p *Parser) {
 	var inherits []ast.ReferenceNode
 
 	if p.parseOptional(lexer.TknInherits) {
-		inherits = p.parseIdentifierReferenceList()
+		inherits = p.parsePlainTypeList()
 	}
 
 	signatures := p.parseInterfaceSignatures()
@@ -127,7 +127,7 @@ func parseEnumDeclaration(p *Parser) {
 	var inherits []ast.ReferenceNode
 
 	if p.parseOptional(lexer.TknInherits) {
-		inherits = p.parseIdentifierReferenceList()
+		inherits = p.parsePlainTypeList()
 	}
 
 	enums := p.parseEnumBody()
@@ -142,28 +142,21 @@ func parseEnumDeclaration(p *Parser) {
 	p.Scope.AddDeclaration(identifier, node)
 }
 
-func (p *Parser) parseIdentifierReference() ast.ReferenceNode {
-	// TODO: this is a very messy way of doing this, is there a better one
-	var ref ast.ReferenceNode
-	current := ref
-	id := p.parseIdentifierExpression()
-	current.Parent = id
+func (p *Parser) parsePlainType() ast.PlainTypeNode {
+	var names []string
+	names = append(names, p.parseIdentifier())
 	for p.parseOptional(lexer.TknDot) {
-		id = p.parseIdentifierExpression()
-		current.Reference = id
-		current = ast.ReferenceNode{
-			Parent: current.Reference,
-		}
+		names = append(names, p.parseIdentifier())
 	}
-	return ref
+	return names
 }
 
-// like any list parser, but enforces that each node must be a reference
-func (p *Parser) parseIdentifierReferenceList() []ast.ReferenceNode {
-	var refs []ast.ReferenceNode
-	refs = append(refs, p.parseIdentifierReference())
+// like any list parser, but enforces that each node must be a plain type
+func (p *Parser) parsePlainTypeList() []ast.PlainTypeNode {
+	var refs []ast.PlainTypeNode
+	refs = append(refs, p.parsePlainType())
 	for p.parseOptional(lexer.TknComma) {
-		refs = append(refs, p.parseIdentifierReference())
+		refs = append(refs, p.parsePlainType())
 	}
 	return refs
 }
@@ -180,14 +173,14 @@ func parseClassDeclaration(p *Parser) {
 	var inherits, interfaces []ast.ReferenceNode
 
 	if p.parseOptional(lexer.TknInherits) {
-		inherits = p.parseIdentifierReferenceList()
+		inherits = p.parsePlainTypeList()
 		if p.parseOptional(lexer.TknIs) {
-			interfaces = p.parseIdentifierReferenceList()
+			interfaces = p.parsePlainTypeList()
 		}
 	} else if p.parseOptional(lexer.TknIs) {
-		interfaces = p.parseIdentifierReferenceList()
+		interfaces = p.parsePlainTypeList()
 		if p.parseOptional(lexer.TknInherits) {
-			inherits = p.parseIdentifierReferenceList()
+			inherits = p.parsePlainTypeList()
 		}
 	}
 
@@ -216,14 +209,14 @@ func parseContractDeclaration(p *Parser) {
 	var inherits, interfaces []ast.ReferenceNode
 
 	if p.parseOptional(lexer.TknInherits) {
-		inherits = p.parseIdentifierReferenceList()
+		inherits = p.parsePlainTypeList()
 		if p.parseOptional(lexer.TknIs) {
-			interfaces = p.parseIdentifierReferenceList()
+			interfaces = p.parsePlainTypeList()
 		}
 	} else if p.parseOptional(lexer.TknIs) {
-		interfaces = p.parseIdentifierReferenceList()
+		interfaces = p.parsePlainTypeList()
 		if p.parseOptional(lexer.TknInherits) {
-			inherits = p.parseIdentifierReferenceList()
+			inherits = p.parsePlainTypeList()
 		}
 	}
 
@@ -255,8 +248,8 @@ func (p *Parser) parseType() ast.Node {
 		return p.parseMapType()
 	case p.isFuncType():
 		return p.parseFuncType()
-	case p.current().Type == lexer.TknIdentifier:
-		return p.parseIdentifierReference()
+	case p.isPlainType():
+		return p.parsePlainType()
 	}
 	return nil
 }

@@ -16,6 +16,7 @@ const (
 	ArrayType
 	MapType
 	FuncType
+	PlainType
 
 	Identifier
 	Reference
@@ -58,6 +59,12 @@ type ArrayTypeNode struct {
 }
 
 func (n ArrayTypeNode) Type() NodeType { return ArrayType }
+
+type PlainTypeNode struct {
+	Names []string
+}
+
+func (n PlainTypeNode) Type() NodeType { return PlainType }
 
 type FuncTypeNode struct {
 	Identifier string

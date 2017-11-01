@@ -7,7 +7,7 @@ func (e *Traverser) traverseType(n ast.TypeDeclarationNode) {
 }
 
 func (e *Traverser) traverseClass(n ast.ClassDeclarationNode) {
-    
+
 }
 
 func (e *Traverser) traverseInterface(n ast.InterfaceDeclarationNode) {
