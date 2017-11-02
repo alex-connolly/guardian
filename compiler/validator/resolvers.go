@@ -9,8 +9,8 @@ import (
 func (v *Validator) resolveType(node ast.Node) Type {
 	switch node.Type() {
 	case ast.Reference:
-		ref := node.(ast.ReferenceNode)
-		return v.findReference(ref.Names...)
+		r := node.(ast.ReferenceNode)
+		return v.resolveReference(r)
 	case ast.MapType:
 		m := node.(ast.MapTypeNode)
 		return v.resolveMapType(m)
@@ -21,6 +21,10 @@ func (v *Validator) resolveType(node ast.Node) Type {
 		f := node.(ast.FuncTypeNode)
 		return v.resolveFuncType(f)
 	}
+	return standards[Invalid]
+}
+
+func (v *Validator) resolveReference(node ast.ReferenceNode) Type {
 	return standards[Invalid]
 }
 
@@ -54,30 +58,35 @@ func (v *Validator) resolveTuple(nodes []ast.Node) Tuple {
 }
 
 func (v *Validator) validateType(node ast.Node) {
-	switch node.Type() {
-	case ast.Reference:
-		ref := node.(ast.ReferenceNode)
-		v.requireVisibleType(ref.Names...)
-		break
-	case ast.MapType:
-		ref := node.(ast.MapTypeNode)
-		v.validateType(ref.Key)
-		v.validateType(ref.Value)
-		break
-	case ast.ArrayType:
-		ref := node.(ast.ArrayTypeNode)
-		v.validateType(ref.Value)
-		break
-	case ast.FuncType:
-		ref := node.(ast.FuncTypeNode)
-		for _, p := range ref.Parameters {
-			v.validateType(p)
+	if node == nil {
+
+	} else {
+		switch node.Type() {
+		case ast.PlainType:
+			typ := node.(ast.PlainTypeNode)
+			v.requireVisibleType(typ.Names...)
+			break
+		case ast.MapType:
+			ref := node.(ast.MapTypeNode)
+			v.validateType(ref.Key)
+			v.validateType(ref.Value)
+			break
+		case ast.ArrayType:
+			ref := node.(ast.ArrayTypeNode)
+			v.validateType(ref.Value)
+			break
+		case ast.FuncType:
+			ref := node.(ast.FuncTypeNode)
+			for _, p := range ref.Parameters {
+				v.validateType(p)
+			}
+			for _, r := range ref.Results {
+				v.validateType(r)
+			}
+			break
 		}
-		for _, r := range ref.Results {
-			v.validateType(r)
-		}
-		break
 	}
+
 }
 
 func (v *Validator) resolveExpression(e ast.ExpressionNode) Type {
@@ -91,11 +100,18 @@ func (v *Validator) resolveExpression(e ast.ExpressionNode) Type {
 		ast.BinaryExpression: resolveBinaryExpression,
 		ast.UnaryExpression:  resolveUnaryExpression,
 		ast.Reference:        resolveReference,
+		ast.Identifier:       resolveIdentifier,
 	}
 	return resolvers[e.Type()](v, e)
 }
 
 type resolver func(v *Validator, e ast.ExpressionNode) Type
+
+func resolveIdentifier(v *Validator, e ast.ExpressionNode) Type {
+	i := e.(ast.IdentifierNode)
+	// look up the identifier in scope
+	return v.findReference(i.Name)
+}
 
 func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
@@ -183,7 +199,10 @@ func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) Type {
 		}
 		return standards[String]
 	} else if leftType.compare(standards[Int]) {
-
+		if !rightType.compare(standards[Int]) {
+			v.addError(errInvalidBinaryOpTypes, "placeholder", WriteType(leftType), WriteType(rightType))
+		}
+		return standards[Int]
 	}
 
 	switch b.Operator {
@@ -222,5 +241,5 @@ func resolveReference(v *Validator, e ast.ExpressionNode) Type {
 	// must be reference
 	m := e.(ast.ReferenceNode)
 	// go up through table
-	return v.findReference(m.Names...)
+	return v.resolveReference(m)
 }

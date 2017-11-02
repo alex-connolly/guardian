@@ -38,6 +38,12 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 
 	// special case where right side is of length 1:
 	// TODO:
+	if len(node.Left) > len(node.Right) && len(node.Right) == 1 {
+		rightType := v.resolveType(node.Right[0])
+		for _, l := range node.Left {
+			v.requireType(rightType, v.resolveType(l))
+		}
+	}
 
 	// else, just do a tuple comparison
 	leftTuple := v.ExpressionTuple(node.Left)
@@ -50,7 +56,11 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 }
 
 func (v *Validator) validateIfStatement(node ast.IfStatementNode) {
-	v.validateStatement(node.Init)
+
+	if node.Init != nil {
+		v.validateStatement(node.Init)
+	}
+
 	for _, cond := range node.Conditions {
 		// condition must be of type bool
 		v.requireType(standards[Bool], v.resolveExpression(cond.Condition))
@@ -81,23 +91,28 @@ func (v *Validator) validateReturnStatement(node ast.ReturnStatementNode) {
 	// must be in the context of a function (checked during ast generation)
 	// resolved tuple must match function expression
 	scope := v.scope
-	for scope.parent.scope.Type() != ast.FuncDeclaration {
+	for scope.parent.scope.Type() != ast.FuncDeclaration && scope != nil {
 		scope = scope.parent
 	}
 
-	//fd := scope.scope
+	// scope is now a func declaration
 
 }
 
 func (v *Validator) validateForStatement(node ast.ForStatementNode) {
 	// init statement must be valid
-	v.validateStatement(node.Init)
+	// if it exists
+	if node.Init != nil {
+		v.validateAssignment(*node.Init)
+	}
 
 	// cond statement must be a boolean
 	v.requireType(standards[Bool], v.resolveExpression(node.Cond))
 
 	// post statement must be valid
-	v.validateStatement(node.Post)
+	if node.Post != nil {
+		v.validateStatement(node.Post)
+	}
 
 	v.validateScope(node.Block)
 }

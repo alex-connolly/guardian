@@ -29,7 +29,7 @@ func TestValidateEventDeclEmpty(t *testing.T) {
 }
 
 func TestValidateEventDeclValidSingle(t *testing.T) {
-	p := parser.ParseString("event Dog(int)")
+	p := parser.ParseString("event Dog(a int)")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
 	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %d", len(v.errors)))
@@ -37,21 +37,21 @@ func TestValidateEventDeclValidSingle(t *testing.T) {
 }
 
 func TestValidateEventDeclValidMultiple(t *testing.T) {
-	p := parser.ParseString("event Dog(int, string)")
+	p := parser.ParseString("event Dog(a int, b string)")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
 	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %d", len(v.errors)))
 }
 
 func TestValidateEventDeclInvalidSingle(t *testing.T) {
-	p := parser.ParseString("event Dog(Cat)")
+	p := parser.ParseString("event Dog(c Cat)")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
 	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %d", len(v.errors)))
 }
 
 func TestValidateEventDeclInvalidMultiple(t *testing.T) {
-	p := parser.ParseString("event Dog(Cat, Animal)")
+	p := parser.ParseString("event Dog(c Cat, a Animal)")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
 	goutil.AssertNow(t, len(v.errors) == 2, fmt.Sprintf("wrong err length: %d", len(v.errors)))
@@ -59,7 +59,7 @@ func TestValidateEventDeclInvalidMultiple(t *testing.T) {
 }
 
 func TestValidateEventDeclMixed(t *testing.T) {
-	p := parser.ParseString("event Dog(int, Cat)")
+	p := parser.ParseString("event Dog(a int, b Cat)")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
 	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %d", len(v.errors)))

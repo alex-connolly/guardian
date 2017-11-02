@@ -66,3 +66,23 @@ func (c Class) compare(t Type) bool {
 	// TODO:
 	return true
 }
+
+func (i Interface) compare(t Type) bool {
+	// an interface is equal to an
+	_, ok := resolveUnderlying(t).(Interface)
+	if !ok {
+		return false
+	}
+	// TODO:
+	return true
+}
+
+func (e Enum) compare(t Type) bool {
+	// an interface is equal to an
+	_, ok := resolveUnderlying(t).(Enum)
+	if !ok {
+		return false
+	}
+	// TODO:
+	return true
+}

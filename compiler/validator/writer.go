@@ -48,5 +48,15 @@ func (f Func) write(b *bytes.Buffer) {
 
 func (c Class) write(b *bytes.Buffer) {
 	b.WriteString("class")
-	b.WriteString(c.Name)
+	b.WriteString(c.Heritable.Name)
+}
+
+func (i Interface) write(b *bytes.Buffer) {
+	b.WriteString("interface")
+	b.WriteString(i.Heritable.Name)
+}
+
+func (e Enum) write(b *bytes.Buffer) {
+	b.WriteString("enum")
+	b.WriteString(e.Heritable.Name)
 }

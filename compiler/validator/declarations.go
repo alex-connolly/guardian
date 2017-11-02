@@ -89,12 +89,8 @@ func (v *Validator) validateEnumDeclaration(node ast.EnumDeclarationNode) {
 }
 
 func (v *Validator) validateEventDeclaration(node ast.EventDeclarationNode) {
-	// a valid event satisfies the following properties:
-	// no repeated parameter names
-	// all parameter types are visible in scope
-	// TODO: events should be able to take any type
 	for _, n := range node.Parameters {
-		v.requireVisibleType(n.Names...)
+		v.validateType(n.DeclaredType)
 	}
 }
 

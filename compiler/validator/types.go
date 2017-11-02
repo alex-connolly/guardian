@@ -99,6 +99,7 @@ func NewMap(key, value Type) Map {
 }
 
 type Func struct {
+	name    string
 	Params  Tuple
 	Results Tuple
 }
@@ -140,36 +141,52 @@ func NewAliased(alias string, underlying Type) Aliased {
 	}
 }
 
-type Class struct {
-	Name       string
-	Interfaces []Type
-	Supers     []Type
+type Heritable struct {
+	Name   string
+	Supers []Type
 }
 
-func NewClass(name string, interfaces, supers []Type) Class {
+type Class struct {
+	Heritable  Heritable
+	Properties map[string]Type
+	Interfaces []Interface
+}
+
+func NewClass(name string, properties map[string]Type, interfaces []Interface, supers []Class) Class {
 	return Class{
-		Name:       name,
+		Heritable: Heritable{
+			Name:   name,
+			Supers: supers,
+		},
+		Properties: properties,
 		Interfaces: interfaces,
-		Supers:     supers,
 	}
 }
 
 type Enum struct {
-	Supers []Type
+	Heritable Heritable
 }
 
-func NewEnum(supers []Type) Enum {
+func NewEnum(name string, supers []Enum) Enum {
 	return Enum{
-		Supers: supers,
+		Heritable: Heritable{
+			Name:   name,
+			Supers: supers,
+		},
 	}
 }
 
 type Interface struct {
-	Supers []Type
+	Heritable Heritable
+	Funcs     map[string]Func
 }
 
-func NewInterface(supers []Type) Interface {
+func NewInterface(name string, funcs map[string]Func, supers []Interface) Interface {
 	return Interface{
-		Supers: supers,
+		Heritable: Heritable{
+			Name:   name,
+			Supers: supers,
+		},
+		Funcs: funcs,
 	}
 }
