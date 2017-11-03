@@ -165,7 +165,7 @@ func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 
 			expr = p.parseArrayLiteral()
 			break
-		case lexer.TknString, lexer.TknCharacter, lexer.TknNumber, lexer.TknTrue, lexer.TknFalse:
+		case lexer.TknString, lexer.TknCharacter, lexer.TknInteger, lexer.TknFloat, lexer.TknTrue, lexer.TknFalse:
 			expr = p.parseLiteral()
 			break
 		case lexer.TknIdentifier:

@@ -34,7 +34,7 @@ func TestParseLiteralInteger(t *testing.T) {
 	goutil.AssertNow(t, expr != nil, "expr should not be nil")
 	goutil.AssertNow(t, expr.Type() == ast.Literal, "wrong expr type")
 	lit := expr.(ast.LiteralNode)
-	goutil.AssertNow(t, lit.LiteralType == lexer.TknNumber, "wrong literal type")
+	goutil.AssertNow(t, lit.LiteralType == lexer.TknInteger, "wrong literal type")
 }
 
 func TestParseLiteralString(t *testing.T) {

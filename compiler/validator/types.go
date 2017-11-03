@@ -44,6 +44,7 @@ const (
 
 	String
 	Bool
+	Float
 
 	// aliases
 	Byte = Uint8
@@ -71,6 +72,7 @@ var standards = map[BaseType]StandardType{
 	Uint128: StandardType{"uint128"},
 	Uint256: StandardType{"uint256"},
 
+	Float:  StandardType{"float"},
 	String: StandardType{"string"},
 	Bool:   StandardType{"bool"},
 	// just an alias

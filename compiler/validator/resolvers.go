@@ -63,7 +63,7 @@ func (v *Validator) resolveTuple(nodes []ast.Node) Tuple {
 
 func (v *Validator) validateType(node ast.Node) {
 	if node == nil {
-		fmt.Println("val node type")
+		fmt.Println("val node nil")
 	} else {
 		switch node.Type() {
 		case ast.PlainType:
@@ -126,8 +126,10 @@ func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 		return standards[String]
 	case lexer.TknTrue, lexer.TknFalse:
 		return standards[Bool]
-	case lexer.TknNumber:
+	case lexer.TknInteger:
 		return standards[Int]
+	case lexer.TknFloat:
+		return standards[Float]
 	}
 	return standards[Invalid]
 }
