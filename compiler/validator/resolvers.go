@@ -7,25 +7,27 @@ import (
 )
 
 func (v *Validator) resolveType(node ast.Node) Type {
-	switch node.Type() {
-	case ast.Reference:
-		r := node.(ast.ReferenceNode)
-		return v.resolveReference(r)
-	case ast.MapType:
-		m := node.(ast.MapTypeNode)
-		return v.resolveMapType(m)
-	case ast.ArrayType:
-		a := node.(ast.ArrayTypeNode)
-		return v.resolveArrayType(a)
-	case ast.FuncType:
-		f := node.(ast.FuncTypeNode)
-		return v.resolveFuncType(f)
+	if node != nil {
+		switch node.Type() {
+		case ast.PlainType:
+			r := node.(ast.PlainTypeNode)
+			return v.resolvePlainType(r)
+		case ast.MapType:
+			m := node.(ast.MapTypeNode)
+			return v.resolveMapType(m)
+		case ast.ArrayType:
+			a := node.(ast.ArrayTypeNode)
+			return v.resolveArrayType(a)
+		case ast.FuncType:
+			f := node.(ast.FuncTypeNode)
+			return v.resolveFuncType(f)
+		}
 	}
 	return standards[Invalid]
 }
 
-func (v *Validator) resolveReference(node ast.ReferenceNode) Type {
-	return standards[Invalid]
+func (v *Validator) resolvePlainType(node ast.PlainTypeNode) Type {
+	return v.findReference(node.Names...)
 }
 
 func (v *Validator) resolveArrayType(node ast.ArrayTypeNode) Array {
@@ -237,9 +239,92 @@ func resolveUnaryExpression(v *Validator, e ast.ExpressionNode) Type {
 	return operandType
 }
 
+func (v *Validator) resolveContextualReference(context Type, exp ast.ExpressionNode) Type {
+	// check if context is subscriptable
+	if isSubscriptable(context) {
+		if name, ok := getIdentifier(exp); ok {
+			if _, ok := getProperty(context, name); ok {
+				if exp.Type() == ast.Reference {
+					a := exp.(ast.ReferenceNode)
+					context := v.resolveExpression(a.Parent)
+					return v.resolveContextualReference(context, a.Reference)
+				} else {
+					return v.resolveExpression(exp)
+				}
+			} else {
+				v.addError(errPropertyNotFound, WriteType(context), name)
+			}
+		} else {
+			v.addError(errUnnamedReference)
+		}
+	} else {
+		v.addError(errInvalidSubscriptable, WriteType(context))
+	}
+	return standards[Invalid]
+}
+
 func resolveReference(v *Validator, e ast.ExpressionNode) Type {
 	// must be reference
 	m := e.(ast.ReferenceNode)
-	// go up through table
-	return v.resolveReference(m)
+	context := v.resolveExpression(m.Parent)
+	return v.resolveContextualReference(context, m.Reference)
+}
+
+func getIdentifier(exp ast.ExpressionNode) (string, bool) {
+	switch exp.Type() {
+	case ast.CallExpression:
+		c := exp.(ast.CallExpressionNode)
+		return getIdentifier(c.Call)
+	case ast.SliceExpression:
+		s := exp.(ast.SliceExpressionNode)
+		return getIdentifier(s.Expression)
+	case ast.IndexExpression:
+		i := exp.(ast.IndexExpressionNode)
+		return getIdentifier(i.Expression)
+	case ast.Identifier:
+		i := exp.(ast.IdentifierNode)
+		return i.Name, true
+	case ast.Reference:
+		r := exp.(ast.ReferenceNode)
+		return getIdentifier(r.Parent)
+	default:
+		return "", false
+	}
+}
+
+func getProperty(t Type, name string) (Type, bool) {
+	// only classes, interfaces and enums are subscriptable
+	c, ok := t.(Class)
+	if ok {
+		p, has := c.Properties[name]
+		return p, has
+	}
+	i, ok := t.(Interface)
+	if ok {
+		p, has := i.Funcs[name]
+		return p, has
+	}
+	e, ok := t.(Enum)
+	if ok {
+		_, has := e.Items[name]
+		return standards[Int], has
+	}
+	return standards[Invalid], false
+}
+
+func isSubscriptable(t Type) bool {
+	// only classes, interfaces and enums are subscriptable
+	_, ok := t.(Class)
+	if ok {
+		return true
+	}
+	_, ok = t.(Interface)
+	if ok {
+		return true
+	}
+	_, ok = t.(Enum)
+	if ok {
+		return true
+	}
+	return false
 }

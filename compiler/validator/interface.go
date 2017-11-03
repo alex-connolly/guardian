@@ -34,10 +34,14 @@ func (v *Validator) validateScope(scope *ast.ScopeNode) {
 }
 
 func (v *Validator) addDeclaration(name string, node ast.Node) {
-	if v.scope.declaredTypes == nil {
-		v.scope.declaredTypes = make(map[string]Type)
+	if v.scope == nil {
+		// TODO: error
+	} else {
+		if v.scope.declaredTypes == nil {
+			v.scope.declaredTypes = make(map[string]Type)
+		}
+		v.scope.declaredTypes[name] = v.resolveType(node)
 	}
-	v.scope.declaredTypes[name] = v.resolveType(node)
 }
 
 func (v *Validator) validate(node ast.Node) {

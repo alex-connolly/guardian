@@ -141,52 +141,45 @@ func NewAliased(alias string, underlying Type) Aliased {
 	}
 }
 
-type Heritable struct {
-	Name   string
-	Supers []Type
-}
-
 type Class struct {
-	Heritable  Heritable
+	Name       string
+	Supers     []Class
 	Properties map[string]Type
 	Interfaces []Interface
 }
 
 func NewClass(name string, properties map[string]Type, interfaces []Interface, supers []Class) Class {
 	return Class{
-		Heritable: Heritable{
-			Name:   name,
-			Supers: supers,
-		},
+		Name:       name,
+		Supers:     supers,
 		Properties: properties,
 		Interfaces: interfaces,
 	}
 }
 
 type Enum struct {
-	Heritable Heritable
+	Name   string
+	Supers []Enum
+	Items  map[string]bool
 }
 
 func NewEnum(name string, supers []Enum) Enum {
 	return Enum{
-		Heritable: Heritable{
-			Name:   name,
-			Supers: supers,
-		},
+		Name:   name,
+		Supers: supers,
 	}
 }
 
 type Interface struct {
-	Heritable Heritable
-	Funcs     map[string]Func
+	Name   string
+	Supers []Interface
+	Funcs  map[string]Func
 }
 
 func NewInterface(name string, funcs map[string]Func, supers []Interface) Interface {
 	return Interface{
-		Heritable: Heritable{
-			Name:   name,
-			Supers: supers,
-		},
-		Funcs: funcs,
+		Name:   name,
+		Supers: supers,
+		Funcs:  funcs,
 	}
 }
