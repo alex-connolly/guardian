@@ -123,10 +123,25 @@ func processIgnored(l *Lexer) Token {
 	}
 }
 
-func processNumber(l *Lexer) (t Token) {
+func processInteger(l *Lexer) (t Token) {
 	t.start = l.byteOffset
 	t.end = l.byteOffset
-	t.Type = TknNumber
+	t.Type = TknFloat
+	t.Type = TknInteger
+	for '0' <= l.buffer[l.byteOffset] && l.buffer[l.byteOffset] <= '9' {
+		l.byteOffset++
+		t.end++
+		if l.isEOF() {
+			return t
+		}
+	}
+	return t
+}
+
+func processFloat(l *Lexer) (t Token) {
+	t.start = l.byteOffset
+	t.end = l.byteOffset
+	t.Type = TknFloat
 	decimalUsed := false
 	for '0' <= l.buffer[l.byteOffset] && l.buffer[l.byteOffset] <= '9' || l.buffer[l.byteOffset] == '.' {
 		if l.buffer[l.byteOffset] == '.' {

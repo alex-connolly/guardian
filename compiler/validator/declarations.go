@@ -95,9 +95,9 @@ func (v *Validator) validateLifecycleDeclaration(node ast.LifecycleDeclarationNo
 	// no repeated parameter names
 	// all parameter types are visible in scope
 	for _, p := range node.Parameters {
+		v.validateType(p.DeclaredType)
 		for _, i := range p.Identifiers {
 			v.addDeclaration(i, p.DeclaredType)
-			v.validateType(p.DeclaredType)
 		}
 	}
 }

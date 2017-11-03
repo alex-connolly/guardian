@@ -51,7 +51,7 @@ func TestLexerLiterals(t *testing.T) {
 	// test length
 	l = LexString(`x := 6`)
 	goutil.Assert(t, len(l.Tokens) == 3, "wrong number of tokens")
-	goutil.Assert(t, l.Tokens[2].Type == TknNumber, "wrong integer literal type")
+	goutil.Assert(t, l.Tokens[2].Type == TknInteger, "wrong integer literal type")
 	l = LexString(`x := 5.5`)
 	goutil.Assert(t, len(l.Tokens) == 3, "wrong number of tokens")
 }
@@ -62,10 +62,10 @@ func TestLexerFileConstants(t *testing.T) {
 		TknContract, TknIdentifier, TknOpenBrace, TknNewLine,
 		TknNewLine,
 		TknConst, TknOpenBracket, TknNewLine,
-		TknIdentifier, TknAssign, TknNumber, TknNewLine,
+		TknIdentifier, TknAssign, TknInteger, TknNewLine,
 		TknIdentifier, TknAssign, TknString, TknNewLine,
 		TknIdentifier, TknAssign, TknCharacter, TknNewLine,
-		TknIdentifier, TknAssign, TknNumber, TknNewLine,
+		TknIdentifier, TknAssign, TknFloat, TknNewLine,
 		TknCloseBracket, TknNewLine,
 		TknNewLine,
 		TknCloseBrace, TknNewLine,
@@ -104,13 +104,6 @@ func TestLexerReference(t *testing.T) {
 	goutil.AssertNow(t, len(l.Tokens) == 3, "wrong token length")
 	l = LexString("hello.dog.cat")
 	goutil.AssertNow(t, len(l.Tokens) == 5, "wrong token length")
-}
-
-func TestLexerFloat(t *testing.T) {
-	l := LexString("5.5")
-	goutil.AssertNow(t, len(l.Tokens) == 1, "wrong token length")
-	l = LexString("5.5.5")
-	goutil.AssertNow(t, len(l.Tokens) == 3, "wrong token length")
 }
 
 func TestLexerError(t *testing.T) {
@@ -155,4 +148,23 @@ func TestLexerModifiers(t *testing.T) {
 func TestLexerExpVar(t *testing.T) {
 	l := LexString("x string")
 	checkTokens(t, l.Tokens, []TokenType{TknIdentifier, TknIdentifier})
+}
+
+func TestLexerIntegers(t *testing.T) {
+	l := LexString("x = 555")
+	checkTokens(t, l.Tokens, []TokenType{TknIdentifier, TknAssign, TknInteger})
+}
+
+func TestLexerFloats(t *testing.T) {
+	l := LexString("x = 5.55")
+	checkTokens(t, l.Tokens, []TokenType{TknIdentifier, TknAssign, TknFloat})
+	l = LexString("x = .55")
+	checkTokens(t, l.Tokens, []TokenType{TknIdentifier, TknAssign, TknFloat})
+}
+
+func TestLexerIsFloat(t *testing.T) {
+	l := Lexer{buffer: []byte("5.55")}
+	goutil.Assert(t, isFloat(&l), "full float isn't recognised")
+	l = Lexer{buffer: []byte(".55")}
+	goutil.Assert(t, isFloat(&l), "no start float isn't recognised")
 }

@@ -356,6 +356,10 @@ func parseLifecycleDeclaration(p *Parser) {
 		Body:       body,
 	}
 
+	if node.Parameters == nil {
+		node.Parameters = params
+	}
+
 	p.Scope.AddDeclaration("constructor", node)
 }
 

@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/compiler/lexer"
 
 	"github.com/end-r/guardian/compiler/ast"
@@ -61,10 +63,11 @@ func (v *Validator) resolveTuple(nodes []ast.Node) Tuple {
 
 func (v *Validator) validateType(node ast.Node) {
 	if node == nil {
-
+		fmt.Println("val node type")
 	} else {
 		switch node.Type() {
 		case ast.PlainType:
+			fmt.Println("plain type")
 			typ := node.(ast.PlainTypeNode)
 			v.requireVisibleType(typ.Names...)
 			break

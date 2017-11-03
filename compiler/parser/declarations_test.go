@@ -548,3 +548,36 @@ func TestParseConstructorMultiplePerTypeExtra(t *testing.T) {
 	c := n.(ast.LifecycleDeclarationNode)
 	goutil.AssertNow(t, len(c.Parameters) == 2, "wrong param length")
 }
+
+func TestParseParametersSingleVarSingleType(t *testing.T) {
+	p := createParser(`(a string)`)
+	exps := p.parseParameters()
+	goutil.AssertNow(t, exps != nil, "params not nil")
+	goutil.AssertNow(t, len(exps) == 1, "params of length 1")
+	goutil.AssertNow(t, exps[0].DeclaredType != nil, "declared type shouldn't be nil")
+	goutil.AssertNow(t, exps[0].DeclaredType.Type() == ast.PlainType, "wrong declared type")
+	goutil.AssertNow(t, len(exps[0].Identifiers) == 1, "wrong parameter length")
+}
+
+func TestParseParametersMultipleVarSingleType(t *testing.T) {
+	p := createParser(`(a, b string)`)
+	exps := p.parseParameters()
+	goutil.AssertNow(t, exps != nil, "params not nil")
+	goutil.AssertNow(t, len(exps) == 1, "params of length 1")
+	goutil.AssertNow(t, exps[0].DeclaredType != nil, "declared type shouldn't be nil")
+	goutil.AssertNow(t, exps[0].DeclaredType.Type() == ast.PlainType, "wrong declared type")
+	goutil.AssertNow(t, len(exps[0].Identifiers) == 2, "wrong parameter length")
+}
+
+func TestParseParametersSingleVarMultipleType(t *testing.T) {
+	p := createParser(`(a string, b int)`)
+	exps := p.parseParameters()
+	goutil.AssertNow(t, exps != nil, "params not nil")
+	goutil.AssertNow(t, len(exps) == 2, "params of length 1")
+	goutil.AssertNow(t, exps[0].DeclaredType != nil, "declared type shouldn't be nil")
+	goutil.AssertNow(t, exps[0].DeclaredType.Type() == ast.PlainType, "wrong declared type")
+	goutil.AssertNow(t, exps[1].DeclaredType != nil, "declared type shouldn't be nil")
+	goutil.AssertNow(t, exps[1].DeclaredType.Type() == ast.PlainType, "wrong declared type")
+	goutil.AssertNow(t, len(exps[0].Identifiers) == 1, "wrong parameter length")
+	goutil.AssertNow(t, len(exps[1].Identifiers) == 1, "wrong parameter length")
+}

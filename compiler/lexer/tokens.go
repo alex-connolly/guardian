@@ -64,7 +64,8 @@ func GetAssignments() []TokenType {
 const (
 	TknInvalid TokenType = iota
 	TknIdentifier
-	TknNumber
+	TknInteger
+	TknFloat
 	TknString
 	TknCharacter
 	TknComment
@@ -231,6 +232,10 @@ func getProtoTokens() []protoToken {
 		createDistinct("true", TknTrue),
 		createDistinct("false", TknFalse),
 
+		protoToken{"Float", isFloat, processFloat},
+		// must check float first
+		protoToken{"Integer", isInteger, processInteger},
+
 		createFixed("/*", TknCommentOpen),
 		createFixed("*/", TknCommentClose),
 		createFixed("//", TknLineComment),
@@ -283,7 +288,7 @@ func getProtoTokens() []protoToken {
 		protoToken{"New Line", isNewLine, processNewLine},
 		protoToken{"Whitespace", isWhitespace, processIgnored},
 		protoToken{"String", isString, processString},
-		protoToken{"Number", isNumber, processNumber},
+
 		protoToken{"Identifier", isIdentifier, processIdentifier},
 		protoToken{"Character", isCharacter, processCharacter},
 	}
@@ -300,8 +305,26 @@ func isIdentifier(l *Lexer) bool {
 	return isIdentifierByte(l.current())
 }
 
-func isNumber(l *Lexer) bool {
+func isInteger(l *Lexer) bool {
 	return ('0' <= l.current() && l.current() <= '9')
+}
+
+func isFloat(l *Lexer) bool {
+	saved := l.byteOffset
+	for l.hasBytes(1) && '0' <= l.current() && l.current() <= '9' {
+		l.byteOffset++
+	}
+	if !l.hasBytes(1) || l.current() != '.' {
+		l.byteOffset = saved
+		return false
+	}
+	l.byteOffset++
+	if !l.hasBytes(1) || !('0' <= l.current() && l.current() <= '9') {
+		l.byteOffset = saved
+		return false
+	}
+	l.byteOffset = saved
+	return true
 }
 
 func isString(l *Lexer) bool {
