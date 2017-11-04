@@ -540,13 +540,19 @@ func TestParseConstructorMultiplePerType(t *testing.T) {
 }
 
 func TestParseConstructorMultiplePerTypeExtra(t *testing.T) {
-	p := createParser(`constructor(a, b int, c string){}`)
+	p := createParser(`constructor(a, b int, c []string){}`)
 	goutil.Assert(t, isLifecycleDeclaration(p), "should detect Constructor decl")
 	parseLifecycleDeclaration(p)
 	n := p.Scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.LifecycleDeclaration, "wrong node type")
 	c := n.(ast.LifecycleDeclarationNode)
 	goutil.AssertNow(t, len(c.Parameters) == 2, "wrong param length")
+	first := c.Parameters[0]
+	second := c.Parameters[1]
+	goutil.AssertNow(t, first.DeclaredType != nil, "first dt shouldn't be nil")
+	goutil.AssertNow(t, first.DeclaredType.Type() == ast.PlainType, "first dt should be plain")
+	goutil.AssertNow(t, second.DeclaredType != nil, "second dt shouldn't be nil")
+	goutil.AssertNow(t, second.DeclaredType.Type() == ast.ArrayType, "second dt should be array")
 }
 
 func TestParseParametersSingleVarSingleType(t *testing.T) {

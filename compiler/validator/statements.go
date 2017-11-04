@@ -1,6 +1,8 @@
 package validator
 
-import "github.com/end-r/guardian/compiler/ast"
+import (
+	"github.com/end-r/guardian/compiler/ast"
+)
 
 func (v *Validator) validateStatement(node ast.Node) {
 	switch node.Type() {
@@ -19,10 +21,12 @@ func (v *Validator) validateStatement(node ast.Node) {
 	case ast.SwitchStatement:
 		v.validateSwitchStatement(node.(ast.SwitchStatementNode))
 		break
+		// TODO: handle call statement
 	}
 }
 
 func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
+	// TODO: fundamental: define operator or not
 	// valid assignments must have
 	// 1. valid left hand expression (cannot be a call, literal, slice)
 	// 2. type of left == type of right
@@ -43,14 +47,29 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 		for _, l := range node.Left {
 			v.requireType(rightType, v.resolveType(l))
 		}
+		return
 	}
 
-	// else, just do a tuple comparison
-	leftTuple := v.ExpressionTuple(node.Left)
-	rightTuple := v.ExpressionTuple(node.Right)
+	if len(node.Right) != len(node.Left) {
+		v.addError("Assignment count mismatch")
+		return
+	}
 
-	if !leftTuple.compare(rightTuple) {
-		v.addError("Cannot assign %s to %s", WriteType(rightTuple), WriteType(leftTuple))
+	for i, n := range node.Left {
+		leftType := v.resolveExpression(n)
+		rightType := v.resolveExpression(node.Right[i])
+		if leftType.compare(standards[Invalid]) {
+			// variable doesn't exist
+			// TODO: should be a var dec?
+			// TODO: enforce identifier
+			if i, ok := n.(ast.IdentifierNode); ok {
+				v.DeclareType(i.Name, rightType)
+			}
+		} else {
+			if !leftType.compare(rightType) {
+				v.addError("Cannot assign %s to %s", WriteType(leftType), WriteType(rightType))
+			}
+		}
 	}
 
 }

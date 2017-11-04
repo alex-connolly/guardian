@@ -185,3 +185,29 @@ func NewInterface(name string, funcs map[string]Func, supers []Interface) Interf
 		Funcs:  funcs,
 	}
 }
+
+type Contract struct {
+	Name       string
+	Supers     []Contract
+	Interfaces []Interface
+}
+
+func NewContract(name string, supers []Contract, interfaces []Interface) Contract {
+	return Contract{
+		Name:       name,
+		Supers:     supers,
+		Interfaces: interfaces,
+	}
+}
+
+type Event struct {
+	Name       string
+	Parameters Tuple
+}
+
+func NewEvent(name string, params Tuple) Event {
+	return Event{
+		Name:       name,
+		Parameters: params,
+	}
+}

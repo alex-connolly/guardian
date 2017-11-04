@@ -6,4 +6,5 @@ const (
 	errInvalidSubscriptable = "Type %s is not subscriptable"
 	errPropertyNotFound     = "Type %s does not have property %s"
 	errUnnamedReference     = "Unnamed reference %s"
+	errTypeRequired         = "%s is not a %s type"
 )

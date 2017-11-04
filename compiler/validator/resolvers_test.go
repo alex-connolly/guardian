@@ -68,7 +68,7 @@ func TestResolveMapLiteralExpression(t *testing.T) {
 func TestResolveIndexExpressionArrayLiteral(t *testing.T) {
 	v := NewValidator()
 	v.DeclareType("cat", standards[Int])
-	p := parser.ParseExpression("[cat]{}[0]")
+	p := parser.ParseExpression("[]cat{}[0]")
 	goutil.AssertNow(t, p.Type() == ast.IndexExpression, "wrong expression type")
 	b := p.(ast.IndexExpressionNode)
 	resolved := v.resolveExpression(b)

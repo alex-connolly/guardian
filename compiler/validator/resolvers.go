@@ -1,8 +1,6 @@
 package validator
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/compiler/lexer"
 
 	"github.com/end-r/guardian/compiler/ast"
@@ -59,39 +57,6 @@ func (v *Validator) resolveTuple(nodes []ast.Node) Tuple {
 		t.types[i] = v.resolveType(n)
 	}
 	return t
-}
-
-func (v *Validator) validateType(node ast.Node) {
-	if node == nil {
-		fmt.Println("val node nil")
-	} else {
-		switch node.Type() {
-		case ast.PlainType:
-			fmt.Println("plain type")
-			typ := node.(ast.PlainTypeNode)
-			v.requireVisibleType(typ.Names...)
-			break
-		case ast.MapType:
-			ref := node.(ast.MapTypeNode)
-			v.validateType(ref.Key)
-			v.validateType(ref.Value)
-			break
-		case ast.ArrayType:
-			ref := node.(ast.ArrayTypeNode)
-			v.validateType(ref.Value)
-			break
-		case ast.FuncType:
-			ref := node.(ast.FuncTypeNode)
-			for _, p := range ref.Parameters {
-				v.validateType(p)
-			}
-			for _, r := range ref.Results {
-				v.validateType(r)
-			}
-			break
-		}
-	}
-
 }
 
 func (v *Validator) resolveExpression(e ast.ExpressionNode) Type {
@@ -198,19 +163,8 @@ func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	b := e.(ast.BinaryExpressionNode)
 	// rules for binary Expressions
-	leftType := v.resolveExpression(b.Left)
-	rightType := v.resolveExpression(b.Left)
-	if leftType.compare(standards[String]) {
-		if !rightType.compare(standards[String]) {
-			v.addError(errInvalidBinaryOpTypes, "placeholder", WriteType(leftType), WriteType(rightType))
-		}
-		return standards[String]
-	} else if leftType.compare(standards[Int]) {
-		if !rightType.compare(standards[Int]) {
-			v.addError(errInvalidBinaryOpTypes, "placeholder", WriteType(leftType), WriteType(rightType))
-		}
-		return standards[Int]
-	}
+	//leftType := v.resolveExpression(b.Left)
+	//rightType := v.resolveExpression(b.Right)
 
 	switch b.Operator {
 	case lexer.TknAdd:
@@ -223,9 +177,12 @@ func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) Type {
 	case lexer.TknSub, lexer.TknDiv, lexer.TknMul, lexer.TknMod:
 		// must be numeric
 		return standards[Int]
-	case lexer.TknGeq, lexer.TknLeq, lexer.TknLss, lexer.TknGtr, lexer.TknEql:
+	case lexer.TknGeq, lexer.TknLeq, lexer.TknLss, lexer.TknGtr:
 		// must be numeric
-		return standards[Int]
+		return standards[Bool]
+	case lexer.TknEql, lexer.TknNeq:
+		// don't have to be numeric
+		return standards[Bool]
 	case lexer.TknShl, lexer.TknShr, lexer.TknAnd, lexer.TknOr, lexer.TknXor:
 		// must be numeric
 		return standards[Int]

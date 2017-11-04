@@ -60,3 +60,13 @@ func (e Enum) write(b *bytes.Buffer) {
 	b.WriteString("enum")
 	b.WriteString(e.Name)
 }
+
+func (c Contract) write(b *bytes.Buffer) {
+	b.WriteString("contract")
+	b.WriteString(c.Name)
+}
+
+func (e Event) write(b *bytes.Buffer) {
+	b.WriteString("event")
+	e.Parameters.write(b)
+}

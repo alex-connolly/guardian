@@ -69,10 +69,12 @@ func NewValidator() *Validator {
 	}
 }
 
-func (v *Validator) requireVisibleType(names ...string) {
-	if v.findReference(names...) == standards[Invalid] {
+func (v *Validator) requireVisibleType(names ...string) Type {
+	typ := v.findReference(names...)
+	if typ == standards[Invalid] {
 		v.addError("Type %s is not visible", makeName(names))
 	}
+	return typ
 }
 
 // BUG: type lookup, should check that "a" is a valid type
@@ -81,7 +83,7 @@ func (v *Validator) DeclareType(name string, t Type) {
 	if v.scope.declaredTypes == nil {
 		v.scope.declaredTypes = make(map[string]Type)
 	}
-	v.scope.declaredTypes[name] = NewAliased(name, t)
+	v.scope.declaredTypes[name] = t
 }
 
 func (v *Validator) findReference(names ...string) Type {
@@ -126,5 +128,14 @@ func (v *Validator) requireType(expected, actual Type) bool {
 }
 
 func (v *Validator) addError(err string, data ...interface{}) {
-	v.errors = append(v.errors, fmt.Sprintf(err, data))
+	v.errors = append(v.errors, fmt.Sprintf(err, data...))
+}
+
+func (v *Validator) formatErrors() string {
+	whole := ""
+	whole += fmt.Sprintf("%d errors\n", len(v.errors))
+	for _, e := range v.errors {
+		whole += fmt.Sprintf("%s\n", e)
+	}
+	return whole
 }
