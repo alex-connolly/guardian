@@ -20,12 +20,16 @@ import (
 type Type interface {
 	write(*bytes.Buffer)
 	compare(Type) bool
+	inherits(Type) bool
+	implements(Type) bool
 }
 
 type BaseType int
 
 const (
 	Invalid BaseType = iota
+	Unknown
+
 	Int
 	Int8
 	Int16
@@ -56,13 +60,15 @@ type StandardType struct {
 
 var standards = map[BaseType]StandardType{
 	Invalid: StandardType{"invalid"},
-	Int:     StandardType{"int"},
-	Int8:    StandardType{"int8"},
-	Int16:   StandardType{"int16"},
-	Int32:   StandardType{"int32"},
-	Int64:   StandardType{"int64"},
-	Int128:  StandardType{"int128"},
-	Int256:  StandardType{"int256"},
+	Unknown: StandardType{"unknown"},
+
+	Int:    StandardType{"int"},
+	Int8:   StandardType{"int8"},
+	Int16:  StandardType{"int16"},
+	Int32:  StandardType{"int32"},
+	Int64:  StandardType{"int64"},
+	Int128: StandardType{"int128"},
+	Int256: StandardType{"int256"},
 
 	Uint:    StandardType{"uint"},
 	Uint8:   StandardType{"uint8"},

@@ -30,7 +30,7 @@ func (t Tuple) compare(o Type) bool {
 		return false
 	}
 	for i, typ := range t.types {
-		if !typ.compare(other.types[i]) {
+		if !typ.compare(other.types[i]) && typ != standards[Unknown] {
 			return false
 		}
 	}
@@ -59,50 +59,41 @@ func (s StandardType) compare(t Type) bool {
 }
 
 func (c Class) compare(t Type) bool {
-	_, ok := resolveUnderlying(t).(Class)
-	if !ok {
+	if other, ok := resolveUnderlying(t).(Class); !ok {
 		return false
+	} else {
+		return c.Name == other.Name
 	}
-	// TODO:
-	return true
 }
 
 func (i Interface) compare(t Type) bool {
-	// an interface is equal to an
-	_, ok := resolveUnderlying(t).(Interface)
-	if !ok {
+	if other, ok := resolveUnderlying(t).(Interface); !ok {
 		return false
+	} else {
+		return i.Name == other.Name
 	}
-	// TODO:
-	return true
 }
 
 func (e Enum) compare(t Type) bool {
-	// an interface is equal to an
-	_, ok := resolveUnderlying(t).(Enum)
-	if !ok {
+	if other, ok := resolveUnderlying(t).(Enum); !ok {
 		return false
+	} else {
+		return e.Name == other.Name
 	}
-	// TODO:
-	return true
 }
 
 func (c Contract) compare(t Type) bool {
-	// an interface is equal to an
-	_, ok := resolveUnderlying(t).(Contract)
-	if !ok {
+	if other, ok := resolveUnderlying(t).(Contract); !ok {
 		return false
+	} else {
+		return c.Name == other.Name
 	}
-	// TODO:
-	return true
 }
 
 func (e Event) compare(t Type) bool {
-	// an interface is equal to an
-	_, ok := resolveUnderlying(t).(Event)
-	if !ok {
+	if other, ok := resolveUnderlying(t).(Event); !ok {
 		return false
+	} else {
+		return e.Name == other.Name
 	}
-	// TODO:
-	return true
 }

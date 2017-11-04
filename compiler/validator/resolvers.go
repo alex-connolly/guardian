@@ -80,7 +80,11 @@ type resolver func(v *Validator, e ast.ExpressionNode) Type
 func resolveIdentifier(v *Validator, e ast.ExpressionNode) Type {
 	i := e.(ast.IdentifierNode)
 	// look up the identifier in scope
-	return v.findReference(i.Name)
+	typ := v.findReference(i.Name)
+	if typ == standards[Invalid] {
+		return standards[Unknown]
+	}
+	return typ
 }
 
 func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
@@ -137,8 +141,15 @@ func resolveCallExpression(v *Validator, e ast.ExpressionNode) Type {
 	// tuple may be empty or single-valued
 	call := v.resolveExpression(c.Call)
 	// enforce that this is a function pointer (at whatever depth)
-	fn := resolveUnderlying(call).(Func)
-	return fn.Results
+	under := resolveUnderlying(call)
+	fn, ok := under.(Func)
+	if ok {
+		return fn.Results
+	} else {
+		v.addError(errCallExpressionNoFunc, WriteType(under))
+		return standards[Invalid]
+	}
+
 }
 
 func resolveUnderlying(t Type) Type {

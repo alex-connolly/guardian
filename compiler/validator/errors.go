@@ -7,4 +7,7 @@ const (
 	errPropertyNotFound     = "Type %s does not have property %s"
 	errUnnamedReference     = "Unnamed reference %s"
 	errTypeRequired         = "%s is not a %s type"
+	errCallExpressionNoFunc = "Cannot call non-function type %s"
+	errTypeNotVisible       = "Type %s is not visible"
+	errInvalidAssignment    = "Cannot assign %s to %s"
 )

@@ -1,22 +1,18 @@
 package validator
 
-func (c Class) implements(i Interface) bool {
-	for _, ifc := range c.Interfaces {
-		if ifc.compare(i) {
-			return true
-		}
+func assignableTo(left, right Type) bool {
+	// assignable if the two types are equal
+	if left.compare(right) {
+		return true
 	}
-	return false
-}
+	// assignable if o implements t
+	if left.implements(right) {
+		return true
+	}
+	// assignable if t is a superclass of o
+	if left.inherits(right) {
+		return true
+	}
 
-func (i Interface) inherits(ext Interface) bool {
-	return false
-}
-
-func (c Class) inherits(ext Class) bool {
-	return false
-}
-
-func (c Class) hasProperty(f Func) bool {
 	return false
 }

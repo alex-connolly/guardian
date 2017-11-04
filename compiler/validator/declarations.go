@@ -52,16 +52,21 @@ func (v *Validator) validateFuncDeclaration(node ast.FuncDeclarationNode) {
 	// no repeated parameter names
 	// all parameter types are visible in scope
 
+	var params []Type
 	for _, p := range node.Parameters {
 		for _, i := range p.Identifiers {
 			v.addDeclaration(i, p.DeclaredType)
-			v.validateType(p.DeclaredType)
+			params = append(params, v.validateType(p.DeclaredType))
 		}
 	}
 
+	var results []Type
 	for _, r := range node.Results {
-		v.validateType(r)
+		results = append(results, v.validateType(r))
 	}
+
+	funcType := NewFunc(NewTuple(params...), NewTuple(results...))
+	v.DeclareType(node.Identifier, funcType)
 }
 
 func (v *Validator) validateTypeDeclaration(node ast.TypeDeclarationNode) {
@@ -106,7 +111,7 @@ func (v *Validator) validateContractDeclaration(node ast.ContractDeclarationNode
 	for _, super := range node.Supers {
 		t := v.findReference(super.Names...)
 		if t == standards[Invalid] {
-			v.requireVisibleType(super.Names...)
+			v.addError("not found")
 		} else {
 			if c, ok := t.(Contract); ok {
 				supers = append(supers, c)

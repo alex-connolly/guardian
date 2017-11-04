@@ -35,16 +35,15 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 	for _, l := range node.Left {
 		switch l.Type() {
 		case ast.CallExpression, ast.Literal, ast.MapLiteral,
-			ast.ArrayLiteral, ast.SliceExpression:
+			ast.ArrayLiteral, ast.SliceExpression, ast.FuncLiteral:
 			v.addError("Cannot assign to expression")
 		}
 	}
 
-	// special case where right side is of length 1:
-	// TODO:
 	if len(node.Left) > len(node.Right) && len(node.Right) == 1 {
 		rightType := v.resolveType(node.Right[0])
 		for _, l := range node.Left {
+			assignableTo(rightType, v.resolveType(l))
 			v.requireType(rightType, v.resolveType(l))
 		}
 		return
@@ -55,21 +54,20 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 		return
 	}
 
-	for i, n := range node.Left {
-		leftType := v.resolveExpression(n)
-		rightType := v.resolveExpression(node.Right[i])
-		if leftType.compare(standards[Invalid]) {
-			// variable doesn't exist
-			// TODO: should be a var dec?
-			// TODO: enforce identifier
-			if i, ok := n.(ast.IdentifierNode); ok {
-				v.DeclareType(i.Name, rightType)
-			}
-		} else {
-			if !leftType.compare(rightType) {
-				v.addError("Cannot assign %s to %s", WriteType(leftType), WriteType(rightType))
+	leftTuple := v.ExpressionTuple(node.Left)
+	rightTuple := v.ExpressionTuple(node.Right)
+
+	if !leftTuple.compare(rightTuple) {
+		v.addError(errInvalidAssignment, WriteType(leftTuple), WriteType(rightTuple))
+	}
+
+	for i, left := range node.Left {
+		if leftTuple.types[i] == standards[Unknown] {
+			if id, ok := left.(ast.IdentifierNode); ok {
+				v.DeclareType(id.Name, rightTuple.types[i])
 			}
 		}
+
 	}
 
 }

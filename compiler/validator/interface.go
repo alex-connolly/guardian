@@ -72,7 +72,7 @@ func NewValidator() *Validator {
 func (v *Validator) requireVisibleType(names ...string) Type {
 	typ := v.findReference(names...)
 	if typ == standards[Invalid] {
-		v.addError("Type %s is not visible", makeName(names))
+		v.addError(errTypeNotVisible, makeName(names))
 	}
 	return typ
 }

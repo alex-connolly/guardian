@@ -1,14 +1,11 @@
 package validator
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/compiler/ast"
 )
 
 func (v *Validator) validateType(node ast.Node) Type {
 	if node == nil {
-		fmt.Println("val node nil")
 		return standards[Invalid]
 	} else {
 		switch node.Type() {
