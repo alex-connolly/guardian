@@ -25,7 +25,7 @@ Guardian uses go-style packaging and importing.
 In order for future versions of Guardian to include potentially backwards-incompatible changes, each Guardian contract must include a version declaration appended to the package declaration:
 
 ```go
-package maths @ 0.0.1
+guardian @ 0.0.1
 ```
 
 If you select an older Guardian version to run your , nodes which do not have
