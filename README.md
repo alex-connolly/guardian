@@ -95,49 +95,6 @@ All types which explicitly implement an interface through the ```is``` keyword m
 
 Similarly to Solidity, data about the current block may be extracted from the environment using a series of builtins. However, Solidity uses syntax reminiscent of object fields (e.g. ```msg.sender```), which are misleading as to the true nature of these builtins, which are immutable. Guardian therefore replaces them with a series of builtin method calls.
 
-Builtin variables:
-
-| Guardian | Solidity | EVM  | FireVM |
-| ------------- |-------------| -----| ---|
-| block.coinbase | block.coinbase | COINBASE | COINBASE|
-| block.difficulty | block.difficulty | DIFFICULTY | DIFFICULTY|
-| block.gasLimit | block.gaslimit | GASLIMIT | FUELLIMIT |
-| block.number | block.number | BLOCKNUMBER | BLOCK |
-| block.timestamp | block.timestamp | TIMESTAMP | TIMESTAMP  |
-| call.data | msg.data | CALLDATA | CALLDATA |
-| call.gas | msg.gas | GAS | FUEL |
-| caller() | msg.sender | CALLER | CALLER |
-| call.sig | msg.sig | H | H |
-| cn.gasPrice | tx.gasprice | GASPRICE | FUELPRICE |
-| cn.origin | tx.origin | ORIGIN | ORIGIN |
-| this | this | |
-
-
-Builtin functions:
-
-| Guardian | Solidity | EVM  | FireVM |
-| ------------- |-------------| -----|---|
-| +% | addmod() | ADDMOD | ADD, MOD |
-| *% | mulmod() | MULMOD | MUL, MOD |
-| keccak() | keccak() | | |
-| sha3() | sha3() |  |  |
-| sha256() | sha256() | |   |
-| ripemd160() | ripemd160() | | |
-| ecrecover() | ecrecover() |  |  |
-| terminate() | selfdestruct() | SELFDESTRUCT | TERMINATE |
-
-Address functions:
-
-| Guardian | Solidity | EVM  | FireVM |
-| ------------- |-------------| -----| ---|
-| .balance() | .balance() | BALANCE | |
-| .transfer() | .transfer() | | |
-| .send() | .send() | | |
-| .call() | .callcode() |  |  |
-| sha256() | sha256() | |   |
-| ripemd160() | ripemd160() | | |
-| ecrecover() | ecrecover() |  |  |
-
 ## Key Features
 
 ### Constructors and Destructors
@@ -178,37 +135,6 @@ contract Purchase<T is Sellable> {
     }
 }
 ```
-
-### Macros and Text-Substitution
-
-Guardian allows text-replacement macros.
-
-```go
-macro HI {
-    HI
-}
-```
-
-You can pass arguments to macros as follows:
-
-```go
-macro MAX(a, b){
-    (a > b) ? a : b
-}
-```
-
-Braces are only necessary for multi-line macros:
-
-```go
-macro MAX(a, b) (a > b) ? a : b
-```
-
-To access the value of macro arguments as a string literal, use ```#name```, and to paste components together use ```##name```.
-
-### Randomisation
-
-Randomisation is traditionally a very difficult area for cryptocurrency, due to its inherent conflict with the properties of determinism proposed in the Aims section. The definition of random, then, should be the selection of an object from a group, such that the selection could not be predicted at the moment of contract creation, or at any point prior to attempting to insert the contract into a block, but . Guardian uses an inbuilt random() function .
-
 ### Iteration
 
 Many languages (such as Go) only provide for randomised map iteration. Clearly, this is not deterministic, as demonstrated by the following example:
@@ -225,39 +151,9 @@ for k, v := range myMap {
 }
 ```
 
-The value of sum will be radically different based on the order in which the map is . In a blockchain context, this means that every node will reach. Guardian maps resolve this issue by guaranteeing that maps will be iterated over in order of insertion.
+The value of sum will be radically different based on the iteration order of the map elements. In a blockchain context, this means that every node may reach different conclusion about the state of the contract. Guardian maps resolve this issue by guaranteeing that maps will be iterated over in order of insertion.
 
 In Guardian, the above sequence of statements will always produce a result of 3.
-
-### ABI Specification
-
-Both Ethereum and any future cryptocurrency built using fireVM use an Application Binary Interface (ABI) to specify the encoding of instructions.
-
-Ethereum functions may be called in the following manner (example stolen from the Solidity documentation):
-
-0xcdcd77c0: the Method ID. This is derived as the first 4 bytes of the Keccak hash of the ASCII form of the signature baz(uint32,bool).
-
-0x0000000000000000000000000000000000000000000000000000000000000045: the first parameter, a uint32 value 69 padded to 32 bytes
-0x0000000000000000000000000000000000000000000000000000000000000001: the second parameter - boolean true, padded to 32 bytes
-
-The total call, therefore, is:
-
-0xcdcd77c000000000000000000000000000000000000000000000000000000000000000450000000000000000000000000000000000000000000000000000000000000001
-
-The same call in FireVM may be expressed as (in hexadecimal), as 01cdcd77c001450101:
-
-01        | size of size bytes
-cdcd77c0  | function signature
-01        | size of the next parameter
-45        | actual next parameter
-01        | size of the next parameter
-01        | actual next parameter
-
-The representation has been compressed from 68 bytes to 9 bytes.
-
-This saving is not universal - for instance, where all 32 bytes of a value are used, the encoding actually wastes a byte, but it provides savings in the vast majority of cases (particularly as values tend to cluster in the lower ranges of the potential space capacity).
-
-Of course, if the first n bytes of each contract was used to store the number of bytes used in each size byte, then the theoretical size of each parameter could be increased arbitrarily (but still by a capped amount). Currently, the FireVM uses only the first byte, meaning that each
 
 ### Modifers
 
@@ -271,7 +167,7 @@ modifier local(Location _loc) {
     _;
 }
 
-chat(msg string) local {
+chat(Location loc, string msg) local {
 
 }
 ```
@@ -283,7 +179,7 @@ enforceLocal(loc Location){
     require(location == loc)
 }
 
-chat(msg string){
+chat(loc Location, msg string){
     enforceLocal(loc)
 }
 ```

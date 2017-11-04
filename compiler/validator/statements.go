@@ -52,7 +52,7 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 	}
 
 	if len(node.Right) != len(node.Left) {
-		v.addError("Assignment count mismatch")
+		v.addError("Assignment count mismatch: %s, %s")
 		return
 	}
 
@@ -69,7 +69,6 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 				v.DeclareType(id.Name, rightTuple.types[i])
 			}
 		}
-
 	}
 
 }
