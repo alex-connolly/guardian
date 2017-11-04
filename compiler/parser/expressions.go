@@ -162,7 +162,6 @@ func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 			expr = p.parseMapLiteral()
 			break
 		case lexer.TknOpenSquare:
-
 			expr = p.parseArrayLiteral()
 			break
 		case lexer.TknString, lexer.TknCharacter, lexer.TknInteger, lexer.TknFloat, lexer.TknTrue, lexer.TknFalse:
@@ -173,6 +172,9 @@ func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 			break
 		case lexer.TknNot:
 			expr = p.parsePrefixUnaryExpression()
+			break
+		case lexer.TknFunc:
+			expr = p.parseFuncLiteral()
 			break
 		}
 	}
@@ -262,6 +264,13 @@ func (p *Parser) parseArrayLiteral() (n ast.ArrayLiteralNode) {
 		n.Data = p.parseExpressionList()
 		p.parseRequired(lexer.TknCloseBrace)
 	}
+	return n
+}
+
+func (p *Parser) parseFuncLiteral() (n ast.FuncLiteralNode) {
+	n.Signature = p.parseFuncType()
+
+	n.Scope = p.parseEnclosedScope()
 	return n
 }
 

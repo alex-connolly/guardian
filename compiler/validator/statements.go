@@ -43,8 +43,10 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 	if len(node.Left) > len(node.Right) && len(node.Right) == 1 {
 		rightType := v.resolveType(node.Right[0])
 		for _, l := range node.Left {
-			assignableTo(rightType, v.resolveType(l))
-			v.requireType(rightType, v.resolveType(l))
+			left := v.resolveType(l)
+			if !assignableTo(rightType, left) {
+				v.addError(errInvalidAssignment, WriteType(rightType), WriteType(left))
+			}
 		}
 		return
 	}

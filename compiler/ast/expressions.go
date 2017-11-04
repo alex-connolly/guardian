@@ -77,7 +77,7 @@ func (n MapLiteralNode) Type() NodeType { return MapLiteral }
 
 type FuncLiteralNode struct {
 	Signature FuncTypeNode
-	Scope     ScopeNode
+	Scope     *ScopeNode
 }
 
 // Type ...
