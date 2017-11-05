@@ -8,9 +8,16 @@ import (
 	"github.com/end-r/guardian/compiler/ast"
 )
 
-// Traverser burns down trees
+// Traverser
 type Traverser struct {
-	VM *vmgen.VM
+	VM    *vmgen.VM
+	hooks []hook
+}
+
+type hook struct {
+	name     string
+	position int
+	bytecode []byte
 }
 
 func (t Traverser) AddBytecode(op string, params ...byte) {
@@ -23,6 +30,10 @@ func NewTraverser() Traverser {
 
 // Traverse ...
 func (e Traverser) Traverse(node ast.Node) {
+
+}
+
+func (e Traverser) traverse(node ast.Node) {
 	// initialise the vm
 	if e.VM == nil {
 		e.VM = firevm.NewVM()

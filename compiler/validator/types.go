@@ -131,8 +131,17 @@ func NewTuple(types ...Type) Tuple {
 
 func (v *Validator) ExpressionTuple(exprs []ast.ExpressionNode) Tuple {
 	types := make([]Type, len(exprs))
-	for i, expression := range exprs {
-		types[i] = v.resolveExpression(expression)
+	for _, expression := range exprs {
+		typ := v.resolveExpression(expression)
+		// expression tuples force inner tuples to just be lists of types
+		// ((int, string)) --> (int, string)
+		// ((int), string) --> (int, string)
+		// this is to facilitate assignment comparisons
+		if tuple, ok := typ.(Tuple); ok {
+			types = append(types, tuple.types...)
+		} else {
+			types = append(types, typ)
+		}
 	}
 	return NewTuple(types...)
 }

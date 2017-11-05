@@ -51,3 +51,37 @@ func TestClassImplementsInvalid(t *testing.T) {
     `)
 	goutil.Assert(t, len(v.errors) == 1, v.formatErrors())
 }
+
+func TestClassImplementsTypeValidInterfaceInheritance(t *testing.T) {
+	p := parser.ParseString(`
+        interface Switchable inherits Adjustable {}
+		interface Adjustable{}
+        class Light is Switchable {}
+
+        item Adjustable
+
+        constructor(){
+            item = Light{}
+        }
+    `)
+	v := ValidateScope(p.Scope)
+	goutil.Assert(t, len(v.errors) == 0, v.formatErrors())
+}
+
+func TestClassImplementsTypeValidClassAndInterfaceInheritance(t *testing.T) {
+	p := parser.ParseString(`
+
+        interface Switchable inherits Adjustable {}
+		interface Adjustable{}
+		class Object is Switchable{}
+        class Light inherits Object {}
+
+        item Adjustable
+
+        constructor(){
+            item = Light{}
+        }
+    `)
+	v := ValidateScope(p.Scope)
+	goutil.Assert(t, len(v.errors) == 0, v.formatErrors())
+}

@@ -1,6 +1,9 @@
 package evm
 
-import "github.com/end-r/guardian/compiler/ast"
+import (
+	"github.com/end-r/guardian/compiler/ast"
+	"github.com/end-r/guardian/compiler/lexer"
+)
 
 func (e *Traverser) traverseSwitchStatement(n ast.SwitchStatementNode) {
 	// always traverse the target
@@ -44,7 +47,7 @@ func (e *Traverser) traverseAssignmentStatement(n ast.AssignmentStatementNode) {
 			e.Traverse(l)
 			e.Traverse(n.Right[0])
 			// assignments are either in memory or storage depending on the context
-			if e.inStorage() || hasModifier(n, "storage") {
+			if e.inStorage() || hasModifier(n, lexer.TknStorage) {
 				e.AddBytecode("")
 			}
 		}
@@ -53,7 +56,7 @@ func (e *Traverser) traverseAssignmentStatement(n ast.AssignmentStatementNode) {
 			e.Traverse(l)
 			e.Traverse(n.Right[i])
 			// assignments are either in memory or storage depending on the context
-			if e.inStorage() || hasModifier(n, "storage") {
+			if e.inStorage() || hasModifier(n, lexer.TknStorage) {
 				e.AddBytecode("")
 			}
 		}

@@ -117,6 +117,11 @@ func (e *Traverser) traverseMapLiteral(n ast.MapLiteralNode) {
 	e.AddBytecode("")
 }
 
+func (e *Traverser) traverseFuncLiteral(n ast.FuncLiteralNode) {
+	// create a hook
+
+}
+
 func (e *Traverser) traverseReference(n ast.ReferenceNode) {
 
 	e.AddBytecode("PUSH")

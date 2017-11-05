@@ -7,20 +7,30 @@ func (e *Traverser) traverseType(n ast.TypeDeclarationNode) {
 }
 
 func (e *Traverser) traverseClass(n ast.ClassDeclarationNode) {
-
+	// create constructor hooks
+	// create function hooks
 }
 
 func (e *Traverser) traverseInterface(n ast.InterfaceDeclarationNode) {
-    // don't need to be interacted with
-    // all interfaces are dealt with by the type system
+	// don't need to be interacted with
+	// all interfaces are dealt with by the type system
 }
 
 func (e *Traverser) traverseEnum(n ast.EnumDeclarationNode) {
-
+	// create hook
 }
 
 func (e *Traverser) traverseContract(n ast.ContractDeclarationNode) {
+	// create hooks for functions
+	// create hooks for constructors
+	// create hooks for events
+}
 
+func (e *Traverser) addHook(name string) {
+	hook := hook{
+		name: name,
+	}
+	e.hooks = append(e.hooks)
 }
 
 func (e *Traverser) traverseEvent(n ast.EventDeclarationNode) {

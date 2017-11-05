@@ -50,3 +50,18 @@ func TestClassDoesNotInherit(t *testing.T) {
     `)
 	goutil.Assert(t, len(v.errors) == 1, v.formatErrors())
 }
+
+func TestClassImplementsMultipleInheritanceValid(t *testing.T) {
+	p := parser.ParseString(`
+		class Object {}
+        class LightSource inherits Object {}
+        class Light inherits LightSource {}
+
+        item Object
+
+        constructor(){
+            item = Light{}
+        }
+    `)
+	goutil.Assert(t, len(v.errors) == 0, v.formatErrors())
+}

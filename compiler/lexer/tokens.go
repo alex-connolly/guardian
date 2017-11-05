@@ -166,6 +166,7 @@ const (
 	TknPrivate
 	TknProtected
 	TknStatic
+	TknStorage
 	TknNewLine
 	TknLineComment
 	TknCommentOpen
@@ -221,6 +222,7 @@ func getProtoTokens() []protoToken {
 		createDistinct("protected", TknProtected),
 		createDistinct("abstract", TknAbstract),
 		createDistinct("static", TknStatic),
+		createDistinct("storage", TknStorage),
 
 		createDistinct("in", TknIn),
 		createDistinct("map", TknMap),
