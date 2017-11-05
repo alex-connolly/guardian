@@ -1,4 +1,4 @@
-package parser
+package gparser
 
 import (
 	"github.com/end-r/guardian/compiler/ast"
@@ -151,6 +151,7 @@ func parseForStatement(p *Parser) {
 	p.parseRequired(lexer.TknFor)
 
 	// parse init expr, can be nil
+	// TODO: should be able to be any statement
 	init := p.parseOptionalAssignment()
 	// parse condition, required
 

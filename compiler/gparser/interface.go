@@ -1,4 +1,4 @@
-package parser
+package gparser
 
 import (
 	"io/ioutil"

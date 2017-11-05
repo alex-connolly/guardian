@@ -1,4 +1,4 @@
-package parser
+package gparser
 
 type construct struct {
 	name  string

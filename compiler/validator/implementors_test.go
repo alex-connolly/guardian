@@ -1,14 +1,14 @@
 package validator
 
 import (
-	"axia/guardian/compiler/parser"
+	"axia/guardian/compiler/gparser"
 	"testing"
 
 	"github.com/end-r/goutil"
 )
 
 func TestClassImplementsTypeValid(t *testing.T) {
-	p := parser.ParseString(`
+	p := gparser.ParseString(`
         interface Switchable{}
         class Light is Switchable {}
 
@@ -23,7 +23,7 @@ func TestClassImplementsTypeValid(t *testing.T) {
 }
 
 func TestClassImplementsMultipleTypesValid(t *testing.T) {
-	p := parser.ParseString(`
+	p := gparser.ParseString(`
         interface Switchable{}
         interface Adjustable{}
         class Light is Switchable, Adjustable {}
@@ -38,7 +38,7 @@ func TestClassImplementsMultipleTypesValid(t *testing.T) {
 }
 
 func TestClassImplementsInvalid(t *testing.T) {
-	p := parser.ParseString(`
+	p := gparser.ParseString(`
         interface Switchable{}
         interface Adjustable{}
         class Light {}
@@ -53,7 +53,7 @@ func TestClassImplementsInvalid(t *testing.T) {
 }
 
 func TestClassImplementsTypeValidInterfaceInheritance(t *testing.T) {
-	p := parser.ParseString(`
+	p := gparser.ParseString(`
         interface Switchable inherits Adjustable {}
 		interface Adjustable{}
         class Light is Switchable {}
@@ -69,7 +69,7 @@ func TestClassImplementsTypeValidInterfaceInheritance(t *testing.T) {
 }
 
 func TestClassImplementsTypeValidClassAndInterfaceInheritance(t *testing.T) {
-	p := parser.ParseString(`
+	p := gparser.ParseString(`
 
         interface Switchable inherits Adjustable {}
 		interface Adjustable{}

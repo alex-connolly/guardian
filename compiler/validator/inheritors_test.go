@@ -1,14 +1,14 @@
 package validator
 
 import (
-	"axia/guardian/compiler/parser"
+	"axia/guardian/compiler/gparser"
 	"testing"
 
 	"github.com/end-r/goutil"
 )
 
 func TestClassImplementsTypeValid(t *testing.T) {
-	p := parser.ParseString(`
+	p := gparser.ParseString(`
         class LightSource {}
         class Light inherits LightSource {}
 
@@ -23,7 +23,7 @@ func TestClassImplementsTypeValid(t *testing.T) {
 }
 
 func TestClassImplementsMultipleTypesValid(t *testing.T) {
-	p := parser.ParseString(`
+	p := gparser.ParseString(`
         class LightSource {}
         class Object {}
         class Light inherits LightSource, Object {}
@@ -38,7 +38,7 @@ func TestClassImplementsMultipleTypesValid(t *testing.T) {
 }
 
 func TestClassDoesNotInherit(t *testing.T) {
-	p := parser.ParseString(`
+	p := gparser.ParseString(`
         class LightSource {}
         class Light {}
 
@@ -52,7 +52,7 @@ func TestClassDoesNotInherit(t *testing.T) {
 }
 
 func TestClassImplementsMultipleInheritanceValid(t *testing.T) {
-	p := parser.ParseString(`
+	p := gparser.ParseString(`
 		class Object {}
         class LightSource inherits Object {}
         class Light inherits LightSource {}

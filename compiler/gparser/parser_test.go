@@ -1,4 +1,4 @@
-package parser
+package gparser
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	"github.com/end-r/goutil"
 )
 
-// mini-parser tests belong here
+// mini-gparser tests belong here
 
 func TestHasTokens(t *testing.T) {
 	p := createParser("this is data")

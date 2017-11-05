@@ -1,4 +1,4 @@
-package parser
+package gparser
 
 import (
 	"github.com/end-r/guardian/compiler/ast"
@@ -153,7 +153,7 @@ func (p *Parser) parsePlainType() ast.PlainTypeNode {
 	}
 }
 
-// like any list parser, but enforces that each node must be a plain type
+// like any list gparser, but enforces that each node must be a plain type
 func (p *Parser) parsePlainTypeList() []ast.PlainTypeNode {
 	var refs []ast.PlainTypeNode
 	refs = append(refs, p.parsePlainType())
