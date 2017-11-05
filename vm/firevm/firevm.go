@@ -44,6 +44,10 @@ func (a *Arsonist) TraverseExpression(node ast.ExpressionNode) {
 	}
 }
 
+func (a Arsonist) AddBytecode(op string, params ...byte) {
+	t.VM.AddBytecode(op, params...)
+}
+
 func NewTraverser() Arsonist {
 	return Arsonist{}
 }
