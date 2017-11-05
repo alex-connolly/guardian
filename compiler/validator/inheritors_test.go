@@ -1,10 +1,10 @@
 package validator
 
 import (
+	"axia/guardian/compiler/parser"
 	"testing"
 
 	"github.com/end-r/goutil"
-	"github.com/end-r/guardian/compiler/parser"
 )
 
 func TestClassImplementsTypeValid(t *testing.T) {

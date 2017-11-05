@@ -1,11 +1,11 @@
 package validator
 
 import (
+	"axia/guardian/compiler/parser"
 	"fmt"
 	"testing"
 
 	"github.com/end-r/goutil"
-	"github.com/end-r/guardian/compiler/parser"
 )
 
 func TestValidateClassDecl(t *testing.T) {
