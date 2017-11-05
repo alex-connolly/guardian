@@ -64,6 +64,6 @@ func (e *Traverser) traverseAssignmentStatement(n ast.AssignmentStatementNode) {
 
 }
 
-func hasModifier(n ast.Node, modifier string) bool {
+func hasModifier(n ast.Node, modifier lexer.TokenType) bool {
 	return false
 }

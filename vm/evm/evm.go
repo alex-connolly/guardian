@@ -28,9 +28,14 @@ func NewTraverser() Traverser {
 	return Traverser{}
 }
 
+// A hook conditionally jumps the code to a particular point
+//
+
 // Traverse ...
 func (e Traverser) Traverse(node ast.Node) {
-
+	// do pre-processing/hooks etc
+	// generate the bytecode
+	// finalise the bytecode
 }
 
 func (e Traverser) traverse(node ast.Node) {

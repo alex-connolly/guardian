@@ -46,7 +46,8 @@ func GetBinaryOperators() []TokenType {
 
 // GetModifiers ....
 func GetModifiers() []TokenType {
-	return []TokenType{TknConst, TknInternal, TknExternal, TknPublic, TknPrivate, TknProtected, TknStatic, TknAbstract}
+	return []TokenType{TknConst, TknInternal, TknExternal, TknPublic, TknPrivate,
+		TknProtected, TknStatic, TknAbstract, TknStorage}
 }
 
 // GetLifecycles ....

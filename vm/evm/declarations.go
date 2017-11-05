@@ -1,6 +1,10 @@
 package evm
 
-import "github.com/end-r/guardian/compiler/ast"
+import (
+	"github.com/end-r/guardian/compiler/lexer"
+
+	"github.com/end-r/guardian/compiler/ast"
+)
 
 func (e *Traverser) traverseType(n ast.TypeDeclarationNode) {
 
@@ -30,7 +34,7 @@ func (e *Traverser) addHook(name string) {
 	hook := hook{
 		name: name,
 	}
-	e.hooks = append(e.hooks)
+	e.hooks = append(e.hooks, hook)
 }
 
 func (e *Traverser) traverseEvent(n ast.EventDeclarationNode) {
@@ -52,7 +56,7 @@ func (e *Traverser) traverseFunc(n ast.FuncDeclarationNode) {
 	// the ABI defines this as being the first 4 bytes of the SHA-3 hash of the function signature
 	// as guardian signatures are not stringified quite as easily
 	// have to do something clever
-	if hasModifier(n, "external") {
+	if hasModifier(n, lexer.TknExternal) {
 		e.AddBytecode(EncodeSignature())
 		e.AddBytecode("EQL")
 		e.AddBytecode("JMPI")
