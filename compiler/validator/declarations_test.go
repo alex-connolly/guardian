@@ -1,9 +1,10 @@
 package validator
 
 import (
-	"axia/guardian/compiler/gparser"
 	"fmt"
 	"testing"
+
+	"github.com/end-r/guardian/compiler/parser"
 
 	"github.com/end-r/goutil"
 )
@@ -21,7 +22,7 @@ func TestValidateEnumDecl(t *testing.T) {
 }
 
 func TestValidateEventDeclEmpty(t *testing.T) {
-	p := gparser.ParseString("event Dog()")
+	p := parser.ParseString("event Dog()")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
 	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %d", len(v.errors)))
@@ -29,7 +30,7 @@ func TestValidateEventDeclEmpty(t *testing.T) {
 }
 
 func TestValidateEventDeclValidSingle(t *testing.T) {
-	p := gparser.ParseString("event Dog(a int)")
+	p := parser.ParseString("event Dog(a int)")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
 	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %d", len(v.errors)))
@@ -37,21 +38,21 @@ func TestValidateEventDeclValidSingle(t *testing.T) {
 }
 
 func TestValidateEventDeclValidMultiple(t *testing.T) {
-	p := gparser.ParseString("event Dog(a int, b string)")
+	p := parser.ParseString("event Dog(a int, b string)")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
 	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %d", len(v.errors)))
 }
 
 func TestValidateEventDeclInvalidSingle(t *testing.T) {
-	p := gparser.ParseString("event Dog(c Cat)")
+	p := parser.ParseString("event Dog(c Cat)")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
 	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %d", len(v.errors)))
 }
 
 func TestValidateEventDeclInvalidMultiple(t *testing.T) {
-	p := gparser.ParseString("event Dog(c Cat, a Animal)")
+	p := parser.ParseString("event Dog(c Cat, a Animal)")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
 	goutil.AssertNow(t, len(v.errors) == 2, fmt.Sprintf("wrong err length: %d", len(v.errors)))
@@ -59,14 +60,14 @@ func TestValidateEventDeclInvalidMultiple(t *testing.T) {
 }
 
 func TestValidateEventDeclMixed(t *testing.T) {
-	p := gparser.ParseString("event Dog(a int, b Cat)")
+	p := parser.ParseString("event Dog(a int, b Cat)")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
 	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %d", len(v.errors)))
 }
 
 func TestValidateFuncDeclEmpty(t *testing.T) {
-	p := gparser.ParseString("func Dog() {}")
+	p := parser.ParseString("func Dog() {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
@@ -74,7 +75,7 @@ func TestValidateFuncDeclEmpty(t *testing.T) {
 }
 
 func TestValidateFuncDeclValidSingle(t *testing.T) {
-	p := gparser.ParseString("func Dog(a int) {}")
+	p := parser.ParseString("func Dog(a int) {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
@@ -82,7 +83,7 @@ func TestValidateFuncDeclValidSingle(t *testing.T) {
 }
 
 func TestValidateFuncDeclValidMultiple(t *testing.T) {
-	p := gparser.ParseString("func Dog(a int, b string) {}")
+	p := parser.ParseString("func Dog(a int, b string) {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
@@ -90,7 +91,7 @@ func TestValidateFuncDeclValidMultiple(t *testing.T) {
 }
 
 func TestValidateFuncDeclInvalidSingle(t *testing.T) {
-	p := gparser.ParseString("func dog(a Cat) {}")
+	p := parser.ParseString("func dog(a Cat) {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
@@ -98,7 +99,7 @@ func TestValidateFuncDeclInvalidSingle(t *testing.T) {
 }
 
 func TestValidateFuncDeclInvalidMultiple(t *testing.T) {
-	p := gparser.ParseString("func Dog(a Cat, b Animal) {}")
+	p := parser.ParseString("func Dog(a Cat, b Animal) {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
@@ -107,7 +108,7 @@ func TestValidateFuncDeclInvalidMultiple(t *testing.T) {
 }
 
 func TestValidateFuncDeclMixed(t *testing.T) {
-	p := gparser.ParseString("func Dog(a int, b Cat) {}")
+	p := parser.ParseString("func Dog(a int, b Cat) {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
@@ -115,7 +116,7 @@ func TestValidateFuncDeclMixed(t *testing.T) {
 }
 
 func TestValidateConstructorDeclEmpty(t *testing.T) {
-	p := gparser.ParseString("constructor Dog() {}")
+	p := parser.ParseString("constructor Dog() {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
@@ -123,7 +124,7 @@ func TestValidateConstructorDeclEmpty(t *testing.T) {
 }
 
 func TestValidateConstructorDeclValidSingle(t *testing.T) {
-	p := gparser.ParseString("constructor Dog(a int) {}")
+	p := parser.ParseString("constructor Dog(a int) {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
@@ -131,7 +132,7 @@ func TestValidateConstructorDeclValidSingle(t *testing.T) {
 }
 
 func TestValidateConstructorDeclValidMultiple(t *testing.T) {
-	p := gparser.ParseString("constructor Dog(a int, b string) {}")
+	p := parser.ParseString("constructor Dog(a int, b string) {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
@@ -139,7 +140,7 @@ func TestValidateConstructorDeclValidMultiple(t *testing.T) {
 }
 
 func TestValidateConstructorDeclInvalidSingle(t *testing.T) {
-	p := gparser.ParseString("constructor(a Cat) {}")
+	p := parser.ParseString("constructor(a Cat) {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
@@ -147,7 +148,7 @@ func TestValidateConstructorDeclInvalidSingle(t *testing.T) {
 }
 
 func TestValidateConstructorDeclInvalidMultiple(t *testing.T) {
-	p := gparser.ParseString("constructor(a Cat, b Animal) {}")
+	p := parser.ParseString("constructor(a Cat, b Animal) {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
@@ -156,7 +157,7 @@ func TestValidateConstructorDeclInvalidMultiple(t *testing.T) {
 }
 
 func TestValidateConstructorDeclMixed(t *testing.T) {
-	p := gparser.ParseString("constructor(a int, b Cat) {}")
+	p := parser.ParseString("constructor(a int, b Cat) {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
@@ -164,7 +165,7 @@ func TestValidateConstructorDeclMixed(t *testing.T) {
 }
 
 func TestValidateContractDeclEmpty(t *testing.T) {
-	p := gparser.ParseString("contract Dog {}")
+	p := parser.ParseString("contract Dog {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
@@ -172,7 +173,7 @@ func TestValidateContractDeclEmpty(t *testing.T) {
 }
 
 func TestValidateContractDeclValidSingle(t *testing.T) {
-	p := gparser.ParseString("contract Canine{} contract Dog inherits Canine {}")
+	p := parser.ParseString("contract Canine{} contract Dog inherits Canine {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
@@ -180,7 +181,7 @@ func TestValidateContractDeclValidSingle(t *testing.T) {
 }
 
 func TestValidateContractDeclValidMultiple(t *testing.T) {
-	p := gparser.ParseString("contract Canine {} contract Animal {} contract Dog inherits Canine, Animal {}")
+	p := parser.ParseString("contract Canine {} contract Animal {} contract Dog inherits Canine, Animal {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
@@ -188,7 +189,7 @@ func TestValidateContractDeclValidMultiple(t *testing.T) {
 }
 
 func TestValidateContractDeclInvalidSingle(t *testing.T) {
-	p := gparser.ParseString("contract Dog inherits Canine {}")
+	p := parser.ParseString("contract Dog inherits Canine {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
@@ -196,7 +197,7 @@ func TestValidateContractDeclInvalidSingle(t *testing.T) {
 }
 
 func TestValidateContractDeclInvalidMultiple(t *testing.T) {
-	p := gparser.ParseString("contract Dog inherits Canine, Animal {}")
+	p := parser.ParseString("contract Dog inherits Canine, Animal {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
@@ -205,7 +206,7 @@ func TestValidateContractDeclInvalidMultiple(t *testing.T) {
 }
 
 func TestValidateContractDeclMixed(t *testing.T) {
-	p := gparser.ParseString("contract Canine{} contract Dog inherits Canine, Animal {}")
+	p := parser.ParseString("contract Canine{} contract Dog inherits Canine, Animal {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)

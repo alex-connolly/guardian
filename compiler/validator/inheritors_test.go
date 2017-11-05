@@ -1,14 +1,15 @@
 package validator
 
 import (
-	"axia/guardian/compiler/gparser"
 	"testing"
+
+	"github.com/end-r/guardian/compiler/parser"
 
 	"github.com/end-r/goutil"
 )
 
-func TestClassImplementsTypeValid(t *testing.T) {
-	p := gparser.ParseString(`
+func TestClassInheritsTypeValid(t *testing.T) {
+	p := parser.ParseString(`
         class LightSource {}
         class Light inherits LightSource {}
 
@@ -22,8 +23,8 @@ func TestClassImplementsTypeValid(t *testing.T) {
 	goutil.Assert(t, len(v.errors) == 0, v.formatErrors())
 }
 
-func TestClassImplementsMultipleTypesValid(t *testing.T) {
-	p := gparser.ParseString(`
+func TestClassInheritsMultipleTypesValid(t *testing.T) {
+	p := parser.ParseString(`
         class LightSource {}
         class Object {}
         class Light inherits LightSource, Object {}
@@ -34,11 +35,12 @@ func TestClassImplementsMultipleTypesValid(t *testing.T) {
             item = Light{}
         }
     `)
+	v := ValidateScope(p.Scope)
 	goutil.Assert(t, len(v.errors) == 0, v.formatErrors())
 }
 
 func TestClassDoesNotInherit(t *testing.T) {
-	p := gparser.ParseString(`
+	p := parser.ParseString(`
         class LightSource {}
         class Light {}
 
@@ -48,11 +50,12 @@ func TestClassDoesNotInherit(t *testing.T) {
             item = Light{}
         }
     `)
+	v := ValidateScope(p.Scope)
 	goutil.Assert(t, len(v.errors) == 1, v.formatErrors())
 }
 
 func TestClassImplementsMultipleInheritanceValid(t *testing.T) {
-	p := gparser.ParseString(`
+	p := parser.ParseString(`
 		class Object {}
         class LightSource inherits Object {}
         class Light inherits LightSource {}
@@ -63,5 +66,6 @@ func TestClassImplementsMultipleInheritanceValid(t *testing.T) {
             item = Light{}
         }
     `)
+	v := ValidateScope(p.Scope)
 	goutil.Assert(t, len(v.errors) == 0, v.formatErrors())
 }

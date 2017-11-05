@@ -1,15 +1,16 @@
 package validator
 
 import (
-	"axia/guardian/compiler/gparser"
 	"testing"
+
+	"github.com/end-r/guardian/compiler/parser"
 
 	"github.com/end-r/goutil"
 )
 
 func TestValidateAssignmentValid(t *testing.T) {
 
-	p := gparser.ParseString(`
+	p := parser.ParseString(`
 			a = 0
 			a = 5
 			a = 5 + 6
@@ -21,7 +22,7 @@ func TestValidateAssignmentValid(t *testing.T) {
 
 func TestValidateAssignmentToFuncValid(t *testing.T) {
 
-	p := gparser.ParseString(`
+	p := parser.ParseString(`
 			func x() int {
 				return 3
 			}
@@ -36,7 +37,7 @@ func TestValidateAssignmentToFuncValid(t *testing.T) {
 }
 
 func TestValidateAssignmentInvalid(t *testing.T) {
-	p := gparser.ParseString(`
+	p := parser.ParseString(`
 			a = 0
 			a = "hello world"
 			a = 5 > 6
@@ -47,7 +48,7 @@ func TestValidateAssignmentInvalid(t *testing.T) {
 }
 
 func TestValidateForStatementValidCond(t *testing.T) {
-	p := gparser.ParseString("for a = 0; a < 5 {}")
+	p := parser.ParseString("for a = 0; a < 5 {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, len(p.Scope.Sequence) == 1, "wrong sequence length")
 	v := ValidateScope(p.Scope)
@@ -55,7 +56,7 @@ func TestValidateForStatementValidCond(t *testing.T) {
 }
 
 func TestValidateForStatementInvalidCond(t *testing.T) {
-	p := gparser.ParseString("for a = 0; a + 5 {}")
+	p := parser.ParseString("for a = 0; a + 5 {}")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, len(p.Scope.Sequence) == 1, "wrong sequence length")
 	v := ValidateScope(p.Scope)

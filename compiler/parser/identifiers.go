@@ -1,4 +1,4 @@
-package gparser
+package parser
 
 import (
 	"github.com/end-r/guardian/compiler/ast"

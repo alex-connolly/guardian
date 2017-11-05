@@ -16,7 +16,7 @@ contract Cat {
 ```
 
 
-There are several levels of gparser constructs:
+There are several levels of parser constructs:
 
 Primary:
 
