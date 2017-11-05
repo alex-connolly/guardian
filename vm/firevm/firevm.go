@@ -76,8 +76,8 @@ func (a Arsonist) Traverse(node ast.Node) {
 	case ast.FuncDeclaration:
 		a.traverseFunc(node.(ast.FuncDeclarationNode))
 		break
-	case ast.ConstructorDeclaration:
-		a.traverseConstructor(node.(ast.ConstructorDeclarationNode))
+	case ast.LifecycleDeclaration:
+		a.traverseLifecycle(node.(ast.LifecycleDeclarationNode))
 		break
 
 	case ast.ForStatement:

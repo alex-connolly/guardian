@@ -6,7 +6,7 @@ func (a *Arsonist) traverseType(n ast.TypeDeclarationNode) {
 
 }
 
-func (a *Arsonist) traverseConstructor(n ast.ConstructorDeclarationNode) {
+func (a *Arsonist) traverseLifecycle(n ast.LifecycleDeclarationNode) {
 
 }
 

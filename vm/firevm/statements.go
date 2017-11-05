@@ -6,13 +6,15 @@ func (a *Arsonist) traverseSwitchStatement(n ast.SwitchStatementNode) {
 	// perform switch expression
 	a.Traverse(n.Target)
 	// now go through the cases
-	for _, c := range n.Clauses {
-		a.Traverse(c)
-	}
+
 }
 
 func (a *Arsonist) traverseCaseStatement(n ast.CaseStatementNode) {
-
+	for _, e := range n.Expressions {
+		a.Traverse(e)
+	}
+	// if one of the conditions matched
+	a.Traverse(n.Block)
 }
 
 func (a *Arsonist) traverseForStatement(n ast.ForStatementNode) {
