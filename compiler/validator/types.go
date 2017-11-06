@@ -130,7 +130,7 @@ func NewTuple(types ...Type) Tuple {
 }
 
 func (v *Validator) ExpressionTuple(exprs []ast.ExpressionNode) Tuple {
-	types := make([]Type, len(exprs))
+	var types []Type
 	for _, expression := range exprs {
 		typ := v.resolveExpression(expression)
 		// expression tuples force inner tuples to just be lists of types
@@ -143,7 +143,8 @@ func (v *Validator) ExpressionTuple(exprs []ast.ExpressionNode) Tuple {
 			types = append(types, typ)
 		}
 	}
-	return NewTuple(types...)
+	t := NewTuple(types...)
+	return t
 }
 
 type Aliased struct {

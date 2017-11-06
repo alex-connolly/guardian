@@ -13,7 +13,6 @@ func TestValidateAssignmentValid(t *testing.T) {
 	p := parser.ParseString(`
 			a = 0
 			a = 5
-			a = 5 + 6
 		`)
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)

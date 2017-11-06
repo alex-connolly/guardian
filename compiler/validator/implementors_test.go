@@ -57,8 +57,8 @@ func TestClassImplementsInvalid(t *testing.T) {
 
 func TestClassImplementsTypeValidInterfaceInheritance(t *testing.T) {
 	p := parser.ParseString(`
-        interface Switchable inherits Adjustable {}
 		interface Adjustable{}
+        interface Switchable inherits Adjustable {}
         class Light is Switchable {}
 
         item Adjustable
@@ -74,8 +74,8 @@ func TestClassImplementsTypeValidInterfaceInheritance(t *testing.T) {
 func TestClassImplementsTypeValidClassAndInterfaceInheritance(t *testing.T) {
 	p := parser.ParseString(`
 
-        interface Switchable inherits Adjustable {}
 		interface Adjustable{}
+        interface Switchable inherits Adjustable {}
 		class Object is Switchable{}
         class Light inherits Object {}
 

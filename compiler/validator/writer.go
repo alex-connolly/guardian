@@ -1,6 +1,9 @@
 package validator
 
-import "bytes"
+import (
+	"bytes"
+	"fmt"
+)
 
 func WriteType(t Type) string {
 	b := new(bytes.Buffer)
@@ -9,16 +12,23 @@ func WriteType(t Type) string {
 }
 
 func (s StandardType) write(b *bytes.Buffer) {
+
 	b.WriteString(s.name)
 }
 
 func (t Tuple) write(b *bytes.Buffer) {
 	b.WriteByte('(')
-	for i, v := range t.types {
-		if i > 0 {
-			b.WriteString(", ")
+	if t.types != nil {
+		for i, v := range t.types {
+			if i > 0 {
+				b.WriteString(", ")
+			}
+			if v == nil {
+				fmt.Println("type should not be nil")
+			} else {
+				v.write(b)
+			}
 		}
-		v.write(b)
 	}
 	b.WriteByte(')')
 }
@@ -28,9 +38,8 @@ func (a Aliased) write(b *bytes.Buffer) {
 }
 
 func (a Array) write(b *bytes.Buffer) {
-	b.WriteByte('[')
+	b.WriteString("[]")
 	a.Value.write(b)
-	b.WriteByte(']')
 }
 
 func (m Map) write(b *bytes.Buffer) {

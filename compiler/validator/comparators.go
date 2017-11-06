@@ -19,16 +19,26 @@ func (m Map) compare(t Type) bool {
 }
 
 func (t Tuple) compare(o Type) bool {
-
+	if o == nil {
+		return false
+	}
 	if other, ok := resolveUnderlying(o).(Tuple); !ok {
 		return false
 	} else {
 		// short circuit if not the same length
+		if other.types == nil && t.types != nil {
+			return false
+		}
 		if len(t.types) != len(other.types) {
 			return false
 		}
 		for i, typ := range t.types {
-			if !typ.compare(other.types[i]) && typ != standards[Unknown] {
+			if typ != nil {
+				if !typ.compare(other.types[i]) && typ != standards[Unknown] {
+					return false
+				}
+			} else {
+				// if type is nil, return false
 				return false
 			}
 		}

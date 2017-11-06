@@ -287,16 +287,13 @@ func getProperty(t Type, name string) (Type, bool) {
 
 func isSubscriptable(t Type) bool {
 	// only classes, interfaces and enums are subscriptable
-	_, ok := t.(Class)
-	if ok {
+	if _, ok := t.(Class); ok {
 		return true
 	}
-	_, ok = t.(Interface)
-	if ok {
+	if _, ok := t.(Interface); ok {
 		return true
 	}
-	_, ok = t.(Enum)
-	if ok {
+	if _, ok := t.(Enum); ok {
 		return true
 	}
 	return false

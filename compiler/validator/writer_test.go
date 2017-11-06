@@ -15,7 +15,7 @@ func TestWriteMapType(t *testing.T) {
 
 func TestWriteArrayType(t *testing.T) {
 	m := NewArray(standards[String])
-	expected := "[string]"
+	expected := "[]string"
 	goutil.Assert(t, WriteType(m) == expected, fmt.Sprintf("wrong type written: %s\n", WriteType(m)))
 }
 
