@@ -51,24 +51,43 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 		return
 	}
 
-	if len(node.Right) != len(node.Left) {
-		v.addError("Assignment count mismatch: %s, %s")
-		return
-	}
-
 	leftTuple := v.ExpressionTuple(node.Left)
 	rightTuple := v.ExpressionTuple(node.Right)
 
-	if !leftTuple.compare(rightTuple) {
-		v.addError(errInvalidAssignment, WriteType(leftTuple), WriteType(rightTuple))
-	}
-
-	for i, left := range node.Left {
-		if leftTuple.types[i] == standards[Unknown] {
-			if id, ok := left.(ast.IdentifierNode); ok {
-				v.DeclareType(id.Name, rightTuple.types[i])
+	if len(leftTuple.types) > len(rightTuple.types) && len(rightTuple.types) == 1 {
+		right := rightTuple.types[0]
+		for _, left := range leftTuple.types {
+			if !assignableTo(right, left) {
+				v.addError(errInvalidAssignment, WriteType(right), WriteType(left))
 			}
 		}
+
+		for i, left := range node.Left {
+			if leftTuple.types[i] == standards[Unknown] {
+				if id, ok := left.(ast.IdentifierNode); ok {
+					v.DeclareVarOfType(id.Name, rightTuple.types[0])
+				}
+			}
+		}
+
+	} else {
+		if !leftTuple.compare(rightTuple) {
+			v.addError(errInvalidAssignment, WriteType(leftTuple), WriteType(rightTuple))
+		}
+
+		/* length of left tuple should always equal length of left
+		// this is because tuples are not first class types
+		// cannot assign to tuple expressions
+		if len(node.Left) == len(leftTuple.types) {
+			for i, left := range node.Left {
+				if leftTuple.types[i] == standards[Unknown] {
+					if id, ok := left.(ast.IdentifierNode); ok {
+						v.DeclareVarOfType(id.Name, rightTuple.types[i])
+					}
+				}
+			}
+		} */
+
 	}
 
 }

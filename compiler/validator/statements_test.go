@@ -13,6 +13,7 @@ func TestValidateAssignmentValid(t *testing.T) {
 	p := parser.ParseString(`
 			a = 0
 			a = 5
+			a = 5 + 6
 		`)
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
@@ -29,6 +30,37 @@ func TestValidateAssignmentToFuncValid(t *testing.T) {
 			a = 5
 			a = 5 + 6
 			a = x()
+		`)
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	v := ValidateScope(p.Scope)
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
+}
+
+func TestValidateAssignmentMultipleLeft(t *testing.T) {
+
+	p := parser.ParseString(`
+			a = 0
+			b = 5
+			a, b = 1, 2
+			a, b = 2
+		`)
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	v := ValidateScope(p.Scope)
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
+}
+
+func TestValidateAssignmentMultipleLeftMixedTuple(t *testing.T) {
+
+	p := parser.ParseString(`
+			func x() (int, int){
+				return 0, 1
+			}
+			a = 0
+			b = 5
+			c = 2
+			d = 3
+			a, b = x()
+			c, a, b, d = x(), x()
 		`)
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)

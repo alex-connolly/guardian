@@ -33,7 +33,7 @@ func TestResolveCallExpression(t *testing.T) {
 	fn := new(Func)
 	fn.Params = NewTuple(standards[Int], standards[Int])
 	fn.Results = NewTuple(standards[Int])
-	v.DeclareType("hello", NewFunc(NewTuple(), NewTuple(standards[Int])))
+	v.DeclareVarOfType("hello", NewFunc(NewTuple(), NewTuple(standards[Int])))
 	p := parser.ParseExpression("hello(5, 5)")
 	goutil.AssertNow(t, p.Type() == ast.CallExpression, "wrong expression type")
 	a := p.(ast.CallExpressionNode)
@@ -45,7 +45,7 @@ func TestResolveCallExpression(t *testing.T) {
 
 func TestResolveArrayLiteralExpression(t *testing.T) {
 	v := NewValidator()
-	v.DeclareType("dog", standards[String])
+	v.DeclareVarOfType("dog", standards[String])
 	p := parser.ParseExpression("[dog]{}")
 	goutil.AssertNow(t, p.Type() == ast.ArrayLiteral, "wrong expression type")
 	a := p.(ast.ArrayLiteralNode)
@@ -55,8 +55,8 @@ func TestResolveArrayLiteralExpression(t *testing.T) {
 
 func TestResolveMapLiteralExpression(t *testing.T) {
 	v := NewValidator()
-	v.DeclareType("dog", standards[String])
-	v.DeclareType("cat", standards[String])
+	v.DeclareVarOfType("dog", standards[String])
+	v.DeclareVarOfType("cat", standards[String])
 	p := parser.ParseExpression("map[dog]cat{}")
 	goutil.AssertNow(t, p.Type() == ast.MapLiteral, "wrong expression type")
 	a := p.(ast.MapLiteralNode)
@@ -68,7 +68,7 @@ func TestResolveMapLiteralExpression(t *testing.T) {
 
 func TestResolveIndexExpressionArrayLiteral(t *testing.T) {
 	v := NewValidator()
-	v.DeclareType("cat", standards[Int])
+	v.DeclareVarOfType("cat", standards[Int])
 	p := parser.ParseExpression("[]cat{}[0]")
 	goutil.AssertNow(t, p.Type() == ast.IndexExpression, "wrong expression type")
 	b := p.(ast.IndexExpressionNode)

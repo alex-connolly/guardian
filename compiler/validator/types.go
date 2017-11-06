@@ -143,8 +143,7 @@ func (v *Validator) ExpressionTuple(exprs []ast.ExpressionNode) Tuple {
 			types = append(types, typ)
 		}
 	}
-	t := NewTuple(types...)
-	return t
+	return NewTuple(types...)
 }
 
 type Aliased struct {
@@ -161,12 +160,12 @@ func NewAliased(alias string, underlying Type) Aliased {
 
 type Class struct {
 	Name       string
-	Supers     []Class
+	Supers     []*Class
 	Properties map[string]Type
-	Interfaces []Interface
+	Interfaces []*Interface
 }
 
-func NewClass(name string, properties map[string]Type, interfaces []Interface, supers []Class) Class {
+func NewClass(name string, supers []*Class, interfaces []*Interface, properties map[string]Type) Class {
 	return Class{
 		Name:       name,
 		Supers:     supers,
@@ -177,11 +176,11 @@ func NewClass(name string, properties map[string]Type, interfaces []Interface, s
 
 type Enum struct {
 	Name   string
-	Supers []Enum
+	Supers []*Enum
 	Items  map[string]bool
 }
 
-func NewEnum(name string, supers []Enum) Enum {
+func NewEnum(name string, supers []*Enum) Enum {
 	return Enum{
 		Name:   name,
 		Supers: supers,
@@ -190,11 +189,11 @@ func NewEnum(name string, supers []Enum) Enum {
 
 type Interface struct {
 	Name   string
-	Supers []Interface
+	Supers []*Interface
 	Funcs  map[string]Func
 }
 
-func NewInterface(name string, funcs map[string]Func, supers []Interface) Interface {
+func NewInterface(name string, funcs map[string]Func, supers []*Interface) Interface {
 	return Interface{
 		Name:   name,
 		Supers: supers,
@@ -204,15 +203,17 @@ func NewInterface(name string, funcs map[string]Func, supers []Interface) Interf
 
 type Contract struct {
 	Name       string
-	Supers     []Contract
-	Interfaces []Interface
+	Supers     []*Contract
+	Interfaces []*Interface
+	Properties map[string]Type
 }
 
-func NewContract(name string, supers []Contract, interfaces []Interface) Contract {
+func NewContract(name string, supers []*Contract, interfaces []*Interface, properties map[string]Type) Contract {
 	return Contract{
 		Name:       name,
 		Supers:     supers,
 		Interfaces: interfaces,
+		Properties: properties,
 	}
 }
 

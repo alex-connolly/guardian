@@ -30,21 +30,37 @@ func (v *Validator) validateDeclaration(node ast.Node) {
 	case ast.InterfaceDeclaration:
 		v.validateInterfaceDeclaration(node.(ast.InterfaceDeclarationNode))
 		break
+	case ast.ExplicitVarDeclaration:
+		v.validateExplicitVarDeclaration(node.(ast.ExplicitVarDeclarationNode))
+		break
+	}
+}
+
+func (v *Validator) validateExplicitVarDeclaration(node ast.ExplicitVarDeclarationNode) {
+	for _, id := range node.Identifiers {
+		v.DeclareVarOfType(id, v.resolveType(node.DeclaredType))
 	}
 }
 
 func (v *Validator) validateInterfaceDeclaration(node ast.InterfaceDeclarationNode) {
-	var supers []Interface
+	var supers []*Interface
 	for _, super := range node.Supers {
 		t := v.requireVisibleType(super.Names...)
 		if c, ok := t.(Interface); ok {
-			supers = append(supers, c)
+			supers = append(supers, &c)
 		} else {
 			v.addError(errTypeRequired, makeName(super.Names), "interface")
 		}
 	}
-	interfaceType := NewInterface(node.Identifier, nil, supers)
-	v.DeclareType(node.Identifier, interfaceType)
+
+	var funcs map[string]Func
+	for _, function := range node.Signatures {
+		f := v.validateType(function).(Func)
+		funcs[function.Identifier] = f
+	}
+
+	interfaceType := NewInterface(node.Identifier, funcs, supers)
+	v.DeclareVarOfType(node.Identifier, interfaceType)
 }
 
 func (v *Validator) validateFuncDeclaration(node ast.FuncDeclarationNode) {
@@ -55,8 +71,9 @@ func (v *Validator) validateFuncDeclaration(node ast.FuncDeclarationNode) {
 	var params []Type
 	for _, p := range node.Parameters {
 		for _, i := range p.Identifiers {
-			v.addDeclaration(i, p.DeclaredType)
-			params = append(params, v.validateType(p.DeclaredType))
+			typ := v.validateType(p.DeclaredType)
+			v.DeclareVarOfType(i, typ)
+			params = append(params, typ)
 		}
 	}
 
@@ -66,7 +83,9 @@ func (v *Validator) validateFuncDeclaration(node ast.FuncDeclarationNode) {
 	}
 
 	funcType := NewFunc(NewTuple(params...), NewTuple(results...))
-	v.DeclareType(node.Identifier, funcType)
+	v.DeclareVarOfType(node.Identifier, funcType)
+
+	v.validateScope(node.Body)
 }
 
 func (v *Validator) validateTypeDeclaration(node ast.TypeDeclarationNode) {
@@ -74,64 +93,82 @@ func (v *Validator) validateTypeDeclaration(node ast.TypeDeclarationNode) {
 	// cannot be self-referential
 	// must use a name without a previous definition in this scope
 	typ := v.validateType(node.Value)
-	v.DeclareType(node.Identifier, typ)
+	v.DeclareVarOfType(node.Identifier, typ)
 }
 
 func (v *Validator) validateClassDeclaration(node ast.ClassDeclarationNode) {
 	// a valid class satisfies the following properties:
-	// interfaces must be valid types
-	var interfaces []Interface
-	for _, ifc := range node.Interfaces {
-		t := v.requireVisibleType(ifc.Names...)
-		if c, ok := t.(Interface); ok {
-			interfaces = append(interfaces, c)
-		} else {
-			v.addError(errTypeRequired, makeName(ifc.Names), "interface")
-		}
-	}
 	// TODO: add a reporting mechanism for non-implemented interfaces
 	// superclasses must be valid types
-	var supers []Class
+	var supers []*Class
 	for _, super := range node.Supers {
 		t := v.requireVisibleType(super.Names...)
 		if c, ok := t.(Class); ok {
-			supers = append(supers, c)
+			supers = append(supers, &c)
 		} else {
 			v.addError(errTypeRequired, makeName(super.Names), "class")
 		}
 	}
-	classType := NewClass(node.Identifier, nil, nil, supers)
+
+	var interfaces []*Interface
+	for _, ifc := range node.Interfaces {
+		t := v.requireVisibleType(ifc.Names...)
+		if c, ok := t.(Interface); ok {
+			interfaces = append(interfaces, &c)
+		} else {
+			v.addError(errTypeRequired, makeName(ifc.Names), "interface")
+		}
+	}
+
+	properties := v.validateScope(node.Body)
+
+	classType := NewClass(node.Identifier, supers, interfaces, properties)
 	v.DeclareType(node.Identifier, classType)
+
 }
 
 func (v *Validator) validateContractDeclaration(node ast.ContractDeclarationNode) {
 	// a valid contract satisfies the following properties:
 	// superclasses must be valid types
-	var supers []Contract
+	var supers []*Contract
 	for _, super := range node.Supers {
 		t := v.findReference(super.Names...)
 		if t == standards[Invalid] {
-			v.addError("not found")
+			v.addError(errTypeNotVisible)
 		} else {
 			if c, ok := t.(Contract); ok {
-				supers = append(supers, c)
+				supers = append(supers, &c)
 			} else {
 				v.addError(errTypeRequired, makeName(super.Names), "contract")
 			}
 		}
 	}
-	contractType := NewContract(node.Identifier, supers, nil)
+
+	var interfaces []*Interface
+	for _, ifc := range node.Interfaces {
+		t := v.requireVisibleType(ifc.Names...)
+		if c, ok := t.(Interface); ok {
+			interfaces = append(interfaces, &c)
+		} else {
+			v.addError(errTypeRequired, makeName(ifc.Names), "interface")
+		}
+	}
+
+	properties := v.validateScope(node.Body)
+
+	contractType := NewContract(node.Identifier, supers, interfaces, properties)
 	v.DeclareType(node.Identifier, contractType)
+
 }
 
 func (v *Validator) validateEnumDeclaration(node ast.EnumDeclarationNode) {
 	// a valid enum satisfies the following properties:
 	// superclasses must be valid types
-	var supers []Enum
+	var supers []*Enum
 	for _, super := range node.Inherits {
 		t := v.requireVisibleType(super.Names...)
 		if c, ok := t.(Enum); ok {
-			supers = append(supers, c)
+			supers = append(supers, &c)
 		} else {
 			v.addError(errTypeRequired, makeName(super.Names), "enum")
 		}
@@ -146,7 +183,7 @@ func (v *Validator) validateEventDeclaration(node ast.EventDeclarationNode) {
 		params = append(params, v.validateType(n.DeclaredType))
 	}
 	eventType := NewEvent(node.Identifier, NewTuple(params...))
-	v.DeclareType(node.Identifier, eventType)
+	v.DeclareVarOfType(node.Identifier, eventType)
 }
 
 func (v *Validator) validateLifecycleDeclaration(node ast.LifecycleDeclarationNode) {
@@ -154,9 +191,11 @@ func (v *Validator) validateLifecycleDeclaration(node ast.LifecycleDeclarationNo
 	// no repeated parameter names
 	// all parameter types are visible in scope
 	for _, p := range node.Parameters {
-		v.validateType(p.DeclaredType)
+		typ := v.validateType(p.DeclaredType)
 		for _, i := range p.Identifiers {
-			v.addDeclaration(i, p.DeclaredType)
+			v.DeclareVarOfType(i, typ)
 		}
 	}
+
+	v.validateScope(node.Body)
 }

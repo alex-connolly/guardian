@@ -13,34 +13,49 @@ func ValidateScope(scope *ast.ScopeNode) *Validator {
 	return v
 }
 
-func (v *Validator) validateScope(scope *ast.ScopeNode) {
+func (v *Validator) validateScope(scope *ast.ScopeNode) map[string]Type {
 	v.scope = &TypeScope{
-		parent:        nil,
-		scope:         scope,
-		declaredTypes: nil,
+		parent:    scope.Parent,
+		scope:     scope,
+		types:     nil,
+		variables: nil,
 	}
+
+	v.scanDeclarations(scope)
+
+	v.validateDeclarations(scope)
+
+	v.validateSequence(scope)
+
+	properties := v.scope.types
+
+	v.scope = v.scope.parent
+
+	return properties
+}
+
+func (v *Validator) scanDeclarations(scope *ast.ScopeNode) {
 	if scope.Declarations != nil {
+
 		// there should be no declarations outside certain contexts
 		for k, i := range scope.Declarations.Map() {
-			v.addDeclaration(k, i.(ast.Node))
+			// add in placeholders for all declarations
+			v.DeclareType(k, v.resolveType(i.(ast.Node)))
 		}
+	}
+}
+
+func (v *Validator) validateDeclarations(scope *ast.ScopeNode) {
+	if scope.Declarations != nil {
 		for _, i := range scope.Declarations.Array() {
 			v.validateDeclaration(i.(ast.Node))
 		}
 	}
-	for _, node := range scope.Sequence {
-		v.validate(node)
-	}
 }
 
-func (v *Validator) addDeclaration(name string, node ast.Node) {
-	if v.scope == nil {
-		// TODO: error
-	} else {
-		if v.scope.declaredTypes == nil {
-			v.scope.declaredTypes = make(map[string]Type)
-		}
-		v.scope.declaredTypes[name] = v.resolveType(node)
+func (v *Validator) validateSequence(scope *ast.ScopeNode) {
+	for _, node := range scope.Sequence {
+		v.validate(node)
 	}
 }
 
@@ -58,9 +73,10 @@ type Validator struct {
 }
 
 type TypeScope struct {
-	parent        *TypeScope
-	scope         *ast.ScopeNode
-	declaredTypes map[string]Type
+	parent    *TypeScope
+	scope     *ast.ScopeNode
+	variables map[string]Type
+	types     map[string]Type
 }
 
 func NewValidator() *Validator {
@@ -77,13 +93,18 @@ func (v *Validator) requireVisibleType(names ...string) Type {
 	return typ
 }
 
-// BUG: type lookup, should check that "a" is a valid type
-// BUG: shouldn't return the underlying type --> abstraction
-func (v *Validator) DeclareType(name string, t Type) {
-	if v.scope.declaredTypes == nil {
-		v.scope.declaredTypes = make(map[string]Type)
+func (v *Validator) DeclareVarOfType(name string, t Type) {
+	if v.scope.variables == nil {
+		v.scope.variables = make(map[string]Type)
 	}
-	v.scope.declaredTypes[name] = t
+	v.scope.variables[name] = t
+}
+
+func (v *Validator) DeclareType(name string, t Type) {
+	if v.scope.types == nil {
+		v.scope.types = make(map[string]Type)
+	}
+	v.scope.types[name] = t
 }
 
 func (v *Validator) findReference(names ...string) Type {
@@ -97,8 +118,8 @@ func (v *Validator) findReference(names ...string) Type {
 		}
 	}
 	for s := v.scope; s != nil; s = s.parent {
-		if s.declaredTypes != nil {
-			for k, typ := range s.declaredTypes {
+		if s.types != nil {
+			for k, typ := range s.types {
 				if k == search {
 					return typ
 				}

@@ -2,7 +2,6 @@ package validator
 
 import (
 	"bytes"
-	"fmt"
 )
 
 func WriteType(t Type) string {
@@ -24,7 +23,7 @@ func (t Tuple) write(b *bytes.Buffer) {
 				b.WriteString(", ")
 			}
 			if v == nil {
-				fmt.Println("type should not be nil")
+				b.WriteString("INVALID NIL TYPE")
 			} else {
 				v.write(b)
 			}
@@ -56,22 +55,18 @@ func (f Func) write(b *bytes.Buffer) {
 }
 
 func (c Class) write(b *bytes.Buffer) {
-	b.WriteString("class")
 	b.WriteString(c.Name)
 }
 
 func (i Interface) write(b *bytes.Buffer) {
-	b.WriteString("interface")
 	b.WriteString(i.Name)
 }
 
 func (e Enum) write(b *bytes.Buffer) {
-	b.WriteString("enum")
 	b.WriteString(e.Name)
 }
 
 func (c Contract) write(b *bytes.Buffer) {
-	b.WriteString("contract")
 	b.WriteString(c.Name)
 }
 
