@@ -53,7 +53,7 @@ func (v *Validator) validateInterfaceDeclaration(node ast.InterfaceDeclarationNo
 		}
 	}
 
-	var funcs map[string]Func
+	funcs := map[string]Func{}
 	for _, function := range node.Signatures {
 		f := v.validateType(function).(Func)
 		funcs[function.Identifier] = f
@@ -173,7 +173,13 @@ func (v *Validator) validateEnumDeclaration(node ast.EnumDeclarationNode) {
 			v.addError(errTypeRequired, makeName(super.Names), "enum")
 		}
 	}
-	enumType := NewEnum(node.Identifier, supers)
+
+	list := map[string]bool{}
+	for _, s := range node.Enums {
+		list[s] = true
+	}
+
+	enumType := NewEnum(node.Identifier, supers, list)
 	v.DeclareType(node.Identifier, enumType)
 }
 

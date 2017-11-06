@@ -7,8 +7,7 @@ Guardian is a statically typed, object-oriented programming language, with a par
 In no particular order, the Guardian programming language strives to:
 
 - Be executionally deterministic
-- Be memory and void safe
-- Be supportive of deterministic concurrency
+- Be safe
 - Have a rich feature set reminiscent of full OOP languages
 - Be simple and easy to learn
 
@@ -32,7 +31,7 @@ If you select an older Guardian version to run your , nodes which do not have
 
 ## Exported Variables
 
-Guardian is private by default. To increase clarity, the ```public``` keyword is replaced by ```export```.
+Guardian functions and is 'private' by default. To increase clarity, the ```public``` keyword is replaced by ```external```.
 
 ## Imports
 

@@ -64,6 +64,7 @@ func (v *Validator) resolveExpression(e ast.ExpressionNode) Type {
 		ast.Literal:          resolveLiteralExpression,
 		ast.MapLiteral:       resolveMapLiteralExpression,
 		ast.ArrayLiteral:     resolveArrayLiteralExpression,
+		ast.FuncLiteral:      resolveFuncLiteralExpression,
 		ast.IndexExpression:  resolveIndexExpression,
 		ast.CallExpression:   resolveCallExpression,
 		ast.SliceExpression:  resolveSliceExpression,
@@ -109,6 +110,20 @@ func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	keyType := v.resolveType(m.Signature.Value)
 	arrayType := NewArray(keyType)
 	return arrayType
+}
+
+func resolveFuncLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
+	// must be func literal
+	f := e.(ast.FuncLiteralNode)
+	var params, results []Type
+	for _, p := range f.Signature.Parameters {
+		params = append(params, v.resolveType(p))
+	}
+
+	for _, r := range f.Signature.Results {
+		results = append(results, v.resolveType(r))
+	}
+	return NewFunc(NewTuple(params...), NewTuple(results...))
 }
 
 func resolveMapLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
@@ -267,18 +282,18 @@ func getIdentifier(exp ast.ExpressionNode) (string, bool) {
 
 func getProperty(t Type, name string) (Type, bool) {
 	// only classes, interfaces and enums are subscriptable
-	c, ok := t.(Class)
-	if ok {
+
+	if c, ok := t.(Class); ok {
 		p, has := c.Properties[name]
 		return p, has
 	}
-	i, ok := t.(Interface)
-	if ok {
+
+	if i, ok := t.(Interface); ok {
 		p, has := i.Funcs[name]
 		return p, has
 	}
-	e, ok := t.(Enum)
-	if ok {
+
+	if e, ok := t.(Enum); ok {
 		_, has := e.Items[name]
 		return standards[Int], has
 	}

@@ -180,10 +180,11 @@ type Enum struct {
 	Items  map[string]bool
 }
 
-func NewEnum(name string, supers []*Enum) Enum {
+func NewEnum(name string, supers []*Enum, items map[string]bool) Enum {
 	return Enum{
 		Name:   name,
 		Supers: supers,
+		Items:  items,
 	}
 }
 

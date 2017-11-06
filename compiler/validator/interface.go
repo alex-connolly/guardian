@@ -14,12 +14,15 @@ func ValidateScope(scope *ast.ScopeNode) *Validator {
 }
 
 func (v *Validator) validateScope(scope *ast.ScopeNode) map[string]Type {
-	v.scope = &TypeScope{
-		parent:    scope.Parent,
+
+	ts := &TypeScope{
+		parent:    v.scope,
 		scope:     scope,
 		types:     nil,
 		variables: nil,
 	}
+
+	v.scope = ts
 
 	v.scanDeclarations(scope)
 

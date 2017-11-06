@@ -33,7 +33,7 @@ func (n LiteralNode) GetBytes() []byte {
 }
 
 type CompositeLiteralNode struct {
-	Reference ExpressionNode
+	Reference PlainTypeNode
 	Fields    map[string]ExpressionNode
 }
 
