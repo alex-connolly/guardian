@@ -296,8 +296,6 @@ func TestParseCompositeLiteralEmpty(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.CompositeLiteral, "wrong node type")
-	n := expr.(ast.CompositeLiteralNode)
-	goutil.AssertNow(t, len(n.Reference.Names) == 1, "wrong name length")
 }
 
 func TestParseCompositeLiteralDeepReferenceEmpty(t *testing.T) {
@@ -305,7 +303,6 @@ func TestParseCompositeLiteralDeepReferenceEmpty(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.Reference, "wrong node type")
-
 }
 
 func TestParseCompositeLiteralInline(t *testing.T) {
