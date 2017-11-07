@@ -72,6 +72,7 @@ func (v *Validator) resolveExpression(e ast.ExpressionNode) Type {
 		ast.UnaryExpression:  resolveUnaryExpression,
 		ast.Reference:        resolveReference,
 		ast.Identifier:       resolveIdentifier,
+		ast.CompositeLiteral: resolveCompositeLiteral,
 	}
 	return resolvers[e.Type()](v, e)
 }
@@ -110,6 +111,11 @@ func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	keyType := v.resolveType(m.Signature.Value)
 	arrayType := NewArray(keyType)
 	return arrayType
+}
+
+func resolveCompositeLiteral(v *Validator, e ast.ExpressionNode) Type {
+	c := e.(ast.CompositeLiteralNode)
+	return v.findReference(c.Reference.Names...)
 }
 
 func resolveFuncLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
