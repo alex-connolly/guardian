@@ -7,27 +7,25 @@ import (
 )
 
 func (v *Validator) resolveType(node ast.Node) Type {
-	if node != nil {
-		switch node.Type() {
-		case ast.PlainType:
-			r := node.(ast.PlainTypeNode)
-			return v.resolvePlainType(r)
-		case ast.MapType:
-			m := node.(ast.MapTypeNode)
-			return v.resolveMapType(m)
-		case ast.ArrayType:
-			a := node.(ast.ArrayTypeNode)
-			return v.resolveArrayType(a)
-		case ast.FuncType:
-			f := node.(ast.FuncTypeNode)
-			return v.resolveFuncType(f)
-		}
+	switch node.Type() {
+	case ast.PlainType:
+		r := node.(ast.PlainTypeNode)
+		return v.resolvePlainType(r)
+	case ast.MapType:
+		m := node.(ast.MapTypeNode)
+		return v.resolveMapType(m)
+	case ast.ArrayType:
+		a := node.(ast.ArrayTypeNode)
+		return v.resolveArrayType(a)
+	case ast.FuncType:
+		f := node.(ast.FuncTypeNode)
+		return v.resolveFuncType(f)
 	}
 	return standards[Invalid]
 }
 
 func (v *Validator) resolvePlainType(node ast.PlainTypeNode) Type {
-	return v.findReference(node.Names...)
+	return v.getNamedType(node.Names...)
 }
 
 func (v *Validator) resolveArrayType(node ast.ArrayTypeNode) Array {
@@ -82,10 +80,7 @@ type resolver func(v *Validator, e ast.ExpressionNode) Type
 func resolveIdentifier(v *Validator, e ast.ExpressionNode) Type {
 	i := e.(ast.IdentifierNode)
 	// look up the identifier in scope
-	typ := v.findReference(i.Name)
-	if typ == standards[Invalid] {
-		return standards[Unknown]
-	}
+	typ := v.findVariable(i.Name)
 	return typ
 }
 
@@ -115,7 +110,7 @@ func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 
 func resolveCompositeLiteral(v *Validator, e ast.ExpressionNode) Type {
 	c := e.(ast.CompositeLiteralNode)
-	return v.findReference(c.Reference.Names...)
+	return v.getNamedType(c.TypeName)
 }
 
 func resolveFuncLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
@@ -145,7 +140,7 @@ func resolveIndexExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	i := e.(ast.IndexExpressionNode)
 	exprType := v.resolveExpression(i.Expression)
-	// enforce that this must be an array type
+	// enforce that this must be an array/map type
 	switch exprType.(type) {
 	case Array:
 		return exprType.(Array).Value
@@ -237,7 +232,7 @@ func (v *Validator) resolveContextualReference(context Type, exp ast.ExpressionN
 	// check if context is subscriptable
 	if isSubscriptable(context) {
 		if name, ok := getIdentifier(exp); ok {
-			if _, ok := getProperty(context, name); ok {
+			if _, ok := getPropertyType(context, name); ok {
 				if exp.Type() == ast.Reference {
 					a := exp.(ast.ReferenceNode)
 					context := v.resolveExpression(a.Parent)
@@ -266,6 +261,9 @@ func resolveReference(v *Validator, e ast.ExpressionNode) Type {
 
 func getIdentifier(exp ast.ExpressionNode) (string, bool) {
 	switch exp.Type() {
+	case ast.Identifier:
+		i := exp.(ast.IdentifierNode)
+		return i.Name, true
 	case ast.CallExpression:
 		c := exp.(ast.CallExpressionNode)
 		return getIdentifier(c.Call)
@@ -275,9 +273,6 @@ func getIdentifier(exp ast.ExpressionNode) (string, bool) {
 	case ast.IndexExpression:
 		i := exp.(ast.IndexExpressionNode)
 		return getIdentifier(i.Expression)
-	case ast.Identifier:
-		i := exp.(ast.IdentifierNode)
-		return i.Name, true
 	case ast.Reference:
 		r := exp.(ast.ReferenceNode)
 		return getIdentifier(r.Parent)
@@ -286,21 +281,31 @@ func getIdentifier(exp ast.ExpressionNode) (string, bool) {
 	}
 }
 
-func getProperty(t Type, name string) (Type, bool) {
-	// only classes, interfaces and enums are subscriptable
+func getPropertiesType(t Type, names []string) (Type, bool) {
+	var working bool
+	for _, name := range names {
+		if !working {
+			break
+		}
+		t, working = getPropertyType(t, name)
+	}
+	return t, working
+}
 
-	if c, ok := t.(Class); ok {
+func getPropertyType(t Type, name string) (Type, bool) {
+	// only classes, interfaces, contracts and enums are subscriptable
+	switch c := t.(type) {
+	case Class:
 		p, has := c.Properties[name]
 		return p, has
-	}
-
-	if i, ok := t.(Interface); ok {
-		p, has := i.Funcs[name]
+	case Contract:
+		p, has := c.Properties[name]
 		return p, has
-	}
-
-	if e, ok := t.(Enum); ok {
-		_, has := e.Items[name]
+	case Interface:
+		p, has := c.Funcs[name]
+		return p, has
+	case Enum:
+		_, has := c.Items[name]
 		return standards[Int], has
 	}
 	return standards[Invalid], false
@@ -308,13 +313,8 @@ func getProperty(t Type, name string) (Type, bool) {
 
 func isSubscriptable(t Type) bool {
 	// only classes, interfaces and enums are subscriptable
-	if _, ok := t.(Class); ok {
-		return true
-	}
-	if _, ok := t.(Interface); ok {
-		return true
-	}
-	if _, ok := t.(Enum); ok {
+	switch t.(type) {
+	case Class, Interface, Enum, Contract:
 		return true
 	}
 	return false

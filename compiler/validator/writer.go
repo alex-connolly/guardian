@@ -10,6 +10,17 @@ func WriteType(t Type) string {
 	return b.String()
 }
 
+func makeName(names []string) string {
+	name := ""
+	for i, n := range names {
+		if i > 0 {
+			name += "."
+		}
+		name += n
+	}
+	return name
+}
+
 func (s StandardType) write(b *bytes.Buffer) {
 
 	b.WriteString(s.name)

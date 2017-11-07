@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/compiler/ast"
 )
 
@@ -31,6 +33,8 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 	// 1. valid left hand expression (cannot be a call, literal, slice)
 	// 2. type of left == type of right
 
+	fmt.Println("hi")
+
 	// check step one first
 	for _, l := range node.Left {
 		switch l.Type() {
@@ -38,17 +42,6 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 			ast.ArrayLiteral, ast.SliceExpression, ast.FuncLiteral:
 			v.addError("Cannot assign to expression")
 		}
-	}
-
-	if len(node.Left) > len(node.Right) && len(node.Right) == 1 {
-		rightType := v.resolveType(node.Right[0])
-		for _, l := range node.Left {
-			left := v.resolveType(l)
-			if !assignableTo(rightType, left) {
-				v.addError(errInvalidAssignment, WriteType(rightType), WriteType(left))
-			}
-		}
-		return
 	}
 
 	leftTuple := v.ExpressionTuple(node.Left)
@@ -75,18 +68,19 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 			v.addError(errInvalidAssignment, WriteType(leftTuple), WriteType(rightTuple))
 		}
 
-		/* length of left tuple should always equal length of left
+		// length of left tuple should always equal length of left
 		// this is because tuples are not first class types
 		// cannot assign to tuple expressions
 		if len(node.Left) == len(leftTuple.types) {
 			for i, left := range node.Left {
 				if leftTuple.types[i] == standards[Unknown] {
 					if id, ok := left.(ast.IdentifierNode); ok {
+						fmt.Printf("Declaring %s as %s\n", id.Name, WriteType(rightTuple.types[i]))
 						v.DeclareVarOfType(id.Name, rightTuple.types[i])
 					}
 				}
 			}
-		} */
+		}
 
 	}
 
@@ -127,10 +121,6 @@ func (v *Validator) validateCaseStatement(switchType Type, clause ast.CaseStatem
 func (v *Validator) validateReturnStatement(node ast.ReturnStatementNode) {
 	// must be in the context of a function (checked during ast generation)
 	// resolved tuple must match function expression
-	scope := v.scope
-	for scope.parent.scope.Type() != ast.FuncDeclaration && scope != nil {
-		scope = scope.parent
-	}
 
 	// scope is now a func declaration
 

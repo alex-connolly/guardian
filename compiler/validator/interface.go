@@ -41,9 +41,10 @@ func (v *Validator) scanDeclarations(scope *ast.ScopeNode) {
 	if scope.Declarations != nil {
 
 		// there should be no declarations outside certain contexts
-		for k, i := range scope.Declarations.Map() {
+		for _, i := range scope.Declarations.Map() {
+			fmt.Println("scanning declaration")
 			// add in placeholders for all declarations
-			v.DeclareType(k, v.resolveType(i.(ast.Node)))
+			v.scanDeclaration(i.(ast.Node))
 		}
 	}
 }
@@ -80,6 +81,7 @@ type TypeScope struct {
 	scope     *ast.ScopeNode
 	variables map[string]Type
 	types     map[string]Type
+	scanned   map[string]Type
 }
 
 func NewValidator() *Validator {
@@ -89,9 +91,17 @@ func NewValidator() *Validator {
 }
 
 func (v *Validator) requireVisibleType(names ...string) Type {
-	typ := v.findReference(names...)
-	if typ == standards[Invalid] {
+	typ := v.getNamedType(names...)
+	if typ == standards[Unknown] {
 		v.addError(errTypeNotVisible, makeName(names))
+	}
+	return typ
+}
+
+func (v *Validator) findVariable(name string) Type {
+	typ, ok := v.scope.variables[name]
+	if !ok {
+		return standards[Unknown]
 	}
 	return typ
 }
@@ -110,8 +120,8 @@ func (v *Validator) DeclareType(name string, t Type) {
 	v.scope.types[name] = t
 }
 
-func (v *Validator) findReference(names ...string) Type {
-	search := makeName(names)
+func (v *Validator) getNamedType(names ...string) Type {
+	search := names[0]
 	// always check standards first
 	// not declaring them in top scope means not having to go up each time
 	// can simply go to the local scope
@@ -124,23 +134,31 @@ func (v *Validator) findReference(names ...string) Type {
 		if s.types != nil {
 			for k, typ := range s.types {
 				if k == search {
-					return typ
+					// found top level type
+					pType, ok := getPropertiesType(typ, names[1:])
+					if !ok {
+
+					}
+					return pType
 				}
 			}
-		}
-	}
-	return standards[Invalid]
-}
 
-func makeName(names []string) string {
-	name := ""
-	for i, n := range names {
-		if i > 0 {
-			name += "."
 		}
-		name += n
+		if s.scanned != nil {
+			for k, typ := range s.scanned {
+				if k == search {
+					// found top level type
+					pType, ok := getPropertiesType(typ, names[1:])
+					if !ok {
+
+					}
+					return pType
+				}
+			}
+
+		}
 	}
-	return name
+	return standards[Unknown]
 }
 
 func (v *Validator) requireType(expected, actual Type) bool {

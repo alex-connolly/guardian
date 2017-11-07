@@ -42,7 +42,6 @@ func TestClassImplementsMultipleTypesValid(t *testing.T) {
 func TestClassImplementsInvalid(t *testing.T) {
 	p := parser.ParseString(`
         interface Switchable{}
-        interface Adjustable{}
         class Light {}
 
         item Switchable

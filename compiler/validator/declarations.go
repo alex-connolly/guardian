@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/compiler/ast"
 )
 
@@ -37,8 +39,11 @@ func (v *Validator) validateDeclaration(node ast.Node) {
 }
 
 func (v *Validator) validateExplicitVarDeclaration(node ast.ExplicitVarDeclarationNode) {
+	fmt.Println("expvar")
 	for _, id := range node.Identifiers {
-		v.DeclareVarOfType(id, v.resolveType(node.DeclaredType))
+		typ := v.validateType(node.DeclaredType)
+		fmt.Printf("Explicitly Declaring %s of type %s\n", id, typ)
+		v.DeclareVarOfType(id, typ)
 	}
 }
 
@@ -132,8 +137,8 @@ func (v *Validator) validateContractDeclaration(node ast.ContractDeclarationNode
 	// superclasses must be valid types
 	var supers []*Contract
 	for _, super := range node.Supers {
-		t := v.findReference(super.Names...)
-		if t == standards[Invalid] {
+		t := v.getNamedType(super.Names...)
+		if t == standards[Unknown] {
 			v.addError(errTypeNotVisible)
 		} else {
 			if c, ok := t.(Contract); ok {
