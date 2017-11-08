@@ -23,7 +23,8 @@ func ParseFile(path string) *Parser {
 		return nil
 	}
 	p.lexer = lexer.LexBytes(bytes)
-	p.parseScope(ast.ContractDeclaration)
+	// TODO: update the need for the scope to have this
+	p.parseScope(lexer.TknCloseBrace, ast.ContractDeclaration)
 	return p
 }
 
@@ -36,6 +37,6 @@ func ParseString(data string) *Parser {
 func ParseBytes(data []byte) *Parser {
 	p := new(Parser)
 	p.lexer = lexer.LexBytes(data)
-	p.Scope = p.parseScope(ast.ContractDeclaration)
+	p.Scope = p.parseScope(lexer.TknCloseBrace, ast.ContractDeclaration)
 	return p
 }

@@ -262,9 +262,11 @@ func (p *Parser) parseArrayLiteral() (n ast.ArrayLiteralNode) {
 }
 
 func (p *Parser) parseFuncLiteral() (n ast.FuncLiteralNode) {
-	n.Signature = p.parseFuncType()
+	n.Parameters = p.parseParameters()
 
-	n.Scope = p.parseEnclosedScope()
+	n.Results = p.parseResults()
+
+	n.Scope = p.parseBracesScope()
 	return n
 }
 

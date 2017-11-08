@@ -150,19 +150,23 @@ func (p *Parser) addError(message string) {
 	p.Errs = append(p.Errs, err)
 }
 
-func (p *Parser) parseEnclosedScope(valids ...ast.NodeType) *ast.ScopeNode {
-	p.parseRequired(lexer.TknOpenBrace)
-	scope := p.parseScope(valids...)
-	p.parseRequired(lexer.TknCloseBrace)
+func (p *Parser) parseBracesScope(valids ...ast.NodeType) *ast.ScopeNode {
+	return p.parseEnclosedScope(lexer.TknOpenBrace, lexer.TknCloseBrace, valids...)
+}
+
+func (p *Parser) parseEnclosedScope(opener, closer lexer.TokenType, valids ...ast.NodeType) *ast.ScopeNode {
+	p.parseRequired(opener)
+	scope := p.parseScope(closer, valids...)
+	p.parseRequired(closer)
 	return scope
 }
 
-func (p *Parser) parseScope(valids ...ast.NodeType) *ast.ScopeNode {
+func (p *Parser) parseScope(terminator lexer.TokenType, valids ...ast.NodeType) *ast.ScopeNode {
 	scope := new(ast.ScopeNode)
 	scope.Parent = p.Scope
 	p.Scope = scope
 	for p.hasTokens(1) {
-		if p.current().Type == lexer.TknCloseBrace {
+		if p.current().Type == terminator {
 			p.Scope = scope.Parent
 			return scope
 		}

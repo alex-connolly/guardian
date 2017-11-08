@@ -109,7 +109,7 @@ func parseIfStatement(p *Parser) {
 	// parse initial if condition, required
 	cond := p.parseSimpleExpression()
 
-	body := p.parseEnclosedScope()
+	body := p.parseBracesScope()
 
 	conditions = append(conditions, ast.ConditionNode{
 		Condition: cond,
@@ -119,7 +119,7 @@ func parseIfStatement(p *Parser) {
 	// parse elif cases
 	for p.parseOptional(lexer.TknElif) {
 		condition := p.parseSimpleExpression()
-		body := p.parseEnclosedScope()
+		body := p.parseBracesScope()
 		conditions = append(conditions, ast.ConditionNode{
 			Condition: condition,
 			Body:      body,
@@ -129,7 +129,7 @@ func parseIfStatement(p *Parser) {
 	var elseBlock *ast.ScopeNode
 	// parse else case
 	if p.parseOptional(lexer.TknElse) {
-		elseBlock = p.parseEnclosedScope()
+		elseBlock = p.parseBracesScope()
 	}
 
 	node := ast.IfStatementNode{
@@ -167,7 +167,7 @@ func parseForStatement(p *Parser) {
 		post = p.parseOptionalAssignment()
 	}
 
-	body := p.parseEnclosedScope()
+	body := p.parseBracesScope()
 
 	node := ast.ForStatementNode{
 		Init:  init,
@@ -199,7 +199,7 @@ func parseCaseStatement(p *Parser) {
 
 	exprs := p.parseExpressionList()
 
-	body := p.parseScope()
+	body := p.parseBracesScope()
 
 	node := ast.CaseStatementNode{
 		Expressions: exprs,
@@ -217,7 +217,7 @@ func parseSwitchStatement(p *Parser) {
 	// TODO: currently only works with identifier
 	target := p.parseIdentifierExpression()
 
-	cases := p.parseEnclosedScope(ast.CaseStatement)
+	cases := p.parseBracesScope(ast.CaseStatement)
 
 	node := ast.SwitchStatementNode{
 		IsExclusive: exclusive,

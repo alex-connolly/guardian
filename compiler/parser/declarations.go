@@ -199,7 +199,7 @@ func parseClassDeclaration(p *Parser) {
 		}
 	}
 
-	body := p.parseEnclosedScope()
+	body := p.parseBracesScope()
 
 	node := ast.ClassDeclarationNode{
 		Identifier: identifier,
@@ -246,7 +246,7 @@ func parseContractDeclaration(p *Parser) {
 		ast.LifecycleDeclaration, ast.FuncDeclaration,
 	}
 
-	body := p.parseEnclosedScope(valids...)
+	body := p.parseBracesScope(valids...)
 
 	node := ast.ContractDeclarationNode{
 		Identifier: identifier,
@@ -355,7 +355,7 @@ func parseFuncDeclaration(p *Parser) {
 
 	results := p.parseResults()
 
-	body := p.parseEnclosedScope(ast.ExplicitVarDeclaration, ast.FuncDeclaration)
+	body := p.parseBracesScope(ast.ExplicitVarDeclaration, ast.FuncDeclaration)
 
 	node := ast.FuncDeclarationNode{
 		Identifier: identifier,
@@ -380,7 +380,7 @@ func parseLifecycleDeclaration(p *Parser) {
 
 	params := p.parseParameters()
 
-	body := p.parseEnclosedScope(ast.ExplicitVarDeclaration, ast.FuncDeclaration)
+	body := p.parseBracesScope(ast.ExplicitVarDeclaration, ast.FuncDeclaration)
 
 	node := ast.LifecycleDeclarationNode{
 		Category:   category,
