@@ -106,7 +106,9 @@ func (v *Validator) requireScannableType(names []string) Type {
 
 func (v *Validator) scanVarDeclaration(node ast.ExplicitVarDeclarationNode) {
 	for _, id := range node.Identifiers {
-		v.DeclareType(id, v.scanType(node.DeclaredType))
+		typ := v.scanType(node.DeclaredType)
+		v.DeclareVarOfType(id, typ)
+		//fmt.Printf("Declared: %s as %s\n", id, WriteType(typ))
 	}
 }
 
@@ -196,7 +198,7 @@ func (v *Validator) scanInterfaceDeclaration(node ast.InterfaceDeclarationNode) 
 	}
 
 	interfaceType := NewInterface(node.Identifier, supers, nil)
-	v.DeclareVarOfType(node.Identifier, interfaceType)
+	v.DeclareType(node.Identifier, interfaceType)
 
 }
 

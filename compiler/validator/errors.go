@@ -9,6 +9,6 @@ const (
 	errTypeRequired         = "%s is not a %s type"
 	errCallExpressionNoFunc = "Cannot call non-function type %s"
 	errTypeNotVisible       = "Type %s is not visible"
-	errInvalidAssignment    = "Cannot assign %s to %s"
+	errInvalidAssignment    = "Cannot assign %s = %s"
 	errTypecheckingLoop     = "Typechecking loop"
 )

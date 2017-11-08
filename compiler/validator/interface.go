@@ -97,11 +97,15 @@ func (v *Validator) requireVisibleType(names ...string) Type {
 }
 
 func (v *Validator) findVariable(name string) Type {
-	typ, ok := v.scope.variables[name]
-	if !ok {
-		return standards[Unknown]
+
+	for scope := v.scope; scope != nil; scope = scope.parent {
+		if scope.variables != nil {
+			if typ, ok := scope.variables[name]; ok {
+				return typ
+			}
+		}
 	}
-	return typ
+	return standards[Unknown]
 }
 
 func (v *Validator) DeclareVarOfType(name string, t Type) {

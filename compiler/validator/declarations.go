@@ -1,8 +1,6 @@
 package validator
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/compiler/ast"
 )
 
@@ -39,11 +37,11 @@ func (v *Validator) validateDeclaration(node ast.Node) {
 }
 
 func (v *Validator) validateExplicitVarDeclaration(node ast.ExplicitVarDeclarationNode) {
-	for _, id := range node.Identifiers {
+	/*	for _, id := range node.Identifiers {
 		typ := v.validateType(node.DeclaredType)
 		fmt.Printf("Explicitly Declaring %s of type %s\n", id, typ)
 		v.DeclareVarOfType(id, typ)
-	}
+	}*/
 }
 
 func (v *Validator) validateInterfaceDeclaration(node ast.InterfaceDeclarationNode) {

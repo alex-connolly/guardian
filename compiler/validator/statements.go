@@ -1,8 +1,6 @@
 package validator
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/compiler/ast"
 )
 
@@ -49,7 +47,7 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 		right := rightTuple.types[0]
 		for _, left := range leftTuple.types {
 			if !assignableTo(right, left) {
-				v.addError(errInvalidAssignment, WriteType(right), WriteType(left))
+				v.addError(errInvalidAssignment, WriteType(left), WriteType(right))
 			}
 		}
 
@@ -62,7 +60,7 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 		}
 
 	} else {
-		if !leftTuple.compare(rightTuple) {
+		if !rightTuple.compare(leftTuple) {
 			v.addError(errInvalidAssignment, WriteType(leftTuple), WriteType(rightTuple))
 		}
 
@@ -73,15 +71,13 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 			for i, left := range node.Left {
 				if leftTuple.types[i] == standards[Unknown] {
 					if id, ok := left.(ast.IdentifierNode); ok {
-						fmt.Printf("Declaring %s as %s\n", id.Name, WriteType(rightTuple.types[i]))
+						//fmt.Printf("Declaring %s as %s\n", id.Name, WriteType(rightTuple.types[i]))
 						v.DeclareVarOfType(id.Name, rightTuple.types[i])
 					}
 				}
 			}
 		}
-
 	}
-
 }
 
 func (v *Validator) validateIfStatement(node ast.IfStatementNode) {

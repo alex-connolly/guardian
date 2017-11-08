@@ -51,3 +51,22 @@ func TestIsAssignableSuperClassImplementingSuperInterface(t *testing.T) {
 	d := NewClass("Tiger", []*Class{&c}, nil, nil)
 	goutil.AssertNow(t, assignableTo(d, a), "type should be assignable")
 }
+
+func TestIsAssignableClassDoesNotInherit(t *testing.T) {
+	c := NewClass("Cat", nil, nil, nil)
+	d := NewClass("Tiger", nil, nil, nil)
+	goutil.AssertNow(t, !assignableTo(d, c), "class should be assignable")
+}
+
+func TestIsAssignableClassFlipped(t *testing.T) {
+	d := NewClass("Tiger", nil, nil, nil)
+	c := NewClass("Cat", []*Class{&d}, nil, nil)
+	goutil.AssertNow(t, !assignableTo(d, c), "class should not be assignable")
+}
+
+func TestIsAssignableClassInterfaceNot(t *testing.T) {
+	c := NewClass("Cat", nil, nil, nil)
+	d := NewInterface("Tiger", nil, nil)
+	goutil.AssertNow(t, !assignableTo(d, c), "class should not be assignable")
+	goutil.AssertNow(t, !assignableTo(c, d), "interface should not be assignable")
+}

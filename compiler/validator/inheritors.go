@@ -1,14 +1,13 @@
 package validator
 
 func (c Class) inherits(t Type) bool {
-	other, ok := resolveUnderlying(t).(Class)
-	if !ok {
+	if other, ok := resolveUnderlying(t).(Class); !ok {
 		return false
-	}
-	for _, super := range c.Supers {
-		if super.compare(other) {
-			return true
-		} else {
+	} else {
+		for _, super := range c.Supers {
+			if super.compare(other) {
+				return true
+			}
 			if super.inherits(other) {
 				return true
 			}

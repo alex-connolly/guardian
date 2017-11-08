@@ -1,26 +1,7 @@
 package validator
 
 func (c Class) implements(t Type) bool {
-
-	if other, ok := resolveUnderlying(t).(Class); !ok {
-		return false
-	} else {
-		for _, super := range c.Supers {
-			if super.compare(other) {
-				return true
-			} else {
-				if super.inherits(other) {
-					return true
-				}
-			}
-		}
-		return false
-	}
-
-}
-
-func (c Contract) implements(t Type) bool {
-	if other, ok := resolveUnderlying(t).(Contract); !ok {
+	if other, ok := resolveUnderlying(t).(Interface); !ok {
 		return false
 	} else {
 		for _, ifc := range c.Interfaces {
@@ -30,6 +11,34 @@ func (c Contract) implements(t Type) bool {
 				if ifc.inherits(other) {
 					return true
 				}
+			}
+		}
+		for _, super := range c.Supers {
+			if super.implements(other) {
+				return true
+			}
+		}
+		return false
+	}
+
+}
+
+func (c Contract) implements(t Type) bool {
+	if other, ok := resolveUnderlying(t).(Interface); !ok {
+		return false
+	} else {
+		for _, ifc := range c.Interfaces {
+			if ifc.compare(other) {
+				return true
+			} else {
+				if ifc.inherits(other) {
+					return true
+				}
+			}
+		}
+		for _, super := range c.Supers {
+			if super.implements(other) {
+				return true
 			}
 		}
 		return false
