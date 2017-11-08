@@ -26,6 +26,10 @@ func parseInterfaceDeclaration(p *Parser) {
 
 	modifiers := p.parseModifiers(lexer.TknInterface)
 
+	if p.modifiers != nil {
+		modifiers = append(modifiers, p.modifiers...)
+	}
+
 	p.parseRequired(lexer.TknInterface)
 	identifier := p.parseIdentifier()
 
@@ -121,6 +125,10 @@ func parseEnumDeclaration(p *Parser) {
 
 	modifiers := p.parseModifiers(lexer.TknEnum)
 
+	if p.modifiers != nil {
+		modifiers = append(modifiers, p.modifiers...)
+	}
+
 	p.parseRequired(lexer.TknEnum)
 	identifier := p.parseIdentifier()
 
@@ -167,6 +175,10 @@ func parseClassDeclaration(p *Parser) {
 
 	modifiers := p.parseModifiers(lexer.TknClass)
 
+	if p.modifiers != nil {
+		modifiers = append(modifiers, p.modifiers...)
+	}
+
 	p.parseRequired(lexer.TknClass)
 
 	identifier := p.parseIdentifier()
@@ -203,6 +215,10 @@ func parseClassDeclaration(p *Parser) {
 func parseContractDeclaration(p *Parser) {
 
 	modifiers := p.parseModifiers(lexer.TknContract)
+
+	if p.modifiers != nil {
+		modifiers = append(modifiers, p.modifiers...)
+	}
 
 	p.parseRequired(lexer.TknContract)
 	identifier := p.parseIdentifier()
@@ -270,6 +286,12 @@ func (p *Parser) parseTypeList() []ast.Node {
 
 func (p *Parser) parseVarDeclaration() ast.ExplicitVarDeclarationNode {
 
+	modifiers := p.parseModifiers(lexer.TknIdentifier)
+
+	if p.modifiers != nil {
+		modifiers = append(modifiers, p.modifiers...)
+	}
+
 	var names []string
 	names = append(names, p.parseIdentifier())
 	for p.parseOptional(lexer.TknComma) {
@@ -321,6 +343,10 @@ func parseFuncDeclaration(p *Parser) {
 
 	modifiers := p.parseModifiers(lexer.TknFunc)
 
+	if p.modifiers != nil {
+		modifiers = append(modifiers, p.modifiers...)
+	}
+
 	p.parseRequired(lexer.TknFunc)
 
 	identifier := p.parseIdentifier()
@@ -344,6 +370,12 @@ func parseFuncDeclaration(p *Parser) {
 
 func parseLifecycleDeclaration(p *Parser) {
 
+	modifiers := p.parseModifiers(lexer.TknIdentifier)
+
+	if p.modifiers != nil {
+		modifiers = append(modifiers, p.modifiers...)
+	}
+
 	category := p.parseRequired(lexer.GetLifecycles()...)
 
 	params := p.parseParameters()
@@ -364,6 +396,13 @@ func parseLifecycleDeclaration(p *Parser) {
 }
 
 func parseTypeDeclaration(p *Parser) {
+
+	modifiers := p.parseModifiers(lexer.TknIdentifier)
+
+	if p.modifiers != nil {
+		modifiers = append(modifiers, p.modifiers...)
+	}
+
 	p.parseRequired(lexer.TknType)
 	identifier := p.parseIdentifier()
 
@@ -438,6 +477,10 @@ func parseExplicitVarDeclaration(p *Parser) {
 	// parse variable Names
 
 	modifiers := p.parseModifiers(lexer.TknIdentifier)
+
+	if p.modifiers != nil {
+		modifiers = append(modifiers, p.modifiers...)
+	}
 
 	var names []string
 	names = append(names, p.parseIdentifier())

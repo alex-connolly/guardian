@@ -11,11 +11,25 @@ Credence enforces invariant conditions. These conditions are implemented as guar
 ```go
 contract Basic {
 
-    name string
+    internal name string
 
-    external func setName(n string){
-        enforce(n != "Alex")
-        name = n
-    }
+    external (
+        name string
+        day int
+    )
+
+    external (
+
+        func setName(n string){
+            enforce(n != "Alex")
+            name = n
+        }
+
+        func getName() string {
+            return name
+        }
+
+    )
+
 }
 ```

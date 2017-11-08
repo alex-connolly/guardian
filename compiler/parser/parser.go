@@ -12,6 +12,7 @@ type Parser struct {
 	Scope      *ast.ScopeNode
 	Expression ast.ExpressionNode
 	lexer      *lexer.Lexer
+	modifiers  []lexer.TokenType
 	index      int
 	Errs       []Error
 	line       int
@@ -124,6 +125,12 @@ func parseMultiLineComment(p *Parser) {
 	for p.current().Type != lexer.TknCommentClose {
 		p.next()
 	}
+}
+
+func parseModifierList(p *Parser) {
+	modifiers := p.parseModifiers(lexer.TknIdentifier)
+	p.parseRequired(lexer.TknOpenBracket)
+	p.parseRequired(lexer.TknCloseBracket)
 }
 
 func (p *Parser) formatErrors() string {

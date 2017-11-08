@@ -214,3 +214,12 @@ func isReturnStatement(p *Parser) bool {
 func isCaseStatement(p *Parser) bool {
 	return p.isNextToken(lexer.TknCase)
 }
+
+func isModifierList(p *Parser) bool {
+	saved := *p
+	for p.parseOptional(lexer.GetModifiers()...) {
+	}
+	flag := p.parseOptional(lexer.TknOpenBracket)
+	*p = saved
+	return flag
+}
