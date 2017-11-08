@@ -736,7 +736,7 @@ func TestParseFuncLiteralSingleParameter(t *testing.T) {
 	expr := ParseExpression("func(a string) int { return 0 }")
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.FuncLiteral, "wrong expr type")
-	f := expr.(ast.FuncLiteralNode).Signature
+	f := expr.(ast.FuncLiteralNode)
 	goutil.AssertNow(t, len(f.Parameters) == 1, "wrong parameter length")
 	goutil.AssertNow(t, len(f.Results) == 1, "wrong result length")
 }

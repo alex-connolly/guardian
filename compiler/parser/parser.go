@@ -128,9 +128,9 @@ func parseMultiLineComment(p *Parser) {
 }
 
 func parseModifierList(p *Parser) {
-	modifiers := p.parseModifiers(lexer.TknIdentifier)
-	p.parseRequired(lexer.TknOpenBracket)
-	p.parseRequired(lexer.TknCloseBracket)
+	p.modifiers = p.parseModifiers(lexer.TknOpenBracket)
+	p.parseEnclosedScope(lexer.TknOpenBracket, lexer.TknCloseBracket)
+	p.modifiers = nil
 }
 
 func (p *Parser) formatErrors() string {

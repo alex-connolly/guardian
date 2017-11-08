@@ -5,11 +5,15 @@ import (
 	"github.com/end-r/guardian/compiler/lexer"
 )
 
-func (p *Parser) parseModifiers(target lexer.TokenType) []lexer.TokenType {
+func (p *Parser) parseModifiers(targets ...lexer.TokenType) []lexer.TokenType {
 
 	var mods []lexer.TokenType
-	for p.current().Type != target {
-
+	for p.hasTokens(1) {
+		for _, t := range targets {
+			if p.current().Type == t {
+				return mods
+			}
+		}
 		if p.current().Type.IsModifier() {
 			mods = append(mods, p.current().Type)
 			p.next()
@@ -370,7 +374,7 @@ func parseFuncDeclaration(p *Parser) {
 
 func parseLifecycleDeclaration(p *Parser) {
 
-	modifiers := p.parseModifiers(lexer.TknIdentifier)
+	modifiers := p.parseModifiers(lexer.GetLifecycles()...)
 
 	if p.modifiers != nil {
 		modifiers = append(modifiers, p.modifiers...)

@@ -6,8 +6,6 @@ Credence is a formal verifier for the Guardian programming language.
 
 Credence enforces invariant conditions. These conditions are implemented as guardian functions.
 
-@Credence()
-
 ```go
 contract Basic {
 
@@ -20,6 +18,7 @@ contract Basic {
 
     external (
 
+        @Credence()
         func setName(n string){
             enforce(n != "Alex")
             name = n
