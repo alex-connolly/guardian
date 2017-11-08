@@ -36,6 +36,52 @@ func TestValidateAssignmentToFuncValid(t *testing.T) {
 	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
 }
 
+func TestValidateAssignmentToFuncInvalid(t *testing.T) {
+
+	p := parser.ParseString(`
+			func x() string {
+				return "hi"
+			}
+			a = 0
+			a = x()
+		`)
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	v := ValidateScope(p.Scope)
+	goutil.AssertNow(t, len(v.errors) == 1, v.formatErrors())
+}
+
+func TestValidateAssignmentToFuncLiteralValid(t *testing.T) {
+
+	p := parser.ParseString(`
+			x func(int, int) string
+			x = func(a int, b int) string {
+				return "hello"
+			}
+			x = func(a, b int) string {
+				return "hello"
+			}
+			func y(a int, b int) string {
+				return "hello"
+			}
+			x = y
+			func z(a, b int) string {
+				return "hello"
+			}
+			x = z
+			a = func(a int, b int) string {
+				return "hello"
+			}
+			x = a
+			b = func(a, b int) string {
+				return "hello"
+			}
+			x = b
+		`)
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	v := ValidateScope(p.Scope)
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
+}
+
 func TestValidateAssignmentMultipleLeft(t *testing.T) {
 
 	p := parser.ParseString(`

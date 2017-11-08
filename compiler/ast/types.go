@@ -68,7 +68,7 @@ func (n PlainTypeNode) Type() NodeType { return PlainType }
 
 type FuncTypeNode struct {
 	Identifier string
-	Parameters []Node
+	Parameters []ExplicitVarDeclarationNode
 	Results    []Node
 }
 

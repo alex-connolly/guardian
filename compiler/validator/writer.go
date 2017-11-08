@@ -4,6 +4,7 @@ import (
 	"bytes"
 )
 
+// WriteType creates a string representation of a Guardian type
 func WriteType(t Type) string {
 	b := new(bytes.Buffer)
 	t.write(b)
