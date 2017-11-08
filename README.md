@@ -1,6 +1,6 @@
 # Guardian
 
-Guardian is a statically typed, object-oriented programming language, with a particular focus on providing a new and more complete set of tools for blockchain applications. Its syntax is primarily derived from Java and Go, with many of the blockchain-specific constructs drawn (at least in part) from [Solidity(https://github.com/ethereum/solidity)].
+Guardian is a statically typed, object-oriented programming language, with a particular focus on providing a new and more complete set of tools for blockchain applications. Its syntax is primarily derived from Java and Go, with many of the blockchain-specific constructs drawn (at least in part) from [Solidity](https://github.com/ethereum/solidity).
 
 ## Aims
 
