@@ -33,8 +33,6 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 	// 1. valid left hand expression (cannot be a call, literal, slice)
 	// 2. type of left == type of right
 
-	fmt.Println("hi")
-
 	// check step one first
 	for _, l := range node.Left {
 		switch l.Type() {

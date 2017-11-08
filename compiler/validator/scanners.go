@@ -1,6 +1,55 @@
 package validator
 
-import "github.com/end-r/guardian/compiler/ast"
+import (
+	"fmt"
+
+	"github.com/end-r/guardian/compiler/ast"
+)
+
+func (v *Validator) scanType(destination ast.Node) Type {
+	// if we have already scanned this type, it will be in declarations
+	typ := v.resolveType(destination)
+	if typ == standards[Unknown] {
+		typ = v.scanForType(destination)
+	}
+	return typ
+}
+
+func (v *Validator) scanForType(destination ast.Node) Type {
+	switch n := destination.(type) {
+	case ast.PlainTypeNode:
+		return v.scanPlainType(n)
+	case ast.MapTypeNode:
+		return v.resolveMapType(n)
+	case ast.ArrayTypeNode:
+		return v.resolveArrayType(n)
+	case ast.FuncTypeNode:
+		return v.resolveFuncType(n)
+	}
+	return standards[Invalid]
+}
+
+func (v *Validator) scanPlainType(node ast.PlainTypeNode) Type {
+	// start the scanning process for another node
+	return v.getDeclarationNode(node.Names)
+}
+
+func (v *Validator) scanArrayType(node ast.ArrayTypeNode) Array {
+	value := v.scanType(node.Value)
+	return NewArray(value)
+}
+
+func (v *Validator) scanMapType(node ast.MapTypeNode) Map {
+	key := v.scanType(node.Key)
+	value := v.scanType(node.Value)
+	return NewMap(key, value)
+}
+
+func (v *Validator) scanFuncType(node ast.FuncTypeNode) Func {
+	params := v.resolveTuple(node.Parameters)
+	results := v.resolveTuple(node.Results)
+	return NewFunc(params, results)
+}
 
 func (v *Validator) addScanned(name string, t Type) {
 	if v.scope.scanned == nil {
@@ -10,6 +59,7 @@ func (v *Validator) addScanned(name string, t Type) {
 }
 
 func (v *Validator) scanDeclaration(node ast.Node) {
+	fmt.Println("sd")
 	switch n := node.(type) {
 	case ast.ClassDeclarationNode:
 		v.scanClassDeclaration(n)
@@ -32,56 +82,145 @@ func (v *Validator) scanDeclaration(node ast.Node) {
 	case ast.EventDeclarationNode:
 		v.scanEventDeclaration(n)
 		break
+	case ast.TypeDeclarationNode:
+		fmt.Println(":)")
+		v.scanTypeDeclaration(n)
+		break
+	default:
+		fmt.Println("?")
 	}
+
 }
 
 func (v *Validator) scanVarDeclaration(node ast.ExplicitVarDeclarationNode) {
 	for _, id := range node.Identifiers {
-		v.scope.scanned[id] = standards[Unknown]
+		v.DeclareType(id, v.scanType(node.DeclaredType))
 	}
 }
 
 func (v *Validator) scanClassDeclaration(node ast.ClassDeclarationNode) {
-	// scanning only takes in the class name
-	// performs ABSOLUTELY NO CHECKING
-	// checking will be done at the validation stage
-	c := Class{
-		Name: node.Identifier,
+	var supers []*Class
+	for _, super := range node.Supers {
+		t := v.scanPlainType(super)
+		if c, ok := t.(Class); ok {
+			supers = append(supers, &c)
+		} else {
+			v.addError(errTypeRequired, makeName(super.Names), "class")
+		}
 	}
-	v.addScanned(node.Identifier, c)
+
+	var interfaces []*Interface
+	for _, ifc := range node.Interfaces {
+		t := v.scanPlainType(ifc)
+		if c, ok := t.(Interface); ok {
+			interfaces = append(interfaces, &c)
+		} else {
+			v.addError(errTypeRequired, makeName(ifc.Names), "interface")
+		}
+	}
+
+	classType := NewClass(node.Identifier, supers, interfaces, nil)
+	v.DeclareType(node.Identifier, classType)
 }
 
 func (v *Validator) scanEnumDeclaration(node ast.EnumDeclarationNode) {
-	c := Enum{
-		Name: node.Identifier,
+	var supers []*Enum
+	for _, super := range node.Inherits {
+		t := v.scanPlainType(super)
+		if c, ok := t.(Enum); ok {
+			supers = append(supers, &c)
+		} else {
+			v.addError(errTypeRequired, makeName(super.Names), "enum")
+		}
 	}
-	v.addScanned(node.Identifier, c)
+
+	enumType := NewEnum(node.Identifier, supers, nil)
+	v.DeclareType(node.Identifier, enumType)
 }
 
 func (v *Validator) scanContractDeclaration(node ast.ContractDeclarationNode) {
-	c := Contract{
-		Name: node.Identifier,
+	var supers []*Contract
+	for _, super := range node.Supers {
+		t := v.scanPlainType(super)
+		if t == standards[Unknown] {
+			v.addError(errTypeNotVisible)
+		} else {
+			if c, ok := t.(Contract); ok {
+				supers = append(supers, &c)
+			} else {
+				v.addError(errTypeRequired, makeName(super.Names), "contract")
+			}
+		}
 	}
-	v.addScanned(node.Identifier, c)
+
+	var interfaces []*Interface
+	for _, ifc := range node.Interfaces {
+		t := v.scanPlainType(ifc)
+		if c, ok := t.(Interface); ok {
+			interfaces = append(interfaces, &c)
+		} else {
+			v.addError(errTypeRequired, makeName(ifc.Names), "interface")
+		}
+	}
+
+	contractType := NewContract(node.Identifier, supers, interfaces, nil)
+	v.DeclareType(node.Identifier, contractType)
 }
 
 func (v *Validator) scanInterfaceDeclaration(node ast.InterfaceDeclarationNode) {
-	c := Interface{
-		Name: node.Identifier,
+	var supers []*Interface
+	for _, super := range node.Supers {
+		t := v.scanPlainType(super)
+		if c, ok := t.(Interface); ok {
+			supers = append(supers, &c)
+		} else {
+			v.addError(errTypeRequired, makeName(super.Names), "interface")
+		}
 	}
-	v.addScanned(node.Identifier, c)
+
+	interfaceType := NewInterface(node.Identifier, supers, nil)
+	v.DeclareVarOfType(node.Identifier, interfaceType)
+
 }
 
 func (v *Validator) scanFuncDeclaration(node ast.FuncDeclarationNode) {
-	c := Func{
-		name: node.Identifier,
+
+	var params []Type
+	for _, p := range node.Parameters {
+		for _, i := range p.Identifiers {
+			typ := v.scanType(p.DeclaredType)
+			v.DeclareVarOfType(i, typ)
+			params = append(params, typ)
+		}
 	}
-	v.addScanned(node.Identifier, c)
+
+	var results []Type
+	for _, r := range node.Results {
+		results = append(results, v.scanType(r))
+	}
+
+	funcType := NewFunc(NewTuple(params...), NewTuple(results...))
+	v.DeclareVarOfType(node.Identifier, funcType)
 }
 
 func (v *Validator) scanEventDeclaration(node ast.EventDeclarationNode) {
-	c := Event{
-		Name: node.Identifier,
+	var params []Type
+	for _, n := range node.Parameters {
+		params = append(params, v.scanType(n.DeclaredType))
 	}
-	v.addScanned(node.Identifier, c)
+	eventType := NewEvent(node.Identifier, NewTuple(params...))
+	v.DeclareVarOfType(node.Identifier, eventType)
+}
+
+func (v *Validator) scanTypeDeclaration(node ast.TypeDeclarationNode) {
+	v.DeclareType(node.Identifier, v.scanType(node.Value))
+}
+
+func (v *Validator) scanLifecycleDeclaration(node ast.LifecycleDeclarationNode) {
+	for _, p := range node.Parameters {
+		typ := v.scanType(p.DeclaredType)
+		for _, i := range p.Identifiers {
+			v.DeclareVarOfType(i, typ)
+		}
+	}
 }

@@ -51,7 +51,11 @@ func (n *ScopeNode) GetDeclaration(key string) Node {
 	if n.Declarations == nil {
 		return nil
 	}
-	return n.Declarations.Get(key).(Node)
+	res := n.Declarations.Get(key)
+	if res == nil {
+		return nil
+	}
+	return res.(Node)
 }
 
 func (n *ScopeNode) AddDeclaration(key string, node Node) {

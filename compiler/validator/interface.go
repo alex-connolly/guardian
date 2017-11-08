@@ -39,14 +39,23 @@ func (v *Validator) validateScope(scope *ast.ScopeNode) map[string]Type {
 
 func (v *Validator) scanDeclarations(scope *ast.ScopeNode) {
 	if scope.Declarations != nil {
-
-		// there should be no declarations outside certain contexts
+		// order doesn't matter here
 		for _, i := range scope.Declarations.Map() {
 			fmt.Println("scanning declaration")
 			// add in placeholders for all declarations
 			v.scanDeclaration(i.(ast.Node))
 		}
 	}
+}
+
+func (v *Validator) getDeclarationNode(names []string) Type {
+	fmt.Println("gdn")
+	decl := v.scope.scope.GetDeclaration(names[0])
+	fmt.Println("a")
+	if decl == nil {
+		return standards[Unknown]
+	}
+	return v.scanType(decl)
 }
 
 func (v *Validator) validateDeclarations(scope *ast.ScopeNode) {

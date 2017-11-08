@@ -194,7 +194,7 @@ type Interface struct {
 	Funcs  map[string]Func
 }
 
-func NewInterface(name string, funcs map[string]Func, supers []*Interface) Interface {
+func NewInterface(name string, supers []*Interface, funcs map[string]Func) Interface {
 	return Interface{
 		Name:   name,
 		Supers: supers,

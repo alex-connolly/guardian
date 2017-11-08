@@ -27,7 +27,7 @@ func TestIsAssignableMultipleSuperClass(t *testing.T) {
 
 func TestIsAssignableParentInterface(t *testing.T) {
 	a := NewInterface("Dog", nil, nil)
-	b := NewInterface("Cat", nil, []*Interface{&a})
+	b := NewInterface("Cat", []*Interface{&a}, nil)
 	goutil.AssertNow(t, assignableTo(b, a), "interface types should be assignable")
 }
 
@@ -46,7 +46,7 @@ func TestIsAssignableSuperClassImplementingInterface(t *testing.T) {
 
 func TestIsAssignableSuperClassImplementingSuperInterface(t *testing.T) {
 	a := NewInterface("Dog", nil, nil)
-	b := NewInterface("Lion", nil, []*Interface{&a})
+	b := NewInterface("Lion", []*Interface{&a}, nil)
 	c := NewClass("Cat", nil, []*Interface{&b}, nil)
 	d := NewClass("Tiger", []*Class{&c}, nil, nil)
 	goutil.AssertNow(t, assignableTo(d, a), "type should be assignable")
