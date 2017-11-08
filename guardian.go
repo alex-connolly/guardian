@@ -58,3 +58,7 @@ func FireVM() Traverser {
 func AVM() Traverser {
 	return avm.NewTraverser()
 }
+
+type a interface {
+	add()
+}
