@@ -3,6 +3,8 @@ package validator
 import (
 	"bytes"
 
+	"github.com/end-r/guardian/compiler/lexer"
+
 	"github.com/end-r/guardian/compiler/ast"
 )
 
@@ -158,8 +160,14 @@ func NewAliased(alias string, underlying Type) Aliased {
 	}
 }
 
+type Lifecycle struct {
+	Type       lexer.TokenType
+	Parameters []Type
+}
+
 type Class struct {
 	Name       string
+	Lifecycles map[lexer.TokenType][]Lifecycle
 	Supers     []*Class
 	Properties map[string]Type
 	Interfaces []*Interface

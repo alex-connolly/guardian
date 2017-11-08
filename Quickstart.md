@@ -9,7 +9,7 @@ contract Test {
 
     lastPersonGreeted string
 
-    export sayHi(name string){
+    external sayHi(name string){
         lastPersonGreeted = name
     }
 
