@@ -7,31 +7,26 @@ import (
 )
 
 func (v *Validator) scanType(destination ast.Node) Type {
-	// if we have already scanned this type, it will be in declarations
-	typ := v.resolveType(destination)
-	if typ == standards[Unknown] {
-		typ = v.scanForType(destination)
-	}
-	return typ
-}
-
-func (v *Validator) scanForType(destination ast.Node) Type {
 	switch n := destination.(type) {
 	case ast.PlainTypeNode:
 		return v.scanPlainType(n)
 	case ast.MapTypeNode:
-		return v.resolveMapType(n)
+		return v.scanMapType(n)
 	case ast.ArrayTypeNode:
-		return v.resolveArrayType(n)
+		return v.scanArrayType(n)
 	case ast.FuncTypeNode:
-		return v.resolveFuncType(n)
+		return v.scanFuncType(n)
 	}
 	return standards[Invalid]
 }
 
 func (v *Validator) scanPlainType(node ast.PlainTypeNode) Type {
 	// start the scanning process for another node
-	return v.getDeclarationNode(node.Names)
+	typ := v.getNamedType(node.Names...)
+	if typ == standards[Unknown] {
+		return v.getDeclarationNode(node.Names)
+	}
+	return typ
 }
 
 func (v *Validator) scanArrayType(node ast.ArrayTypeNode) Array {
@@ -59,7 +54,6 @@ func (v *Validator) addScanned(name string, t Type) {
 }
 
 func (v *Validator) scanDeclaration(node ast.Node) {
-	fmt.Println("sd")
 	switch n := node.(type) {
 	case ast.ClassDeclarationNode:
 		v.scanClassDeclaration(n)
@@ -83,13 +77,31 @@ func (v *Validator) scanDeclaration(node ast.Node) {
 		v.scanEventDeclaration(n)
 		break
 	case ast.TypeDeclarationNode:
-		fmt.Println(":)")
 		v.scanTypeDeclaration(n)
+		break
+	case ast.LifecycleDeclarationNode:
+		v.scanLifecycleDeclaration(n)
 		break
 	default:
 		fmt.Println("?")
 	}
 
+}
+
+func (v *Validator) getDeclarationNode(names []string) Type {
+	decl := v.scope.scope.GetDeclaration(names[0])
+	if decl != nil {
+		v.scanDeclaration(decl)
+	}
+	return v.requireScannableType(names)
+}
+
+func (v *Validator) requireScannableType(names []string) Type {
+	typ := v.getNamedType(names...)
+	if typ == standards[Unknown] {
+		v.addError(errTypeNotVisible, makeName(names))
+	}
+	return typ
 }
 
 func (v *Validator) scanVarDeclaration(node ast.ExplicitVarDeclarationNode) {
@@ -102,20 +114,24 @@ func (v *Validator) scanClassDeclaration(node ast.ClassDeclarationNode) {
 	var supers []*Class
 	for _, super := range node.Supers {
 		t := v.scanPlainType(super)
-		if c, ok := t.(Class); ok {
-			supers = append(supers, &c)
-		} else {
-			v.addError(errTypeRequired, makeName(super.Names), "class")
+		if t != standards[Unknown] {
+			if c, ok := t.(Class); ok {
+				supers = append(supers, &c)
+			} else {
+				v.addError(errTypeRequired, makeName(super.Names), "class")
+			}
 		}
 	}
 
 	var interfaces []*Interface
 	for _, ifc := range node.Interfaces {
 		t := v.scanPlainType(ifc)
-		if c, ok := t.(Interface); ok {
-			interfaces = append(interfaces, &c)
-		} else {
-			v.addError(errTypeRequired, makeName(ifc.Names), "interface")
+		if t != standards[Unknown] {
+			if c, ok := t.(Interface); ok {
+				interfaces = append(interfaces, &c)
+			} else {
+				v.addError(errTypeRequired, makeName(ifc.Names), "interface")
+			}
 		}
 	}
 
@@ -142,9 +158,7 @@ func (v *Validator) scanContractDeclaration(node ast.ContractDeclarationNode) {
 	var supers []*Contract
 	for _, super := range node.Supers {
 		t := v.scanPlainType(super)
-		if t == standards[Unknown] {
-			v.addError(errTypeNotVisible)
-		} else {
+		if t != standards[Unknown] {
 			if c, ok := t.(Contract); ok {
 				supers = append(supers, &c)
 			} else {
@@ -156,13 +170,14 @@ func (v *Validator) scanContractDeclaration(node ast.ContractDeclarationNode) {
 	var interfaces []*Interface
 	for _, ifc := range node.Interfaces {
 		t := v.scanPlainType(ifc)
-		if c, ok := t.(Interface); ok {
-			interfaces = append(interfaces, &c)
-		} else {
-			v.addError(errTypeRequired, makeName(ifc.Names), "interface")
+		if t != standards[Unknown] {
+			if c, ok := t.(Interface); ok {
+				interfaces = append(interfaces, &c)
+			} else {
+				v.addError(errTypeRequired, makeName(ifc.Names), "interface")
+			}
 		}
 	}
-
 	contractType := NewContract(node.Identifier, supers, interfaces, nil)
 	v.DeclareType(node.Identifier, contractType)
 }
@@ -171,10 +186,12 @@ func (v *Validator) scanInterfaceDeclaration(node ast.InterfaceDeclarationNode) 
 	var supers []*Interface
 	for _, super := range node.Supers {
 		t := v.scanPlainType(super)
-		if c, ok := t.(Interface); ok {
-			supers = append(supers, &c)
-		} else {
-			v.addError(errTypeRequired, makeName(super.Names), "interface")
+		if t != standards[Unknown] {
+			if c, ok := t.(Interface); ok {
+				supers = append(supers, &c)
+			} else {
+				v.addError(errTypeRequired, makeName(super.Names), "interface")
+			}
 		}
 	}
 

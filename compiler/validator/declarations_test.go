@@ -1,7 +1,6 @@
 package validator
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/end-r/guardian/compiler/parser"
@@ -25,7 +24,7 @@ func TestValidateEventDeclEmpty(t *testing.T) {
 	p := parser.ParseString("event Dog()")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
 
 }
 
@@ -33,7 +32,7 @@ func TestValidateEventDeclValidSingle(t *testing.T) {
 	p := parser.ParseString("event Dog(a int)")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
 
 }
 
@@ -41,21 +40,21 @@ func TestValidateEventDeclValidMultiple(t *testing.T) {
 	p := parser.ParseString("event Dog(a int, b string)")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
 }
 
 func TestValidateEventDeclInvalidSingle(t *testing.T) {
 	p := parser.ParseString("event Dog(c Cat)")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 1, v.formatErrors())
 }
 
 func TestValidateEventDeclInvalidMultiple(t *testing.T) {
 	p := parser.ParseString("event Dog(c Cat, a Animal)")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 2, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 2, v.formatErrors())
 
 }
 
@@ -63,7 +62,7 @@ func TestValidateEventDeclMixed(t *testing.T) {
 	p := parser.ParseString("event Dog(a int, b Cat)")
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 1, v.formatErrors())
 }
 
 func TestValidateFuncDeclEmpty(t *testing.T) {
@@ -71,7 +70,7 @@ func TestValidateFuncDeclEmpty(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
 }
 
 func TestValidateFuncDeclValidSingle(t *testing.T) {
@@ -79,7 +78,7 @@ func TestValidateFuncDeclValidSingle(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
 }
 
 func TestValidateFuncDeclValidMultiple(t *testing.T) {
@@ -87,7 +86,7 @@ func TestValidateFuncDeclValidMultiple(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
 }
 
 func TestValidateFuncDeclInvalidSingle(t *testing.T) {
@@ -95,7 +94,7 @@ func TestValidateFuncDeclInvalidSingle(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 1, v.formatErrors())
 }
 
 func TestValidateFuncDeclInvalidMultiple(t *testing.T) {
@@ -103,7 +102,7 @@ func TestValidateFuncDeclInvalidMultiple(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 2, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 2, v.formatErrors())
 
 }
 
@@ -112,7 +111,7 @@ func TestValidateFuncDeclMixed(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 1, v.formatErrors())
 }
 
 func TestValidateConstructorDeclEmpty(t *testing.T) {
@@ -120,7 +119,7 @@ func TestValidateConstructorDeclEmpty(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
 }
 
 func TestValidateConstructorDeclValidSingle(t *testing.T) {
@@ -128,7 +127,7 @@ func TestValidateConstructorDeclValidSingle(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
 }
 
 func TestValidateConstructorDeclValidMultiple(t *testing.T) {
@@ -136,7 +135,7 @@ func TestValidateConstructorDeclValidMultiple(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
 }
 
 func TestValidateConstructorDeclInvalidSingle(t *testing.T) {
@@ -144,7 +143,7 @@ func TestValidateConstructorDeclInvalidSingle(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 1, v.formatErrors())
 }
 
 func TestValidateConstructorDeclInvalidMultiple(t *testing.T) {
@@ -152,7 +151,7 @@ func TestValidateConstructorDeclInvalidMultiple(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 2, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 2, v.formatErrors())
 
 }
 
@@ -161,7 +160,7 @@ func TestValidateConstructorDeclMixed(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 1, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 1, v.formatErrors())
 }
 
 func TestValidateContractDeclEmpty(t *testing.T) {
@@ -169,7 +168,7 @@ func TestValidateContractDeclEmpty(t *testing.T) {
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, p.Scope.Declarations != nil, "declarations shouldn't be nil")
 	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 0, fmt.Sprintf("wrong err length: %d", len(v.errors)))
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
 }
 
 func TestValidateContractDeclValidSingle(t *testing.T) {

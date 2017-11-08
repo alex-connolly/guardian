@@ -39,7 +39,6 @@ func (v *Validator) validateDeclaration(node ast.Node) {
 }
 
 func (v *Validator) validateExplicitVarDeclaration(node ast.ExplicitVarDeclarationNode) {
-	fmt.Println("expvar")
 	for _, id := range node.Identifiers {
 		typ := v.validateType(node.DeclaredType)
 		fmt.Printf("Explicitly Declaring %s of type %s\n", id, typ)
@@ -117,12 +116,6 @@ func (v *Validator) validateLifecycleDeclaration(node ast.LifecycleDeclarationNo
 	// a valid constructor satisfies the following properties:
 	// no repeated parameter names
 	// all parameter types are visible in scope
-	for _, p := range node.Parameters {
-		typ := v.validateType(p.DeclaredType)
-		for _, i := range p.Identifiers {
-			v.DeclareVarOfType(i, typ)
-		}
-	}
 
 	v.validateScope(node.Body)
 }

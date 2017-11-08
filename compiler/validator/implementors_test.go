@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/end-r/guardian/compiler/parser"
@@ -20,6 +21,8 @@ func TestClassImplementsTypeValid(t *testing.T) {
         }
     `)
 	v := ValidateScope(p.Scope)
+	le := p.Scope.Declarations.Length()
+	goutil.AssertNow(t, le == 4, fmt.Sprintf("wrong decl length: %d", le))
 	goutil.Assert(t, len(v.errors) == 0, v.formatErrors())
 }
 

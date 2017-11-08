@@ -453,7 +453,16 @@ func parseExplicitVarDeclaration(p *Parser) {
 		DeclaredType: typ,
 	}
 	// surely needs to be a declaration in some contexts
-	p.Scope.AddSequential(node)
+	switch p.Scope.Type() {
+	case ast.FuncDeclaration, ast.LifecycleDeclaration:
+		p.Scope.AddSequential(node)
+		break
+	default:
+		for _, n := range names {
+			p.Scope.AddDeclaration(n, node)
+		}
+	}
+
 }
 
 func parseEventDeclaration(p *Parser) {

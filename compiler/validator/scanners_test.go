@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/end-r/guardian/compiler/parser"
@@ -14,7 +15,8 @@ func TestTypeScanValid(t *testing.T) {
             type Dog int
         `)
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
-	goutil.AssertNow(t, p.Scope.Declarations.Length() == 2, "wrong decl length")
+	le := p.Scope.Declarations.Length()
+	goutil.AssertNow(t, le == 2, fmt.Sprintf("wrong decl length: %d", le))
 	v := ValidateScope(p.Scope)
 	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
 }
@@ -25,6 +27,8 @@ func TestTypeScanInvalid(t *testing.T) {
             type Dog int
         `)
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	le := p.Scope.Declarations.Length()
+	goutil.AssertNow(t, le == 2, fmt.Sprintf("wrong decl length: %d", le))
 	v := ValidateScope(p.Scope)
 	goutil.AssertNow(t, len(v.errors) == 1, v.formatErrors())
 }

@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/end-r/goutil"
@@ -25,4 +26,15 @@ func TestParseIdentifier(t *testing.T) {
 	goutil.Assert(t, p.parseIdentifier() == "", "empty should be nil")
 	p = createParser("{")
 	goutil.Assert(t, p.parseIdentifier() == "", "wrong token should be nil")
+}
+
+func TestParserNumDeclarations(t *testing.T) {
+	p := ParseString(`
+		b int
+		a string
+	`)
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, p.Scope.Declarations != nil, "scope declarations should not be nil")
+	le := p.Scope.Declarations.Length()
+	goutil.AssertNow(t, le == 2, fmt.Sprintf("wrong decl length: %d", le))
 }
