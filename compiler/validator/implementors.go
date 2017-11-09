@@ -5,12 +5,8 @@ func (c Class) implements(t Type) bool {
 		return false
 	} else {
 		for _, ifc := range c.Interfaces {
-			if ifc.compare(other) {
+			if ifc.compare(other) || ifc.inherits(other) {
 				return true
-			} else {
-				if ifc.inherits(other) {
-					return true
-				}
 			}
 		}
 		for _, super := range c.Supers {
@@ -28,12 +24,8 @@ func (c Contract) implements(t Type) bool {
 		return false
 	} else {
 		for _, ifc := range c.Interfaces {
-			if ifc.compare(other) {
+			if ifc.compare(other) || ifc.inherits(other) {
 				return true
-			} else {
-				if ifc.inherits(other) {
-					return true
-				}
 			}
 		}
 		for _, super := range c.Supers {

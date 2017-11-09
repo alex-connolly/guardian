@@ -12,4 +12,5 @@ const (
 	errTypeNotVisible         = "Type %s is not visible"
 	errInvalidAssignment      = "Cannot assign %s = %s"
 	errTypecheckingLoop       = "Typechecking loop"
+	errInvalidExpressionLeft  = "Cannot assign to expression"
 )

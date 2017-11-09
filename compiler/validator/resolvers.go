@@ -117,11 +117,14 @@ func resolveFuncLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be func literal
 	f := e.(ast.FuncLiteralNode)
 	var params, results []Type
-	for _, p := range f.Signature.Parameters {
-		params = append(params, v.resolveType(p))
+	for _, p := range f.Parameters {
+		typ := v.resolveType(p.DeclaredType)
+		for _ = range p.Identifiers {
+			params = append(params, typ)
+		}
 	}
 
-	for _, r := range f.Signature.Results {
+	for _, r := range f.Results {
 		results = append(results, v.resolveType(r))
 	}
 	return NewFunc(NewTuple(params...), NewTuple(results...))
@@ -158,14 +161,14 @@ func resolveCallExpression(v *Validator, e ast.ExpressionNode) Type {
 	call := v.resolveExpression(c.Call)
 	// enforce that this is a function pointer (at whatever depth)
 	under := resolveUnderlying(call)
-	fn, ok := under.(Func)
-	if ok {
-		return fn.Results
-	} else {
-		v.addError(errCallExpressionNoFunc, WriteType(under))
-		return standards[Invalid]
+	switch c := under.(type) {
+	case Func:
+		return c.Results
+	case Class:
+		return c
 	}
-
+	v.addError(errCallExpressionNoFunc, WriteType(under))
+	return standards[Invalid]
 }
 
 func resolveUnderlying(t Type) Type {
@@ -180,8 +183,9 @@ func resolveSliceExpression(v *Validator, e ast.ExpressionNode) Type {
 	s := e.(ast.SliceExpressionNode)
 	exprType := v.resolveExpression(s.Expression)
 	// must be an array
-	switch exprType.(type) {
+	switch t := exprType.(type) {
 	case Array:
+		return t
 	}
 	return standards[Invalid]
 }
@@ -216,6 +220,9 @@ func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) Type {
 	case lexer.TknLogicalAnd, lexer.TknLogicalOr:
 		// must be boolean
 		return standards[Bool]
+	case lexer.TknAs:
+		// make sure this is a type
+
 	}
 
 	// else it is a type which is not defined for binary operators
@@ -235,11 +242,10 @@ func (v *Validator) resolveContextualReference(context Type, exp ast.ExpressionN
 			if _, ok := getPropertyType(context, name); ok {
 				if exp.Type() == ast.Reference {
 					a := exp.(ast.ReferenceNode)
-					context := v.resolveExpression(a.Parent)
+					context = v.resolveExpression(a.Parent)
 					return v.resolveContextualReference(context, a.Reference)
-				} else {
-					return v.resolveExpression(exp)
 				}
+				return v.resolveExpression(exp)
 			} else {
 				v.addError(errPropertyNotFound, WriteType(context), name)
 			}

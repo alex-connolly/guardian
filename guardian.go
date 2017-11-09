@@ -1,12 +1,11 @@
 package guardian
 
 import (
-	"github.com/end-r/guardian/vm/avm"
-	"github.com/end-r/guardian/vm/firevm"
-
 	"github.com/end-r/guardian/compiler/ast"
 	"github.com/end-r/guardian/compiler/parser"
+	"github.com/end-r/guardian/compiler/validator"
 	"github.com/end-r/guardian/vm/evm"
+	"github.com/end-r/guardian/vm/firevm"
 )
 
 // Traverser ...
@@ -19,6 +18,8 @@ type Traverser interface {
 func CompileFile(t Traverser, path string) []string {
 	// generate AST
 	p := parser.ParseFile(path)
+
+	v := validator.ValidateScope(p.Scope)
 	// Traverse AST
 	t.Traverse(p.Scope)
 	return nil
@@ -29,6 +30,8 @@ func CompileString(t Traverser, data string) []string {
 
 	// generate AST
 	p := parser.ParseString(data)
+
+	v := validator.ValidateScope(p.Scope)
 	// Traverse AST
 	t.Traverse(p.Scope)
 	return nil
@@ -38,6 +41,8 @@ func CompileString(t Traverser, data string) []string {
 func CompileBytes(t Traverser, bytes []byte) []string {
 	// generate AST
 	p := parser.ParseBytes(bytes)
+
+	v := validator.ValidateScope(p.Scope)
 
 	// Traverse AST
 	t.Traverse(p.Scope)
@@ -52,9 +57,4 @@ func EVM() Traverser {
 // FireVM ...
 func FireVM() Traverser {
 	return firevm.NewTraverser()
-}
-
-// AVM ...
-func AVM() Traverser {
-	return avm.NewTraverser()
 }

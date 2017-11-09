@@ -36,7 +36,7 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 		switch l.Type() {
 		case ast.CallExpression, ast.Literal, ast.MapLiteral,
 			ast.ArrayLiteral, ast.SliceExpression, ast.FuncLiteral:
-			v.addError("Cannot assign to expression")
+			v.addError(errInvalidExpressionLeft)
 		}
 	}
 
@@ -90,6 +90,10 @@ func (v *Validator) validateIfStatement(node ast.IfStatementNode) {
 		// condition must be of type bool
 		v.requireType(standards[Bool], v.resolveExpression(cond.Condition))
 		v.validateScope(cond.Body)
+	}
+
+	if node.Else != nil {
+		v.validateScope(node.Else)
 	}
 }
 

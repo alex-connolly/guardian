@@ -9,7 +9,7 @@ import (
 	"github.com/end-r/goutil"
 )
 
-func TestTypeScanValid(t *testing.T) {
+func TestTypeValidateValid(t *testing.T) {
 	p := parser.ParseString(`
             a Dog
             type Dog int
@@ -21,7 +21,7 @@ func TestTypeScanValid(t *testing.T) {
 	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
 }
 
-func TestTypeScanInvalid(t *testing.T) {
+func TestTypeValidateInvalid(t *testing.T) {
 	p := parser.ParseString(`
             b Cat
             type Dog int

@@ -24,8 +24,6 @@ func (v *Validator) validateScope(scope *ast.ScopeNode) map[string]Type {
 
 	v.scope = ts
 
-	v.scanDeclarations(scope)
-
 	v.validateDeclarations(scope)
 
 	v.validateSequence(scope)
@@ -37,19 +35,11 @@ func (v *Validator) validateScope(scope *ast.ScopeNode) map[string]Type {
 	return properties
 }
 
-func (v *Validator) scanDeclarations(scope *ast.ScopeNode) {
+func (v *Validator) validateDeclarations(scope *ast.ScopeNode) {
 	if scope.Declarations != nil {
 		// order doesn't matter here
 		for _, i := range scope.Declarations.Map() {
 			// add in placeholders for all declarations
-			v.scanDeclaration(i.(ast.Node))
-		}
-	}
-}
-
-func (v *Validator) validateDeclarations(scope *ast.ScopeNode) {
-	if scope.Declarations != nil {
-		for _, i := range scope.Declarations.Array() {
 			v.validateDeclaration(i.(ast.Node))
 		}
 	}
@@ -108,6 +98,7 @@ func (v *Validator) findVariable(name string) Type {
 	return standards[Unknown]
 }
 
+// DeclareVarOfType ...
 func (v *Validator) DeclareVarOfType(name string, t Type) {
 	if v.scope.variables == nil {
 		v.scope.variables = make(map[string]Type)
@@ -115,6 +106,7 @@ func (v *Validator) DeclareVarOfType(name string, t Type) {
 	v.scope.variables[name] = t
 }
 
+// DeclareType ...
 func (v *Validator) DeclareType(name string, t Type) {
 	if v.scope.types == nil {
 		v.scope.types = make(map[string]Type)
@@ -144,20 +136,6 @@ func (v *Validator) getNamedType(names ...string) Type {
 					return pType
 				}
 			}
-
-		}
-		if s.scanned != nil {
-			for k, typ := range s.scanned {
-				if k == search {
-					// found top level type
-					pType, ok := getPropertiesType(typ, names[1:])
-					if !ok {
-
-					}
-					return pType
-				}
-			}
-
 		}
 	}
 	return standards[Unknown]

@@ -139,3 +139,83 @@ func TestValidateForStatementInvalidCond(t *testing.T) {
 	v := ValidateScope(p.Scope)
 	goutil.AssertNow(t, len(v.errors) == 1, v.formatErrors())
 }
+
+/*
+func TestValidateIfStatementValidInit(t *testing.T) {
+	p := parser.ParseString("if x = 0; x < 5 {}")
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, len(p.Scope.Sequence) == 1, "wrong sequence length")
+	v := ValidateScope(p.Scope)
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
+}*/
+
+func TestValidateIfStatementValidCondition(t *testing.T) {
+	p := parser.ParseString("if true {}")
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, len(p.Scope.Sequence) == 1, "wrong sequence length")
+	v := ValidateScope(p.Scope)
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
+}
+
+func TestValidateIfStatementValidElse(t *testing.T) {
+	p := parser.ParseString(`
+		if true {
+
+		} else {
+
+		}
+	`)
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, len(p.Scope.Sequence) == 1, "wrong sequence length")
+	v := ValidateScope(p.Scope)
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
+}
+
+func TestValidateSwitchStatementValidEmpty(t *testing.T) {
+	p := parser.ParseString(`
+		x = 5
+		switch x {
+
+		}
+	`)
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, len(p.Scope.Sequence) == 2, "wrong sequence length")
+	v := ValidateScope(p.Scope)
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
+}
+
+func TestValidateSwitchStatementValidCases(t *testing.T) {
+	p := parser.ParseString(`
+		x = 5
+		switch x {
+			case 4 {
+
+			}
+			case 3 {
+
+			}
+		}
+	`)
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, len(p.Scope.Sequence) == 2, "wrong sequence length")
+	v := ValidateScope(p.Scope)
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
+}
+
+func TestValidateClassAssignmentStatement(t *testing.T) {
+	p := parser.ParseString(`
+		class Dog {
+			name string
+		}
+
+		d = Dog{
+			name: "Fido",
+		}
+
+		x = d.name
+	`)
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, len(p.Scope.Sequence) == 2, "wrong sequence length")
+	v := ValidateScope(p.Scope)
+	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
+}

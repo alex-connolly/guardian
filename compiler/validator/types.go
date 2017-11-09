@@ -165,6 +165,7 @@ type Lifecycle struct {
 	Parameters []Type
 }
 
+// A Class is a collection of properties
 type Class struct {
 	Name       string
 	Lifecycles map[lexer.TokenType][]Lifecycle

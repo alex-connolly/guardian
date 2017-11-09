@@ -22,12 +22,8 @@ func (i Interface) inherits(t Type) bool {
 		return false
 	}
 	for _, super := range i.Supers {
-		if super.compare(other) {
+		if super.compare(other) || super.inherits(other) {
 			return true
-		} else {
-			if super.inherits(other) {
-				return true
-			}
 		}
 	}
 	return false
@@ -39,12 +35,8 @@ func (e Enum) inherits(t Type) bool {
 		return false
 	}
 	for _, super := range e.Supers {
-		if super.compare(other) {
+		if super.compare(other) || super.inherits(other) {
 			return true
-		} else {
-			if super.inherits(other) {
-				return true
-			}
 		}
 	}
 	return false
@@ -56,12 +48,8 @@ func (c Contract) inherits(t Type) bool {
 		return false
 	}
 	for _, super := range c.Supers {
-		if super.compare(other) {
+		if super.compare(other) || super.inherits(other) {
 			return true
-		} else {
-			if super.inherits(other) {
-				return true
-			}
 		}
 	}
 	return false
