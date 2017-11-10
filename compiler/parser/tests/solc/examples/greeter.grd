@@ -13,8 +13,6 @@ contract Greeter {
         return greeting
     }
 
-
-
     func getBlockNumber() uint {
         return block.number
     }
@@ -25,7 +23,7 @@ contract Greeter {
 
      func kill(){
          if msg.sender == creator {
-             suicide(creator);
+             suicide(creator)
          }
      }
 

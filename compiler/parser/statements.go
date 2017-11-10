@@ -90,6 +90,8 @@ func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 		to = append(to, p.parseExpression())
 	}
 
+	p.parseOptional(lexer.TknSemicolon)
+
 	return ast.AssignmentStatementNode{
 		Modifiers: modifiers,
 		Left:      assigned,

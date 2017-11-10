@@ -305,6 +305,7 @@ func (p *Parser) parseVarDeclaration() ast.ExplicitVarDeclarationNode {
 	dType := p.parseType()
 
 	return ast.ExplicitVarDeclarationNode{
+		Modifiers:    modifiers,
 		DeclaredType: dType,
 		Identifiers:  names,
 	}
@@ -387,6 +388,7 @@ func parseLifecycleDeclaration(p *Parser) {
 	body := p.parseBracesScope(ast.ExplicitVarDeclaration, ast.FuncDeclaration)
 
 	node := ast.LifecycleDeclarationNode{
+		Modifiers:  modifiers,
 		Category:   category,
 		Parameters: params,
 		Body:       body,
@@ -413,6 +415,7 @@ func parseTypeDeclaration(p *Parser) {
 	value := p.parseType()
 
 	n := ast.TypeDeclarationNode{
+		Modifiers:  modifiers,
 		Identifier: identifier,
 		Value:      value,
 	}

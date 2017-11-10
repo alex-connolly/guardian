@@ -19,6 +19,7 @@ type Parser struct {
 	simple     bool
 }
 
+// An Error is
 type Error struct {
 	lineNumber int
 	message    string
@@ -115,14 +116,14 @@ func parseNewLine(p *Parser) {
 
 func parseSingleLineComment(p *Parser) {
 	p.parseRequired(lexer.TknLineComment)
-	for p.current().Type != lexer.TknNewLine {
+	for p.hasTokens(1) && p.current().Type != lexer.TknNewLine {
 		p.next()
 	}
 }
 
 func parseMultiLineComment(p *Parser) {
 	p.parseRequired(lexer.TknCommentOpen)
-	for p.current().Type != lexer.TknCommentClose {
+	for p.hasTokens(1) && p.current().Type != lexer.TknCommentClose {
 		p.next()
 	}
 }
@@ -192,7 +193,6 @@ func (p *Parser) parseScope(terminator lexer.TokenType, valids ...ast.NodeType) 
 				// ?
 				p.Scope.AddSequential(expr)
 			}
-
 		}
 	}
 	return scope

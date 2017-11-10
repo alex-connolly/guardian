@@ -1,13 +1,15 @@
 package evm
 
 import (
+	"hash"
+
 	"github.com/end-r/guardian/compiler/lexer"
 
 	"github.com/end-r/guardian/compiler/ast"
 )
 
 func (e *Traverser) traverseType(n ast.TypeDeclarationNode) {
-
+	//
 }
 
 func (e *Traverser) traverseClass(n ast.ClassDeclarationNode) {
@@ -31,10 +33,13 @@ func (e *Traverser) traverseContract(n ast.ContractDeclarationNode) {
 }
 
 func (e *Traverser) addHook(name string) {
-	hook := hook{
+	h := hook{
 		name: name,
 	}
-	e.hooks = append(e.hooks, hook)
+	if e.hooks == nil {
+		e.hooks = make([]hook, 0)
+	}
+	e.hooks = append(e.hooks, h)
 }
 
 func (e *Traverser) traverseEvent(n ast.EventDeclarationNode) {
@@ -45,7 +50,32 @@ func EncodeSignature() string {
 	return ""
 }
 
+func funcAsString(n ast.FuncDeclarationNode) string {
+	// the string representation must have the following properties:
+	//
+	return ""
+}
+
+func newEthereumHasher() hash.Hash {
+	// ethereum uses the 'original keccak' (disbyte of 1 rather than 6)
+
+	return &state{rate: 136, outputLen: 32, dsbyte: 0x01}
+}
+
 func (e *Traverser) traverseFunc(n ast.FuncDeclarationNode) {
+
+	// add a hook
+	// evm function hooks = first 4 bytes of the function name and arguments
+	signature := funcAsString(n)
+
+	hasher := newEthereumHasher()
+
+	hasher.Write([]byte(signature))
+
+	// get the output hash
+	hook := hasher.Sum(nil)
+	e.addHook(string(hook))
+
 	e.AddBytecode("JUMPDEST")
 	e.Traverse(n.Body)
 	// TODO: add something to prevent further execution

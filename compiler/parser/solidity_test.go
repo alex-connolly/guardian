@@ -37,3 +37,21 @@ func TestParseCreatorBalanceChecker(t *testing.T) {
 	goutil.Assert(t, p != nil, "parser should not be nil")
 	goutil.Assert(t, p.Errs == nil, p.formatErrors())
 }
+
+func TestParseCreatorBasicIterator(t *testing.T) {
+	p := ParseFile("tests/solc/examples/basic_iterator.grd")
+	goutil.Assert(t, p != nil, "parser should not be nil")
+	goutil.Assert(t, p.Errs == nil, p.formatErrors())
+}
+
+func TestParseCreatorGreeter(t *testing.T) {
+	p := ParseFile("tests/solc/examples/greeter.grd")
+	goutil.Assert(t, p != nil, "parser should not be nil")
+	goutil.Assert(t, p.Errs == nil, p.formatErrors())
+}
+
+func TestParseCreatorExaminer(t *testing.T) {
+	p := ParseFile("tests/solc/examples/msg_examiner.grd")
+	goutil.Assert(t, p != nil, "parser should not be nil")
+	goutil.Assert(t, p.Errs == nil, p.formatErrors())
+}

@@ -1,21 +1,3 @@
-Note: all parsing must be contextual
-
-```go
-x = 5 + 4 // This is meaningless
-
-contract Dog {
-    x = 5 + 4 // Contract storage
-}
-
-contract Cat {
-
-    constructor(){
-        x = 5 + 4 // Contract memory
-    }
-}
-```
-
-
 There are several levels of parser constructs:
 
 Primary:
@@ -33,7 +15,7 @@ contract Empty {
 
     }
 
-    start(int x, y){
+    start(x, y int){
 
     }
 
