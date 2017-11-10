@@ -219,3 +219,21 @@ func TestValidateClassAssignmentStatement(t *testing.T) {
 	v := ValidateScope(p.Scope)
 	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
 }
+
+func TestValidateClassAssignmentStatementInvalid(t *testing.T) {
+	p := parser.ParseString(`
+		class Dog {
+			name string
+		}
+
+		d = Dog{
+			name: "Fido",
+		}
+
+		x = d.wrongName
+	`)
+	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, len(p.Scope.Sequence) == 2, "wrong sequence length")
+	v := ValidateScope(p.Scope)
+	goutil.AssertNow(t, len(v.errors) == 1, v.formatErrors())
+}

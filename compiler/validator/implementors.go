@@ -1,9 +1,7 @@
 package validator
 
 func (c Class) implements(t Type) bool {
-	if other, ok := resolveUnderlying(t).(Interface); !ok {
-		return false
-	} else {
+	if other, ok := resolveUnderlying(t).(Interface); ok {
 		for _, ifc := range c.Interfaces {
 			if ifc.compare(other) || ifc.inherits(other) {
 				return true
@@ -14,15 +12,12 @@ func (c Class) implements(t Type) bool {
 				return true
 			}
 		}
-		return false
 	}
-
+	return false
 }
 
 func (c Contract) implements(t Type) bool {
-	if other, ok := resolveUnderlying(t).(Interface); !ok {
-		return false
-	} else {
+	if other, ok := resolveUnderlying(t).(Interface); ok {
 		for _, ifc := range c.Interfaces {
 			if ifc.compare(other) || ifc.inherits(other) {
 				return true
@@ -33,8 +28,8 @@ func (c Contract) implements(t Type) bool {
 				return true
 			}
 		}
-		return false
 	}
+	return false
 }
 
 func (a Aliased) implements(t Type) bool {

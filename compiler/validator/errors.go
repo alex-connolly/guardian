@@ -2,7 +2,8 @@ package validator
 
 const (
 	errInvalidBinaryOpTypes   = "Binary operator %s is not defined for operands %s and %s"
-	errInvalidCall            = "Cannot use %s as arguments to function of type %s"
+	errInvalidFuncCall        = "Cannot use %s as arguments to function of type %s"
+	errInvalidCall            = "Type %s cannot be called"
 	errInvalidConstructorCall = "No constructor signature matches call %s"
 	errInvalidSubscriptable   = "Type %s is not subscriptable"
 	errPropertyNotFound       = "Type %s does not have property %s"

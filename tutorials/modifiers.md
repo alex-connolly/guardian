@@ -36,7 +36,6 @@ contract Dog {
     )
 
     external (
-
         func woof(){
             woofCount++
         }
@@ -50,5 +49,9 @@ contract Dog {
 ```
 
 ### ```public```/```private```/```protected```
+
+These modifiers have the same meaning as in traditional OOP languages. ```private``` variables are inaccessible outside this class, ```protected``` variables are only visible to subclasses and ```public``` variables can be accessed and mutated by any class.
+
+They DO NOT apply to contracts as in Solidity (use ```external```), and the compiler will throw errors if you attempt to designate public functions within the context of a class.
 
 ### ```abstract```/```static```

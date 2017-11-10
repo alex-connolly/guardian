@@ -32,9 +32,8 @@ func TestParsePurchaseExample(t *testing.T) {
 	goutil.Assert(t, p.Errs == nil, p.formatErrors())
 }
 
-/*
 func TestParseCreatorBalanceChecker(t *testing.T) {
 	p := ParseFile("tests/solc/examples/creator_balance_checker.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
 	goutil.Assert(t, p.Errs == nil, p.formatErrors())
-}*/
+}

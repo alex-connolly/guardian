@@ -171,15 +171,17 @@ type Class struct {
 	Lifecycles map[lexer.TokenType][]Lifecycle
 	Supers     []*Class
 	Properties map[string]Type
+	Types      map[string]Type
 	Interfaces []*Interface
 }
 
-func NewClass(name string, supers []*Class, interfaces []*Interface, properties map[string]Type) Class {
+func NewClass(name string, supers []*Class, interfaces []*Interface, types, properties map[string]Type) Class {
 	return Class{
 		Name:       name,
 		Supers:     supers,
 		Properties: properties,
 		Interfaces: interfaces,
+		Types:      types,
 	}
 }
 
@@ -215,23 +217,27 @@ type Contract struct {
 	Name       string
 	Supers     []*Contract
 	Interfaces []*Interface
+	Types      map[string]Type
 	Properties map[string]Type
 }
 
-func NewContract(name string, supers []*Contract, interfaces []*Interface, properties map[string]Type) Contract {
+func NewContract(name string, supers []*Contract, interfaces []*Interface, types, properties map[string]Type) Contract {
 	return Contract{
 		Name:       name,
 		Supers:     supers,
 		Interfaces: interfaces,
 		Properties: properties,
+		Types:      types,
 	}
 }
 
+// Event ...
 type Event struct {
 	Name       string
 	Parameters Tuple
 }
 
+// NewEvent ...
 func NewEvent(name string, params Tuple) Event {
 	return Event{
 		Name:       name,

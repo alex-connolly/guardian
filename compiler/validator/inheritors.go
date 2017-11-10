@@ -1,14 +1,9 @@
 package validator
 
 func (c Class) inherits(t Type) bool {
-	if other, ok := resolveUnderlying(t).(Class); !ok {
-		return false
-	} else {
+	if other, ok := resolveUnderlying(t).(Class); ok {
 		for _, super := range c.Supers {
-			if super.compare(other) {
-				return true
-			}
-			if super.inherits(other) {
+			if super.compare(other) || super.inherits(other) {
 				return true
 			}
 		}
@@ -17,39 +12,33 @@ func (c Class) inherits(t Type) bool {
 }
 
 func (i Interface) inherits(t Type) bool {
-	other, ok := resolveUnderlying(t).(Interface)
-	if !ok {
-		return false
-	}
-	for _, super := range i.Supers {
-		if super.compare(other) || super.inherits(other) {
-			return true
+	if other, ok := resolveUnderlying(t).(Interface); ok {
+		for _, super := range i.Supers {
+			if super.compare(other) || super.inherits(other) {
+				return true
+			}
 		}
 	}
 	return false
 }
 
 func (e Enum) inherits(t Type) bool {
-	other, ok := resolveUnderlying(t).(Enum)
-	if !ok {
-		return false
-	}
-	for _, super := range e.Supers {
-		if super.compare(other) || super.inherits(other) {
-			return true
+	if other, ok := resolveUnderlying(t).(Enum); ok {
+		for _, super := range e.Supers {
+			if super.compare(other) || super.inherits(other) {
+				return true
+			}
 		}
 	}
 	return false
 }
 
 func (c Contract) inherits(t Type) bool {
-	other, ok := resolveUnderlying(t).(Contract)
-	if !ok {
-		return false
-	}
-	for _, super := range c.Supers {
-		if super.compare(other) || super.inherits(other) {
-			return true
+	if other, ok := resolveUnderlying(t).(Contract); ok {
+		for _, super := range c.Supers {
+			if super.compare(other) || super.inherits(other) {
+				return true
+			}
 		}
 	}
 	return false

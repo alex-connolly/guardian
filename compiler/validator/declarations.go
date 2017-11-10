@@ -136,9 +136,9 @@ func (v *Validator) validateClassDeclaration(node ast.ClassDeclarationNode) {
 		}
 	}
 
-	properties := v.validateScope(node.Body)
+	types, properties := v.validateScope(node.Body)
 
-	classType := NewClass(node.Identifier, supers, interfaces, properties)
+	classType := NewClass(node.Identifier, supers, interfaces, types, properties)
 	v.DeclareType(node.Identifier, classType)
 }
 
@@ -187,9 +187,9 @@ func (v *Validator) validateContractDeclaration(node ast.ContractDeclarationNode
 		}
 	}
 
-	properties := v.validateScope(node.Body)
+	types, properties := v.validateScope(node.Body)
 
-	contractType := NewContract(node.Identifier, supers, interfaces, properties)
+	contractType := NewContract(node.Identifier, supers, interfaces, types, properties)
 	v.DeclareType(node.Identifier, contractType)
 }
 

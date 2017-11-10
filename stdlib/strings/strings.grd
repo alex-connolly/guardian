@@ -1,0 +1,54 @@
+package strings
+
+func split(s string){
+
+}
+
+// wraps string concatenation
+func concat(strs ...string) string {
+    n = ""
+    for s in strs {
+        n += s
+    }
+    return n
+}
+
+func hasPrefix(text string, prefix string) bool {
+
+}
+
+func hasSuffix(text string, suffix string) bool {
+
+}
+
+func map(text string, mapping func(char)string) string {
+
+}
+
+func repeat(text string, count int) string {
+    n = ""
+    for _ in count {
+        n += text
+    }
+    return n
+}
+
+func toLower(text string) string {
+
+}
+
+func toUpper(text string) string {
+
+}
+
+func trim(text string, cutset string) string {
+
+}
+
+func trimSpace(text string) string {
+    return trim(text, " ")
+}
+
+func trimSuffix(text, suffix string) string {
+
+}

@@ -1,9 +1,8 @@
 package validator
 
 import (
-	"github.com/end-r/guardian/compiler/lexer"
-
 	"github.com/end-r/guardian/compiler/ast"
+	"github.com/end-r/guardian/compiler/lexer"
 )
 
 func (v *Validator) validateCallExpression(call ast.CallExpressionNode) {
@@ -13,7 +12,7 @@ func (v *Validator) validateCallExpression(call ast.CallExpressionNode) {
 	case Func:
 		fn := exprType.(Func)
 		if !fn.Params.compare(args) {
-			v.addError(errInvalidCall, WriteType(fn), WriteType(args))
+			v.addError(errInvalidFuncCall, WriteType(fn), WriteType(args))
 		}
 		break
 		// TODO: also handle lifecycle calls
@@ -27,4 +26,5 @@ func (v *Validator) validateCallExpression(call ast.CallExpressionNode) {
 		}
 		break
 	}
+	v.addError(errInvalidCall, WriteType(exprType))
 }

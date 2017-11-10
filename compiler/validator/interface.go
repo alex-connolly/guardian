@@ -13,13 +13,11 @@ func ValidateScope(scope *ast.ScopeNode) *Validator {
 	return v
 }
 
-func (v *Validator) validateScope(scope *ast.ScopeNode) map[string]Type {
+func (v *Validator) validateScope(scope *ast.ScopeNode) (map[string]Type, map[string]Type) {
 
 	ts := &TypeScope{
-		parent:    v.scope,
-		scope:     scope,
-		types:     nil,
-		variables: nil,
+		parent: v.scope,
+		scope:  scope,
 	}
 
 	v.scope = ts
@@ -28,11 +26,12 @@ func (v *Validator) validateScope(scope *ast.ScopeNode) map[string]Type {
 
 	v.validateSequence(scope)
 
-	properties := v.scope.types
+	types := v.scope.types
+	properties := v.scope.variables
 
 	v.scope = v.scope.parent
 
-	return properties
+	return types, properties
 }
 
 func (v *Validator) validateDeclarations(scope *ast.ScopeNode) {
@@ -59,17 +58,18 @@ func (v *Validator) validate(node ast.Node) {
 	}
 }
 
+// Validator ...
 type Validator struct {
 	scope  *TypeScope
 	errors []string
 }
 
+// TypeScope ...
 type TypeScope struct {
 	parent    *TypeScope
 	scope     *ast.ScopeNode
 	variables map[string]Type
 	types     map[string]Type
-	scanned   map[string]Type
 }
 
 func NewValidator() *Validator {
@@ -87,7 +87,6 @@ func (v *Validator) requireVisibleType(names ...string) Type {
 }
 
 func (v *Validator) findVariable(name string) Type {
-
 	for scope := v.scope; scope != nil; scope = scope.parent {
 		if scope.variables != nil {
 			if typ, ok := scope.variables[name]; ok {
