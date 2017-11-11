@@ -172,6 +172,7 @@ const (
 	TknLineComment
 	TknCommentOpen
 	TknCommentClose
+	TknTest
 )
 
 // TODO: protoToken{"Operator", isOperator, processOperator}
@@ -234,6 +235,8 @@ func getProtoTokens() []protoToken {
 
 		createDistinct("true", TknTrue),
 		createDistinct("false", TknFalse),
+
+		createDistinct("test", TknTest),
 
 		protoToken{"Float", isFloat, processFloat},
 		// must check float first

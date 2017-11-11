@@ -119,6 +119,7 @@ func parseSingleLineComment(p *Parser) {
 	for p.hasTokens(1) && p.current().Type != lexer.TknNewLine {
 		p.next()
 	}
+	p.parseOptional(lexer.TknNewLine)
 }
 
 func parseMultiLineComment(p *Parser) {
@@ -129,9 +130,10 @@ func parseMultiLineComment(p *Parser) {
 }
 
 func parseModifierList(p *Parser) {
+	old := p.modifiers
 	p.modifiers = p.parseModifiers(lexer.TknOpenBracket)
 	p.parseEnclosedScope(lexer.TknOpenBracket, lexer.TknCloseBracket)
-	p.modifiers = nil
+	p.modifiers = old
 }
 
 func (p *Parser) formatErrors() string {

@@ -54,3 +54,15 @@ func TestTypesContract(t *testing.T) {
 	goutil.Assert(t, p != nil, "parser should not be nil")
 	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
 }
+
+func TestNestedModifiersContract(t *testing.T) {
+	p := ParseFile("tests/nested_modifiers.grd")
+	goutil.Assert(t, p != nil, "parser should not be nil")
+	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
+}
+
+func TestCommentsContract(t *testing.T) {
+	p := ParseFile("tests/comments.grd")
+	goutil.Assert(t, p != nil, "parser should not be nil")
+	goutil.Assert(t, p.Errs == nil, p.formatErrors())
+}
