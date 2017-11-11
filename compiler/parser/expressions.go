@@ -181,7 +181,7 @@ func (p *Parser) parsePrimaryComponent() ast.ExpressionNode {
 		return p.parseLiteral()
 	case lexer.TknIdentifier:
 		return p.parseIdentifierExpression()
-	case lexer.TknNot:
+	case lexer.TknNot, lexer.TknTypeOf:
 		return p.parsePrefixUnaryExpression()
 	case lexer.TknFunc:
 		return p.parseFuncLiteral()

@@ -19,10 +19,12 @@ func (t TokenType) IsUnaryOperator() bool {
 	return false
 }
 
+// IsModifier reports whether a token is a modifier
 func (t TokenType) IsModifier() bool {
 	return t.isToken(GetModifiers())
 }
 
+// IsAssignment reports whether a token is an assignment operator
 func (t TokenType) IsAssignment() bool {
 	return t.isToken(GetAssignments())
 }
@@ -47,7 +49,7 @@ func GetBinaryOperators() []TokenType {
 // GetModifiers ....
 func GetModifiers() []TokenType {
 	return []TokenType{TknConst, TknInternal, TknExternal, TknPublic, TknPrivate,
-		TknProtected, TknStatic, TknAbstract, TknStorage}
+		TknProtected, TknStatic, TknAbstract, TknStorage, TknTest}
 }
 
 // GetLifecycles ....
@@ -62,6 +64,7 @@ func GetAssignments() []TokenType {
 		TknOrAssign, TknXorAssign, TknDefine}
 }
 
+// TokenType
 const (
 	TknInvalid TokenType = iota
 	TknIdentifier
@@ -401,6 +404,7 @@ type protoToken struct {
 	process    processorFunc
 }
 
+// Name returns the name of a token
 func (t Token) Name() string {
 	return t.proto.name
 }

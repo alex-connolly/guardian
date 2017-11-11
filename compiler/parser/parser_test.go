@@ -38,3 +38,29 @@ func TestParserNumDeclarations(t *testing.T) {
 	le := p.Scope.Declarations.Length()
 	goutil.AssertNow(t, le == 2, fmt.Sprintf("wrong decl length: %d", le))
 }
+
+func TestParseSingleLineComment(t *testing.T) {
+	p := createParser("// this is a comment")
+	goutil.AssertNow(t, p.index == 0, "should start at 0")
+	parseSingleLineComment(p)
+	goutil.AssertNow(t, p.index == 5, "should finish at 5")
+
+	p = createParser(`// this is a comment
+		`)
+	goutil.AssertNow(t, p.index == 0, "should start at 0")
+	parseSingleLineComment(p)
+	goutil.AssertNow(t, p.index == 6, "should finish at 6")
+}
+
+func TestParseMultiLineComment(t *testing.T) {
+	p := createParser("/* this is a comment */")
+	goutil.AssertNow(t, p.index == 0, "should start at 0")
+	parseMultiLineComment(p)
+	goutil.AssertNow(t, p.index == 6, "should finish at 6")
+
+	p = createParser(`/* this is a comment
+		*/`)
+	goutil.AssertNow(t, p.index == 0, "should start at 0")
+	parseMultiLineComment(p)
+	goutil.AssertNow(t, p.index == 7, "should finish at 7")
+}

@@ -127,6 +127,7 @@ func parseMultiLineComment(p *Parser) {
 	for p.hasTokens(1) && p.current().Type != lexer.TknCommentClose {
 		p.next()
 	}
+	p.parseOptional(lexer.TknCommentClose)
 }
 
 func parseModifierList(p *Parser) {
