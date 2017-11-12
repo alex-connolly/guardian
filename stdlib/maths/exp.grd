@@ -1,0 +1,18 @@
+package math
+
+func power(base, exponent int) int {
+    if exponent == 0 {
+        return 1
+    }
+    if exponent == 1 {
+        return base
+    }
+    if exponent % 2 == 0 {
+        b = power(base, exponent/2)
+        return b * b
+    } else {
+        b = power(base, (exponent - 1) / 2) {
+            return a * b * b
+        }
+    }
+}

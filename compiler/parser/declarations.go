@@ -155,13 +155,17 @@ func parseEnumDeclaration(p *Parser) {
 }
 
 func (p *Parser) parsePlainType() ast.PlainTypeNode {
+
+	variable := p.parseOptional(lexer.TknEllipsis)
+
 	var names []string
 	names = append(names, p.parseIdentifier())
 	for p.parseOptional(lexer.TknDot) {
 		names = append(names, p.parseIdentifier())
 	}
 	return ast.PlainTypeNode{
-		Names: names,
+		Names:    names,
+		Variable: variable,
 	}
 }
 
@@ -425,6 +429,8 @@ func parseTypeDeclaration(p *Parser) {
 
 func (p *Parser) parseMapType() ast.MapTypeNode {
 
+	variable := p.parseOptional(lexer.TknEllipsis)
+
 	p.parseRequired(lexer.TknMap)
 	p.parseRequired(lexer.TknOpenSquare)
 
@@ -435,8 +441,9 @@ func (p *Parser) parseMapType() ast.MapTypeNode {
 	value := p.parseType()
 
 	mapType := ast.MapTypeNode{
-		Key:   key,
-		Value: value,
+		Key:      key,
+		Value:    value,
+		Variable: variable,
 	}
 
 	return mapType
@@ -445,6 +452,9 @@ func (p *Parser) parseMapType() ast.MapTypeNode {
 func (p *Parser) parseFuncType() ast.FuncTypeNode {
 
 	f := ast.FuncTypeNode{}
+
+	f.Variable = p.parseOptional(lexer.TknEllipsis)
+
 	p.parseRequired(lexer.TknFunc)
 
 	if p.current().Type == lexer.TknIdentifier {
@@ -465,6 +475,9 @@ func (p *Parser) parseFuncType() ast.FuncTypeNode {
 }
 
 func (p *Parser) parseArrayType() ast.ArrayTypeNode {
+
+	variable := p.parseOptional(lexer.TknEllipsis)
+
 	p.parseRequired(lexer.TknOpenSquare)
 
 	/*if p.parseOptional(lexer.TknColon) {
@@ -476,7 +489,8 @@ func (p *Parser) parseArrayType() ast.ArrayTypeNode {
 	typ := p.parseType()
 
 	return ast.ArrayTypeNode{
-		Value: typ,
+		Value:    typ,
+		Variable: variable,
 	}
 }
 

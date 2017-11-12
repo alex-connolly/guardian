@@ -72,6 +72,7 @@ type TypeScope struct {
 	types     map[string]Type
 }
 
+// NewValidator creates a new validator
 func NewValidator() *Validator {
 	return &Validator{
 		scope: new(TypeScope),

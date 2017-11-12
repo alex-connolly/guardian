@@ -153,22 +153,60 @@ func resolveIndexExpression(v *Validator, e ast.ExpressionNode) Type {
 	return standards[Invalid]
 }
 
+// attempts to resolve an expression component as a type name
+// used in constructors e.g. Dog()
+func (v *Validator) attemptToFindType(e ast.ExpressionNode) Type {
+	var names []string
+	switch res := e.(type) {
+	case ast.IdentifierNode:
+		names = append(names, res.Name)
+	case ast.ReferenceNode:
+		var current ast.ExpressionNode
+		for current = res; current != nil; current = res.Reference {
+			switch a := current.(type) {
+			case ast.ReferenceNode:
+				if p, ok := a.Parent.(ast.IdentifierNode); ok {
+					names = append(names, p.Name)
+				} else {
+					return standards[Unknown]
+				}
+				break
+			case ast.IdentifierNode:
+				names = append(names, a.Name)
+				break
+			default:
+				return standards[Unknown]
+			}
+		}
+		break
+	default:
+		return standards[Unknown]
+	}
+	return v.getNamedType(names...)
+}
+
 func resolveCallExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be call expression
 	c := e.(ast.CallExpressionNode)
 	// return type of a call expression is always a tuple
 	// tuple may be empty or single-valued
 	call := v.resolveExpression(c.Call)
-	// enforce that this is a function pointer (at whatever depth)
-	under := resolveUnderlying(call)
+	var under Type
+	if call.compare(standards[Unknown]) {
+		// try to resolve as a type name
+		under = v.attemptToFindType(c.Call)
+	} else {
+		under = resolveUnderlying(call)
+	}
 	switch c := under.(type) {
 	case Func:
 		return c.Results
 	case Class:
 		return c
 	}
-	v.addError(errCallExpressionNoFunc, WriteType(under))
+	v.addError(errCallExpressionNoFunc, WriteType(call))
 	return standards[Invalid]
+
 }
 
 func resolveUnderlying(t Type) Type {
@@ -311,8 +349,12 @@ func getPropertyType(t Type, name string) (Type, bool) {
 		p, has := c.Funcs[name]
 		return p, has
 	case Enum:
-		_, has := c.Items[name]
-		return standards[Int], has
+		for _, s := range c.Items {
+			if s == name {
+				return standards[Int], true
+			}
+		}
+		return standards[Int], false
 	}
 	return standards[Invalid], false
 }

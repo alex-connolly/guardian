@@ -8,23 +8,23 @@ import (
 func (v *Validator) validateCallExpression(call ast.CallExpressionNode) {
 	exprType := v.resolveExpression(call.Call)
 	args := v.ExpressionTuple(call.Arguments)
-	switch exprType.(type) {
+	switch a := exprType.(type) {
 	case Func:
-		fn := exprType.(Func)
-		if !fn.Params.compare(args) {
-			v.addError(errInvalidFuncCall, WriteType(fn), WriteType(args))
+		if !a.Params.compare(args) {
+			v.addError(errInvalidFuncCall, WriteType(a), WriteType(args))
 		}
 		break
-		// TODO: also handle lifecycle calls
 	case Class:
-		cl := exprType.(Class)
-		constructors := cl.Lifecycles[lexer.TknConstructor]
+		constructors := a.Lifecycles[lexer.TknConstructor]
 		for _, c := range constructors {
 			if NewTuple(c.Parameters...).compare(args) {
-				v.addError(errInvalidConstructorCall, WriteType(cl), WriteType(args))
+				return
 			}
 		}
+		v.addError(errInvalidConstructorCall, WriteType(a), WriteType(args))
 		break
+	default:
+		v.addError(errInvalidCall, WriteType(exprType))
 	}
-	v.addError(errInvalidCall, WriteType(exprType))
+
 }

@@ -1,0 +1,10 @@
+package maths @ 0.0.1
+
+import "bastion"
+
+test func Power() {
+    bastion.Assert(power(1, 2) == 1)
+    bastion.Assert(power(2, 4) == 16)
+    bastion.Assert(power(5, 5) == 25)
+    bastion.Assert(power(10, 3) == 1000)
+}

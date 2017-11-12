@@ -48,25 +48,29 @@ const (
 )
 
 type MapTypeNode struct {
-	Key   Node
-	Value Node
+	Variable bool
+	Key      Node
+	Value    Node
 }
 
 func (n MapTypeNode) Type() NodeType { return MapType }
 
 type ArrayTypeNode struct {
-	Value Node
+	Variable bool
+	Value    Node
 }
 
 func (n ArrayTypeNode) Type() NodeType { return ArrayType }
 
 type PlainTypeNode struct {
-	Names []string
+	Variable bool
+	Names    []string
 }
 
 func (n PlainTypeNode) Type() NodeType { return PlainType }
 
 type FuncTypeNode struct {
+	Variable   bool
 	Identifier string
 	Parameters []Node
 	Results    []Node

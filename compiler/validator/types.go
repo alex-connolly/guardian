@@ -188,10 +188,10 @@ func NewClass(name string, supers []*Class, interfaces []*Interface, types, prop
 type Enum struct {
 	Name   string
 	Supers []*Enum
-	Items  map[string]bool
+	Items  []string
 }
 
-func NewEnum(name string, supers []*Enum, items map[string]bool) Enum {
+func NewEnum(name string, supers []*Enum, items []string) Enum {
 	return Enum{
 		Name:   name,
 		Supers: supers,
@@ -213,6 +213,7 @@ func NewInterface(name string, supers []*Interface, funcs map[string]Func) Inter
 	}
 }
 
+// Contract ...
 type Contract struct {
 	Name       string
 	Supers     []*Contract

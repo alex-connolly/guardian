@@ -189,3 +189,9 @@ func TestResolveBinaryExpressionCast(t *testing.T) {
 	goutil.AssertNow(t, p.Type() == ast.BinaryExpression, "wrong expression type")
 
 }
+
+func TestAttemptToFindType(t *testing.T) {
+	p := parser.ParseExpression("Dog()")
+	v := NewValidator()
+	goutil.Assert(t, v.attemptToFindType(p) == standards[Unknown], "should be unknown")
+}

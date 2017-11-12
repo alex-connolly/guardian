@@ -153,10 +153,7 @@ func (v *Validator) validateEnumDeclaration(node ast.EnumDeclarationNode) {
 		}
 	}
 
-	list := map[string]bool{}
-	for _, s := range node.Enums {
-		list[s] = true
-	}
+	list := node.Enums
 
 	enumType := NewEnum(node.Identifier, supers, list)
 	v.DeclareType(node.Identifier, enumType)
