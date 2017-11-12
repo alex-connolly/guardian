@@ -226,6 +226,7 @@ func TestIsMapType(t *testing.T) {
 func TestIsArrayType(t *testing.T) {
 	p := createParser("[]string")
 	goutil.Assert(t, p.isArrayType(), "array type not recognised")
+
 	p = createParser("[string]")
 	goutil.Assert(t, !p.isArrayType(), "index array type should not be recognised")
 	p = createParser("a[b]")
@@ -235,6 +236,7 @@ func TestIsArrayType(t *testing.T) {
 func TestIsPlainType(t *testing.T) {
 	p := createParser("string")
 	goutil.Assert(t, p.isPlainType(), "simple type not recognised")
+
 	p = createParser("string.hi")
 	goutil.Assert(t, p.isPlainType(), "reference type not recognised")
 	p = createParser("[string]")
@@ -248,4 +250,13 @@ func TestIsPlainType(t *testing.T) {
 	p = createParser(`full("hi", "bye")
 	`)
 	goutil.Assert(t, !p.isPlainType(), "multiline full call type should not be recognised")
+}
+
+func TestVariableTypes(t *testing.T) {
+	p := createParser("...map[string]string")
+	goutil.Assert(t, p.isMapType(), "variable map type not recognised")
+	p = createParser("...[]string")
+	goutil.Assert(t, p.isArrayType(), "variable array type not recognised")
+	p = createParser("...string")
+	goutil.Assert(t, p.isPlainType(), "variable type not recognised")
 }

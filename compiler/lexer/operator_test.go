@@ -54,3 +54,12 @@ func TestDistinguishKeywordsInterface(t *testing.T) {
 	l = LexString("interface(")
 	checkTokens(t, l.Tokens, []TokenType{TknInterface, TknOpenBracket})
 }
+
+func TestDistinguishDots(t *testing.T) {
+	l := LexString("...")
+	checkTokens(t, l.Tokens, []TokenType{TknEllipsis})
+	l = LexString(".")
+	checkTokens(t, l.Tokens, []TokenType{TknDot})
+	l = LexString("....")
+	checkTokens(t, l.Tokens, []TokenType{TknEllipsis, TknDot})
+}

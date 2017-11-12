@@ -57,6 +57,7 @@ func (p *Parser) isNextAType() bool {
 
 func (p *Parser) isPlainType() bool {
 	saved := *p
+	p.parseOptional(lexer.TknEllipsis)
 	expr := p.parseExpressionComponent()
 	*p = saved
 	if expr == nil {
@@ -66,15 +67,30 @@ func (p *Parser) isPlainType() bool {
 }
 
 func (p *Parser) isArrayType() bool {
-	return p.isNextToken(lexer.TknOpenSquare) && p.token(1).Type == lexer.TknCloseSquare
+	immediate := p.nextTokens(lexer.TknOpenSquare, lexer.TknCloseSquare)
+	variable := p.nextTokens(lexer.TknEllipsis, lexer.TknOpenSquare, lexer.TknCloseSquare)
+	return immediate || variable
 }
 
 func (p *Parser) isFuncType() bool {
-	return p.isNextToken(lexer.TknFunc)
+	immediate := p.nextTokens(lexer.TknFunc)
+	variable := p.nextTokens(lexer.TknEllipsis, lexer.TknFunc)
+	return immediate || variable
 }
 
 func (p *Parser) isMapType() bool {
-	return p.isNextToken(lexer.TknMap)
+	immediate := p.nextTokens(lexer.TknMap)
+	variable := p.nextTokens(lexer.TknEllipsis, lexer.TknMap)
+	return immediate || variable
+}
+
+func (p *Parser) nextTokens(tokens ...lexer.TokenType) bool {
+	for i, t := range tokens {
+		if p.token(i).Type != t {
+			return false
+		}
+	}
+	return true
 }
 
 func (p *Parser) modifiersUntilToken(types ...lexer.TokenType) bool {
