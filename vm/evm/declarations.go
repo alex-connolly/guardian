@@ -9,12 +9,13 @@ import (
 )
 
 func (e *Traverser) traverseType(n ast.TypeDeclarationNode) {
-	//
+
 }
 
 func (e *Traverser) traverseClass(n ast.ClassDeclarationNode) {
 	// create constructor hooks
 	// create function hooks
+
 }
 
 func (e *Traverser) traverseInterface(n ast.InterfaceDeclarationNode) {
@@ -43,7 +44,7 @@ func (e *Traverser) addHook(name string) {
 }
 
 func (e *Traverser) traverseEvent(n ast.EventDeclarationNode) {
-	e.AddBytecode(EncodeSignature())
+	e.AddBytecode()
 }
 
 func funcAsString(n ast.FuncDeclarationNode) string {

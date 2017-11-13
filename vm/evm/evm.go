@@ -8,13 +8,22 @@ import (
 	"github.com/end-r/guardian/compiler/ast"
 )
 
+type bytecode []byte
+
 // Traverser
 type Traverser struct {
-	VM    *vmgen.VM
-	hooks []hook
+	VM        *vmgen.VM
+	hooks     []hook
+	callables []callable
 }
 
 type hook struct {
+	name     string
+	position int
+	bytecode []byte
+}
+
+type callable struct {
 	name     string
 	position int
 	bytecode []byte
@@ -32,13 +41,31 @@ func NewTraverser() Traverser {
 //
 
 // Traverse ...
-func (e Traverser) Traverse(node ast.Node) {
+func (e Traverser) Traverse(node ast.Node) bytecode {
 	// do pre-processing/hooks etc
+	e.traverse(node)
 	// generate the bytecode
 	// finalise the bytecode
+	e.finalise()
 }
 
-func (e Traverser) traverse(node ast.Node) {
+func (e Traverser) finalise() {
+	// number of instructions =
+	//
+	for _, hook := range e.hooks {
+		e.VM.AddBytecode("POP")
+
+		e.VM.AddBytecode("EQL")
+		e.VM.AddBytecode("JMPI")
+	}
+	// if the data matches none of the function hooks
+	e.VM.AddBytecode("STOP")
+	for _, callable := range e.callables {
+		// add function bytecode
+	}
+}
+
+func (e Traverser) traverse(node ast.Node) bytecode {
 	// initialise the vm
 	if e.VM == nil {
 		e.VM = firevm.NewVM()

@@ -2,7 +2,6 @@ package parser
 
 import (
 	"github.com/end-r/guardian/compiler/ast"
-
 	"github.com/end-r/guardian/compiler/lexer"
 )
 
@@ -85,6 +84,9 @@ func (p *Parser) isMapType() bool {
 }
 
 func (p *Parser) nextTokens(tokens ...lexer.TokenType) bool {
+	if !p.hasTokens(len(tokens)) {
+		return false
+	}
 	for i, t := range tokens {
 		if p.token(i).Type != t {
 			return false
@@ -162,39 +164,45 @@ func isIfStatement(p *Parser) bool {
 }
 
 func isAssignmentStatement(p *Parser) bool {
+	return p.preserveState(func(p *Parser) bool {
+		for p.parseOptional(lexer.GetModifiers()...) {
+		}
+		expr := p.parseExpression()
+		if expr == nil {
+			return false
+		}
+		for p.parseOptional(lexer.TknComma) {
+			// assume these will be expressions
+			p.parseExpression()
+		}
+		return p.isNextTokenAssignment()
+	})
+}
+
+// performs operations and then returns the parser to its initial state
+func (p *Parser) preserveState(a func(p *Parser) bool) bool {
 	saved := *p
-	for p.parseOptional(lexer.GetModifiers()...) {
-	}
-	expr := p.parseExpression()
-	if expr == nil {
-		*p = saved
-		return false
-	}
-	for p.parseOptional(lexer.TknComma) {
-		// assume these will be expressions
-		p.parseExpression()
-	}
-	flag := p.isNextTokenAssignment()
+	flag := a(p)
 	*p = saved
 	return flag
 }
 
 func isSimpleAssignmentStatement(p *Parser) bool {
-	saved := *p
-	for p.parseOptional(lexer.GetModifiers()...) {
-	}
-	expr := p.parseSimpleExpression()
-	if expr == nil {
-		*p = saved
-		return false
-	}
-	for p.parseOptional(lexer.TknComma) {
-		// assume these will be expressions
-		p.parseSimpleExpression()
-	}
-	flag := p.isNextTokenAssignment()
-	*p = saved
-	return flag
+
+	return p.preserveState(func(p *Parser) bool {
+		for p.parseOptional(lexer.GetModifiers()...) {
+		}
+		expr := p.parseSimpleExpression()
+		if expr == nil {
+			return false
+		}
+		for p.parseOptional(lexer.TknComma) {
+			// assume these will be expressions
+			p.parseSimpleExpression()
+		}
+		return p.isNextTokenAssignment()
+	})
+
 }
 
 func (p *Parser) isNextTokenAssignment() bool {
@@ -216,11 +224,9 @@ func isMultiLineComment(p *Parser) bool {
 }
 
 func isSwitchStatement(p *Parser) bool {
-	if p.hasTokens(2) {
-		return p.isNextToken(lexer.TknSwitch) ||
-			(p.current().Type == lexer.TknExclusive && p.token(1).Type == lexer.TknSwitch)
-	}
-	return p.isNextToken(lexer.TknSwitch)
+	ex := p.nextTokens(lexer.TknExclusive, lexer.TknSwitch)
+	dir := p.nextTokens(lexer.TknSwitch)
+	return ex || dir
 }
 
 func isReturnStatement(p *Parser) bool {
@@ -232,10 +238,10 @@ func isCaseStatement(p *Parser) bool {
 }
 
 func isModifierList(p *Parser) bool {
-	saved := *p
-	for p.parseOptional(lexer.GetModifiers()...) {
-	}
-	flag := p.parseOptional(lexer.TknOpenBracket)
-	*p = saved
-	return flag
+
+	return p.preserveState(func(p *Parser) bool {
+		for p.parseOptional(lexer.GetModifiers()...) {
+		}
+		return p.parseOptional(lexer.TknOpenBracket)
+	})
 }

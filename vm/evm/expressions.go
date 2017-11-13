@@ -5,17 +5,21 @@ import (
 	"github.com/end-r/guardian/compiler/lexer"
 )
 
-func (e *Traverser) traverseArrayLiteral(n ast.ArrayLiteralNode) {
+func (e *Traverser) traverseArrayLiteral(n ast.ArrayLiteralNode) bytecode {
+
+	b := make(bytecode, 0)
+	// create array
 	for _, expr := range n.Data {
-		e.Traverse(expr)
+		b = append(b, e.Traverse(expr)...)
 	}
+	return b
 }
 
-func (e *Traverser) traverseSliceExpression(n ast.SliceExpressionNode) {
+func (e *Traverser) traverseSliceExpression(n ast.SliceExpressionNode) bytecode {
 
 }
 
-func (e *Traverser) traverseCompositeLiteral(n ast.CompositeLiteralNode) {
+func (e *Traverser) traverseCompositeLiteral(n ast.CompositeLiteralNode) bytecode {
 
 	if e.inStorage() {
 
