@@ -9,7 +9,7 @@ Encoding variables and byte signatures. As Guardian enforces the fact that no va
 
 Solidity uses the left-most 4 bytes of the SHA3 hash of the function signature (including parameters).
 
-Guardian currently uses the left-most 4 bytes of the SHA3 hash of the function/variable name. 
+Guardian currently uses the left-most 4 bytes of the SHA3 hash of the function/variable name.
 
 The general structure of a file is as follows:
 
@@ -46,7 +46,7 @@ for i = 0; i < 10; i++ {
 
 This simple loop is translated as follows:
 
-```
+```go
 // init statement
 1 | PUSH "hash of i"
 2 | PUSH 0
@@ -77,5 +77,61 @@ This simple loop is translated as follows:
 17 | JUMPDEST
 
 // continue after the loop
+
+```
+
+## Conditionals
+
+Consider the following example:
+
+```go
+if x = 0; x > 5 {
+
+} elif x == 3 {
+
+} else {
+
+}
+```
+
+```go
+// init
+1 | PUSH "hash of i"
+2 | PUSH 0
+3 | MSTORE
+
+// first condition
+4 | PUSH "hash of i"
+5 | MLOAD
+6 | PUSH 5
+7 | LT
+// jump to next condition
+8 | JUMPI 10
+
+// 2nd if block
+9 | JUMP 17
+
+// evaluate second condition
+10 | JUMPDEST
+11 | PUSH "hash of i"
+12 | PUSH 3
+13 | EQ
+14 | JUMPI 15
+
+// 2nd if block
+15 | JUMP 17
+
+// else block
+16 | JUMPDEST
+
+// flow continues
+17 | JUMPDEST
+```
+
+## Switch Statements
+
+Consider the following example:
+
+```
 
 ```

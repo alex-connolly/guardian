@@ -1,6 +1,8 @@
 package evm
 
 import (
+	"axia/vmgen"
+
 	"github.com/end-r/guardian/compiler/ast"
 	"github.com/end-r/guardian/compiler/lexer"
 )
@@ -18,7 +20,8 @@ func (e *Traverser) traverseCaseStatement(n ast.CaseStatementNode) {
 
 }
 
-func (e *Traverser) traverseForStatement(n ast.ForStatementNode) {
+func (e *Traverser) traverseForStatement(n ast.ForStatementNode) (code vmgen.Bytecode) {
+
 	e.Traverse(n.Init)
 	// if condition, do Block
 	e.Traverse(n.Cond)
