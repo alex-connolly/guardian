@@ -2,13 +2,9 @@ package evm
 
 import (
 	"github.com/end-r/firevm"
-
-	"github.com/end-r/vmgen"
-
 	"github.com/end-r/guardian/compiler/ast"
+	"github.com/end-r/vmgen"
 )
-
-type bytecode []byte
 
 // Traverser
 type Traverser struct {
@@ -41,7 +37,7 @@ func NewTraverser() Traverser {
 //
 
 // Traverse ...
-func (e Traverser) Traverse(node ast.Node) bytecode {
+func (e Traverser) Traverse(node ast.Node) {
 	// do pre-processing/hooks etc
 	e.traverse(node)
 	// generate the bytecode
@@ -65,7 +61,7 @@ func (e Traverser) finalise() {
 	}
 }
 
-func (e Traverser) traverse(node ast.Node) bytecode {
+func (e Traverser) traverse(node ast.Node) (code vmgen.Bytecode) {
 	// initialise the vm
 	if e.VM == nil {
 		e.VM = firevm.NewVM()

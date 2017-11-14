@@ -1,25 +1,57 @@
 package evm
 
 import (
+	"github.com/end-r/vmgen"
+
 	"github.com/end-r/guardian/compiler/ast"
 	"github.com/end-r/guardian/compiler/lexer"
 )
 
-func (e *Traverser) traverseArrayLiteral(n ast.ArrayLiteralNode) bytecode {
+func (e *Traverser) traverseExpression(n ast.ExpressionNode) (code vmgen.Bytecode) {
+	switch node := n.(type) {
+	case ast.ArrayLiteralNode:
+		return e.traverseArrayLiteral(node)
+	case ast.FuncLiteralNode:
+		return e.traverseFuncLiteral(node)
+	case ast.MapLiteralNode:
+		return e.traverseMapLiteral(node)
+	case ast.CompositeLiteralNode:
+		return e.traverseCompositeLiteral(node)
+	case ast.UnaryExpressionNode:
+		return e.traverseUnaryExpr(node)
+	case ast.BinaryExpressionNode:
+		return e.traverseBinaryExpr(node)
+	case ast.CallExpressionNode:
+		return e.traverseCallExpr(node)
+	case ast.IndexExpressionNode:
+		return e.traverseIndex(node)
+	case ast.SliceExpressionNode:
+		return e.traverseSliceExpression(node)
+	case ast.IdentifierNode:
+		return e.traverseIdentifier(node)
+	case ast.ReferenceNode:
+		return e.traverseReference(node)
+	}
+	return code
+}
 
-	b := make(bytecode, 0)
+func (e *Traverser) traverseArrayLiteral(n ast.ArrayLiteralNode) (code vmgen.Bytecode) {
+
 	// create array
 	for _, expr := range n.Data {
-		b = append(b, e.Traverse(expr)...)
+		code.Concat(e.traverseExpression(expr))
 	}
-	return b
+	return code
 }
 
-func (e *Traverser) traverseSliceExpression(n ast.SliceExpressionNode) bytecode {
+func (e *Traverser) traverseSliceExpression(n ast.SliceExpressionNode) (code vmgen.Bytecode) {
+	// evaluate the original expression first
 
+	code.Concat(e.traverseExpression(n.Expression))
+	return code
 }
 
-func (e *Traverser) traverseCompositeLiteral(n ast.CompositeLiteralNode) bytecode {
+func (e *Traverser) traverseCompositeLiteral(n ast.CompositeLiteralNode) (code vmgen.Bytecode) {
 
 	if e.inStorage() {
 
@@ -29,6 +61,11 @@ func (e *Traverser) traverseCompositeLiteral(n ast.CompositeLiteralNode) bytecod
 
 	}
 
+	for _, field := range n.Fields {
+		// evaluate each field
+		code.Concat(e.traverseExpression(field))
+	}
+	return code
 }
 
 var binaryOps = map[lexer.TokenType]string{
@@ -44,7 +81,7 @@ var binaryOps = map[lexer.TokenType]string{
 	lexer.TknXor: "XOR",
 }
 
-func (e *Traverser) traverseBinaryExpr(n ast.BinaryExpressionNode) {
+func (e *Traverser) traverseBinaryExpr(n ast.BinaryExpressionNode) (code vmgen.Bytecode) {
 	/* alter stack:
 
 	| Operand 1 |
@@ -53,17 +90,18 @@ func (e *Traverser) traverseBinaryExpr(n ast.BinaryExpressionNode) {
 
 	Note that these operands may contain further expressions of arbitrary depth.
 	*/
-	e.Traverse(n.Left)
-	e.Traverse(n.Right)
+	code.Concat(e.traverseExpression(n.Left))
+	code.Concat(e.traverseExpression(n.Right))
 	// operation
-	e.AddBytecode(binaryOps[n.Operator])
+	code.Add(binaryOps[n.Operator])
+	return code
 }
 
 var unaryOps = map[lexer.TokenType]string{
 	lexer.TknNot: "NOT",
 }
 
-func (e *Traverser) traverseUnaryExpr(n ast.UnaryExpressionNode) {
+func (e *Traverser) traverseUnaryExpr(n ast.UnaryExpressionNode) (code vmgen.Bytecode) {
 	/* alter stack:
 
 	| Expression 1 |
@@ -71,17 +109,23 @@ func (e *Traverser) traverseUnaryExpr(n ast.UnaryExpressionNode) {
 
 	Note that these expressions may contain further expressions of arbitrary depth.
 	*/
-	e.Traverse(n.Operand)
-	e.AddBytecode(unaryOps[n.Operator])
+	code.Concat(e.traverseExpression(n.Operand))
+	code.Add(unaryOps[n.Operator])
+	// TODO: typeof
+	return code
 }
 
-func (e *Traverser) traverseCallExpr(n ast.CallExpressionNode) {
+func (e *Traverser) traverseCallExpr(n ast.CallExpressionNode) (code vmgen.Bytecode) {
+
 	for _, arg := range n.Arguments {
-		e.Traverse(arg)
+		code.Concat(e.traverseExpression(arg))
 	}
+
+	code.Concat(e.Traverse(n.Call))
+
 	// parameters are at the top of the stack
 	// jump to the top of the function
-
+	return code
 }
 
 func (e *Traverser) traverseLiteral(n ast.LiteralNode) {
@@ -99,36 +143,56 @@ func (e *Traverser) traverseLiteral(n ast.LiteralNode) {
 
 }
 
-func (e *Traverser) traverseIndex(n ast.IndexExpressionNode) {
+func (e *Traverser) traverseIndex(n ast.IndexExpressionNode) (code vmgen.Bytecode) {
 
-	e.Traverse(n.Index)
-	e.Traverse(n.Expression)
+	code.Concat(e.traverseExpression(n.Index))
+	code.Concat(e.traverseExpression(n.Expression))
+
+	// find the offset by multiplying the index by the type
 
 	if e.inStorage() {
-		e.AddBytecode("SLOAD")
+		code.Add("SLOAD")
 	} else {
-		e.AddBytecode("MLOAD")
+		code.Add("MLOAD")
 	}
-
+	return code
 }
 
-func (e *Traverser) traverseMapLiteral(n ast.MapLiteralNode) {
+func (e *Traverser) traverseMapLiteral(n ast.MapLiteralNode) (code vmgen.Bytecode) {
 	// the evm doesn't support maps in the same way firevm does
 	// Solidity converts things to a mapping
 	// all keys to all values etc
 	// precludes iteration
 	// TODO: can we do it better?
-	e.AddBytecode("")
+	for k, v := range n.Data {
+		code.Concat(e.traverse(k))
+		code.Concat(e.traverse(v))
+	}
+	return code
 }
 
-func (e *Traverser) traverseFuncLiteral(n ast.FuncLiteralNode) {
+func (e *Traverser) traverseFuncLiteral(n ast.FuncLiteralNode) (code vmgen.Bytecode) {
 	// create a hook
-
+	return code
 }
 
-func (e *Traverser) traverseReference(n ast.ReferenceNode) {
+func isStorage(name string) bool {
+	return false
+}
 
-	e.AddBytecode("PUSH")
+func (e *Traverser) traverseIdentifier(n ast.IdentifierNode) (code vmgen.Bytecode) {
+	code.Add("PUSH", EncodeName(n.Name)...)
+	if isStorage(n.Name) {
+		code.Add("SLOAD")
+	} else {
+		code.Add("MLOAD")
+	}
+	return code
+}
+
+func (e *Traverser) traverseReference(n ast.ReferenceNode) (code vmgen.Bytecode) {
+
+	code.Concat(e.traverse(n.Parent))
 
 	if e.inStorage() {
 		e.AddBytecode("SLOAD")
@@ -150,4 +214,5 @@ func (e *Traverser) traverseReference(n ast.ReferenceNode) {
 	} else {
 		e.AddBytecode("GET")
 	}*/
+	return code
 }

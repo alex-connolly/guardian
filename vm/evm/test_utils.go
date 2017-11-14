@@ -8,6 +8,10 @@ import (
 	"github.com/end-r/vmgen"
 )
 
+func invalidBytecodeMessage(actual, expected bytecode) string {
+	return fmt.Sprintf("Expected: %s\nActual: %s", string(actual), string(expected))
+}
+
 func checkMnemonics(t *testing.T, is map[byte]*vmgen.Instruction, es []string) {
 	goutil.AssertNow(t, is != nil, "instructions shouldn't be nil")
 	goutil.AssertNow(t, len(is) == len(es), "wrong num of instructions")
