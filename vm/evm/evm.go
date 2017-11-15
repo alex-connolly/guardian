@@ -47,18 +47,18 @@ func (e Traverser) Traverse(node ast.Node) {
 
 func (e Traverser) finalise() {
 	// number of instructions =
-	//
-	for _, hook := range e.hooks {
-		e.VM.AddBytecode("POP")
+	/*
+		for _, hook := range e.hooks {
+			e.VM.AddBytecode("POP")
 
-		e.VM.AddBytecode("EQL")
-		e.VM.AddBytecode("JMPI")
-	}
-	// if the data matches none of the function hooks
-	e.VM.AddBytecode("STOP")
-	for _, callable := range e.callables {
-		// add function bytecode
-	}
+			e.VM.AddBytecode("EQL")
+			e.VM.AddBytecode("JMPI")
+		}
+		// if the data matches none of the function hooks
+		e.VM.AddBytecode("STOP")
+		for _, callable := range e.callables {
+			// add function bytecode
+		}*/
 }
 
 func (e Traverser) traverse(node ast.Node) (code vmgen.Bytecode) {
@@ -106,9 +106,6 @@ func (e Traverser) traverse(node ast.Node) (code vmgen.Bytecode) {
 	case ast.CompositeLiteral:
 		e.traverseCompositeLiteral(node.(ast.CompositeLiteralNode))
 		break
-	case ast.SliceExpression:
-		e.traverseSliceExpression(node.(ast.SliceExpressionNode))
-		break
 	case ast.ArrayLiteral:
 		e.traverseArrayLiteral(node.(ast.ArrayLiteralNode))
 		break
@@ -134,6 +131,7 @@ func (e Traverser) traverse(node ast.Node) (code vmgen.Bytecode) {
 		e.traverseSwitchStatement(node.(ast.SwitchStatementNode))
 		break
 	}
+	return code
 }
 
 func (e *Traverser) inStorage() bool {

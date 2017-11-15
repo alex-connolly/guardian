@@ -1,7 +1,7 @@
 
 ## Guardian --> EVM
 
-Experimental implementation of a compiler from Guardian to EVM bytecode.
+Experimental implementation of a compiler from a Guardian AST to EVM bytecode.
 
 ### Encoding
 
@@ -30,6 +30,21 @@ if sig == 0x0000000...1
 STOP // marks the end of the external functions
 JUMPDEST // marks the start of the internal functions
 
+STOP
+// here are the actual functions
+func add(a, b int) int { return a + b }
+JUMPDEST
+PUSH "hash of a"
+MSTORE
+PUSH "hash of b"
+MSTORE
+PUSH "hash of a"
+MLOAD
+PUSH "hash of b"
+MLOAD
+ADD
+
+// always include a stop so that there can be no bleed between functions
 STOP
 
 ```
@@ -116,7 +131,7 @@ if x = 0; x > 5 {
 11 | PUSH "hash of i"
 12 | PUSH 3
 13 | EQ
-14 | JUMPI 15
+14 | JUMPI 16
 
 // 2nd if block
 15 | JUMP 17
@@ -130,8 +145,95 @@ if x = 0; x > 5 {
 
 ## Switch Statements
 
+General structure:
+
+```
+evaluate original expression
+for each case:
+    evaluate each expression, compare to result
+    execute from there
+    break = JUMP to end of most recent break-able construct
+```
+
 Consider the following example:
+
+```go
+switch x {
+case 3:
+    break
+case 5, 6:
+    break
+}
+```
+
+```go
+// evaluate original expression
+1 | PUSH "hash of x"
+1 | MLOAD
+
+// first case
+1 | PUSH 3
+1 | EQ
+// conditional jump to the next case
+1 | JUMPI
+// first case code
+1 | JUMP // optional break statement
+
+// second case
+2 | PUSH 5
+// conditional jump to t
+```
+
+This also works for switch expressions without targets:
+
+```go
+switch {
+case x > 5:
+    break
+case x == 3:
+    break
+case x < 2:
+    break
+}
+```
+
+```go
 
 ```
 
+## Assignments
+
+General structure:
+
+```go
+for i in range len(left):
+    evaluate left[i]
+    evaluate right[i]
+    contextually store it
+```
+
+Consider the following examples:
+
+```go
+x[6] = 7
+```
+
+## Return Statements
+
+Return statements must push all the returned values onto the stack.
+
+```
+for each return parameter
+    push it onto the stack
+terminate function execution
+```
+
+```go
+return 5, "hi"
+```
+
+```go
+PUSH 5
+PUSH "hi"
+// top of the stack
 ```

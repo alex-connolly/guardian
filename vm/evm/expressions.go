@@ -121,7 +121,10 @@ func (e *Traverser) traverseCallExpr(n ast.CallExpressionNode) (code vmgen.Bytec
 		code.Concat(e.traverseExpression(arg))
 	}
 
-	code.Concat(e.Traverse(n.Call))
+	// traverse the call expression
+	// should leave the function address on top of the stack
+
+	code.Concat(e.traverse(n.Call))
 
 	// parameters are at the top of the stack
 	// jump to the top of the function

@@ -1,7 +1,7 @@
 package evm
 
 import (
-	"axia/vmgen"
+	"github.com/end-r/vmgen"
 
 	"github.com/end-r/guardian/compiler/ast"
 	"github.com/end-r/guardian/compiler/lexer"
@@ -22,12 +22,33 @@ func (e *Traverser) traverseCaseStatement(n ast.CaseStatementNode) {
 
 func (e *Traverser) traverseForStatement(n ast.ForStatementNode) (code vmgen.Bytecode) {
 
-	e.Traverse(n.Init)
-	// if condition, do Block
-	e.Traverse(n.Cond)
-	e.Traverse(n.Block)
-	e.Traverse(n.Post)
-	// jump back to the start of the loop
+	// init statement
+	// jumpdest
+	// condition
+	// jump to end
+	// regular loop processes would occur here
+	// post statement
+	// jump back to them top of the loop
+	// jumpdest
+	// continue after the loop
+
+	init := e.traverse(n.Init)
+
+	cond := e.traverseExpression(n.Cond)
+
+	block := e.traverse(n.Block)
+
+	post := e.traverse(n.Post)
+
+	code.Concat(init)
+	code.Add("JUMPDEST")
+	code.Concat(cond)
+	code.Add("JUMPI")
+	code.Concat(block)
+	code.Concat(post)
+	code.Add("JUMP")
+
+	return code
 }
 
 func (e *Traverser) traverseReturnStatement(n ast.ReturnStatementNode) {

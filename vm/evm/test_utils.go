@@ -8,8 +8,8 @@ import (
 	"github.com/end-r/vmgen"
 )
 
-func invalidBytecodeMessage(actual, expected bytecode) string {
-	return fmt.Sprintf("Expected: %s\nActual: %s", string(actual), string(expected))
+func invalidBytecodeMessage(actual, expected vmgen.Bytecode) string {
+	return fmt.Sprintf("Expected: %s\nActual: %s", expected.Format(), actual.Format())
 }
 
 func checkMnemonics(t *testing.T, is map[byte]*vmgen.Instruction, es []string) {
