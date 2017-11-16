@@ -1,6 +1,8 @@
 package evm
 
 import (
+	"fmt"
+
 	"github.com/end-r/vmgen"
 
 	"github.com/end-r/guardian/compiler/ast"
@@ -31,6 +33,8 @@ func (e *Traverser) traverseExpression(n ast.ExpressionNode) (code vmgen.Bytecod
 		return e.traverseIdentifier(node)
 	case ast.ReferenceNode:
 		return e.traverseReference(node)
+	case ast.LiteralNode:
+		return e.traverseLiteral(node)
 	}
 	return code
 }
@@ -131,19 +135,21 @@ func (e *Traverser) traverseCallExpr(n ast.CallExpressionNode) (code vmgen.Bytec
 	return code
 }
 
-func (e *Traverser) traverseLiteral(n ast.LiteralNode) {
+func (e *Traverser) traverseLiteral(n ast.LiteralNode) (code vmgen.Bytecode) {
 	// Literal Nodes are directly converted to push instructions
 	// these nodes must be divided into blocks of 16 bytes
 	// in order to maintain
 
-	bytes := n.GetBytes()
-	const maxLength = 16
+	// maximum number size is 256 bits (32 bytes)
 
-	for remaining := len(bytes); remaining > maxLength; remaining -= maxLength {
-		base := len(bytes) - remaining
-		e.AddBytecode("PUSH", bytes[base:base+maxLength]...)
+	bytes := []byte(n.Data)
+
+	if len(bytes) > 32 {
+		// TODO: error
 	}
-
+	op := fmt.Sprintf("PUSH%d", len(bytes))
+	code.Add(op, bytes...)
+	return code
 }
 
 func (e *Traverser) traverseIndex(n ast.IndexExpressionNode) (code vmgen.Bytecode) {
@@ -175,7 +181,7 @@ func (e *Traverser) traverseMapLiteral(n ast.MapLiteralNode) (code vmgen.Bytecod
 }
 
 func (e *Traverser) traverseFuncLiteral(n ast.FuncLiteralNode) (code vmgen.Bytecode) {
-	// create a hook
+	// create an internal hook
 	return code
 }
 
@@ -198,9 +204,9 @@ func (e *Traverser) traverseReference(n ast.ReferenceNode) (code vmgen.Bytecode)
 	code.Concat(e.traverse(n.Parent))
 
 	if e.inStorage() {
-		e.AddBytecode("SLOAD")
+		code.Add("SLOAD")
 	} else {
-		e.AddBytecode("MLOAD")
+		code.Add("MLOAD")
 	}
 
 	// reference e.g. dog.tail.wag()

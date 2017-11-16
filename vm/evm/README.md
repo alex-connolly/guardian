@@ -5,11 +5,71 @@ Experimental implementation of a compiler from a Guardian AST to EVM bytecode.
 
 ### Encoding
 
-Encoding variables and byte signatures. As Guardian enforces the fact that no variables or functions have the same name.
-
 Solidity uses the left-most 4 bytes of the SHA3 hash of the function signature (including parameters).
 
 Guardian currently uses the left-most 4 bytes of the SHA3 hash of the function/variable name.
+
+## Builtin Functions/Variables
+
+These builtins are passed to the Guardian compiler along with the traverser and prevent the compilation of.
+
+These builtins are largely the same as Solidity, to promote consistency.
+
+Block/Transaction Properties:
+
+| Name | Type | EVM Opcode | Description |
+|:-----------:|:----:|:----------:|
+| msg.data | CALLDATA   |
+| msg.gas | uint |
+| msg.sender | CALLER         |
+| msg.sig | bytes4 | | First 4 bytes of msg.data
+| block.timestamp/now |
+| block.number | BLOCKNUMBER |
+| block.blockhash(blockNumber uint) | bytes32 |
+| block.gaslimit | |
+| block.coinbase | address | COINBASE | current block's miner address
+| tx.gasprice | uint | GASPRICE | gas price of the transaction |
+| tx.origin | address | ORIGIN | sender of the transaction (full call chain) |
+
+Mathematical/Cryptographic Functions:
+
+| Name | Type | EVM Opcode | Description |
+|:-----------:|:----:|:----------:|
+| addmod(x, y, k uint) | uint | ADDMOD |
+| mulmod(x, y, k uint) | uint | MULMOD |
+| keccak256(...) | bytes32 |
+| sha256 |
+| sha3 | | | alias to keccak256 |
+| ripemd160 | | | |
+| ecreover(v uint8, hash, r, s bytes32) | address
+
+
+Address Related:
+
+Guardian treats these as functions rather than properties, to avoid confusion with syntax like ```this.setX()```.
+
+| Name | Type | EVM Opcode | Description |
+|:-----------:|:----:|:----------:|
+| balance(address) | uint256 | BALANCE |
+| transfer(address, amount uint256) | uint | MULMOD |
+| send(address, amount uint256) | bool |
+| call(address) | bool |
+| delegatecall(address) | bool | DELEGATECALL  |
+
+Contract Related:
+
+| Name | Type | EVM Opcode | Description |
+|:-----------:|:----:|:----------:|
+| this | address | ADDRESS | the current contract address
+| selfdestruct(recipient address) | uint256 | SELFDESTRUCT | destroy the current contract, sending its funds to the given Address |
+
+
+
+
+
+
+
+
 
 The general structure of a file is as follows:
 
@@ -233,7 +293,55 @@ return 5, "hi"
 ```
 
 ```go
-PUSH 5
-PUSH "hi"
+1 | PUSH 5
+2 | PUSH "hi"
 // top of the stack
 ```
+
+## Expressions
+
+### Binary Expressions
+
+```go
+// add left expr bytecode
+// add right expr bytecode
+// add operation
+```
+
+```go
+1 | PUSH 1
+2 | PUSH 4
+3 | ADD
+```
+
+### Unary Expressions
+
+```go
+// add expr bytecode
+// add operation
+```
+
+```go
+1 | PUSH 0x000001
+2 | NOT
+```
+
+### Call Expressions
+
+### Index Expressions
+
+Find the size of the type of an e
+
+### Slice Expressions
+
+### Identifiers
+
+The data referenced by an identifier is either in storage or in memory. To access a variable, push the
+
+```go
+PUSH "hash of i"
+```
+
+And then either ```SLOAD```/```MLOAD``` the data at that address.
+
+### Reference Expressions

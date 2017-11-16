@@ -1,30 +1,138 @@
 package evm
 
 import (
-	"axia/guardian/compiler/parser"
+	"fmt"
 	"testing"
 
+	"github.com/end-r/guardian/compiler/parser"
+
 	"github.com/end-r/goutil"
-	"github.com/end-r/guardian"
 )
 
-func TestBinaryExpressionBytecodeLiterals(t *testing.T) {
-	e := new(Traverser)
-	guardian.CompileString(e, "x = 1 + 5")
-	checkMnemonics(t, e.VM.Instructions, []string{
-		"PUSH", // push 1
-		"PUSH", // push 5
-		"ADD",  // perform operation
-	})
-	checkStack(t, e.VM.Stack, [][]byte{
-		[]byte{byte(6)},
-	})
-}
-
-func TraverseSimpleIdentifierExpression(t *testing.T) {
+func TestTraverseSimpleIdentifierExpression(t *testing.T) {
 	e := new(Traverser)
 	expr := parser.ParseExpression("hello")
-	bytes := e.traverse(expr)
-	expected := bytecodeString("s")
-	goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
+	bytes := e.traverseExpression(expr)
+	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
+	fmt.Println(bytes.Format())
+	goutil.Assert(t, bytes.Length() == 2, "wrong bc length")
+}
+
+func TestTraverseLiteralsBinaryExpression(t *testing.T) {
+	e := new(Traverser)
+	expr := parser.ParseExpression("1 + 2")
+	bytes := e.traverseExpression(expr)
+	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
+	fmt.Println(bytes.Format())
+	goutil.Assert(t, bytes.Length() == 3, "wrong bc length")
+}
+
+func TestTraverseIdentifierBinaryExpression(t *testing.T) {
+	e := new(Traverser)
+	expr := parser.ParseExpression("a + b")
+	bytes := e.traverseExpression(expr)
+	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
+	fmt.Println(bytes.Format())
+	// should be two commands for each id
+	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+}
+
+func TestTraverseCallBinaryExpression(t *testing.T) {
+	e := new(Traverser)
+	expr := parser.ParseExpression("a() + b()")
+	bytes := e.traverseExpression(expr)
+	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
+	fmt.Println(bytes.Format())
+	// should be two commands for each id
+	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+}
+
+func TestTraverseIndexExpressionIdentifierLiteral(t *testing.T) {
+	e := new(Traverser)
+	expr := parser.ParseExpression("a[1]")
+	bytes := e.traverseExpression(expr)
+	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
+	fmt.Println(bytes.Format())
+	// should be two commands for each id
+	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+}
+
+func TestTraverseIndexExpressionIdentifierIdentifier(t *testing.T) {
+	e := new(Traverser)
+	expr := parser.ParseExpression("a[b]")
+	bytes := e.traverseExpression(expr)
+	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
+	fmt.Println(bytes.Format())
+	// should be two commands for each id
+	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+}
+
+func TestTraverseIndexExpressionIdentifierCall(t *testing.T) {
+	e := new(Traverser)
+	expr := parser.ParseExpression("a[b()]")
+	bytes := e.traverseExpression(expr)
+	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
+	fmt.Println(bytes.Format())
+	// should be two commands for each id
+	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+}
+
+func TestTraverseIndexExpressionIdentifierIndex(t *testing.T) {
+	e := new(Traverser)
+	expr := parser.ParseExpression("a[b[c]]")
+	bytes := e.traverseExpression(expr)
+	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
+	fmt.Println(bytes.Format())
+	// should be two commands for each id
+	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+}
+
+func TestTraverseIndexExpressionCallIdentifier(t *testing.T) {
+	e := new(Traverser)
+	expr := parser.ParseExpression("a()[b]")
+	bytes := e.traverseExpression(expr)
+	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
+	fmt.Println(bytes.Format())
+	// should be two commands for each id
+	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+}
+
+func TestTraverseIndexExpressionCallLiteral(t *testing.T) {
+	e := new(Traverser)
+	expr := parser.ParseExpression("a()[1]")
+	bytes := e.traverseExpression(expr)
+	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
+	fmt.Println(bytes.Format())
+	// should be two commands for each id
+	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+}
+
+func TestTraverseIndexExpressionCallCall(t *testing.T) {
+	e := new(Traverser)
+	expr := parser.ParseExpression("a()[b()]")
+	bytes := e.traverseExpression(expr)
+	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
+	fmt.Println(bytes.Format())
+	// should be two commands for each id
+	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+}
+
+func TestTraverseReferenceCallEmpty(t *testing.T) {
+	e := new(Traverser)
+	expr := parser.ParseExpression("math.Pow()")
+	bytes := e.traverseExpression(expr)
+	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
+	fmt.Println(bytes.Format())
+	// should be two commands for each id
+	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+}
+
+func TestTraverseReferenceCallArgs(t *testing.T) {
+	e := new(Traverser)
+	expr := parser.ParseExpression("math.Pow(2, 2)")
+	bytes := e.traverseExpression(expr)
+	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
+	fmt.Println(bytes.Format())
+	// should be two commands for each id
+	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
 }

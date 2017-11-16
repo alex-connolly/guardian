@@ -1,5 +1,6 @@
 package evm
 
+// EncodeName ...
 func EncodeName(name string) []byte {
 	/*
 		// ethereum uses the 'original keccak' (disbyte of 1 rather than 6)

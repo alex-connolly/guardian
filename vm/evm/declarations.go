@@ -1,34 +1,39 @@
 package evm
 
 import (
+	"github.com/end-r/vmgen"
+
 	"github.com/end-r/guardian/compiler/lexer"
 
 	"github.com/end-r/guardian/compiler/ast"
 )
 
-func (e *Traverser) traverseType(n ast.TypeDeclarationNode) {
-
+func (e *Traverser) traverseType(n ast.TypeDeclarationNode) (code vmgen.Bytecode) {
+	return code
 }
 
-func (e *Traverser) traverseClass(n ast.ClassDeclarationNode) {
+func (e *Traverser) traverseClass(n ast.ClassDeclarationNode) (code vmgen.Bytecode) {
 	// create constructor hooks
 	// create function hooks
-
+	return code
 }
 
-func (e *Traverser) traverseInterface(n ast.InterfaceDeclarationNode) {
+func (e *Traverser) traverseInterface(n ast.InterfaceDeclarationNode) (code vmgen.Bytecode) {
 	// don't need to be interacted with
 	// all interfaces are dealt with by the type system
+	return code
 }
 
-func (e *Traverser) traverseEnum(n ast.EnumDeclarationNode) {
+func (e *Traverser) traverseEnum(n ast.EnumDeclarationNode) (code vmgen.Bytecode) {
 	// create hook
+	return code
 }
 
-func (e *Traverser) traverseContract(n ast.ContractDeclarationNode) {
+func (e *Traverser) traverseContract(n ast.ContractDeclarationNode) (code vmgen.Bytecode) {
 	// create hooks for functions
 	// create hooks for constructors
 	// create hooks for events
+	return code
 }
 
 func (e *Traverser) addHook(name string) {
@@ -41,28 +46,30 @@ func (e *Traverser) addHook(name string) {
 	e.hooks = append(e.hooks, h)
 }
 
-func (e *Traverser) traverseEvent(n ast.EventDeclarationNode) {
-
+func (e *Traverser) traverseEvent(n ast.EventDeclarationNode) (code vmgen.Bytecode) {
+	return code
 }
-func (e *Traverser) traverseFunc(n ast.FuncDeclarationNode) {
+
+func (e *Traverser) traverseFunc(n ast.FuncDeclarationNode) (code vmgen.Bytecode) {
 
 	hook := EncodeName(n.Identifier)
 
 	e.addHook(string(hook))
 
-	e.AddBytecode("JUMPDEST")
+	code.Add("JUMPDEST")
 	e.Traverse(n.Body)
 	// TODO: add something to prevent further execution
 
 	// all evm functions create a hook at the start of the contract
 	// when executing, will jump to one of these functions
-	e.AddBytecode("CALLDATA")
+	code.Add("CALLDATA")
 	// the ABI defines this as being the first 4 bytes of the SHA-3 hash of the function signature
 	// as guardian signatures are not stringified quite as easily
 	// have to do something clever
 	if hasModifier(n, lexer.TknExternal) {
-		//e.AddBytecode(EncodeSignature())
-		e.AddBytecode("EQL")
-		e.AddBytecode("JMPI")
+		//code.Add(EncodeSignature())
+		code.Add("EQL")
+		code.Add("JMPI")
 	}
+	return code
 }

@@ -7,17 +7,17 @@ import (
 	"github.com/end-r/guardian/compiler/lexer"
 )
 
-func (e *Traverser) traverseSwitchStatement(n ast.SwitchStatementNode) {
+func (e *Traverser) traverseSwitchStatement(n ast.SwitchStatementNode) (code vmgen.Bytecode) {
 	// always traverse the target
 	e.Traverse(n.Target)
 	// switch statements are implicitly converted to if statements
 	// may be a better way to do this
 	// Solidity doesn't have a switch so shrug
-
+	return code
 }
 
-func (e *Traverser) traverseCaseStatement(n ast.CaseStatementNode) {
-
+func (e *Traverser) traverseCaseStatement(n ast.CaseStatementNode) (code vmgen.Bytecode) {
+	return code
 }
 
 func (e *Traverser) traverseForStatement(n ast.ForStatementNode) (code vmgen.Bytecode) {
@@ -51,20 +51,22 @@ func (e *Traverser) traverseForStatement(n ast.ForStatementNode) (code vmgen.Byt
 	return code
 }
 
-func (e *Traverser) traverseReturnStatement(n ast.ReturnStatementNode) {
+func (e *Traverser) traverseReturnStatement(n ast.ReturnStatementNode) (code vmgen.Bytecode) {
 	for _, r := range n.Results {
 		e.Traverse(r)
 	}
+	return code
 }
 
-func (e *Traverser) traverseIfStatement(n ast.IfStatementNode) {
+func (e *Traverser) traverseIfStatement(n ast.IfStatementNode) (code vmgen.Bytecode) {
 	for _, c := range n.Conditions {
 		e.Traverse(c.Condition)
 		e.Traverse(c.Body)
 	}
+	return code
 }
 
-func (e *Traverser) traverseAssignmentStatement(n ast.AssignmentStatementNode) {
+func (e *Traverser) traverseAssignmentStatement(n ast.AssignmentStatementNode) (code vmgen.Bytecode) {
 	// consider mismatched lengths
 	if len(n.Left) > 1 && len(n.Right) == 1 {
 		for _, l := range n.Left {
@@ -72,7 +74,7 @@ func (e *Traverser) traverseAssignmentStatement(n ast.AssignmentStatementNode) {
 			e.Traverse(n.Right[0])
 			// assignments are either in memory or storage depending on the context
 			if e.inStorage() || hasModifier(n, lexer.TknStorage) {
-				e.AddBytecode("")
+				code.Add("")
 			}
 		}
 	} else {
@@ -81,11 +83,11 @@ func (e *Traverser) traverseAssignmentStatement(n ast.AssignmentStatementNode) {
 			e.Traverse(n.Right[i])
 			// assignments are either in memory or storage depending on the context
 			if e.inStorage() || hasModifier(n, lexer.TknStorage) {
-				e.AddBytecode("")
+				code.Add("")
 			}
 		}
 	}
-
+	return code
 }
 
 func hasModifier(n ast.Node, modifier lexer.TokenType) bool {
