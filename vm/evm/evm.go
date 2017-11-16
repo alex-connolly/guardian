@@ -29,6 +29,35 @@ func NewTraverser() Traverser {
 	return Traverser{}
 }
 
+func (e Traverser) GetTypes() map[string]guardian.Type{
+	return map[string]guardian.Type {
+		"uint": guardian.NumericType{size:256, signed: false, integer:true},
+		"int": guardian.NumericType{size:256, signed: true, integer:true},
+		"uint256": guardian.NumericType{size:256, signed: false, integer:true},
+		"int256": guardian.NumericType{size:256, signed: true, integer:true},
+		"uint8": guardian.NumericType{size:8, signed: false, integer:true},
+		"int8": guardian.NumericType{size:8, signed: true, integer:true},
+		"byte": guardian.NumericType{size:8, signed: true, integer:true},
+		"string": guardian.ArrayType{key:"byte"},
+		"address":
+	}
+}
+
+func (e Traverser) GetBuiltins() map[string]guardian.Type {
+	 return map[string]guardian.Builtin {
+		 "msg": guardian.ParseBuiltin(`
+			 	data string
+				gas uint
+				sender address
+				func sig() []byte {
+					return data[:4]
+				}
+				`),
+			
+		 }
+	 }
+}
+
 // A hook conditionally jumps the code to a particular point
 //
 

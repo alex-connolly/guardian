@@ -1,5 +1,19 @@
 package guardian
 
+import (
+	"github.com/end-r/guardian/compiler/ast"
+	"github.com/end-r/vmgen"
+)
+
+// A Traverser is the mechanism through which all vm-specific features are applied
+// to the Guardian AST: bytecode generation, type enforcement
+type VM interface {
+	Traverse(ast.Node) vmgen.Bytecode
+	Builtins() map[string]Builtin
+	Types() map[string]Type
+	Permitted() map[ast.NodeType]bool
+}
+
 /*
 // Traverser ...
 type Traverser interface {

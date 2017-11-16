@@ -18,30 +18,30 @@ These builtins are largely the same as Solidity, to promote consistency.
 Block/Transaction Properties:
 
 | Name | Type | EVM Opcode | Description |
-|:-----------:|:----:|:----------:|
-| msg.data | CALLDATA   |
-| msg.gas | uint |
-| msg.sender | CALLER         |
-| msg.sig | bytes4 | | First 4 bytes of msg.data
-| block.timestamp/now |
-| block.number | BLOCKNUMBER |
-| block.blockhash(blockNumber uint) | bytes32 |
-| block.gaslimit | |
-| block.coinbase | address | COINBASE | current block's miner address
+|:-----------:|:----:|:----------:|:----|
+| msg.data | bytes | CALLDATA | complete calldata |
+| msg.gas | uint | GAS | remaining gas |
+| msg.sender | address | CALLER | sender of the message (current call) |
+| msg.sig | bytes4 | N/A | First 4 bytes of msg.data |
+| block.timestamp | uint | TIMESTAMP | current block timestamp as seconds since unix epoch |
+| block.number | uint | BLOCKNUMBER | current block number |
+| block.blockhash(blockNumber uint) | bytes32 | BLOCKHASH | hash of the given block - only works for 256 most recent blocks excluding current |
+| block.gaslimit | uint | GASLIMIT | current block's gas limit |
+| block.coinbase | address | COINBASE | current block's miner address |
 | tx.gasprice | uint | GASPRICE | gas price of the transaction |
 | tx.origin | address | ORIGIN | sender of the transaction (full call chain) |
 
 Mathematical/Cryptographic Functions:
 
 | Name | Type | EVM Opcode | Description |
-|:-----------:|:----:|:----------:|
-| addmod(x, y, k uint) | uint | ADDMOD |
-| mulmod(x, y, k uint) | uint | MULMOD |
+|:-----------:|:----:|:----------:|:----|
+| addmod(x, y, k uint) | uint | ADDMOD | compute (x + y) % k where the addition is performed with arbitrary precision and does not wrap around at 2**256 |
+| mulmod(x, y, k uint) | uint | MULMOD | compute (x * y) % k where the multiplication is performed with arbitrary precision and does not wrap around at 2**256 |
 | keccak256(...) | bytes32 |
-| sha256 |
+| sha256 | | | |
 | sha3 | | | alias to keccak256 |
 | ripemd160 | | | |
-| ecreover(v uint8, hash, r, s bytes32) | address
+| ecreover(v uint8, hash, r, s bytes32) | address | | |
 
 
 Address Related:
@@ -49,7 +49,7 @@ Address Related:
 Guardian treats these as functions rather than properties, to avoid confusion with syntax like ```this.setX()```.
 
 | Name | Type | EVM Opcode | Description |
-|:-----------:|:----:|:----------:|
+|:-----------:|:----:|:----------:|:----|
 | balance(address) | uint256 | BALANCE |
 | transfer(address, amount uint256) | uint | MULMOD |
 | send(address, amount uint256) | bool |
@@ -59,7 +59,7 @@ Guardian treats these as functions rather than properties, to avoid confusion wi
 Contract Related:
 
 | Name | Type | EVM Opcode | Description |
-|:-----------:|:----:|:----------:|
+|:-----------:|:----:|:----------:|:----|
 | this | address | ADDRESS | the current contract address
 | selfdestruct(recipient address) | uint256 | SELFDESTRUCT | destroy the current contract, sending its funds to the given Address |
 
