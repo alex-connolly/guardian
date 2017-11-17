@@ -6,6 +6,26 @@ import (
 	"github.com/end-r/guardian/compiler/ast"
 )
 
+type Builtin interface {
+	Name() string
+	Children() map[string]Builtin
+	Type() Type
+}
+
+// Validate...
+func Validate(scope *ast.ScopeNode, primitiveTypes map[string]Type, builtins map[string]Builtin) {
+	v := new(Validator)
+	ts := &TypeScope{
+		parent: nil,
+		scope:  scope,
+	}
+	v.scope = ts
+	for name, typ := range primitiveTypes {
+		v.DeclareType(name, typ)
+	}
+
+}
+
 // ValidateScope validates an ast...
 func ValidateScope(scope *ast.ScopeNode) *Validator {
 	v := new(Validator)
