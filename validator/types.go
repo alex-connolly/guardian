@@ -3,9 +3,9 @@ package validator
 import (
 	"bytes"
 
-	"github.com/end-r/guardian/compiler/lexer"
+	"github.com/end-r/guardian/lexer"
 
-	"github.com/end-r/guardian/compiler/ast"
+	"github.com/end-r/guardian/ast"
 )
 
 // There are 5 first-class guardian types:

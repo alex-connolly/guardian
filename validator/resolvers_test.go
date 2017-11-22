@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/end-r/guardian/compiler/ast"
-	"github.com/end-r/guardian/compiler/parser"
+	"github.com/end-r/guardian/ast"
+	"github.com/end-r/guardian/parser"
 
 	"github.com/end-r/goutil"
 )

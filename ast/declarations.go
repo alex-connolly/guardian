@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/end-r/guardian/compiler/lexer"
+import "github.com/end-r/guardian/lexer"
 
 type TypeDeclarationNode struct {
 	Modifiers  []lexer.TokenType

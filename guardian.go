@@ -3,9 +3,8 @@ package guardian
 import (
 	"fmt"
 
-	"githbu.come/end-r/guardian/validator"
-
-	"github.com/end-r/guardian/compiler/ast"
+	"github.com/end-r/guardian/validator"
+	"github.com/end-r/guardian/ast"
 	"github.com/end-r/vmgen"
 )
 

@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/end-r/guardian/compiler/lexer"
+	"github.com/end-r/guardian/lexer"
 )
 
 type AssignmentStatementNode struct {

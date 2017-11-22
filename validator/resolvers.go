@@ -1,9 +1,9 @@
 package validator
 
 import (
-	"github.com/end-r/guardian/compiler/lexer"
+	"github.com/end-r/guardian/lexer"
 
-	"github.com/end-r/guardian/compiler/ast"
+	"github.com/end-r/guardian/ast"
 )
 
 func (v *Validator) resolveType(node ast.Node) Type {

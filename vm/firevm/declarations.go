@@ -1,6 +1,6 @@
 package firevm
 
-import "github.com/end-r/guardian/compiler/ast"
+import "github.com/end-r/guardian/ast"
 
 func (a *Arsonist) traverseType(n ast.TypeDeclarationNode) {
 

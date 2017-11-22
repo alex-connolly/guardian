@@ -1,7 +1,7 @@
 package avm
 
 import (
-	"github.com/end-r/guardian/compiler/ast"
+	"github.com/end-r/guardian/ast"
 )
 
 // Traverser ...

@@ -3,7 +3,7 @@ package validator
 import (
 	"fmt"
 
-	"github.com/end-r/guardian/compiler/ast"
+	"github.com/end-r/guardian/ast"
 )
 
 type Builtin interface {

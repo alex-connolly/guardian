@@ -1,8 +1,8 @@
 package validator
 
 import (
-	"github.com/end-r/guardian/compiler/ast"
-	"github.com/end-r/guardian/compiler/lexer"
+	"github.com/end-r/guardian/ast"
+	"github.com/end-r/guardian/lexer"
 )
 
 func (v *Validator) validateCallExpression(call ast.CallExpressionNode) {

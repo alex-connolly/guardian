@@ -3,9 +3,9 @@ package evm
 import (
 	"github.com/end-r/vmgen"
 
-	"github.com/end-r/guardian/compiler/lexer"
+	"github.com/end-r/guardian/lexer"
 
-	"github.com/end-r/guardian/compiler/ast"
+	"github.com/end-r/guardian/ast"
 )
 
 func (e *Traverser) traverseType(n ast.TypeDeclarationNode) (code vmgen.Bytecode) {

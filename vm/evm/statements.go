@@ -3,8 +3,8 @@ package evm
 import (
 	"github.com/end-r/vmgen"
 
-	"github.com/end-r/guardian/compiler/ast"
-	"github.com/end-r/guardian/compiler/lexer"
+	"github.com/end-r/guardian/ast"
+	"github.com/end-r/guardian/lexer"
 )
 
 func (e *Traverser) traverseSwitchStatement(n ast.SwitchStatementNode) (code vmgen.Bytecode) {
