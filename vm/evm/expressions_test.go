@@ -23,7 +23,7 @@ func TestTraverseLiteralsBinaryExpression(t *testing.T) {
 	expr := parser.ParseExpression("1 + 2")
 	bytes := e.traverseExpression(expr)
 	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
-	fmt.Println(bytes.Format())
+	Println(bytes.Format())
 	goutil.Assert(t, bytes.Length() == 3, "wrong bc length")
 }
 

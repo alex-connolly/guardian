@@ -128,11 +128,52 @@ func (e *Traverser) traverseCallExpr(n ast.CallExpressionNode) (code vmgen.Bytec
 	// traverse the call expression
 	// should leave the function address on top of the stack
 
-	code.Concat(e.traverse(n.Call))
+	call := e.traverse(n.Call)
+
+	// check to see whether we need to replace the callhash
+	// with the builtin code
+	if res, ok := checkBuiltin(call); ok {
+		call = res
+	}
+
+	code.Concat(call)
 
 	// parameters are at the top of the stack
 	// jump to the top of the function
 	return code
+}
+
+func checkBuiltin(code vmgen.Bytecode) (res vmgen.Bytecode, isBuiltin bool) {
+	for name, b := range builtins {
+		if code.CompareBytes(EncodeName(name)) {
+			return b(), true
+		}
+	}
+	return code, false
+}
+
+var builtins = map[string]Builtin{
+	"addmod":       simpleInstruction("ADDMOD"),
+	"mulmod":       simpleInstruction("MULMOD"),
+	"balance":      simpleInstruction("BALANCE"),
+	"transfer":     nil,
+	"send":         nil,
+	"delegateCall": simpleInstruction("DELEGATECALL"),
+	// cryptographic
+	"sha3":      simpleInstruction("SHA3"),
+	"keccak256": nil,
+	"sha356":    nil,
+	"ecrecover": nil,
+	"ripemd160": nil,
+}
+
+type Builtin func() vmgen.Bytecode
+
+// returns an anon func to handle simplest cases
+func simpleInstruction(mnemonic string) Builtin {
+	return func() (code vmgen.Bytecode) {
+		code.Add(mnemonic)
+	}
 }
 
 func (e *Traverser) traverseLiteral(n ast.LiteralNode) (code vmgen.Bytecode) {

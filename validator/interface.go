@@ -6,12 +6,6 @@ import (
 	"github.com/end-r/guardian/ast"
 )
 
-type Builtin interface {
-	Name() string
-	Children() map[string]Builtin
-	Type() Type
-}
-
 // Validate...
 func Validate(scope *ast.ScopeNode, primitiveTypes map[string]Type, builtins map[string]Builtin) {
 	v := new(Validator)
@@ -23,7 +17,9 @@ func Validate(scope *ast.ScopeNode, primitiveTypes map[string]Type, builtins map
 	for name, typ := range primitiveTypes {
 		v.DeclareType(name, typ)
 	}
-
+	for name, b := range builtins {
+		v.DeclareBuiltin(name, b)
+	}
 }
 
 // ValidateScope validates an ast...
@@ -124,6 +120,13 @@ func (v *Validator) DeclareVarOfType(name string, t Type) {
 		v.scope.variables = make(map[string]Type)
 	}
 	v.scope.variables[name] = t
+}
+
+// DeclareBuiltin separate to facilitate better errors messages
+func (v *Validator) DeclareBuiltin(name string, b Builtin) {
+	if v.scope.builtins == nil {
+		v.scope.builtins = make(map[string]Type)
+	}
 }
 
 // DeclareType ...
