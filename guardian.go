@@ -3,21 +3,11 @@ package guardian
 import (
 	"fmt"
 
-	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/lexer"
 	"github.com/end-r/guardian/parser"
 	"github.com/end-r/guardian/util"
 	"github.com/end-r/guardian/validator"
-	"github.com/end-r/vmgen"
 )
-
-// A VMTranslator is the mechanism through which all vm-specific features are applied
-// to the Guardian AST: bytecode generation, type enforcement
-type VM interface {
-	Traverse(ast.Node) vmgen.Bytecode
-	GetBuiltins() ast.Node
-	Types() map[string]validator.Type
-}
 
 func reportErrors(category string, errs []util.Error) {
 	msg := fmt.Sprintf("%s Errors\n", category)
