@@ -2,7 +2,6 @@ package lexer
 
 import (
 	"io/ioutil"
-	"log"
 
 	"github.com/end-r/guardian/util"
 )
@@ -32,8 +31,9 @@ func Lex(bytes []byte) (tokens []Token, errs []util.Error) {
 func LexFile(path string) (tokens []Token, errs []util.Error) {
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
-		log.Println("File does not exist")
-		return nil
+		return nil, append(errs, util.Error{
+			Message: "File does not exist",
+		})
 	}
 	return Lex(bytes)
 }

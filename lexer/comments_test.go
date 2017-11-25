@@ -3,7 +3,7 @@ package lexer
 import "testing"
 
 func TestComments(t *testing.T) {
-	l := LexString(`
+	tokens, _ := LexString(`
         // this
 
         /*
@@ -16,7 +16,7 @@ func TestComments(t *testing.T) {
         // comment
         */
     `)
-	checkTokens(t, l.Tokens, []TokenType{
+	checkTokens(t, tokens, []TokenType{
 		TknNewLine,
 		TknLineComment, TknIdentifier, TknNewLine,
 		TknNewLine,

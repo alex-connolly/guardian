@@ -1,5 +1,7 @@
 package lexer
 
+import "strings"
+
 // Lexer copied over in part from my efp
 
 // TokenType denotes the type of a token
@@ -415,4 +417,21 @@ type Token struct {
 	proto protoToken
 	start int
 	end   int
+	data  []byte
+}
+
+// TokenString creates a new string from the Token's value
+// TODO: escaped characters
+func (t Token) TokenString() string {
+	return string(t.data)
+}
+
+// TokenStringAndTrim ...
+func (t Token) TrimTokenString() string {
+	s := t.TokenString()
+	if strings.HasPrefix(s, "\"") {
+		s = strings.TrimPrefix(s, "\"")
+		s = strings.TrimSuffix(s, "\"")
+	}
+	return s
 }

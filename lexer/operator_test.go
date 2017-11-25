@@ -29,37 +29,37 @@ func TestIsIdentifierByte(t *testing.T) {
 }
 
 func TestDistinguishKeywordsConst(t *testing.T) {
-	l := LexString("constant")
-	checkTokens(t, l.Tokens, []TokenType{TknIdentifier})
-	l = LexString("const (")
-	checkTokens(t, l.Tokens, []TokenType{TknConst, TknOpenBracket})
-	l = LexString("const(")
-	checkTokens(t, l.Tokens, []TokenType{TknConst, TknOpenBracket})
+	tokens, _ := LexString("constant")
+	checkTokens(t, tokens, []TokenType{TknIdentifier})
+	tokens, _ = LexString("const (")
+	checkTokens(t, tokens, []TokenType{TknConst, TknOpenBracket})
+	tokens, _ = LexString("const(")
+	checkTokens(t, tokens, []TokenType{TknConst, TknOpenBracket})
 }
 
 func TestDistinguishKeywordsInt(t *testing.T) {
-	l := LexString("int")
-	checkTokens(t, l.Tokens, []TokenType{TknIdentifier})
-	l = LexString("int (")
-	checkTokens(t, l.Tokens, []TokenType{TknIdentifier, TknOpenBracket})
-	l = LexString("int(")
-	checkTokens(t, l.Tokens, []TokenType{TknIdentifier, TknOpenBracket})
+	tokens, _ := LexString("int")
+	checkTokens(t, tokens, []TokenType{TknIdentifier})
+	tokens, _ = LexString("int (")
+	checkTokens(t, tokens, []TokenType{TknIdentifier, TknOpenBracket})
+	tokens, _ = LexString("int(")
+	checkTokens(t, tokens, []TokenType{TknIdentifier, TknOpenBracket})
 }
 
 func TestDistinguishKeywordsInterface(t *testing.T) {
-	l := LexString("interface")
-	checkTokens(t, l.Tokens, []TokenType{TknInterface})
-	l = LexString("interface (")
-	checkTokens(t, l.Tokens, []TokenType{TknInterface, TknOpenBracket})
-	l = LexString("interface(")
-	checkTokens(t, l.Tokens, []TokenType{TknInterface, TknOpenBracket})
+	tokens, _ := LexString("interface")
+	checkTokens(t, tokens, []TokenType{TknInterface})
+	tokens, _ = LexString("interface (")
+	checkTokens(t, tokens, []TokenType{TknInterface, TknOpenBracket})
+	tokens, _ = LexString("interface(")
+	checkTokens(t, tokens, []TokenType{TknInterface, TknOpenBracket})
 }
 
 func TestDistinguishDots(t *testing.T) {
-	l := LexString("...")
-	checkTokens(t, l.Tokens, []TokenType{TknEllipsis})
-	l = LexString(".")
-	checkTokens(t, l.Tokens, []TokenType{TknDot})
-	l = LexString("....")
-	checkTokens(t, l.Tokens, []TokenType{TknEllipsis, TknDot})
+	tokens, _ := LexString("...")
+	checkTokens(t, tokens, []TokenType{TknEllipsis})
+	tokens, _ = LexString(".")
+	checkTokens(t, tokens, []TokenType{TknDot})
+	tokens, _ = LexString("....")
+	checkTokens(t, tokens, []TokenType{TknEllipsis, TknDot})
 }

@@ -1,7 +1,7 @@
 package lexer
 
 import (
-	"strings"
+	"github.com/end-r/guardian/util"
 )
 
 func (l *Lexer) next() {
@@ -15,7 +15,7 @@ func (l *Lexer) next() {
 			t.proto = pt
 			if t.Type != TknNone {
 				//log.Printf("Found tok type: %d", t.Type)
-				l.Tokens = append(l.Tokens, t)
+				l.Tokens = append(l.Tokens, l.finalise(t))
 			} else {
 				l.byteOffset++
 			}
@@ -30,26 +30,14 @@ func (l *Lexer) next() {
 	l.next()
 }
 
+func (l *Lexer) finalise(t Token) Token {
+	t.data = make([]byte, t.end-t.start)
+	copy(t.data, l.buffer[t.start:t.end])
+	return t
+}
+
 func (l *Lexer) isEOF() bool {
 	return l.byteOffset >= len(l.buffer)
-}
-
-// TokenString creates a new string from the Token's value
-// TODO: escaped characters
-func (l *Lexer) TokenString(t Token) string {
-	data := make([]byte, t.end-t.start)
-	copy(data, l.buffer[t.start:t.end])
-	return string(data)
-}
-
-// TokenStringAndTrim ...
-func (l *Lexer) TokenStringAndTrim(t Token) string {
-	s := l.TokenString(t)
-	if strings.HasPrefix(s, "\"") {
-		s = strings.TrimPrefix(s, "\"")
-		s = strings.TrimSuffix(s, "\"")
-	}
-	return s
 }
 
 func (l *Lexer) nextByte() byte {
@@ -124,7 +112,7 @@ func processCharacter(l *Lexer) Token {
 		t.end++
 		b2 = l.nextByte()
 		if l.isEOF() {
-			l.errors = append(l.errors, "Character literal not closed")
+			l.error("Character literal not closed")
 			t.end += 2
 			return *t
 		}
@@ -167,7 +155,7 @@ func processString(l *Lexer) Token {
 		t.end++
 		b2 = l.nextByte()
 		if l.isEOF() {
-			l.errors = append(l.errors, "String literal not closed")
+			l.error("String literal not closed")
 			t.end += 2
 			return *t
 		}
@@ -182,7 +170,10 @@ func (l *Lexer) hasBytes(offset int) bool {
 
 func (l *Lexer) error(msg string) {
 	if l.errors == nil {
-		l.errors = make([]string, 0)
+		l.errors = make([]util.Error, 0)
 	}
-	l.errors = append(l.errors, msg)
+	l.errors = append(l.errors, util.Error{
+		LineNumber: l.line,
+		Message:    msg,
+	})
 }
