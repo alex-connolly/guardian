@@ -130,6 +130,11 @@ func (v *Validator) requireVisibleType(names ...string) Type {
 
 func (v *Validator) findVariable(name string) Type {
 	for scope := v.scope; scope != nil; scope = scope.parent {
+		if scope.builtinVariables != nil {
+			if typ, ok := scope.builtinVariables[name]; ok {
+				return typ
+			}
+		}
 		if scope.variables != nil {
 			if typ, ok := scope.variables[name]; ok {
 				return typ
@@ -149,10 +154,10 @@ func (v *Validator) DeclareVarOfType(name string, t Type) {
 
 // DeclareBuiltinOfType ...
 func (v *Validator) DeclareBuiltinOfType(name string, t Type) {
-	if v.scope.builtins == nil {
-		v.scope.builtins = make(map[string]Type)
+	if v.scope.builtinVariables == nil {
+		v.scope.builtinVariables = make(map[string]Type)
 	}
-	v.scope.builtins[name] = t
+	v.scope.builtinVariables[name] = t
 }
 
 // DeclareType ...
@@ -161,6 +166,14 @@ func (v *Validator) DeclareType(name string, t Type) {
 		v.scope.types = make(map[string]Type)
 	}
 	v.scope.types[name] = t
+}
+
+// DeclareBuiltinType ...
+func (v *Validator) DeclareBuiltinType(name string, t Type) {
+	if v.scope.builtinTypes == nil {
+		v.scope.builtinTypes = make(map[string]Type)
+	}
+	v.scope.builtinTypes[name] = t
 }
 
 func (v *Validator) getNamedType(names ...string) Type {

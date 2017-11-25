@@ -15,7 +15,7 @@ import (
 // to the Guardian AST: bytecode generation, type enforcement
 type VM interface {
 	Traverse(ast.Node) vmgen.Bytecode
-	GetBuiltins() string
+	GetBuiltins() ast.Node
 	Types() map[string]validator.Type
 }
 

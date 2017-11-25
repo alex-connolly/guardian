@@ -268,7 +268,7 @@ func (v *Validator) validateEventDeclaration(node ast.EventDeclarationNode) {
 
 func (v *Validator) declareContextualType(name string, typ Type) {
 	if v.isParsingBuiltins {
-		v.DeclareBuiltin(name, typ)
+		v.DeclareBuiltinType(name, typ)
 	} else {
 		v.DeclareType(name, typ)
 	}
@@ -283,7 +283,7 @@ func (v *Validator) validateLifecycleDeclaration(node ast.LifecycleDeclarationNo
 	for _, p := range node.Parameters {
 		typ := v.validateType(p.DeclaredType)
 		for _, i := range p.Identifiers {
-			v.declareContextualVar(node.Identifier, typ)
+			v.declareContextualVar(i, typ)
 		}
 	}
 	v.validateScope(node.Body)

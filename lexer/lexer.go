@@ -1,30 +1,8 @@
 package lexer
 
 import (
-	"io/ioutil"
-	"log"
 	"strings"
 )
-
-// Lexer ...
-type Lexer struct {
-	buffer      []byte
-	byteOffset  int
-	line        int
-	column      int
-	Tokens      []Token
-	tokenOffset int
-	errors      []string
-	//macros      map[string]macro
-}
-
-/*func (l *Lexer) currentToken() Token {
-	return l.Tokens[l.tokenOffset]
-}
-
-func (l *Lexer) advance() {
-	l.tokenOffset++
-}*/
 
 func (l *Lexer) next() {
 	if l.isEOF() {
@@ -80,33 +58,8 @@ func (l *Lexer) nextByte() byte {
 	return b
 }
 
-// LexString lexes a string
-func LexString(str string) *Lexer {
-	return LexBytes([]byte(str))
-}
-
 func (l *Lexer) current() byte {
 	return l.buffer[l.byteOffset]
-}
-
-// LexBytes ...
-func LexBytes(bytes []byte) *Lexer {
-	l := new(Lexer)
-	l.byteOffset = 0
-	l.buffer = bytes
-	l.next()
-	l.tokenOffset = 0
-	return l
-}
-
-// LexFile ...
-func LexFile(path string) *Lexer {
-	bytes, err := ioutil.ReadFile(path)
-	if err != nil {
-		log.Println("File does not exist")
-		return nil
-	}
-	return LexBytes(bytes)
 }
 
 func processNewLine(l *Lexer) Token {

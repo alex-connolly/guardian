@@ -5,7 +5,14 @@ import (
 
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/lexer"
+	"github.com/end-r/guardian/util"
 )
+
+func Parse(tokens []lexer.Token) (scope ast.ScopeNode, errs []util.Error) {
+	p := new(Parser)
+	p.parseScope(lexer.TknCloseBrace, ast.ContractDeclaration)
+	return p.Scope, p.Errs
+}
 
 // ParseExpression ...
 func ParseExpression(expr string) ast.ExpressionNode {
@@ -15,28 +22,25 @@ func ParseExpression(expr string) ast.ExpressionNode {
 }
 
 // ParseFile ...
-func ParseFile(path string) *Parser {
-	p := new(Parser)
+func ParseFile(path string) (scope ast.ScopeNode, errs []util.Error) {
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		p.addError("Unable to read file")
 		return nil
 	}
-	p.lexer = lexer.LexBytes(bytes)
-	// TODO: update the need for the scope to have this
-	p.parseScope(lexer.TknCloseBrace, ast.ContractDeclaration)
-	return p
+	return Parse(bytes)
 }
 
 // ParseString ...
-func ParseString(data string) *Parser {
+func ParseString(data string) (scope ast.ScopeNode, errs []util.Error) {
 	return ParseBytes([]byte(data))
 }
 
 // ParseBytes ...
-func ParseBytes(data []byte) *Parser {
-	p := new(Parser)
-	p.lexer = lexer.LexBytes(data)
-	p.Scope = p.parseScope(lexer.TknCloseBrace, ast.ContractDeclaration)
-	return p
+func ParseBytes(data []byte) (scope ast.ScopeNode, errs []util.Error) {
+	tokens, errs := lexer.Lex(data)
+	if errs != nil {
+		return nil, errs
+	}
+	return Parse(tokens)
 }
