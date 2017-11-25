@@ -4,22 +4,42 @@ import (
 	"fmt"
 
 	"github.com/end-r/guardian/ast"
+	"github.com/end-r/guardian/parser"
 )
 
 // Validate...
-func Validate(scope *ast.ScopeNode, primitiveTypes map[string]Type, builtins map[string]Builtin) {
+func Validate(scope *ast.ScopeNode, vm guardian.VMImplementation) {
 	v := new(Validator)
 	ts := &TypeScope{
 		parent: nil,
 		scope:  scope,
 	}
-	v.scope = ts
-	for name, typ := range primitiveTypes {
+
+	for name, typ := range vm.Primitives() {
 		v.DeclareType(name, typ)
 	}
-	for name, b := range builtins {
-		v.DeclareBuiltin(name, b)
+
+	builtins := parser.ParseString(vm.GetBuiltins()).Scope
+
+	v.isParsingBuiltins = true
+
+	if builtins.Declarations != nil {
+		for _, i := range builtins.Declarations.Map() {
+			// add in placeholders for all declarations
+			v.validateDeclaration(i.(ast.Node))
+		}
 	}
+
+	if builtins.Sequence != nil {
+		for _, node := range builtins.Sequence {
+			v.validate(node)
+		}
+	}
+
+	v.isParsingBuiltins = false
+
+	v.scope = ts
+
 }
 
 // ValidateScope validates an ast...
@@ -37,6 +57,8 @@ func (v *Validator) validateScope(scope *ast.ScopeNode) (map[string]Type, map[st
 	}
 
 	v.scope = ts
+
+	v.isParsingBuiltins = false
 
 	v.validateDeclarations(scope)
 
@@ -76,16 +98,19 @@ func (v *Validator) validate(node ast.Node) {
 
 // Validator ...
 type Validator struct {
-	scope  *TypeScope
-	errors []string
+	scope             *TypeScope
+	errors            []string
+	isParsingBuiltins bool
 }
 
 // TypeScope ...
 type TypeScope struct {
-	parent    *TypeScope
-	scope     *ast.ScopeNode
-	variables map[string]Type
-	types     map[string]Type
+	parent           *TypeScope
+	scope            *ast.ScopeNode
+	variables        map[string]Type
+	types            map[string]Type
+	builtinVariables map[string]Type
+	builtinTypes     map[string]Type
 }
 
 // NewValidator creates a new validator
@@ -122,11 +147,12 @@ func (v *Validator) DeclareVarOfType(name string, t Type) {
 	v.scope.variables[name] = t
 }
 
-// DeclareBuiltin separate to facilitate better errors messages
-func (v *Validator) DeclareBuiltin(name string, b Builtin) {
+// DeclareBuiltinOfType ...
+func (v *Validator) DeclareBuiltinOfType(name string, t Type) {
 	if v.scope.builtins == nil {
 		v.scope.builtins = make(map[string]Type)
 	}
+	v.scope.builtins[name] = t
 }
 
 // DeclareType ...

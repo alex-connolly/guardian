@@ -153,9 +153,11 @@ func checkBuiltin(code vmgen.Bytecode) (res vmgen.Bytecode, isBuiltin bool) {
 }
 
 var builtins = map[string]Builtin{
-	"addmod":       simpleInstruction("ADDMOD"),
-	"mulmod":       simpleInstruction("MULMOD"),
-	"balance":      simpleInstruction("BALANCE"),
+	// arithmetic
+	"addmod":  simpleInstruction("ADDMOD"),
+	"mulmod":  simpleInstruction("MULMOD"),
+	"balance": simpleInstruction("BALANCE"),
+	// transactional
 	"transfer":     nil,
 	"send":         nil,
 	"delegateCall": simpleInstruction("DELEGATECALL"),
@@ -173,6 +175,7 @@ type Builtin func() vmgen.Bytecode
 func simpleInstruction(mnemonic string) Builtin {
 	return func() (code vmgen.Bytecode) {
 		code.Add(mnemonic)
+		return code
 	}
 }
 

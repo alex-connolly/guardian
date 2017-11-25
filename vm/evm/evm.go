@@ -1,7 +1,7 @@
 package evm
 
 import (
-	"axia/guardian/validator"
+	"github.com/end-r/guardian/validator"
 
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/vmgen"
@@ -31,31 +31,50 @@ func NewTraverser() Traverser {
 	return Traverser{}
 }
 
+func getIntegerTypes() map[string]validator.Type {
+	m := map[string]validator.Type{}
+	const maxSize = 256
+	const increment = 8
+	for i := increment; i <= maxSize; i += increment {
+		m["uint"+string(i)] = validator.NumericType{size: i, signed: false, integer: true}
+		m["int"+string(i)] = validator.NumericType{size: i, signed: true, integer: true}
+	}
+	m["int"] = validator.NumericType{size: maxSize, signed: false, integer: true}
+	m["uint"] = validator.NumericType{size: maxSize, signed: true, integer: true}
+	return m
+}
+
 func (e Traverser) GetTypes() map[string]validator.Type {
-	return map[string]validator.Type{
-		"uint":    validator.NumericType{size: 256, signed: false, integer: true},
-		"int":     validator.NumericType{size: 256, signed: true, integer: true},
-		"uint256": validator.NumericType{size: 256, signed: false, integer: true},
-		"int256":  validator.NumericType{size: 256, signed: true, integer: true},
-		"uint8":   validator.NumericType{size: 8, signed: false, integer: true},
-		"int8":    validator.NumericType{size: 8, signed: true, integer: true},
-		"uint16":  validator.NumericType{size: 16, signed: false, integer: true},
-		"int16":   validator.NumericType{size: 16, signed: true, integer: true},
+	it := getIntegerTypes()
+
+	s := map[string]validator.Type{
 		"byte":    validator.NumericType{size: 8, signed: true, integer: true},
 		"string":  validator.ArrayType{key: "byte"},
 		"address": validator.ArrayType{key: "byte", length: 20},
 		"bool":    validator.BooleanType{},
 	}
+
+	for k, v := range it {
+		s[k] = v
+	}
+	return s
 }
 
 func (e Traverser) GetBuiltins() string {
 	return `
 
-		func add(a, b int) int {
-			return a + b
-		}
-
-		// partial declarations mean you implement them yourself
+		wei = 1
+		kwei = 1000 * wei
+		babbage = kwei
+		mwei = 1000 * kwei
+		lovelace = mwei
+		gwei = 1000 * mwei
+		shannon = gwei
+		microether = 1000 * gwei
+		szabo = microether
+		milliether = 1000 * microether
+		finney = milliether
+		ether = 1000 * milliether
 
 		balance func(a address) uint256
 		transfer func(a address, amount uint256) uint
@@ -63,8 +82,6 @@ func (e Traverser) GetBuiltins() string {
 		call func(a address) bool
 		delegateCall func(a address)
 
-		// variable declarations follow the following format
-		// these variables have no set values
 		class BuiltinMessage {
 			data []byte
 			gas uint
