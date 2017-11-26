@@ -43,8 +43,8 @@ func TestLexerLiterals(t *testing.T) {
 	tokens, _ := LexString(`x := "hello this is dog"`)
 	goutil.Assert(t, len(tokens) == 3, "wrong number of tokens")
 	goutil.Assert(t, tokens[2].Type == TknString, "wrong string literal type")
-	goutil.Assert(t, tokens[2].TrimTokenString() == "hello this is dog",
-		fmt.Sprintf("wrong string produced: %s", tokens[2].TrimTokenString()))
+	goutil.Assert(t, tokens[2].TrimmedString() == "hello this is dog",
+		fmt.Sprintf("wrong string produced: %s", tokens[2].TrimmedString()))
 	tokens, _ = LexString(`x := 'a'`)
 	goutil.Assert(t, len(tokens) == 3, "wrong number of tokens")
 	goutil.Assert(t, tokens[2].Type == TknCharacter, "wrong character literal type")

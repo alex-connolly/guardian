@@ -16,9 +16,9 @@ func TestParseString(t *testing.T) {
 }
 
 func TestParseStringDeclaration(t *testing.T) {
-	ast, _ := ParseString("func hello() {}")
-	goutil.AssertNow(t, ast != nil, "scope should not be nil")
-	goutil.AssertNow(t, ast.Declarations != nil, "decls should not be nil")
+	as, _ := ParseString("func hello() {}")
+	goutil.AssertNow(t, as != nil, "scope should not be nil")
+	goutil.AssertNow(t, as.Declarations != nil, "decls should not be nil")
 }
 
 func TestParseFile(t *testing.T) {

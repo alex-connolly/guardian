@@ -14,7 +14,7 @@ func TestParseAssignmentStatementSingleConstant(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	first := p.Scope.Next()
+	first := p.scope.Next()
 	goutil.AssertNow(t, first.Type() == ast.AssignmentStatement, "wrong node type")
 	assignmentStmt := first.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(assignmentStmt.Left) == 1, "wrong left length")
@@ -39,7 +39,7 @@ func TestParseIfStatement(t *testing.T) {
 	goutil.Assert(t, isIfStatement(p), "should detect if statement")
 	parseIfStatement(p)
 	goutil.AssertNow(t, len(p.errs) == 0, fmt.Sprintln(p.errs))
-	first := p.Scope.Next()
+	first := p.scope.Next()
 	goutil.Assert(t, first.Type() == ast.IfStatement, "wrong node type")
 }
 
@@ -50,7 +50,7 @@ func TestParseIfStatementComplex(t *testing.T) {
 	goutil.Assert(t, isIfStatement(p), "should detect if statement")
 	parseIfStatement(p)
 	goutil.AssertNow(t, len(p.errs) == 0, p.errs.Format())
-	first := p.Scope.Next()
+	first := p.scope.Next()
 	goutil.Assert(t, first.Type() == ast.IfStatement, "wrong node type")
 }
 
@@ -60,8 +60,8 @@ func TestParseIfStatementInit(t *testing.T) {
 	}`)
 	goutil.Assert(t, isIfStatement(p), "should detect if statement")
 	parseIfStatement(p)
-	goutil.AssertNow(t, len(errs) == 0, fmt.Sprintln(errs))
-	first := p.Scope.Next()
+	goutil.AssertNow(t, len(p.errs) == 0, p.errs.Format())
+	first := p.scope.Next()
 	goutil.Assert(t, first.Type() == ast.IfStatement, "wrong node type")
 }
 
@@ -73,8 +73,8 @@ func TestParseIfStatementElse(t *testing.T) {
 	}`)
 	goutil.Assert(t, isIfStatement(p), "should detect if statement")
 	parseIfStatement(p)
-	goutil.AssertNow(t, len(errs) == 0, fmt.Sprintln(errs))
-	first := p.Scope.Next()
+	goutil.AssertNow(t, len(p.errs) == 0, p.errs.Format())
+	first := p.scope.Next()
 	goutil.Assert(t, first.Type() == ast.IfStatement, "wrong node type")
 	ifStat := first.(ast.IfStatementNode)
 	goutil.Assert(t, ifStat.Init == nil, "init should be nil")
@@ -88,8 +88,8 @@ func TestParseIfStatementInitElse(t *testing.T) {
 	}`)
 	goutil.Assert(t, isIfStatement(p), "should detect if statement")
 	parseIfStatement(p)
-	goutil.AssertNow(t, len(errs) == 0, fmt.Sprintln(errs))
-	first := p.Scope.Next()
+	goutil.AssertNow(t, len(p.errs) == 0, p.errs.Format())
+	first := p.scope.Next()
 	goutil.Assert(t, first.Type() == ast.IfStatement, "wrong node type")
 	ifStat := first.(ast.IfStatementNode)
 	goutil.Assert(t, ifStat.Init != nil, "init shouldn't be nil")
@@ -105,8 +105,8 @@ func TestParseIfStatementElifElse(t *testing.T) {
 	}`)
 	goutil.Assert(t, isIfStatement(p), "should detect if statement")
 	parseIfStatement(p)
-	goutil.AssertNow(t, len(errs) == 0, fmt.Sprintln(errs))
-	first := p.Scope.Next()
+	goutil.AssertNow(t, len(p.errs) == 0, p.errs.Format())
+	first := p.scope.Next()
 	goutil.Assert(t, first.Type() == ast.IfStatement, "wrong node type")
 	ifStat := first.(ast.IfStatementNode)
 	goutil.Assert(t, ifStat.Init == nil, "init should be nil")
@@ -122,9 +122,9 @@ func TestParseForStatementCondition(t *testing.T) {
 	p := createParser(`for x < 5 {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
 	parseForStatement(p)
-	goutil.Assert(t, len(errs) == 0, "should be error-free")
+	goutil.Assert(t, len(p.errs) == 0, "should be error-free")
 
-	first := p.Scope.Next()
+	first := p.scope.Next()
 	goutil.Assert(t, first.Type() == ast.ForStatement, "wrong node type")
 	forStat := first.(ast.ForStatementNode)
 	goutil.Assert(t, forStat.Init == nil, "init should be nil")
@@ -136,8 +136,8 @@ func TestParseForStatementInitCondition(t *testing.T) {
 	p := createParser(`for x := 0; x < 5 {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
 	parseForStatement(p)
-	goutil.AssertNow(t, len(errs) == 0, fmt.Sprintln(errs))
-	first := p.Scope.Next()
+	goutil.AssertNow(t, len(p.errs) == 0, p.errs.Format())
+	first := p.scope.Next()
 	goutil.Assert(t, first.Type() == ast.ForStatement, "wrong node type")
 	forStat := first.(ast.ForStatementNode)
 	goutil.Assert(t, forStat.Init != nil, "init should not be nil")
@@ -149,10 +149,10 @@ func TestParseForStatementInitConditionStatement(t *testing.T) {
 	p := createParser(`for x := 0; x < 5; x++ {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
 	parseForStatement(p)
-	goutil.Assert(t, len(errs) == 0, "should be error-free")
-	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
-	goutil.AssertNow(t, len(p.Scope.Sequence) == 1, fmt.Sprintf("wrong sequence length: %d", len(p.Scope.Sequence)))
-	first := p.Scope.Next()
+	goutil.Assert(t, len(p.errs) == 0, "should be error-free")
+	goutil.AssertNow(t, p.scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, len(p.scope.Sequence) == 1, fmt.Sprintf("wrong sequence length: %d", len(p.scope.Sequence)))
+	first := p.scope.Next()
 	goutil.Assert(t, first.Type() == ast.ForStatement, "wrong node type")
 	forStat := first.(ast.ForStatementNode)
 	goutil.Assert(t, forStat.Init != nil, "init should not be nil")
@@ -219,7 +219,7 @@ func TestSingleLiteralReturnStatement(t *testing.T) {
 	goutil.Assert(t, isReturnStatement(p), "should detect return statement")
 	parseReturnStatement(p)
 
-	u := p.Scope.Next()
+	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 1, "wrong result length")
@@ -231,7 +231,7 @@ func TestMultipleLiteralReturnStatement(t *testing.T) {
 	goutil.Assert(t, isReturnStatement(p), "should detect return statement")
 	parseReturnStatement(p)
 
-	u := p.Scope.Next()
+	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 2, "wrong result length")
@@ -244,7 +244,7 @@ func TestSingleReferenceReturnStatement(t *testing.T) {
 	goutil.Assert(t, isReturnStatement(p), "should detect return statement")
 	parseReturnStatement(p)
 
-	u := p.Scope.Next()
+	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 1, "wrong result length")
@@ -256,7 +256,7 @@ func TestMultipleReferenceReturnStatement(t *testing.T) {
 	goutil.Assert(t, isReturnStatement(p), "should detect return statement")
 	parseReturnStatement(p)
 
-	u := p.Scope.Next()
+	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 2, "wrong result length")
@@ -269,7 +269,7 @@ func TestSingleCallReturnStatement(t *testing.T) {
 	goutil.Assert(t, isReturnStatement(p), "should detect return statement")
 	parseReturnStatement(p)
 
-	u := p.Scope.Next()
+	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 1, "wrong result length")
@@ -281,7 +281,7 @@ func TestMultipleCallReturnStatement(t *testing.T) {
 	goutil.Assert(t, isReturnStatement(p), "should detect return statement")
 	parseReturnStatement(p)
 
-	u := p.Scope.Next()
+	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 2, fmt.Sprintf("wrong result length: %d", len(r.Results)))
@@ -296,7 +296,7 @@ func TestSingleArrayLiteralReturnStatement(t *testing.T) {
 	goutil.Assert(t, isReturnStatement(p), "should detect return statement")
 	parseReturnStatement(p)
 
-	u := p.Scope.Next()
+	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 1, "wrong result length")
@@ -308,7 +308,7 @@ func TestMultipleArrayLiteralReturnStatement(t *testing.T) {
 	goutil.Assert(t, isReturnStatement(p), "should detect return statement")
 	parseReturnStatement(p)
 
-	u := p.Scope.Next()
+	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 2, "wrong result length")
@@ -321,7 +321,7 @@ func TestSingleMapLiteralReturnStatement(t *testing.T) {
 	goutil.Assert(t, isReturnStatement(p), "should detect return statement")
 	parseReturnStatement(p)
 
-	u := p.Scope.Next()
+	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 1, "wrong result length")
@@ -333,7 +333,7 @@ func TestMultipleMapLiteralReturnStatement(t *testing.T) {
 	goutil.Assert(t, isReturnStatement(p), "should detect return statement")
 	parseReturnStatement(p)
 
-	u := p.Scope.Next()
+	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 2, "wrong result length")
@@ -346,7 +346,7 @@ func TestSingleCompositeLiteralReturnStatement(t *testing.T) {
 	goutil.Assert(t, isReturnStatement(p), "should detect return statement")
 	parseReturnStatement(p)
 
-	u := p.Scope.Next()
+	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 1, "wrong result length")
@@ -358,7 +358,7 @@ func TestMultipleCompositeLiteralReturnStatement(t *testing.T) {
 	goutil.Assert(t, isReturnStatement(p), "should detect return statement")
 	parseReturnStatement(p)
 
-	u := p.Scope.Next()
+	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
 	r := u.(ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 2, fmt.Sprintf("wrong result length: %d", len(r.Results)))
@@ -371,7 +371,7 @@ func TestSimpleLiteralAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be one left value")
@@ -382,7 +382,7 @@ func TestIncrementReferenceAssignmentStatement(t *testing.T) {
 	p := createParser("x++")
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be one left value")
@@ -394,7 +394,7 @@ func TestMultiToSingleLiteralAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
@@ -402,19 +402,20 @@ func TestMultiToSingleLiteralAssignmentStatement(t *testing.T) {
 }
 
 func TestIndexReferenceAssignmentStatement(t *testing.T) {
-	p := ParseString("voters[chairperson].weight = 1")
-	n := p.Scope.Next()
-	goutil.AssertNow(t, len(p.Scope.Sequence) == 1, fmt.Sprintf("wrong sequence length: %d", len(p.Scope.Sequence)))
+	a, _ := ParseString("voters[chairperson].weight = 1")
+	goutil.AssertNow(t, a != nil, "ast should not be nil")
+	n := a.Next()
+	goutil.AssertNow(t, len(a.Sequence) == 1, fmt.Sprintf("wrong sequence length: %d", len(a.Sequence)))
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong type")
 }
 
 func TestCompositeLiteralAssignmentStatement(t *testing.T) {
-	p := ParseString(`proposals = append(proposals, Proposal{
+	a, _ := ParseString(`proposals = append(proposals, Proposal{
 		name: proposalNames[i],
 		voteCount: 0,
 	})`)
-	n := p.Scope.Next()
-	goutil.AssertNow(t, len(p.Scope.Sequence) == 1, fmt.Sprintf("wrong sequence length: %d\n", len(p.Scope.Sequence)))
+	n := a.Next()
+	goutil.AssertNow(t, len(a.Sequence) == 1, fmt.Sprintf("wrong sequence length: %d\n", len(a.Sequence)))
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong type")
 }
 
@@ -423,7 +424,7 @@ func TestMultiLiteralAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
@@ -434,7 +435,7 @@ func TestSimpleReferenceAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be 1 left value")
@@ -445,7 +446,7 @@ func TestMultiToSingleReferenceAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
@@ -456,7 +457,7 @@ func TestMultiReferenceAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
@@ -467,7 +468,7 @@ func TestSimpleCallAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be one left values")
@@ -478,7 +479,7 @@ func TestMultiToSingleCallAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
@@ -489,7 +490,7 @@ func TestMultiCallAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
@@ -500,7 +501,7 @@ func TestSimpleCompositeLiteralAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be two left values")
@@ -511,7 +512,7 @@ func TestMultiToSingleCompositeLiteralAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
@@ -522,7 +523,7 @@ func TestMultiCompositeLiteralAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
@@ -533,7 +534,7 @@ func TestSimpleArrayLiteralAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be 1 left values")
@@ -544,7 +545,7 @@ func TestMultiToSingleArrayLiteralAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
@@ -555,7 +556,7 @@ func TestMultiArrayLiteralAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
@@ -566,7 +567,7 @@ func TestSimpleMapLiteralAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be 1 left values")
@@ -577,7 +578,7 @@ func TestMultiToSingleMapLiteralAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
@@ -588,7 +589,7 @@ func TestMultiMapLiteralAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
@@ -599,7 +600,7 @@ func TestAssignmentStatementSingleAdd(t *testing.T) {
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
 
-	n := p.Scope.Next()
+	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be one left value")

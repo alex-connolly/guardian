@@ -52,7 +52,7 @@ func parseInterfaceDeclaration(p *Parser) {
 		Signatures: signatures,
 	}
 
-	p.Scope.AddDeclaration(identifier, node)
+	p.scope.AddDeclaration(identifier, node)
 }
 
 func (p *Parser) parseInterfaceSignatures() []ast.FuncTypeNode {
@@ -151,7 +151,7 @@ func parseEnumDeclaration(p *Parser) {
 		Enums:      enums,
 	}
 
-	p.Scope.AddDeclaration(identifier, node)
+	p.scope.AddDeclaration(identifier, node)
 }
 
 func (p *Parser) parsePlainType() ast.PlainTypeNode {
@@ -217,7 +217,7 @@ func parseClassDeclaration(p *Parser) {
 		Body:       body,
 	}
 
-	p.Scope.AddDeclaration(identifier, node)
+	p.scope.AddDeclaration(identifier, node)
 }
 
 func parseContractDeclaration(p *Parser) {
@@ -264,7 +264,7 @@ func parseContractDeclaration(p *Parser) {
 		Body:       body,
 	}
 
-	p.Scope.AddDeclaration(identifier, node)
+	p.scope.AddDeclaration(identifier, node)
 }
 
 func (p *Parser) parseType() ast.Node {
@@ -374,7 +374,7 @@ func parseFuncDeclaration(p *Parser) {
 		Body:       body,
 	}
 
-	p.Scope.AddDeclaration(identifier, node)
+	p.scope.AddDeclaration(identifier, node)
 }
 
 func parseLifecycleDeclaration(p *Parser) {
@@ -402,7 +402,7 @@ func parseLifecycleDeclaration(p *Parser) {
 		node.Parameters = params
 	}
 
-	p.Scope.AddDeclaration("constructor", node)
+	p.scope.AddDeclaration("constructor", node)
 }
 
 func parseTypeDeclaration(p *Parser) {
@@ -424,7 +424,7 @@ func parseTypeDeclaration(p *Parser) {
 		Value:      value,
 	}
 
-	p.Scope.AddDeclaration(identifier, n)
+	p.scope.AddDeclaration(identifier, n)
 }
 
 func (p *Parser) parseMapType() ast.MapTypeNode {
@@ -517,13 +517,13 @@ func parseExplicitVarDeclaration(p *Parser) {
 		DeclaredType: typ,
 	}
 	// surely needs to be a declaration in some contexts
-	switch p.Scope.Type() {
+	switch p.scope.Type() {
 	case ast.FuncDeclaration, ast.LifecycleDeclaration:
-		p.Scope.AddSequential(node)
+		p.scope.AddSequential(node)
 		break
 	default:
 		for _, n := range names {
-			p.Scope.AddDeclaration(n, node)
+			p.scope.AddDeclaration(n, node)
 		}
 	}
 
@@ -540,5 +540,5 @@ func parseEventDeclaration(p *Parser) {
 		Identifier: name,
 		Parameters: types,
 	}
-	p.Scope.AddDeclaration(name, node)
+	p.scope.AddDeclaration(name, node)
 }

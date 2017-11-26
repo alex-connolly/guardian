@@ -29,13 +29,13 @@ func TestParseIdentifier(t *testing.T) {
 }
 
 func TestParserNumDeclarations(t *testing.T) {
-	ast, errs := ParseString(`
+	a, _ := ParseString(`
 		b int
 		a string
 	`)
-	goutil.AssertNow(t, ast != nil, "scope should not be nil")
-	goutil.AssertNow(t, ast.Declarations != nil, "scope declarations should not be nil")
-	le := ast.Declarations.Length()
+	goutil.AssertNow(t, a != nil, "scope should not be nil")
+	goutil.AssertNow(t, a.Declarations != nil, "scope declarations should not be nil")
+	le := a.Declarations.Length()
 	goutil.AssertNow(t, le == 2, fmt.Sprintf("wrong decl length: %d", le))
 }
 

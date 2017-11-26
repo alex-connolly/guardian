@@ -11,7 +11,7 @@ import (
 
 // Parser ...
 type Parser struct {
-	Scope      *ast.ScopeNode
+	scope      *ast.ScopeNode
 	Expression ast.ExpressionNode
 	tokens     []lexer.Token
 	modifiers  []lexer.TokenType
@@ -21,16 +21,10 @@ type Parser struct {
 	simple     bool
 }
 
-// An Error is
-type Error struct {
-	lineNumber int
-	message    string
-}
-
 func createParser(data string) *Parser {
 	p := new(Parser)
 	p.tokens, _ = lexer.LexString(data)
-	p.Scope = &ast.ScopeNode{
+	p.scope = &ast.ScopeNode{
 		ValidTypes: []ast.NodeType{
 			ast.InterfaceDeclaration, ast.ClassDeclaration,
 			ast.FuncDeclaration,
@@ -104,8 +98,8 @@ func (p *Parser) parseIdentifier() string {
 }
 
 func (p *Parser) validate(t ast.NodeType) {
-	if p.Scope != nil {
-		if !p.Scope.IsValid(t) {
+	if p.scope != nil {
+		if !p.scope.IsValid(t) {
 			p.addError("Invalid declaration in scope")
 		}
 	}
@@ -160,11 +154,11 @@ func (p *Parser) parseEnclosedScope(opener, closer lexer.TokenType, valids ...as
 
 func (p *Parser) parseScope(terminator lexer.TokenType, valids ...ast.NodeType) *ast.ScopeNode {
 	scope := new(ast.ScopeNode)
-	scope.Parent = p.Scope
-	p.Scope = scope
+	scope.Parent = p.scope
+	p.scope = scope
 	for p.hasTokens(1) {
 		if p.current().Type == terminator {
-			p.Scope = scope.Parent
+			p.scope = scope.Parent
 			return scope
 		}
 		found := false
@@ -182,12 +176,13 @@ func (p *Parser) parseScope(terminator lexer.TokenType, valids ...ast.NodeType) 
 			expr := p.parseExpression()
 			if expr == nil {
 				p.index = saved
-				//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.tokenstring(p.current()))
+				//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.current().TokenString())
 				p.addError(fmt.Sprintf("Unrecognised construct: %s", p.current().TokenString()))
 				p.next()
 			} else {
 				// ?
-				p.Scope.AddSequential(expr)
+
+				p.scope.AddSequential(expr)
 			}
 		}
 	}

@@ -11,13 +11,13 @@ func parseReturnStatement(p *Parser) {
 	node := ast.ReturnStatementNode{
 		Results: p.parseExpressionList(),
 	}
-	p.Scope.AddSequential(node)
+	p.scope.AddSequential(node)
 	p.parseOptional(lexer.TknSemicolon)
 }
 
 func parseAssignmentStatement(p *Parser) {
 	node := p.parseAssignment()
-	p.Scope.AddSequential(node)
+	p.scope.AddSequential(node)
 	p.parseOptional(lexer.TknSemicolon)
 }
 
@@ -145,7 +145,7 @@ func parseIfStatement(p *Parser) {
 		node.Init = nil
 	}
 
-	p.Scope.AddSequential(node)
+	p.scope.AddSequential(node)
 }
 
 func parseForStatement(p *Parser) {
@@ -184,7 +184,7 @@ func parseForStatement(p *Parser) {
 	if post == nil {
 		node.Post = nil
 	}
-	p.Scope.AddSequential(node)
+	p.scope.AddSequential(node)
 }
 
 func parseFlowStatement(p *Parser) {
@@ -192,7 +192,7 @@ func parseFlowStatement(p *Parser) {
 		Token: p.current().Type,
 	}
 	p.next()
-	p.Scope.AddSequential(node)
+	p.scope.AddSequential(node)
 }
 
 func parseCaseStatement(p *Parser) {
@@ -207,7 +207,7 @@ func parseCaseStatement(p *Parser) {
 		Expressions: exprs,
 		Block:       body,
 	}
-	p.Scope.AddSequential(node)
+	p.scope.AddSequential(node)
 }
 
 func parseSwitchStatement(p *Parser) {
@@ -227,6 +227,6 @@ func parseSwitchStatement(p *Parser) {
 		Cases:       cases,
 	}
 
-	p.Scope.AddSequential(node)
+	p.scope.AddSequential(node)
 
 }

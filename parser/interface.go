@@ -8,10 +8,12 @@ import (
 	"github.com/end-r/guardian/util"
 )
 
-func Parse(tokens []lexer.Token) (scope *ast.ScopeNode, errs util.Errors) {
+// Parse ...
+func Parse(tokens []lexer.Token) (*ast.ScopeNode, util.Errors) {
 	p := new(Parser)
+	p.tokens = tokens
 	p.parseScope(lexer.TknCloseBrace, ast.ContractDeclaration)
-	return p.Scope, errs
+	return p.scope, p.errs
 }
 
 // ParseExpression ...
@@ -22,7 +24,7 @@ func ParseExpression(expr string) ast.ExpressionNode {
 }
 
 // ParseFile ...
-func ParseFile(path string) (scope *ast.ScopeNode, errs []util.Error) {
+func ParseFile(path string) (scope *ast.ScopeNode, errs util.Errors) {
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		errs = append(errs, util.Error{
@@ -34,15 +36,15 @@ func ParseFile(path string) (scope *ast.ScopeNode, errs []util.Error) {
 }
 
 // ParseString ...
-func ParseString(data string) (scope *ast.ScopeNode, errs []util.Error) {
+func ParseString(data string) (scope *ast.ScopeNode, errs util.Errors) {
 	return ParseBytes([]byte(data))
 }
 
 // ParseBytes ...
-func ParseBytes(data []byte) (scope *ast.ScopeNode, errs []util.Error) {
-	tokens, errs := lexer.Lex(data)
-	if errs != nil {
-		return nil, errs
+func ParseBytes(data []byte) (scope *ast.ScopeNode, errs util.Errors) {
+	tokens, es := lexer.Lex(data)
+	if es != nil {
+		// do something
 	}
 	return Parse(tokens)
 }

@@ -420,15 +420,15 @@ type Token struct {
 	data  []byte
 }
 
-// TokenString creates a new string from the Token's value
-// TODO: escaped characters
-func (t Token) TokenString() string {
+// String creates a new string from the Token's value
+// TODO: escaped characters?
+func (t Token) String() string {
 	return string(t.data)
 }
 
-// TokenStringAndTrim ...
-func (t Token) TrimTokenString() string {
-	s := t.TokenString()
+// TrimmedString ...
+func (t Token) TrimmedString() string {
+	s := t.String()
 	if strings.HasPrefix(s, "\"") {
 		s = strings.TrimPrefix(s, "\"")
 		s = strings.TrimSuffix(s, "\"")
