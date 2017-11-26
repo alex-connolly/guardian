@@ -92,7 +92,7 @@ func (p *Parser) parseIdentifier() string {
 		p.addError(fmt.Sprintf("Required identifier, found %s", p.current().Name()))
 		return ""
 	}
-	s := p.current().TokenString()
+	s := p.current().String()
 	p.next()
 	return s
 }
@@ -177,7 +177,7 @@ func (p *Parser) parseScope(terminator lexer.TokenType, valids ...ast.NodeType) 
 			if expr == nil {
 				p.index = saved
 				//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.current().TokenString())
-				p.addError(fmt.Sprintf("Unrecognised construct: %s", p.current().TokenString()))
+				p.addError(fmt.Sprintf("Unrecognised construct: %s", p.current().String()))
 				p.next()
 			} else {
 				// ?

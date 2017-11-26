@@ -335,7 +335,7 @@ func (p *Parser) parseIdentifierExpression() (n ast.IdentifierNode) {
 
 func (p *Parser) parseLiteral() (n ast.LiteralNode) {
 	n.LiteralType = p.current().Type
-	n.Data = p.current().TokenString()
+	n.Data = p.current().String()
 	p.next()
 	return n
 }
