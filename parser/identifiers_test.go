@@ -183,17 +183,17 @@ func TestIsAssignmentStatementReferenceLiteral(t *testing.T) {
 	p = createParser("x > 5")
 	goutil.Assert(t, !isAssignmentStatement(p), "comparison should not be recognised")
 
-	goutil.Assert(t, len(p.Errs) == 0, "should be no errs before cmplx")
+	goutil.Assert(t, len(p.errs) == 0, "should be no errs before cmplx")
 	p = createParser("proposals[p].voteCount > winningVoteCount")
 	goutil.Assert(t, !isAssignmentStatement(p), "complex comparison should not be recognised")
-	goutil.Assert(t, len(p.Errs) == 0, "should be no errs after cmplx")
+	goutil.Assert(t, len(p.errs) == 0, "should be no errs after cmplx")
 
 	p = createParser(`proposals[p].voteCount > winningVoteCount {
 
 		}`)
-	goutil.Assert(t, len(p.Errs) == 0, "should be no errs")
+	goutil.Assert(t, len(p.errs) == 0, "should be no errs")
 	goutil.Assert(t, !isAssignmentStatement(p), "complex comparison + braces should not be recognised")
-	goutil.Assert(t, len(p.Errs) == 0, "should be no errs after")
+	goutil.Assert(t, len(p.errs) == 0, "should be no errs after")
 	p = createParser(`winningVoteCount = proposals[p].voteCount`)
 	goutil.Assert(t, isAssignmentStatement(p), "complex to should be recognised")
 }

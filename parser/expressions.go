@@ -154,7 +154,7 @@ func finalise(expStack []ast.ExpressionNode, opStack []lexer.TokenType) ast.Expr
 func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 
 	var expr ast.ExpressionNode
-	//fmt.Printf("index: %d, tokens: %d\n", p.index, len(p.lexer.Tokens))
+	//fmt.Printf("index: %d, tokens: %d\n", p.index, len(p.tokens))
 	if p.hasTokens(1) {
 		expr = p.parsePrimaryComponent()
 	}
@@ -335,7 +335,7 @@ func (p *Parser) parseIdentifierExpression() (n ast.IdentifierNode) {
 
 func (p *Parser) parseLiteral() (n ast.LiteralNode) {
 	n.LiteralType = p.current().Type
-	n.Data = p.lexer.TokenString(p.current())
+	n.Data = p.current().TokenString()
 	p.next()
 	return n
 }

@@ -11,12 +11,15 @@ main(){
 
 string_switch(string x){
     switch x {
-        case "house":
+        case "house" {
             break
-        case "rat":
+        }
+        case "rat" {
             break
-        case "me":
+        }
+        case "me" {
             break
+        }
     }
 }
 
@@ -36,7 +39,7 @@ exclusive_switch(int x){
     case x < 5:
         x--
     case x == 5:
-        x = 5
+        x = 4
     }
     // only one case statement will be executed
 }
@@ -47,7 +50,7 @@ exclusive_switch(int x){
 
         break
     case int:
-        
+
         break
     }
 }

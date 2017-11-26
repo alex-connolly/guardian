@@ -11,7 +11,7 @@ import (
 
 func TestParseInterfaceDeclarationEmpty(t *testing.T) {
 	p := createParser(`interface Wagable {}`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 4, "wrong token length")
+	goutil.AssertNow(t, len(p.tokens) == 4, "wrong token length")
 	goutil.Assert(t, isInterfaceDeclaration(p), "should detect interface decl")
 	parseInterfaceDeclaration(p)
 	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
@@ -57,7 +57,7 @@ func TestParseInterfaceDeclarationAbstract(t *testing.T) {
 
 func TestParseContractDeclarationEmpty(t *testing.T) {
 	p := createParser(`contract Wagable {}`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 4, fmt.Sprintf("wrong token length: %d", len(p.lexer.Tokens)))
+	goutil.AssertNow(t, len(p.tokens) == 4, fmt.Sprintf("wrong token length: %d", len(p.tokens)))
 	goutil.Assert(t, isContractDeclaration(p), "should detect contract decl")
 	parseContractDeclaration(p)
 	n := p.Scope.NextDeclaration()
@@ -312,7 +312,7 @@ func TestParseClassDeclarationAbstract(t *testing.T) {
 
 func TestParseTypeDeclaration(t *testing.T) {
 	p := createParser(`type Wagable int`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 3, fmt.Sprintf("wrong token length: %d", len(p.lexer.Tokens)))
+	goutil.AssertNow(t, len(p.tokens) == 3, fmt.Sprintf("wrong token length: %d", len(p.tokens)))
 	goutil.Assert(t, isTypeDeclaration(p), "should detect type decl")
 	parseTypeDeclaration(p)
 	n := p.Scope.NextDeclaration()
@@ -330,7 +330,7 @@ func TestParseExplicitVarDeclaration(t *testing.T) {
 
 func TestParseEventDeclarationEmpty(t *testing.T) {
 	p := createParser(`event Notification()`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 4, "wrong token length")
+	goutil.AssertNow(t, len(p.tokens) == 4, "wrong token length")
 	goutil.Assert(t, isEventDeclaration(p), "should detect event decl")
 	parseEventDeclaration(p)
 	n := p.Scope.NextDeclaration()
@@ -361,7 +361,7 @@ func TestParseEventDeclarationMultiple(t *testing.T) {
 
 func TestParseEnum(t *testing.T) {
 	p := createParser(`enum Weekday {}`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 4, "wrong token length")
+	goutil.AssertNow(t, len(p.tokens) == 4, "wrong token length")
 	goutil.Assert(t, isEnumDeclaration(p), "should detect enum decl")
 	parseEnumDeclaration(p)
 	n := p.Scope.NextDeclaration()
@@ -372,7 +372,7 @@ func TestParseEnum(t *testing.T) {
 
 func TestParseEnumInheritsSingle(t *testing.T) {
 	p := createParser(`enum Day inherits Weekday {}`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 6, "wrong token length")
+	goutil.AssertNow(t, len(p.tokens) == 6, "wrong token length")
 	goutil.Assert(t, isEnumDeclaration(p), "should detect enum decl")
 	parseEnumDeclaration(p)
 	n := p.Scope.NextDeclaration()
@@ -383,7 +383,7 @@ func TestParseEnumInheritsSingle(t *testing.T) {
 
 func TestParseEnumInheritsMultiple(t *testing.T) {
 	p := createParser(`enum Day inherits Weekday, Weekend {}`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 8, "wrong token length")
+	goutil.AssertNow(t, len(p.tokens) == 8, "wrong token length")
 	goutil.Assert(t, isEnumDeclaration(p), "should detect enum decl")
 	parseEnumDeclaration(p)
 	n := p.Scope.NextDeclaration()

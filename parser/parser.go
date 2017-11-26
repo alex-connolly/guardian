@@ -3,6 +3,8 @@ package parser
 import (
 	"fmt"
 
+	"github.com/end-r/guardian/util"
+
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/lexer"
 )
@@ -11,10 +13,10 @@ import (
 type Parser struct {
 	Scope      *ast.ScopeNode
 	Expression ast.ExpressionNode
-	lexer      *lexer.Lexer
+	tokens     []lexer.Token
 	modifiers  []lexer.TokenType
 	index      int
-	Errs       []Error
+	errs       util.Errors
 	line       int
 	simple     bool
 }
@@ -27,7 +29,7 @@ type Error struct {
 
 func createParser(data string) *Parser {
 	p := new(Parser)
-	p.lexer = lexer.LexString(data)
+	p.tokens, _ = lexer.LexString(data)
 	p.Scope = &ast.ScopeNode{
 		ValidTypes: []ast.NodeType{
 			ast.InterfaceDeclaration, ast.ClassDeclaration,
@@ -46,7 +48,7 @@ func (p *Parser) next() {
 }
 
 func (p *Parser) token(offset int) lexer.Token {
-	return p.lexer.Tokens[p.index+offset]
+	return p.tokens[p.index+offset]
 }
 
 // index 0, tknlength 1
@@ -54,7 +56,7 @@ func (p *Parser) token(offset int) lexer.Token {
 // hasTokens(1) yes
 // hasTokens(2) no
 func (p *Parser) hasTokens(offset int) bool {
-	return p.index+offset <= len(p.lexer.Tokens)
+	return p.index+offset <= len(p.tokens)
 }
 
 func (p *Parser) parseOptional(types ...lexer.TokenType) bool {
@@ -96,7 +98,7 @@ func (p *Parser) parseIdentifier() string {
 		p.addError(fmt.Sprintf("Required identifier, found %s", p.current().Name()))
 		return ""
 	}
-	s := p.lexer.TokenString(p.current())
+	s := p.current().TokenString()
 	p.next()
 	return s
 }
@@ -137,21 +139,12 @@ func parseModifierList(p *Parser) {
 	p.modifiers = old
 }
 
-func (p *Parser) formatErrors() string {
-	whole := ""
-	whole += fmt.Sprintf("%d errors\n", len(p.Errs))
-	for _, e := range p.Errs {
-		whole += fmt.Sprintf("Line %d: %s\n", e.lineNumber, e.message)
-	}
-	return whole
-}
-
 func (p *Parser) addError(message string) {
-	err := Error{
-		message:    message,
-		lineNumber: p.line,
+	err := util.Error{
+		Message:    message,
+		LineNumber: p.line,
 	}
-	p.Errs = append(p.Errs, err)
+	p.errs = append(p.errs, err)
 }
 
 func (p *Parser) parseBracesScope(valids ...ast.NodeType) *ast.ScopeNode {
@@ -189,8 +182,8 @@ func (p *Parser) parseScope(terminator lexer.TokenType, valids ...ast.NodeType) 
 			expr := p.parseExpression()
 			if expr == nil {
 				p.index = saved
-				//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.lexer.TokenString(p.current()))
-				p.addError(fmt.Sprintf("Unrecognised construct: %s", p.lexer.TokenString(p.current())))
+				//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.tokenstring(p.current()))
+				p.addError(fmt.Sprintf("Unrecognised construct: %s", p.current().TokenString()))
 				p.next()
 			} else {
 				// ?

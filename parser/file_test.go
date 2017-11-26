@@ -8,61 +8,61 @@ import (
 )
 
 func TestEmptyContract(t *testing.T) {
-	p := ParseFile("tests/empty.grd")
+	p, errs := ParseFile("tests/empty.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
-	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
+	goutil.Assert(t, errs == nil, "parser should not have errors")
 }
 
 func TestConstructorContract(t *testing.T) {
-	p := ParseFile("tests/constructors.grd")
+	p, errs := ParseFile("tests/constructors.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
-	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
+	goutil.Assert(t, errs == nil, "parser should not have errors")
 }
 
 func TestFuncsContract(t *testing.T) {
-	p := ParseFile("tests/funcs.grd")
+	p, errs := ParseFile("tests/funcs.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
-	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
+	goutil.Assert(t, errs == nil, "parser should not have errors")
 }
 
 func TestClassesContract(t *testing.T) {
-	p := ParseFile("tests/classes.grd")
+	p, errs := ParseFile("tests/classes.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
-	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
+	goutil.Assert(t, errs == nil, "parser should not have errors")
 }
 
 func TestInterfacesContract(t *testing.T) {
-	p := ParseFile("tests/interfaces.grd")
+	p, errs := ParseFile("tests/interfaces.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
-	goutil.Assert(t, p.Errs == nil, fmt.Sprintln(p.Errs))
+	goutil.Assert(t, errs == nil, fmt.Sprintln(errs))
 }
 
 func TestEventsContract(t *testing.T) {
-	p := ParseFile("tests/events.grd")
+	p, errs := ParseFile("tests/events.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
-	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
+	goutil.Assert(t, errs == nil, "parser should not have errors")
 }
 
 func TestEnumsContract(t *testing.T) {
-	p := ParseFile("tests/enums.grd")
+	p, errs := ParseFile("tests/enums.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
-	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
+	goutil.Assert(t, errs == nil, "parser should not have errors")
 }
 
 func TestTypesContract(t *testing.T) {
-	p := ParseFile("tests/types.grd")
+	p, errs := ParseFile("tests/types.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
-	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
+	goutil.Assert(t, errs == nil, "parser should not have errors")
 }
 
 func TestNestedModifiersContract(t *testing.T) {
-	p := ParseFile("tests/nested_modifiers.grd")
+	p, errs := ParseFile("tests/nested_modifiers.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
-	goutil.Assert(t, p.Errs == nil, "parser should not have errors")
+	goutil.Assert(t, errs == nil, "parser should not have errors")
 }
 
 func TestCommentsContract(t *testing.T) {
-	p := ParseFile("tests/comments.grd")
+	p, errs := ParseFile("tests/comments.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")
-	goutil.Assert(t, p.Errs == nil, p.formatErrors())
+	goutil.Assert(t, errs == nil, errs.Format())
 }

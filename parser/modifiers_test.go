@@ -10,11 +10,11 @@ func TestExplicitVarDeclarationModifiers(t *testing.T) {
 	p := createParser("private a string")
 	parseExplicitVarDeclaration(p)
 	goutil.AssertNow(t, p.Scope != nil, "")
-	p = ParseString(`
+	x, _ := ParseString(`
         private a string
         private b string
         `)
-	goutil.AssertNow(t, p.Scope != nil, "")
+	goutil.AssertNow(t, x != nil, "")
 }
 
 func TestClassModifiers(t *testing.T) {

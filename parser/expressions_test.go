@@ -12,8 +12,7 @@ import (
 
 func TestParseIdentifierSingle(t *testing.T) {
 	p := createParser(`hello`)
-	goutil.AssertNow(t, p.lexer != nil, "lexer should not be nil")
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 1, "wrong token length")
+	goutil.AssertNow(t, len(p.tokens) == 1, "wrong token length")
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr should not be nil")
 	goutil.AssertNow(t, expr.Type() == ast.Identifier, "wrong expr type")
@@ -21,7 +20,7 @@ func TestParseIdentifierSingle(t *testing.T) {
 
 func TestParseReference(t *testing.T) {
 	p := createParser(`hello.aaa.bb`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 5, "wrong token length")
+	goutil.AssertNow(t, len(p.tokens) == 5, "wrong token length")
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr should not be nil")
 	goutil.AssertNow(t, expr.Type() == ast.Reference, "wrong expr type")
@@ -29,7 +28,7 @@ func TestParseReference(t *testing.T) {
 
 func TestParseLiteralInteger(t *testing.T) {
 	p := createParser(`6`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 1, "wrong token length")
+	goutil.AssertNow(t, len(p.tokens) == 1, "wrong token length")
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr should not be nil")
 	goutil.AssertNow(t, expr.Type() == ast.Literal, "wrong expr type")
@@ -39,7 +38,7 @@ func TestParseLiteralInteger(t *testing.T) {
 
 func TestParseLiteralString(t *testing.T) {
 	p := createParser(`"alex"`)
-	goutil.AssertNow(t, len(p.lexer.Tokens) == 1, "wrong token length")
+	goutil.AssertNow(t, len(p.tokens) == 1, "wrong token length")
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr should not be nil")
 	goutil.AssertNow(t, expr.Type() == ast.Literal, "wrong expr type")

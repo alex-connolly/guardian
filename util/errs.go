@@ -11,7 +11,7 @@ type Error struct {
 // Errors ...
 type Errors []Error
 
-func (e Errors) format() string {
+func (e Errors) Format() string {
 	whole := ""
 	whole += fmt.Sprintf("%d errors\n", len(e))
 	for _, err := range e {

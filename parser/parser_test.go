@@ -11,7 +11,7 @@ import (
 
 func TestHasTokens(t *testing.T) {
 	p := createParser("this is data")
-	goutil.Assert(t, len(p.lexer.Tokens) == 3, "wrong length of tokens")
+	goutil.Assert(t, len(p.tokens) == 3, "wrong length of tokens")
 	goutil.Assert(t, p.hasTokens(0), "should have 0 tokens")
 	goutil.Assert(t, p.hasTokens(1), "should have 1 tokens")
 	goutil.Assert(t, p.hasTokens(2), "should have 2 tokens")
@@ -29,13 +29,13 @@ func TestParseIdentifier(t *testing.T) {
 }
 
 func TestParserNumDeclarations(t *testing.T) {
-	p := ParseString(`
+	ast, errs := ParseString(`
 		b int
 		a string
 	`)
-	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
-	goutil.AssertNow(t, p.Scope.Declarations != nil, "scope declarations should not be nil")
-	le := p.Scope.Declarations.Length()
+	goutil.AssertNow(t, ast != nil, "scope should not be nil")
+	goutil.AssertNow(t, ast.Declarations != nil, "scope declarations should not be nil")
+	le := ast.Declarations.Length()
 	goutil.AssertNow(t, le == 2, fmt.Sprintf("wrong decl length: %d", le))
 }
 
