@@ -20,8 +20,8 @@ func TestCallExpressionValid(t *testing.T) {
         call(5, 5)
         `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope)
-	goutil.AssertNow(t, len(errs) == 0, errs.format())
+	errs := Validate(scope, NewTestVM())
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
 func TestCallExpressionInvalid(t *testing.T) {
@@ -33,8 +33,8 @@ func TestCallExpressionInvalid(t *testing.T) {
         Open(5, 5)
         `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope)
-	goutil.AssertNow(t, len(errs) == 1, errs.format())
+	errs := Validate(scope, NewTestVM())
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
 
 func TestCallExpressionEmptyConstructorValid(t *testing.T) {
@@ -46,8 +46,8 @@ func TestCallExpressionEmptyConstructorValid(t *testing.T) {
         d = Dog()
         `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope)
-	goutil.AssertNow(t, len(errs) == 0, errs.format())
+	errs := Validate(scope, NewTestVM())
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
 func TestCallExpressionSingleArgumentConstructorValid(t *testing.T) {
@@ -64,8 +64,8 @@ func TestCallExpressionSingleArgumentConstructorValid(t *testing.T) {
         d = Dog(10)
         `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope)
-	goutil.AssertNow(t, len(errs) == 0, errs.format())
+	errs := Validate(scope, NewTestVM())
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
 func TestCallExpressionMultipleArgumentConstructorValid(t *testing.T) {
@@ -84,8 +84,8 @@ func TestCallExpressionMultipleArgumentConstructorValid(t *testing.T) {
         d = Dog("alan", 10)
         `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope)
-	goutil.AssertNow(t, len(errs) == 0, errs.format())
+	errs := Validate(scope, NewTestVM())
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
 func TestCallExpressionConstructorInvalid(t *testing.T) {
@@ -97,6 +97,6 @@ func TestCallExpressionConstructorInvalid(t *testing.T) {
         d = Dog(6, 6)
         `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope)
-	goutil.AssertNow(t, len(errs) == 1, errs.format())
+	errs := Validate(scope, NewTestVM())
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }

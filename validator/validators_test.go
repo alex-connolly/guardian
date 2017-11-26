@@ -17,8 +17,8 @@ func TestTypeValidateValid(t *testing.T) {
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	le := scope.Declarations.Length()
 	goutil.AssertNow(t, le == 2, fmt.Sprintf("wrong decl length: %d", le))
-	errs := Validate(scope)
-	goutil.AssertNow(t, len(errs) == 0, errs.format())
+	errs := Validate(scope, NewTestVM())
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
 func TestTypeValidateInvalid(t *testing.T) {
@@ -29,6 +29,6 @@ func TestTypeValidateInvalid(t *testing.T) {
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	le := scope.Declarations.Length()
 	goutil.AssertNow(t, le == 2, fmt.Sprintf("wrong decl length: %d", le))
-	errs := Validate(scope)
-	goutil.AssertNow(t, len(errs) == 1, errs.format())
+	errs := Validate(scope, NewTestVM())
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }

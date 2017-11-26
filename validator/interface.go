@@ -6,12 +6,10 @@ import (
 	"github.com/end-r/guardian/util"
 
 	"github.com/end-r/guardian/ast"
-	"github.com/end-r/guardian/parser"
-	"github.com/end-r/guardian/vm"
 )
 
 // Validate...
-func Validate(scope *ast.ScopeNode, vm vm.VMImplementation) []util.Error {
+func Validate(scope *ast.ScopeNode, vm VM) util.Errors {
 	v := new(Validator)
 	ts := &TypeScope{
 		parent: nil,
@@ -22,7 +20,7 @@ func Validate(scope *ast.ScopeNode, vm vm.VMImplementation) []util.Error {
 		v.DeclareType(name, typ)
 	}
 
-	builtins := parser.ParseString(vm.GetBuiltins()).Scope
+	builtins := vm.Builtins()
 
 	v.isParsingBuiltins = true
 
@@ -45,7 +43,7 @@ func Validate(scope *ast.ScopeNode, vm vm.VMImplementation) []util.Error {
 
 	v.validateScope(scope)
 
-	return errs
+	return v.errs
 }
 
 func (v *Validator) validateScope(scope *ast.ScopeNode) (map[string]Type, map[string]Type) {
@@ -99,7 +97,7 @@ func (v *Validator) validate(node ast.Node) {
 // Validator ...
 type Validator struct {
 	scope             *TypeScope
-	errors            []util.Errors
+	errs              util.Errors
 	isParsingBuiltins bool
 }
 
@@ -121,7 +119,7 @@ func NewValidator() *Validator {
 }
 
 func (v *Validator) addError(err string, data ...interface{}) {
-	errs = append(errs, util.Error{
+	v.errs = append(v.errs, util.Error{
 		LineNumber: 12345,
 		Message:    fmt.Sprintf(err, data...),
 	})

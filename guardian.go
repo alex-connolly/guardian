@@ -1,8 +1,9 @@
 package guardian
 
 import (
-	"axia/vmgen"
 	"fmt"
+
+	"github.com/end-r/vmgen"
 
 	"github.com/end-r/guardian/lexer"
 	"github.com/end-r/guardian/parser"

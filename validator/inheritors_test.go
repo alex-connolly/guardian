@@ -19,8 +19,8 @@ func TestClassInheritsTypeValid(t *testing.T) {
             item = Light{}
         }
     `)
-	errs := Validate(scope)
-	goutil.Assert(t, len(errs) == 0, errs.format())
+	errs := Validate(scope, NewTestVM())
+	goutil.Assert(t, len(errs) == 0, errs.Format())
 }
 
 func TestClassInheritsMultipleTypesValid(t *testing.T) {
@@ -35,8 +35,8 @@ func TestClassInheritsMultipleTypesValid(t *testing.T) {
             item = Light{}
         }
     `)
-	errs := Validate(scope)
-	goutil.Assert(t, len(errs) == 0, errs.format())
+	errs := Validate(scope, NewTestVM())
+	goutil.Assert(t, len(errs) == 0, errs.Format())
 }
 
 func TestClassDoesNotInherit(t *testing.T) {
@@ -50,8 +50,8 @@ func TestClassDoesNotInherit(t *testing.T) {
             item = Light{}
         }
     `)
-	errs := Validate(scope)
-	goutil.Assert(t, len(errs) == 1, errs.format())
+	errs := Validate(scope, NewTestVM())
+	goutil.Assert(t, len(errs) == 1, errs.Format())
 }
 
 func TestClassImplementsMultipleInheritanceValid(t *testing.T) {
@@ -66,6 +66,6 @@ func TestClassImplementsMultipleInheritanceValid(t *testing.T) {
             item = Light{}
         }
     `)
-	errs := Validate(scope)
-	goutil.Assert(t, len(errs) == 0, errs.format())
+	errs := Validate(scope, NewTestVM())
+	goutil.Assert(t, len(errs) == 0, errs.Format())
 }
