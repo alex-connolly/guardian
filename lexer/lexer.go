@@ -15,7 +15,7 @@ func (l *Lexer) next() {
 			t.proto = pt
 			if t.Type != TknNone {
 				//log.Printf("Found tok type: %d", t.Type)
-				l.Tokens = append(l.Tokens, l.finalise(t))
+				l.tokens = append(l.tokens, l.finalise(t))
 			} else {
 				l.byteOffset++
 			}

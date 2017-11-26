@@ -6,9 +6,9 @@ import (
 	"github.com/end-r/vmgen"
 )
 
-// A VMImplementation is the mechanism through which all vm-specific features are applied
+// A VM is the mechanism through which all vm-specific features are applied
 // to the Guardian AST: bytecode generation, type enforcement etc
-type VMImplementation interface {
+type VM interface {
 	Traverse(ast.Node) vmgen.Bytecode
 	Builtins() ast.Node
 	Types() map[string]validator.Type

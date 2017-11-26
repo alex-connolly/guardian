@@ -10,25 +10,25 @@ import (
 )
 
 func TestTypeValidateValid(t *testing.T) {
-	p := parser.ParseString(`
+	scope, _ := parser.ParseString(`
             a Dog
             type Dog int
         `)
-	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
-	le := p.Scope.Declarations.Length()
+	goutil.AssertNow(t, scope != nil, "scope should not be nil")
+	le := scope.Declarations.Length()
 	goutil.AssertNow(t, le == 2, fmt.Sprintf("wrong decl length: %d", le))
-	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
+	errs := Validate(scope)
+	goutil.AssertNow(t, len(errs) == 0, errs.format())
 }
 
 func TestTypeValidateInvalid(t *testing.T) {
-	p := parser.ParseString(`
+	scope, _ := parser.ParseString(`
             b Cat
             type Dog int
         `)
-	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
-	le := p.Scope.Declarations.Length()
+	goutil.AssertNow(t, scope != nil, "scope should not be nil")
+	le := scope.Declarations.Length()
 	goutil.AssertNow(t, le == 2, fmt.Sprintf("wrong decl length: %d", le))
-	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 1, v.formatErrors())
+	errs := Validate(scope)
+	goutil.AssertNow(t, len(errs) == 1, errs.format())
 }

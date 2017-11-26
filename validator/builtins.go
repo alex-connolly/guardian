@@ -1,23 +1,30 @@
 package validator
 
-type Builtin interface {
-	Name() string
-	Children() map[string]Builtin
-	Type() Type
-}
+import "github.com/end-r/guardian/ast"
 
 // used to pass types into the s
 type NumericType struct {
-	size     int
-	name     string
-	integral bool
-}
-
-type ArrayType struct {
-	// will be checked at runtime
-	key    string
-	length int
+	size    int
+	name    string
+	signed  bool
+	integer bool
 }
 
 type BooleanType struct {
+}
+
+func (v *Validator) validateBuiltinDeclarations(scope *ast.ScopeNode) {
+	if scope.Declarations != nil {
+		// order doesn't matter here
+		for _, i := range scope.Declarations.Map() {
+			// add in placeholders for all declarations
+			v.validateDeclaration(i.(ast.Node))
+		}
+	}
+}
+
+func (v *Validator) validateBuiltinSequence(scope *ast.ScopeNode) {
+	for _, node := range scope.Sequence {
+		v.validate(node)
+	}
 }

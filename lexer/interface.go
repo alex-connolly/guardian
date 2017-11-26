@@ -12,7 +12,7 @@ type Lexer struct {
 	byteOffset  int
 	line        int
 	column      int
-	Tokens      []Token
+	tokens      []Token
 	tokenOffset int
 	errors      []util.Error
 	//macros      map[string]macro
@@ -24,7 +24,7 @@ func Lex(bytes []byte) (tokens []Token, errs []util.Error) {
 	l.byteOffset = 0
 	l.buffer = bytes
 	l.next()
-	return l.Tokens, l.errors
+	return l.tokens, l.errors
 }
 
 // LexFile ...

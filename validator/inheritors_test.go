@@ -9,7 +9,7 @@ import (
 )
 
 func TestClassInheritsTypeValid(t *testing.T) {
-	p := parser.ParseString(`
+	scope, _ := parser.ParseString(`
         class LightSource {}
         class Light inherits LightSource {}
 
@@ -19,12 +19,12 @@ func TestClassInheritsTypeValid(t *testing.T) {
             item = Light{}
         }
     `)
-	v := ValidateScope(p.Scope)
-	goutil.Assert(t, len(v.errors) == 0, v.formatErrors())
+	errs := Validate(scope)
+	goutil.Assert(t, len(errs) == 0, errs.format())
 }
 
 func TestClassInheritsMultipleTypesValid(t *testing.T) {
-	p := parser.ParseString(`
+	scope, _ := parser.ParseString(`
         class LightSource {}
         class Object {}
         class Light inherits LightSource, Object {}
@@ -35,12 +35,12 @@ func TestClassInheritsMultipleTypesValid(t *testing.T) {
             item = Light{}
         }
     `)
-	v := ValidateScope(p.Scope)
-	goutil.Assert(t, len(v.errors) == 0, v.formatErrors())
+	errs := Validate(scope)
+	goutil.Assert(t, len(errs) == 0, errs.format())
 }
 
 func TestClassDoesNotInherit(t *testing.T) {
-	p := parser.ParseString(`
+	scope, _ := parser.ParseString(`
         class LightSource {}
         class Light {}
 
@@ -50,12 +50,12 @@ func TestClassDoesNotInherit(t *testing.T) {
             item = Light{}
         }
     `)
-	v := ValidateScope(p.Scope)
-	goutil.Assert(t, len(v.errors) == 1, v.formatErrors())
+	errs := Validate(scope)
+	goutil.Assert(t, len(errs) == 1, errs.format())
 }
 
 func TestClassImplementsMultipleInheritanceValid(t *testing.T) {
-	p := parser.ParseString(`
+	scope, _ := parser.ParseString(`
 		class Object {}
         class LightSource inherits Object {}
         class Light inherits LightSource {}
@@ -66,6 +66,6 @@ func TestClassImplementsMultipleInheritanceValid(t *testing.T) {
             item = Light{}
         }
     `)
-	v := ValidateScope(p.Scope)
-	goutil.Assert(t, len(v.errors) == 0, v.formatErrors())
+	errs := Validate(scope)
+	goutil.Assert(t, len(errs) == 0, errs.format())
 }

@@ -1,26 +1,6 @@
-There are several levels of parser constructs:
 
-Primary:
+TODO:
 
-Class, Interface, Contract, Assignment, If, For
-
-Secondary:
-
-The following contract should be converted into an AST as follows:
-
-```go
-contract Empty {
-
-    class Dog{
-
-    }
-
-    start(x, y int){
-
-    }
-
-}
-```
-
-ContractDeclarationNode
-ClassDeclarationNode, FuncDeclarationNode(ParametersNode(ParameterNode))
+- reduce the parser's lookahead
+- construct parsing is easy but many improvements are possible
+- compile speed not the most pressing issue but good to have

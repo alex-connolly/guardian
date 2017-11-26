@@ -9,7 +9,7 @@ import (
 )
 
 func TestCallExpressionValid(t *testing.T) {
-	p := parser.ParseString(`
+	scope, _ := parser.ParseString(`
         func call(a, b int) int {
             if a == 0 or b == 0 {
                 return 0
@@ -19,39 +19,39 @@ func TestCallExpressionValid(t *testing.T) {
 
         call(5, 5)
         `)
-	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
-	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
+	goutil.AssertNow(t, scope != nil, "scope should not be nil")
+	errs := Validate(scope)
+	goutil.AssertNow(t, len(errs) == 0, errs.format())
 }
 
 func TestCallExpressionInvalid(t *testing.T) {
-	p := parser.ParseString(`
+	scope, _ := parser.ParseString(`
         interface Open {
 
         }
 
         Open(5, 5)
         `)
-	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
-	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 1, v.formatErrors())
+	goutil.AssertNow(t, scope != nil, "scope should not be nil")
+	errs := Validate(scope)
+	goutil.AssertNow(t, len(errs) == 1, errs.format())
 }
 
 func TestCallExpressionEmptyConstructorValid(t *testing.T) {
-	p := parser.ParseString(`
+	scope, _ := parser.ParseString(`
         class Dog {
 
         }
 
         d = Dog()
         `)
-	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
-	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
+	goutil.AssertNow(t, scope != nil, "scope should not be nil")
+	errs := Validate(scope)
+	goutil.AssertNow(t, len(errs) == 0, errs.format())
 }
 
 func TestCallExpressionSingleArgumentConstructorValid(t *testing.T) {
-	p := parser.ParseString(`
+	scope, _ := parser.ParseString(`
         class Dog {
 
             yearsOld int
@@ -63,13 +63,13 @@ func TestCallExpressionSingleArgumentConstructorValid(t *testing.T) {
 
         d = Dog(10)
         `)
-	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
-	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
+	goutil.AssertNow(t, scope != nil, "scope should not be nil")
+	errs := Validate(scope)
+	goutil.AssertNow(t, len(errs) == 0, errs.format())
 }
 
 func TestCallExpressionMultipleArgumentConstructorValid(t *testing.T) {
-	p := parser.ParseString(`
+	scope, _ := parser.ParseString(`
         class Dog {
 
             yearsOld int
@@ -83,20 +83,20 @@ func TestCallExpressionMultipleArgumentConstructorValid(t *testing.T) {
 
         d = Dog("alan", 10)
         `)
-	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
-	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 0, v.formatErrors())
+	goutil.AssertNow(t, scope != nil, "scope should not be nil")
+	errs := Validate(scope)
+	goutil.AssertNow(t, len(errs) == 0, errs.format())
 }
 
 func TestCallExpressionConstructorInvalid(t *testing.T) {
-	p := parser.ParseString(`
+	scope, _ := parser.ParseString(`
         class Dog {
 
         }
 
         d = Dog(6, 6)
         `)
-	goutil.AssertNow(t, p.Scope != nil, "scope should not be nil")
-	v := ValidateScope(p.Scope)
-	goutil.AssertNow(t, len(v.errors) == 1, v.formatErrors())
+	goutil.AssertNow(t, scope != nil, "scope should not be nil")
+	errs := Validate(scope)
+	goutil.AssertNow(t, len(errs) == 1, errs.format())
 }
