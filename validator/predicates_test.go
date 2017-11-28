@@ -7,8 +7,8 @@ import (
 )
 
 func TestIsAssignableEqualTypes(t *testing.T) {
-	a := standards[Int]
-	b := standards[Int]
+	a := standards[Bool]
+	b := standards[Bool]
 	goutil.AssertNow(t, assignableTo(b, a), "equal types should be assignable")
 }
 

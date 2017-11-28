@@ -5,6 +5,15 @@ func (a Array) compare(t Type) bool {
 		return false
 	} else {
 		// arrays are equal if they share the same value type
+		if a.Variable && !at.Variable {
+			return false
+		}
+		if !a.Variable && at.Variable {
+			return false
+		}
+		if a.Length != at.Length {
+			return false
+		}
 		return a.Value.compare(at.Value)
 	}
 }

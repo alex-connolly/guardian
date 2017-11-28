@@ -45,11 +45,12 @@ var standards = map[BaseType]StandardType{
 }
 
 type Array struct {
-	Length int
-	Value  Type
+	Length   int
+	Value    Type
+	Variable bool
 }
 
-func NewArray(value Type, length int) Array {
+func NewArray(value Type, length int, variable bool) Array {
 	return Array{
 		Value:  value,
 		Length: length,

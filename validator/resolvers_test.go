@@ -10,12 +10,12 @@ import (
 	"github.com/end-r/goutil"
 )
 
-func TestResolveLiteralExpressionString(t *testing.T) {
+func TestResolveLiteralExpressionUnknown(t *testing.T) {
 	v := NewValidator()
 	p := parser.ParseExpression(`"hi"`)
 	goutil.AssertNow(t, p.Type() == ast.Literal, "wrong expression type")
 	a := p.(ast.LiteralNode)
-	goutil.Assert(t, v.resolveExpression(a).compare(standards[String]), "wrong true expression type")
+	goutil.Assert(t, v.resolveExpression(a).compare(standards[Unknown]), "wrong true expression type")
 }
 
 func TestResolveLiteralExpressionBool(t *testing.T) {
@@ -30,9 +30,9 @@ func TestResolveLiteralExpressionBool(t *testing.T) {
 func TestResolveCallExpression(t *testing.T) {
 	v := NewValidator()
 	fn := new(Func)
-	fn.Params = NewTuple(standards[Int], standards[Int])
-	fn.Results = NewTuple(standards[Int])
-	v.DeclareVarOfType("hello", NewFunc(NewTuple(), NewTuple(standards[Int])))
+	fn.Params = NewTuple(standards[Bool], standards[Bool])
+	fn.Results = NewTuple(standards[Bool])
+	v.DeclareVarOfType("hello", NewFunc(NewTuple(), NewTuple(standards[Bool])))
 	p := parser.ParseExpression("hello(5, 5)")
 	goutil.AssertNow(t, p.Type() == ast.CallExpression, "wrong expression type")
 	a := p.(ast.CallExpressionNode)
@@ -44,7 +44,7 @@ func TestResolveCallExpression(t *testing.T) {
 
 func TestResolveArrayLiteralExpression(t *testing.T) {
 	v := NewValidator()
-	v.DeclareType("dog", standards[String])
+	v.DeclareType("dog", standards[Unknown])
 	p := parser.ParseExpression("[]dog{}")
 	goutil.AssertNow(t, p.Type() == ast.ArrayLiteral, "wrong expression type")
 	a := p.(ast.ArrayLiteralNode)
@@ -54,7 +54,7 @@ func TestResolveArrayLiteralExpression(t *testing.T) {
 
 func TestResolveArrayLiteralSliceExpressionCopy(t *testing.T) {
 	v := NewValidator()
-	v.DeclareType("dog", standards[String])
+	v.DeclareType("dog", standards[Unknown])
 	p := parser.ParseExpression("[]dog{}[:]")
 	goutil.AssertNow(t, p.Type() == ast.SliceExpression, "wrong expression type")
 	_, ok := v.resolveExpression(p).(Array)
@@ -63,7 +63,7 @@ func TestResolveArrayLiteralSliceExpressionCopy(t *testing.T) {
 
 func TestResolveArrayLiteralSliceExpressionLower(t *testing.T) {
 	v := NewValidator()
-	v.DeclareType("dog", standards[String])
+	v.DeclareType("dog", standards[Unknown])
 	p := parser.ParseExpression("[]dog{}[6:]")
 	goutil.AssertNow(t, p.Type() == ast.SliceExpression, "wrong expression type")
 	_, ok := v.resolveExpression(p).(Array)
@@ -72,7 +72,7 @@ func TestResolveArrayLiteralSliceExpressionLower(t *testing.T) {
 
 func TestResolveArrayLiteralSliceExpressionUpper(t *testing.T) {
 	v := NewValidator()
-	v.DeclareType("dog", standards[String])
+	v.DeclareType("dog", standards[Unknown])
 	p := parser.ParseExpression("[]dog{}[:10]")
 	goutil.AssertNow(t, p.Type() == ast.SliceExpression, "wrong expression type")
 	_, ok := v.resolveExpression(p).(Array)
@@ -81,7 +81,7 @@ func TestResolveArrayLiteralSliceExpressionUpper(t *testing.T) {
 
 func TestResolveArrayLiteralSliceExpressionBoth(t *testing.T) {
 	v := NewValidator()
-	v.DeclareType("dog", standards[String])
+	v.DeclareType("dog", standards[Unknown])
 	p := parser.ParseExpression("[]dog{}[6:10]")
 	goutil.AssertNow(t, p.Type() == ast.SliceExpression, "wrong expression type")
 	_, ok := v.resolveExpression(p).(Array)
@@ -90,19 +90,19 @@ func TestResolveArrayLiteralSliceExpressionBoth(t *testing.T) {
 
 func TestResolveMapLiteralExpression(t *testing.T) {
 	v := NewValidator()
-	v.DeclareType("dog", standards[String])
-	v.DeclareType("cat", standards[String])
+	v.DeclareType("dog", standards[Unknown])
+	v.DeclareType("cat", standards[Unknown])
 	p := parser.ParseExpression("map[dog]cat{}")
 	goutil.AssertNow(t, p.Type() == ast.MapLiteral, "wrong expression type")
 	m, ok := v.resolveExpression(p).(Map)
 	goutil.AssertNow(t, ok, "wrong base type")
-	goutil.Assert(t, m.Key.compare(standards[String]), fmt.Sprintf("wrong key: %s", WriteType(m.Key)))
-	goutil.Assert(t, m.Value.compare(standards[String]), fmt.Sprintf("wrong val: %s", WriteType(m.Value)))
+	goutil.Assert(t, m.Key.compare(standards[Unknown]), fmt.Sprintf("wrong key: %s", WriteType(m.Key)))
+	goutil.Assert(t, m.Value.compare(standards[Unknown]), fmt.Sprintf("wrong val: %s", WriteType(m.Value)))
 }
 
 func TestResolveIndexExpressionArrayLiteral(t *testing.T) {
 	v := NewValidator()
-	v.DeclareVarOfType("cat", standards[Int])
+	v.DeclareVarOfType("cat", standards[Bool])
 	p := parser.ParseExpression("[]cat{}[0]")
 	goutil.AssertNow(t, p.Type() == ast.IndexExpression, "wrong expression type")
 	b := p.(ast.IndexExpressionNode)
@@ -112,8 +112,8 @@ func TestResolveIndexExpressionArrayLiteral(t *testing.T) {
 
 func TestResolveIndexExpressionMapLiteral(t *testing.T) {
 	v := NewValidator()
-	v.DeclareType("dog", standards[String])
-	v.DeclareType("cat", standards[String])
+	v.DeclareType("dog", standards[Unknown])
+	v.DeclareType("cat", standards[Unknown])
 	p := parser.ParseExpression(`map[dog]cat{}["hi"]`)
 	goutil.AssertNow(t, p.Type() == ast.IndexExpression, "wrong expression type")
 	ok := v.resolveExpression(p).compare(v.getNamedType("cat"))
@@ -127,7 +127,7 @@ func TestResolveBinaryExpressionSimpleNumeric(t *testing.T) {
 	b := p.(ast.BinaryExpressionNode)
 	v := NewValidator()
 	resolved := v.resolveExpression(b)
-	goutil.AssertNow(t, resolved.compare(standards[Int]), "wrong expression type")
+	goutil.AssertNow(t, resolved.compare(standards[Bool]), "wrong expression type")
 }
 
 func TestResolveBinaryExpressionConcatenation(t *testing.T) {
@@ -136,7 +136,7 @@ func TestResolveBinaryExpressionConcatenation(t *testing.T) {
 	b := p.(ast.BinaryExpressionNode)
 	v := NewValidator()
 	resolved := v.resolveExpression(b)
-	goutil.AssertNow(t, resolved.compare(standards[String]), "wrong expression type")
+	goutil.AssertNow(t, resolved.compare(standards[Unknown]), "wrong expression type")
 }
 
 func TestResolveBinaryExpressionEql(t *testing.T) {
@@ -185,7 +185,7 @@ func TestResolveBinaryExpressionGtr(t *testing.T) {
 }
 
 func TestResolveBinaryExpressionCast(t *testing.T) {
-	p := parser.ParseExpression("5 as uint")
+	p := parser.ParseExpression("5 as uBool")
 	goutil.AssertNow(t, p.Type() == ast.BinaryExpression, "wrong expression type")
 
 }

@@ -8,14 +8,14 @@ import (
 )
 
 func TestWriteMapType(t *testing.T) {
-	m := NewMap(standards[Int], standards[Int])
+	m := NewMap(standards[Bool], standards[Bool])
 	expected := "map[int]int"
 	goutil.Assert(t, WriteType(m) == expected, fmt.Sprintf("wrong type written: %s\n", WriteType(m)))
 }
 
 func TestWriteArrayType(t *testing.T) {
-	m := NewArray(standards[String])
-	expected := "[]string"
+	m := NewArray(standards[Unknown], 0, true)
+	expected := "[]Unknown"
 	goutil.Assert(t, WriteType(m) == expected, fmt.Sprintf("wrong type written: %s\n", WriteType(m)))
 }
 
@@ -26,14 +26,14 @@ func TestWriteTupleTypeEmpty(t *testing.T) {
 }
 
 func TestWriteTupleTypeSingle(t *testing.T) {
-	m := NewTuple(standards[Int])
+	m := NewTuple(standards[Bool])
 	expected := "(int)"
 	goutil.Assert(t, WriteType(m) == expected, fmt.Sprintf("wrong type written: %s\n", WriteType(m)))
 }
 
 func TestWriteTupleTypeMultiple(t *testing.T) {
-	m := NewTuple(standards[Int], standards[String])
-	expected := "(int, string)"
+	m := NewTuple(standards[Bool], standards[Unknown])
+	expected := "(int, Unknown)"
 	goutil.Assert(t, WriteType(m) == expected, fmt.Sprintf("wrong type written: %s\n", WriteType(m)))
 }
 
@@ -44,14 +44,14 @@ func TestWriteFuncEmptyParamsEmptyResults(t *testing.T) {
 }
 
 func TestWriteFuncEmptyParamsSingleResults(t *testing.T) {
-	m := NewFunc(NewTuple(), NewTuple(standards[Int]))
+	m := NewFunc(NewTuple(), NewTuple(standards[Bool]))
 	expected := "func()(int)"
 	goutil.Assert(t, WriteType(m) == expected, fmt.Sprintf("wrong type written: %s\n", WriteType(m)))
 }
 
 func TestWriteFuncMultipleParamsMultipleResults(t *testing.T) {
-	m := NewFunc(NewTuple(standards[Int], standards[String]), NewTuple(standards[Int], standards[String]))
-	expected := "func(int, string)(int, string)"
+	m := NewFunc(NewTuple(standards[Bool], standards[Unknown]), NewTuple(standards[Bool], standards[Unknown]))
+	expected := "func(int, Unknown)(int, Unknown)"
 	goutil.Assert(t, WriteType(m) == expected, fmt.Sprintf("wrong type written: %s\n", WriteType(m)))
 }
 

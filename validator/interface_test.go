@@ -23,7 +23,7 @@ func TestRequireTypeMatched(t *testing.T) {
 
 func TestRequireTypeUnmatched(t *testing.T) {
 	v := NewValidator()
-	goutil.Assert(t, !v.requireType(standards[Bool], standards[String]), "direct should not be equal")
-	v.DeclareType("a", standards[String])
+	goutil.Assert(t, !v.requireType(standards[Bool], standards[Unknown]), "direct should not be equal")
+	v.DeclareType("a", standards[Unknown])
 	goutil.Assert(t, !v.requireType(standards[Bool], v.getNamedType("a")), "indirect should not be equal")
 }

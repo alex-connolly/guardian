@@ -20,15 +20,12 @@ func Validate(scope *ast.ScopeNode, vm VM) util.Errors {
 
 	builtins := vm.Builtins()
 
-	fmt.Println("o")
 	if builtins != nil {
 		v.isParsingBuiltins = true
-		fmt.Println("hi")
 		if builtins.Declarations != nil {
 			for _, i := range builtins.Declarations.Map() {
 				// add in placeholders for all declarations
 				v.validateDeclaration(i.(ast.Node))
-				fmt.Println("xd")
 			}
 		}
 

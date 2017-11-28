@@ -99,7 +99,7 @@ func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	m := e.(ast.ArrayLiteralNode)
 	keyType := v.resolveType(m.Signature.Value)
-	arrayType := NewArray(keyType, m.Length)
+	arrayType := NewArray(keyType, m.Signature.Length, m.Signature.Variable)
 	return arrayType
 }
 
