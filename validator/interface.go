@@ -16,27 +16,7 @@ func Validate(scope *ast.ScopeNode, vm VM) util.Errors {
 		scope:  scope,
 	}
 
-	v.scope.builtinTypes = vm.Primitives()
-
-	builtins := vm.Builtins()
-
-	if builtins != nil {
-		v.isParsingBuiltins = true
-		if builtins.Declarations != nil {
-			for _, i := range builtins.Declarations.Map() {
-				// add in placeholders for all declarations
-				v.validateDeclaration(i.(ast.Node))
-			}
-		}
-
-		if builtins.Sequence != nil {
-			for _, node := range builtins.Sequence {
-				v.validate(node)
-			}
-		}
-
-		v.isParsingBuiltins = false
-	}
+	v.importVM(vm)
 
 	v.validateScope(scope)
 
@@ -93,28 +73,57 @@ func (v *Validator) validate(node ast.Node) {
 
 // Validator ...
 type Validator struct {
+	builtinScope      *ast.ScopeNode
 	scope             *TypeScope
 	errs              util.Errors
 	isParsingBuiltins bool
 	literals          LiteralMap
 	operators         OperatorMap
+	primitives        map[string]Type
+	builtinVariables  map[string]Type
 }
 
 // TypeScope ...
 type TypeScope struct {
-	parent           *TypeScope
-	scope            *ast.ScopeNode
-	variables        map[string]Type
-	types            map[string]Type
-	builtinVariables map[string]Type
-	builtinTypes     map[string]Type
+	parent    *TypeScope
+	scope     *ast.ScopeNode
+	variables map[string]Type
+	types     map[string]Type
+}
+
+func (v *Validator) importVM(vm VM) {
+	v.literals = vm.Literals()
+	v.operators = vm.Operators()
+	v.primitives = vm.Primitives()
+	v.builtinScope = vm.Builtins()
+	if v.builtinScope != nil {
+		v.isParsingBuiltins = true
+		if v.builtinScope.Declarations != nil {
+			for _, i := range v.builtinScope.Declarations.Map() {
+				v.validateDeclaration(i.(ast.Node))
+			}
+		}
+		if v.builtinScope.Sequence != nil {
+			for _, node := range v.builtinScope.Sequence {
+				v.validate(node)
+			}
+		}
+		v.isParsingBuiltins = false
+	}
 }
 
 // NewValidator creates a new validator
-func NewValidator() *Validator {
-	return &Validator{
-		scope: new(TypeScope),
+func NewValidator(vm VM) *Validator {
+	v := Validator{
+		scope:     new(TypeScope),
+		literals:  vm.Literals(),
+		operators: vm.Operators(),
 	}
+	v.scope.scope = new(ast.ScopeNode)
+
+	v.importVM(vm)
+
+	return &v
 }
 
 func (v *Validator) addError(err string, data ...interface{}) {

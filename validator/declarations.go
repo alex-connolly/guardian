@@ -88,14 +88,23 @@ func (v *Validator) validateDeclaration(node ast.Node) {
 }
 
 func (v *Validator) getDeclarationNode(names []string) Type {
-	decl := v.scope.scope.GetDeclaration(names[0])
-	if decl != nil {
-		v.validateDeclaration(decl)
+	if v.isParsingBuiltins {
+		if v.builtinScope != nil {
+			decl := v.builtinScope.GetDeclaration(names[0])
+			if decl != nil {
+				v.validateDeclaration(decl)
+			}
+		}
+	} else {
+		decl := v.scope.scope.GetDeclaration(names[0])
+		if decl != nil {
+			v.validateDeclaration(decl)
+		}
 	}
-	return v.requirevalidatenableType(names)
+	return v.requireValidType(names)
 }
 
-func (v *Validator) requirevalidatenableType(names []string) Type {
+func (v *Validator) requireValidType(names []string) Type {
 	typ := v.getNamedType(names...)
 	if typ == standards[Unknown] {
 		v.addError(errTypeNotVisible, makeName(names))

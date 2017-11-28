@@ -9,12 +9,12 @@ func (v *Validator) requireVisibleType(names ...string) Type {
 }
 
 func (v *Validator) findVariable(name string) Type {
-	for scope := v.scope; scope != nil; scope = scope.parent {
-		if scope.builtinVariables != nil {
-			if typ, ok := scope.builtinVariables[name]; ok {
-				return typ
-			}
+	if v.builtinVariables != nil {
+		if typ, ok := v.builtinVariables[name]; ok {
+			return typ
 		}
+	}
+	for scope := v.scope; scope != nil; scope = scope.parent {
 		if scope.variables != nil {
 			if typ, ok := scope.variables[name]; ok {
 				return typ
@@ -34,10 +34,10 @@ func (v *Validator) DeclareVarOfType(name string, t Type) {
 
 // DeclareBuiltinOfType ...
 func (v *Validator) DeclareBuiltinOfType(name string, t Type) {
-	if v.scope.builtinVariables == nil {
-		v.scope.builtinVariables = make(map[string]Type)
+	if v.builtinVariables == nil {
+		v.builtinVariables = make(map[string]Type)
 	}
-	v.scope.builtinVariables[name] = t
+	v.builtinVariables[name] = t
 }
 
 // DeclareType ...
@@ -50,10 +50,10 @@ func (v *Validator) DeclareType(name string, t Type) {
 
 // DeclareBuiltinType ...
 func (v *Validator) DeclareBuiltinType(name string, t Type) {
-	if v.scope.builtinTypes == nil {
-		v.scope.builtinTypes = make(map[string]Type)
+	if v.primitives == nil {
+		v.primitives = make(map[string]Type)
 	}
-	v.scope.builtinTypes[name] = t
+	v.primitives[name] = t
 }
 
 func (v *Validator) getNamedType(names ...string) Type {
@@ -66,31 +66,24 @@ func (v *Validator) getNamedType(names ...string) Type {
 			return s
 		}
 	}
+	if v.primitives != nil {
+		for k, typ := range v.primitives {
+			if k == search {
+				// found top level type
+				return v.getPropertiesType(typ, names[1:])
+			}
+		}
+	}
 	for s := v.scope; s != nil; s = s.parent {
 		if s.types != nil {
 			for k, typ := range s.types {
 				if k == search {
 					// found top level type
-					pType, ok := v.getPropertiesType(typ, names[1:])
-					if !ok {
-
-					}
-					return pType
+					return v.getPropertiesType(typ, names[1:])
 				}
 			}
 		}
-		if s.builtinTypes != nil {
-			for k, typ := range s.builtinTypes {
-				if k == search {
-					// found top level type
-					pType, ok := v.getPropertiesType(typ, names[1:])
-					if !ok {
 
-					}
-					return pType
-				}
-			}
-		}
 	}
 	return standards[Unknown]
 }

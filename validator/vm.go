@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"strconv"
+
 	"github.com/end-r/guardian/lexer"
 
 	"github.com/end-r/guardian/parser"
@@ -41,28 +43,25 @@ func (v TestVM) Builtins() *ast.ScopeNode {
 
 func (v TestVM) Literals() LiteralMap {
 	return LiteralMap{
-		lexer.TknString:  simpleLiteral("string"),
-		lexer.TknTrue:    resolveBoolLiteral,
-		lexer.TknFalse:   resolveBoolLiteral,
+		lexer.TknString:  SimpleLiteral("string"),
+		lexer.TknTrue:    SimpleLiteral("bool"),
+		lexer.TknFalse:   SimpleLiteral("bool"),
 		lexer.TknInteger: resolveIntegerLiteral,
 		lexer.TknFloat:   resolveFloatLiteral,
 	}
 }
 
-func resolveStringLiteral(v *Validator) Type {
-	return v.getNamedType("string")
+func resolveIntegerLiteral(v *Validator, data string) Type {
+	i, err := strconv.ParseInt(data, 10, 64)
+	if err != nil {
+
+	}
+	return v.smallestNumericType(int(i))
 }
 
-func resolveIntegerLiteral(v *Validator) Type {
+func resolveFloatLiteral(v *Validator, data string) Type {
+	// convert to float
 	return standards[Unknown]
-}
-
-func resolveFloatLiteral(v *Validator) Type {
-	return standards[Unknown]
-}
-
-func resolveBoolLiteral(v *Validator) Type {
-	return v.getNamedType("bool")
 }
 
 func getIntegerTypes() map[string]Type {
@@ -92,8 +91,9 @@ func (v TestVM) Primitives() map[string]Type {
 }
 
 func (v TestVM) Operators() (m OperatorMap) {
-	m.Add(simpleOperator("bool"), lexer.TknGeq, lexer.TknLeq,
-		lexer.TknLss, lexer.TknNeq, lexer.TknEql)
+	m = OperatorMap{}
+	m.Add(SimpleOperator("bool"), lexer.TknGeq, lexer.TknLeq,
+		lexer.TknLss, lexer.TknNeq, lexer.TknEql, lexer.TknGtr)
 
 	return m
 }

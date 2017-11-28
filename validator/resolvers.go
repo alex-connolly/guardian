@@ -87,7 +87,7 @@ func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	l := e.(ast.LiteralNode)
 	literalResolver, ok := v.literals[l.LiteralType]
 	if ok {
-		return literalResolver(v)
+		return literalResolver(v, l.Data)
 	} else {
 		v.addError(errStringLiteralUnsupported)
 		return standards[Invalid]
@@ -332,7 +332,7 @@ func getIdentifier(exp ast.ExpressionNode) (string, bool) {
 	}
 }
 
-func (v *Validator) getPropertiesType(t Type, names []string) (Type, bool) {
+func (v *Validator) getPropertiesType(t Type, names []string) (resolved Type) {
 	var working bool
 	for _, name := range names {
 		if !working {
@@ -340,12 +340,7 @@ func (v *Validator) getPropertiesType(t Type, names []string) (Type, bool) {
 		}
 		t, working = v.getPropertyType(t, name)
 	}
-	return t, working
-}
-
-func (v *Validator) smallestNumericType() Type {
-	// TODO: implement
-	return standards[Unknown]
+	return t
 }
 
 func (v *Validator) getPropertyType(t Type, name string) (Type, bool) {
@@ -363,10 +358,10 @@ func (v *Validator) getPropertyType(t Type, name string) (Type, bool) {
 	case Enum:
 		for _, s := range c.Items {
 			if s == name {
-				return v.smallestNumericType(), true
+				return v.smallestNumericType(len(c.Items)), true
 			}
 		}
-		return v.smallestNumericType(), false
+		return v.smallestNumericType(len(c.Items)), false
 	}
 	return standards[Invalid], false
 }
