@@ -31,29 +31,7 @@ type BaseType int
 const (
 	Invalid BaseType = iota
 	Unknown
-
-	Int
-	Int8
-	Int16
-	Int32
-	Int64
-	Int128
-	Int256
-
-	Uint
-	Uint8
-	Uint16
-	Uint32
-	Uint64
-	Uint128
-	Uint256
-
-	String
 	Bool
-	Float
-
-	// aliases
-	Byte = Uint8
 )
 
 type StandardType struct {
@@ -63,36 +41,18 @@ type StandardType struct {
 var standards = map[BaseType]StandardType{
 	Invalid: StandardType{"invalid"},
 	Unknown: StandardType{"unknown"},
-
-	Int:    StandardType{"int"},
-	Int8:   StandardType{"int8"},
-	Int16:  StandardType{"int16"},
-	Int32:  StandardType{"int32"},
-	Int64:  StandardType{"int64"},
-	Int128: StandardType{"int128"},
-	Int256: StandardType{"int256"},
-
-	Uint:    StandardType{"uint"},
-	Uint8:   StandardType{"uint8"},
-	Uint16:  StandardType{"uint16"},
-	Uint32:  StandardType{"uint32"},
-	Uint64:  StandardType{"uint64"},
-	Uint128: StandardType{"uint128"},
-	Uint256: StandardType{"uint256"},
-
-	Float:  StandardType{"float"},
-	String: StandardType{"string"},
-	Bool:   StandardType{"bool"},
-	// just an alias
+	Bool:    StandardType{"bool"},
 }
 
 type Array struct {
-	Value Type
+	Length int
+	Value  Type
 }
 
-func NewArray(value Type) Array {
+func NewArray(value Type, length int) Array {
 	return Array{
-		Value: value,
+		Value:  value,
+		Length: length,
 	}
 }
 

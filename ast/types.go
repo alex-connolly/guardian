@@ -57,6 +57,7 @@ func (n MapTypeNode) Type() NodeType { return MapType }
 
 type ArrayTypeNode struct {
 	Variable bool
+	Length   int
 	Value    Node
 }
 

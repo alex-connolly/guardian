@@ -7,8 +7,8 @@ import (
 )
 
 func TestCompareArraysExplicitlyEqual(t *testing.T) {
-	one := NewArray(standards[Int])
-	two := NewArray(standards[Int])
+	one := NewArray(standards[Bool], 0)
+	two := NewArray(standards[Bool], 0)
 	goutil.Assert(t, one.compare(two), "should be equal")
 }
 

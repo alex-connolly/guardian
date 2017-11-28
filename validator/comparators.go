@@ -107,3 +107,25 @@ func (e Event) compare(t Type) bool {
 		return e.Name == other.Name
 	}
 }
+
+func (nt NumericType) compare(t Type) bool {
+	if other, ok := resolveUnderlying(t).(NumericType); !ok {
+		return false
+	} else {
+		if nt.integer != other.integer {
+			return false
+		}
+		if nt.size != other.size {
+			return false
+		}
+		if nt.signed != other.signed {
+			return false
+		}
+		return true
+	}
+}
+
+func (nt BooleanType) compare(t Type) bool {
+	_, ok := resolveUnderlying(t).(BooleanType)
+	return ok
+}

@@ -23,7 +23,6 @@ func makeName(names []string) string {
 }
 
 func (s StandardType) write(b *bytes.Buffer) {
-
 	b.WriteString(s.name)
 }
 
@@ -85,4 +84,12 @@ func (c Contract) write(b *bytes.Buffer) {
 func (e Event) write(b *bytes.Buffer) {
 	b.WriteString("event")
 	e.Parameters.write(b)
+}
+
+func (nt NumericType) write(b *bytes.Buffer) {
+	b.WriteString(nt.name)
+}
+
+func (nt BooleanType) write(b *bytes.Buffer) {
+	b.WriteString("bool")
 }

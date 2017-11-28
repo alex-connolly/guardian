@@ -1,8 +1,6 @@
 package validator
 
 import (
-	"github.com/end-r/guardian/lexer"
-
 	"github.com/end-r/guardian/ast"
 )
 
@@ -87,24 +85,21 @@ func resolveIdentifier(v *Validator, e ast.ExpressionNode) Type {
 func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	l := e.(ast.LiteralNode)
-	switch l.LiteralType {
-	case lexer.TknString:
-		return standards[String]
-	case lexer.TknTrue, lexer.TknFalse:
-		return standards[Bool]
-	case lexer.TknInteger:
-		return standards[Int]
-	case lexer.TknFloat:
-		return standards[Float]
+	literalResolver, ok := v.literals[l.LiteralType]
+	if ok {
+		return literalResolver(v)
+	} else {
+		v.addError(errStringLiteralUnsupported)
+		return standards[Invalid]
 	}
-	return standards[Invalid]
+
 }
 
 func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	m := e.(ast.ArrayLiteralNode)
 	keyType := v.resolveType(m.Signature.Value)
-	arrayType := NewArray(keyType)
+	arrayType := NewArray(keyType, m.Length)
 	return arrayType
 }
 
@@ -228,43 +223,55 @@ func resolveSliceExpression(v *Validator, e ast.ExpressionNode) Type {
 	return standards[Invalid]
 }
 
+func (v *Validator) resolveNumericType() {
+
+}
+
 func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	b := e.(ast.BinaryExpressionNode)
 	// rules for binary Expressions
-	//leftType := v.resolveExpression(b.Left)
-	//rightType := v.resolveExpression(b.Right)
-
-	switch b.Operator {
-	case lexer.TknAdd:
-		// can be numeric or a string
-		if v.resolveExpression(b.Left).compare(standards[String]) {
-			return standards[String]
-		} else {
-			return standards[Int]
-		}
-	case lexer.TknSub, lexer.TknDiv, lexer.TknMul, lexer.TknMod:
-		// must be numeric
-		return standards[Int]
-	case lexer.TknGeq, lexer.TknLeq, lexer.TknLss, lexer.TknGtr:
-		// must be numeric
-		return standards[Bool]
-	case lexer.TknEql, lexer.TknNeq:
-		// don't have to be numeric
-		return standards[Bool]
-	case lexer.TknShl, lexer.TknShr, lexer.TknAnd, lexer.TknOr, lexer.TknXor:
-		// must be numeric
-		return standards[Int]
-	case lexer.TknLogicalAnd, lexer.TknLogicalOr:
-		// must be boolean
-		return standards[Bool]
-	case lexer.TknAs:
-		// make sure this is a type
-
+	leftType := v.resolveExpression(b.Left)
+	rightType := v.resolveExpression(b.Right)
+	operatorFunc, ok := v.operators[b.Operator]
+	if !ok {
+		return standards[Invalid]
 	}
+	return operatorFunc(v, leftType, rightType)
+	/*
+		switch b.Operator {
+		case lexer.TknAdd:
+			// can be numeric or a string
+			// string = type user has defined as string literal
+			getStrType, ok := v.literals[lexer.TknString]
+			if ok && v.resolveExpression(b.Left).compare(getStrType(v)) {
+				return getStrType(v)
+			} else {
+				return v.resolveNumericType()
+			}
+		case lexer.TknSub, lexer.TknDiv, lexer.TknMul, lexer.TknMod:
+			// must be numeric
+			return v.resolveNumericType()
+		case lexer.TknGeq, lexer.TknLeq, lexer.TknLss, lexer.TknGtr:
+			// must be numeric
+			return standards[Bool]
+		case lexer.TknEql, lexer.TknNeq:
+			// don't have to be numeric
+			return standards[Bool]
+		case lexer.TknShl, lexer.TknShr, lexer.TknAnd, lexer.TknOr, lexer.TknXor:
+			// must be numeric
+			return standards[Int]
+		case lexer.TknLogicalAnd, lexer.TknLogicalOr:
+			// must be boolean
+			return standards[Bool]
+		case lexer.TknAs:
+			// make sure this is a type
 
-	// else it is a type which is not defined for binary operators
-	return standards[Invalid]
+		}
+
+		// else it is a type which is not defined for binary operators
+		return standards[Invalid]
+	*/
 }
 
 func resolveUnaryExpression(v *Validator, e ast.ExpressionNode) Type {
@@ -277,7 +284,7 @@ func (v *Validator) resolveContextualReference(context Type, exp ast.ExpressionN
 	// check if context is subscriptable
 	if isSubscriptable(context) {
 		if name, ok := getIdentifier(exp); ok {
-			if _, ok := getPropertyType(context, name); ok {
+			if _, ok := v.getPropertyType(context, name); ok {
 				if exp.Type() == ast.Reference {
 					a := exp.(ast.ReferenceNode)
 					context = v.resolveExpression(a.Parent)
@@ -325,18 +332,23 @@ func getIdentifier(exp ast.ExpressionNode) (string, bool) {
 	}
 }
 
-func getPropertiesType(t Type, names []string) (Type, bool) {
+func (v *Validator) getPropertiesType(t Type, names []string) (Type, bool) {
 	var working bool
 	for _, name := range names {
 		if !working {
 			break
 		}
-		t, working = getPropertyType(t, name)
+		t, working = v.getPropertyType(t, name)
 	}
 	return t, working
 }
 
-func getPropertyType(t Type, name string) (Type, bool) {
+func (v *Validator) smallestNumericType() Type {
+	// TODO: implement
+	return standards[Unknown]
+}
+
+func (v *Validator) getPropertyType(t Type, name string) (Type, bool) {
 	// only classes, interfaces, contracts and enums are subscriptable
 	switch c := t.(type) {
 	case Class:
@@ -351,10 +363,10 @@ func getPropertyType(t Type, name string) (Type, bool) {
 	case Enum:
 		for _, s := range c.Items {
 			if s == name {
-				return standards[Int], true
+				return v.smallestNumericType(), true
 			}
 		}
-		return standards[Int], false
+		return v.smallestNumericType(), false
 	}
 	return standards[Invalid], false
 }

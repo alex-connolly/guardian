@@ -31,7 +31,7 @@ func (v *Validator) validatePlainType(node ast.PlainTypeNode) Type {
 
 func (v *Validator) validateArrayType(node ast.ArrayTypeNode) Array {
 	value := v.validateType(node.Value)
-	return NewArray(value)
+	return NewArray(value, node.Length)
 }
 
 func (v *Validator) validateMapType(node ast.MapTypeNode) Map {

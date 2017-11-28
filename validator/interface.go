@@ -11,35 +11,35 @@ import (
 // Validate...
 func Validate(scope *ast.ScopeNode, vm VM) util.Errors {
 	v := new(Validator)
-	ts := &TypeScope{
+	v.scope = &TypeScope{
 		parent: nil,
 		scope:  scope,
 	}
 
-	for name, typ := range vm.Primitives() {
-		v.DeclareType(name, typ)
-	}
+	v.scope.builtinTypes = vm.Primitives()
 
 	builtins := vm.Builtins()
 
-	v.isParsingBuiltins = true
-
-	if builtins.Declarations != nil {
-		for _, i := range builtins.Declarations.Map() {
-			// add in placeholders for all declarations
-			v.validateDeclaration(i.(ast.Node))
+	fmt.Println("o")
+	if builtins != nil {
+		v.isParsingBuiltins = true
+		fmt.Println("hi")
+		if builtins.Declarations != nil {
+			for _, i := range builtins.Declarations.Map() {
+				// add in placeholders for all declarations
+				v.validateDeclaration(i.(ast.Node))
+				fmt.Println("xd")
+			}
 		}
-	}
 
-	if builtins.Sequence != nil {
-		for _, node := range builtins.Sequence {
-			v.validate(node)
+		if builtins.Sequence != nil {
+			for _, node := range builtins.Sequence {
+				v.validate(node)
+			}
 		}
+
+		v.isParsingBuiltins = false
 	}
-
-	v.isParsingBuiltins = false
-
-	v.scope = ts
 
 	v.validateScope(scope)
 
@@ -99,6 +99,8 @@ type Validator struct {
 	scope             *TypeScope
 	errs              util.Errors
 	isParsingBuiltins bool
+	literals          LiteralMap
+	operators         OperatorMap
 }
 
 // TypeScope ...
