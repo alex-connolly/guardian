@@ -79,6 +79,9 @@ func resolveIdentifier(v *Validator, e ast.ExpressionNode) Type {
 	i := e.(ast.IdentifierNode)
 	// look up the identifier in scope
 	typ := v.findVariable(i.Name)
+	if typ.compare(standards[Unknown]) {
+		typ = v.getNamedType(i.Name)
+	}
 	return typ
 }
 

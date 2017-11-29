@@ -29,9 +29,13 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 	// TODO: fundamental: define operator or not
 	// valid assignments must have
 	// 1. valid left hand expression (cannot be a call, literal, slice)
-	// 2. type of left == type of right
+	// 2. types of left assignable to right
+	// 3. right all valid expressions
 
-	// check step one first
+	for _, r := range node.Right {
+		v.validateExpression(r)
+	}
+
 	for _, l := range node.Left {
 		switch l.Type() {
 		case ast.CallExpression, ast.Literal, ast.MapLiteral,

@@ -21,7 +21,7 @@ func (v *Validator) validateType(destination ast.Node) Type {
 }
 
 func (v *Validator) validatePlainType(node ast.PlainTypeNode) Type {
-	// start the validatening process for another node
+	// start the validating process for another node
 	typ := v.getNamedType(node.Names...)
 	if typ == standards[Unknown] {
 		return v.getDeclarationNode(node.Names)
@@ -96,9 +96,12 @@ func (v *Validator) getDeclarationNode(names []string) Type {
 			}
 		}
 	} else {
-		decl := v.scope.scope.GetDeclaration(names[0])
-		if decl != nil {
-			v.validateDeclaration(decl)
+		for scope := v.scope; scope != nil; scope = scope.parent {
+			decl := scope.scope.GetDeclaration(names[0])
+			if decl != nil {
+				v.validateDeclaration(decl)
+				break
+			}
 		}
 	}
 	return v.requireValidType(names)

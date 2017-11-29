@@ -54,9 +54,9 @@ func TestCallExpressionSingleArgumentConstructorValid(t *testing.T) {
 	scope, _ := parser.ParseString(`
         class Dog {
 
-            yearsOld int
+            yearsOld int8
 
-            constructor(age int){
+            constructor(age int8){
                 yearsOld = age
             }
         }
@@ -72,10 +72,10 @@ func TestCallExpressionMultipleArgumentConstructorValid(t *testing.T) {
 	scope, _ := parser.ParseString(`
         class Dog {
 
-            yearsOld int
+            yearsOld int8
             fullName string
 
-            constructor(name string, age int){
+            constructor(name string, age int8){
                 fullName = name
                 yearsOld = age
             }

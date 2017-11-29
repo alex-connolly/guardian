@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"math/big"
 	"strconv"
 
 	"github.com/end-r/guardian/lexer"
@@ -52,11 +53,12 @@ func (v TestVM) Literals() LiteralMap {
 }
 
 func resolveIntegerLiteral(v *Validator, data string) Type {
-	i, err := strconv.ParseInt(data, 10, 64)
-	if err != nil {
+	n := new(big.Int)
+	n, ok := n.SetString("314159265358979323846264338327950288419716939937510582097494459", 10)
+	if !ok {
 
 	}
-	return v.smallestNumericType(int(i))
+	return v.smallestNumericType(n.BitLen())
 }
 
 func resolveFloatLiteral(v *Validator, data string) Type {
@@ -69,11 +71,13 @@ func getIntegerTypes() map[string]Type {
 	const maxSize = 256
 	const increment = 8
 	for i := increment; i <= maxSize; i += increment {
-		m["uint"+string(i)] = NumericType{size: i, signed: false, integer: true}
-		m["int"+string(i)] = NumericType{size: i, signed: true, integer: true}
+		intName := "int" + strconv.Itoa(i)
+		uintName := "u" + intName
+		m[uintName] = NumericType{name: uintName, size: i, signed: false, integer: true}
+		m[intName] = NumericType{name: intName, size: i, signed: true, integer: true}
 	}
-	m["int"] = NumericType{size: maxSize, signed: false, integer: true}
-	m["uint"] = NumericType{size: maxSize, signed: true, integer: true}
+	m["int"] = NumericType{name: "int", size: maxSize, signed: false, integer: true}
+	m["uint"] = NumericType{name: "int", size: maxSize, signed: true, integer: true}
 	return m
 }
 
@@ -94,6 +98,47 @@ func (v TestVM) Operators() (m OperatorMap) {
 	m = OperatorMap{}
 	m.Add(SimpleOperator("bool"), lexer.TknGeq, lexer.TknLeq,
 		lexer.TknLss, lexer.TknNeq, lexer.TknEql, lexer.TknGtr)
+	m.Add(operatorAdd, lexer.TknAdd)
+	m.Add(booleanOperator, lexer.TknAnd, lexer.TknOr)
+
+	// numericalOperator with floats/ints
+	m.Add(BinaryNumericOperator(), lexer.TknSub, lexer.TknMul, lexer.TknDiv)
+
+	// integers only
+	m.Add(BinaryIntegerOperator(), lexer.TknShl, lexer.TknShr)
+
+	m.Add(castOperator, lexer.TknAs)
 
 	return m
+}
+
+func castOperator(v *Validator, ts ...Type) Type {
+	// pretend it's a valid type
+	left := ts[0]
+	right := ts[1]
+	if !assignableTo(left, right) {
+		v.addError(errImpossibleCast, WriteType(left), WriteType(right))
+		return left
+	}
+	return right
+}
+
+func booleanOperator(v *Validator, ts ...Type) Type {
+	if len(ts) != 2 {
+
+	}
+	return standards[Bool]
+}
+
+func operatorAdd(v *Validator, ts ...Type) Type {
+	switch ts[0].(type) {
+	case NumericType:
+		// TODO: make this meaningful
+		return v.smallestNumericType(0)
+	}
+	strType := v.getNamedType("string")
+	if ts[0].compare(strType) {
+		return strType
+	}
+	return standards[Invalid]
 }
