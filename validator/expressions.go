@@ -16,6 +16,7 @@ func (v *Validator) validateExpression(node ast.ExpressionNode) {
 
 func (v *Validator) validateCallExpression(call ast.CallExpressionNode) {
 	exprType := v.resolveExpression(call.Call)
+	fullType := v.resolveExpression(call)
 	args := v.ExpressionTuple(call.Arguments)
 	switch a := exprType.(type) {
 	case Func:
@@ -23,19 +24,21 @@ func (v *Validator) validateCallExpression(call ast.CallExpressionNode) {
 			v.addError(errInvalidFuncCall, WriteType(a), WriteType(args))
 		}
 		break
-	case Class:
-		constructors := a.Lifecycles[lexer.TknConstructor]
-		if NewTuple().compare(args) && len(constructors) == 0 {
-			return
-		}
-		for _, c := range constructors {
-			paramTuple := NewTuple(c.Parameters...)
-			if paramTuple.compare(args) {
+	case StandardType:
+		if a, ok := fullType.(Class); ok {
+			constructors := a.Lifecycles[lexer.TknConstructor]
+			if NewTuple().compare(args) && len(constructors) == 0 {
 				return
 			}
+			for _, c := range constructors {
+				paramTuple := NewTuple(c.Parameters...)
+				if paramTuple.compare(args) {
+					return
+				}
+			}
+			v.addError(errInvalidConstructorCall, WriteType(a), WriteType(args))
+			break
 		}
-		v.addError(errInvalidConstructorCall, WriteType(a), WriteType(args))
-		break
 	default:
 		v.addError(errInvalidCall, WriteType(exprType))
 	}

@@ -80,12 +80,7 @@ type resolver func(v *Validator, e ast.ExpressionNode) Type
 func resolveIdentifier(v *Validator, e ast.ExpressionNode) Type {
 	i := e.(ast.IdentifierNode)
 	// look up the identifier in scope
-	typ := v.findVariable(i.Name)
-	if typ.compare(standards[Unknown]) {
-		fmt.Println("xxx")
-		typ = v.getNamedType(i.Name)
-	}
-	return typ
+	return v.findVariable(i.Name)
 }
 
 func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
@@ -158,6 +153,7 @@ func resolveIndexExpression(v *Validator, e ast.ExpressionNode) Type {
 	return standards[Invalid]
 }
 
+/*
 // attempts to resolve an expression component as a type name
 // used in constructors e.g. Dog()
 func (v *Validator) attemptToFindType(e ast.ExpressionNode) Type {
@@ -188,6 +184,45 @@ func (v *Validator) attemptToFindType(e ast.ExpressionNode) Type {
 		return standards[Unknown]
 	}
 	return v.getNamedType(names...)
+}*/
+
+func (v *Validator) resolveInContext(t Type, property string) Type {
+	switch r := t.(type) {
+	case Class:
+		t, ok := r.Types[property]
+		if ok {
+			return t
+		}
+		t, ok = r.Properties[property]
+		if ok {
+			return t
+		}
+		break
+	case Contract:
+		t, ok := r.Types[property]
+		if ok {
+			return t
+		}
+		t, ok = r.Properties[property]
+		if ok {
+			return t
+		}
+		break
+	case Interface:
+		t, ok := r.Funcs[property]
+		if ok {
+			return t
+		}
+		break
+	case Enum:
+		for _, item := range r.Items {
+			if item == property {
+				return v.smallestNumericType(BitsNeeded(len(r.Items)), false)
+			}
+		}
+		break
+	}
+	return standards[Unknown]
 }
 
 func resolveCallExpression(v *Validator, e ast.ExpressionNode) Type {
@@ -199,7 +234,11 @@ func resolveCallExpression(v *Validator, e ast.ExpressionNode) Type {
 	var under Type
 	if call.compare(standards[Unknown]) {
 		// try to resolve as a type name
-		under = v.attemptToFindType(c.Call)
+		switch n := c.Call.(type) {
+		case ast.IdentifierNode:
+			under = v.getNamedType(n.Name)
+		}
+
 	} else {
 		under = resolveUnderlying(call)
 	}

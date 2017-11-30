@@ -22,6 +22,18 @@ func (v *Validator) findVariable(name string) Type {
 				return typ
 			}
 		}
+		if scope.scope != nil {
+			if a := scope.scope.GetDeclaration(name); a != nil {
+				saved := v.scope
+				v.scope = scope
+				v.validateDeclaration(a)
+				v.scope = saved
+				if t, ok := scope.variables[name]; ok {
+					return t
+				}
+			}
+		}
+
 	}
 	return standards[Unknown]
 }
