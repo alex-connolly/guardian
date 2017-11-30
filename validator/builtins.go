@@ -1,8 +1,6 @@
 package validator
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/lexer"
 )
@@ -48,6 +46,7 @@ type OperatorMap map[lexer.TokenType]OperatorFunc
 
 func (m OperatorMap) Add(function OperatorFunc, types ...lexer.TokenType) {
 	for _, t := range types {
+
 		m[t] = function
 	}
 }
@@ -60,12 +59,14 @@ func SimpleOperator(typeName string) OperatorFunc {
 
 func BinaryNumericOperator() OperatorFunc {
 	return func(v *Validator, ts ...Type) Type {
-		if na, ok := ts[0].(NumericType); ok && na.integer {
-			if nb, ok := ts[1].(NumericType); ok && nb.integer {
+		left := resolveUnderlying(ts[0])
+		right := resolveUnderlying(ts[1])
+		if na, ok := left.(NumericType); ok {
+			if nb, ok := right.(NumericType); ok {
 				if na.size > nb.size {
-					return v.smallestNumericType(na.size)
+					return v.smallestNumericType(na.size, true)
 				}
-				return v.smallestNumericType(nb.size)
+				return v.smallestNumericType(nb.size, true)
 			}
 		}
 		return standards[Invalid]
@@ -77,26 +78,32 @@ func BinaryIntegerOperator() OperatorFunc {
 		if na, ok := ts[0].(NumericType); ok && na.integer {
 			if nb, ok := ts[1].(NumericType); ok && nb.integer {
 				if na.size > nb.size {
-					return v.smallestNumericType(na.size)
+					return v.smallestNumericType(na.size, false)
 				}
-				return v.smallestNumericType(nb.size)
+				return v.smallestNumericType(nb.size, false)
 			}
 		}
 		return standards[Invalid]
 	}
 }
 
-func (v *Validator) smallestNumericType(bits int) Type {
+func (v *Validator) smallestNumericType(bits int, allowFloat bool) Type {
 	smallest := -1
 	smallestType := Type(standards[Unknown])
 	for _, typ := range v.primitives {
 		n, ok := typ.(NumericType)
 		if ok {
+			if !n.integer && !allowFloat {
+				continue
+			}
 			if smallest == -1 || n.size < smallest {
-				if smallest > bits {
-					fmt.Println("new smallest", WriteType(n))
-					smallest = n.size
-					smallestType = n
+				if n.size >= bits {
+					if n.signed {
+						// TODO: only select signed?
+						smallest = n.size
+						smallestType = n
+					}
+
 				}
 			}
 		}
@@ -105,7 +112,7 @@ func (v *Validator) smallestNumericType(bits int) Type {
 }
 
 // can probs use logs here
-func convertToBits(x int) int {
+func BitsNeeded(x int) int {
 	if x == 0 {
 		return 1
 	}

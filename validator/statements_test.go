@@ -23,7 +23,7 @@ func TestValidateAssignmentValid(t *testing.T) {
 func TestValidateAssignmentToFuncValid(t *testing.T) {
 
 	scope, _ := parser.ParseString(`
-			func x() int {
+			func x() int8 {
 				return 3
 			}
 			a = 0
@@ -98,7 +98,7 @@ func TestValidateAssignmentMultipleLeft(t *testing.T) {
 func TestValidateAssignmentMultipleLeftMixedTuple(t *testing.T) {
 
 	scope, _ := parser.ParseString(`
-			func x() (int, int){
+			func x() (int8, int8){
 				return 0, 1
 			}
 			a = 0

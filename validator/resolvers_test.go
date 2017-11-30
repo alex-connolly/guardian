@@ -10,14 +10,6 @@ import (
 	"github.com/end-r/goutil"
 )
 
-func TestResolveLiteralExpressionUnknown(t *testing.T) {
-	v := NewValidator(NewTestVM())
-	p := parser.ParseExpression(`"hi"`)
-	goutil.AssertNow(t, p.Type() == ast.Literal, "wrong expression type")
-	a := p.(ast.LiteralNode)
-	goutil.Assert(t, v.resolveExpression(a).compare(standards[Unknown]), "wrong true expression type")
-}
-
 func TestResolveLiteralExpressionBool(t *testing.T) {
 	v := NewValidator(NewTestVM())
 	p := parser.ParseExpression("true")
@@ -127,7 +119,7 @@ func TestResolveBinaryExpressionSimpleNumeric(t *testing.T) {
 	b := p.(ast.BinaryExpressionNode)
 	v := NewValidator(NewTestVM())
 	resolved := v.resolveExpression(b)
-	goutil.AssertNow(t, resolved.compare(v.smallestNumericType(0)), "wrong expression type")
+	goutil.AssertNow(t, resolved.compare(v.smallestNumericType(0, false)), fmt.Sprintf("wrong expression type: %s", WriteType(resolved)))
 }
 
 func TestResolveBinaryExpressionConcatenation(t *testing.T) {

@@ -1,5 +1,7 @@
 package validator
 
+import "github.com/end-r/guardian/lexer"
+
 func (v *Validator) requireVisibleType(names ...string) Type {
 	typ := v.getNamedType(names...)
 	if typ == standards[Unknown] {
@@ -46,6 +48,13 @@ func (v *Validator) DeclareType(name string, t Type) {
 		v.scope.types = make(map[string]Type)
 	}
 	v.scope.types[name] = t
+}
+
+func (v *Validator) declareLifecycle(tk lexer.TokenType, l Lifecycle) {
+	if v.scope.lifecycles == nil {
+		v.scope.lifecycles = lifecycleMap{}
+	}
+	v.scope.lifecycles[tk] = append(v.scope.lifecycles[tk], l)
 }
 
 // DeclareBuiltinType ...

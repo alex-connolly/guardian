@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/ast"
 )
 
@@ -80,6 +82,7 @@ func resolveIdentifier(v *Validator, e ast.ExpressionNode) Type {
 	// look up the identifier in scope
 	typ := v.findVariable(i.Name)
 	if typ.compare(standards[Unknown]) {
+		fmt.Println("xxx")
 		typ = v.getNamedType(i.Name)
 	}
 	return typ
@@ -108,7 +111,11 @@ func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 
 func resolveCompositeLiteral(v *Validator, e ast.ExpressionNode) Type {
 	c := e.(ast.CompositeLiteralNode)
-	return v.getNamedType(c.TypeName)
+	typ := v.getNamedType(c.TypeName)
+	if typ == standards[Unknown] {
+		return v.getDeclarationNode([]string{c.TypeName})
+	}
+	return typ
 }
 
 func resolveFuncLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
@@ -226,10 +233,6 @@ func resolveSliceExpression(v *Validator, e ast.ExpressionNode) Type {
 	return standards[Invalid]
 }
 
-func (v *Validator) resolveNumericType() {
-
-}
-
 func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	b := e.(ast.BinaryExpressionNode)
@@ -238,6 +241,7 @@ func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) Type {
 	rightType := v.resolveExpression(b.Right)
 	operatorFunc, ok := v.operators[b.Operator]
 	if !ok {
+		fmt.Println(":(", b.Operator)
 		return standards[Invalid]
 	}
 	return operatorFunc(v, leftType, rightType)
@@ -361,10 +365,11 @@ func (v *Validator) getPropertyType(t Type, name string) (Type, bool) {
 	case Enum:
 		for _, s := range c.Items {
 			if s == name {
-				return v.smallestNumericType(len(c.Items)), true
+				return v.smallestNumericType(len(c.Items), false), true
 			}
 		}
-		return v.smallestNumericType(len(c.Items)), false
+		// TODO: fix this
+		return v.smallestNumericType(len(c.Items), false), false
 	}
 	return standards[Invalid], false
 }

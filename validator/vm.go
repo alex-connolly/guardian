@@ -1,7 +1,7 @@
 package validator
 
 import (
-	"math/big"
+	"fmt"
 	"strconv"
 
 	"github.com/end-r/guardian/lexer"
@@ -53,12 +53,8 @@ func (v TestVM) Literals() LiteralMap {
 }
 
 func resolveIntegerLiteral(v *Validator, data string) Type {
-	n := new(big.Int)
-	n, ok := n.SetString("314159265358979323846264338327950288419716939937510582097494459", 10)
-	if !ok {
-
-	}
-	return v.smallestNumericType(n.BitLen())
+	x := BitsNeeded(len(data))
+	return v.smallestNumericType(x, false)
 }
 
 func resolveFloatLiteral(v *Validator, data string) Type {
@@ -99,7 +95,7 @@ func (v TestVM) Operators() (m OperatorMap) {
 	m.Add(SimpleOperator("bool"), lexer.TknGeq, lexer.TknLeq,
 		lexer.TknLss, lexer.TknNeq, lexer.TknEql, lexer.TknGtr)
 	m.Add(operatorAdd, lexer.TknAdd)
-	m.Add(booleanOperator, lexer.TknAnd, lexer.TknOr)
+	m.Add(booleanOperator, lexer.TknLogicalAnd, lexer.TknLogicalOr)
 
 	// numericalOperator with floats/ints
 	m.Add(BinaryNumericOperator(), lexer.TknSub, lexer.TknMul, lexer.TknDiv)
@@ -127,14 +123,14 @@ func booleanOperator(v *Validator, ts ...Type) Type {
 	if len(ts) != 2 {
 
 	}
+	fmt.Println("booo")
 	return standards[Bool]
 }
 
 func operatorAdd(v *Validator, ts ...Type) Type {
 	switch ts[0].(type) {
 	case NumericType:
-		// TODO: make this meaningful
-		return v.smallestNumericType(0)
+		return BinaryNumericOperator()(v, ts...)
 	}
 	strType := v.getNamedType("string")
 	if ts[0].compare(strType) {

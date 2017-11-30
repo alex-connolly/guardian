@@ -3,6 +3,8 @@ package validator
 import (
 	"fmt"
 
+	"github.com/end-r/guardian/lexer"
+
 	"github.com/end-r/guardian/util"
 
 	"github.com/end-r/guardian/ast"
@@ -23,7 +25,7 @@ func Validate(scope *ast.ScopeNode, vm VM) util.Errors {
 	return v.errs
 }
 
-func (v *Validator) validateScope(scope *ast.ScopeNode) (map[string]Type, map[string]Type) {
+func (v *Validator) validateScope(scope *ast.ScopeNode) (types map[string]Type, properties map[string]Type, lifecycles lifecycleMap) {
 
 	ts := &TypeScope{
 		parent: v.scope,
@@ -39,12 +41,13 @@ func (v *Validator) validateScope(scope *ast.ScopeNode) (map[string]Type, map[st
 
 	v.validateSequence(scope)
 
-	types := v.scope.types
-	properties := v.scope.variables
+	types = v.scope.types
+	properties = v.scope.variables
+	lifecycles = v.scope.lifecycles
 
 	v.scope = v.scope.parent
 
-	return types, properties
+	return types, properties, lifecycles
 }
 
 func (v *Validator) validateDeclarations(scope *ast.ScopeNode) {
@@ -83,12 +86,15 @@ type Validator struct {
 	builtinVariables  map[string]Type
 }
 
+type lifecycleMap map[lexer.TokenType][]Lifecycle
+
 // TypeScope ...
 type TypeScope struct {
-	parent    *TypeScope
-	scope     *ast.ScopeNode
-	variables map[string]Type
-	types     map[string]Type
+	parent     *TypeScope
+	scope      *ast.ScopeNode
+	lifecycles lifecycleMap
+	variables  map[string]Type
+	types      map[string]Type
 }
 
 func (v *Validator) importVM(vm VM) {

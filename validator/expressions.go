@@ -29,7 +29,8 @@ func (v *Validator) validateCallExpression(call ast.CallExpressionNode) {
 			return
 		}
 		for _, c := range constructors {
-			if NewTuple(c.Parameters...).compare(args) {
+			paramTuple := NewTuple(c.Parameters...)
+			if paramTuple.compare(args) {
 				return
 			}
 		}

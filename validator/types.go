@@ -126,6 +126,13 @@ type Lifecycle struct {
 	Parameters []Type
 }
 
+func NewLifecycle(typ lexer.TokenType, params []Type) Lifecycle {
+	return Lifecycle{
+		Type:       typ,
+		Parameters: params,
+	}
+}
+
 // A Class is a collection of properties
 type Class struct {
 	Name       string
@@ -136,13 +143,14 @@ type Class struct {
 	Interfaces []*Interface
 }
 
-func NewClass(name string, supers []*Class, interfaces []*Interface, types, properties map[string]Type) Class {
+func NewClass(name string, supers []*Class, interfaces []*Interface, types, properties map[string]Type, lifecycles map[lexer.TokenType][]Lifecycle) Class {
 	return Class{
 		Name:       name,
 		Supers:     supers,
 		Properties: properties,
 		Interfaces: interfaces,
 		Types:      types,
+		Lifecycles: lifecycles,
 	}
 }
 
@@ -179,17 +187,19 @@ type Contract struct {
 	Name       string
 	Supers     []*Contract
 	Interfaces []*Interface
+	Lifecycles map[lexer.TokenType][]Lifecycle
 	Types      map[string]Type
 	Properties map[string]Type
 }
 
-func NewContract(name string, supers []*Contract, interfaces []*Interface, types, properties map[string]Type) Contract {
+func NewContract(name string, supers []*Contract, interfaces []*Interface, types, properties map[string]Type, lifecycles map[lexer.TokenType][]Lifecycle) Contract {
 	return Contract{
 		Name:       name,
 		Supers:     supers,
 		Interfaces: interfaces,
 		Properties: properties,
 		Types:      types,
+		Lifecycles: lifecycles,
 	}
 }
 

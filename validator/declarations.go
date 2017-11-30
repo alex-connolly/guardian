@@ -148,9 +148,9 @@ func (v *Validator) validateClassDeclaration(node ast.ClassDeclarationNode) {
 		}
 	}
 
-	types, properties := v.validateScope(node.Body)
+	types, properties, lifecycles := v.validateScope(node.Body)
 
-	classType := NewClass(node.Identifier, supers, interfaces, types, properties)
+	classType := NewClass(node.Identifier, supers, interfaces, types, properties, lifecycles)
 
 	v.declareContextualType(node.Identifier, classType)
 }
@@ -199,9 +199,9 @@ func (v *Validator) validateContractDeclaration(node ast.ContractDeclarationNode
 		}
 	}
 
-	types, properties := v.validateScope(node.Body)
+	types, properties, lifecycles := v.validateScope(node.Body)
 
-	contractType := NewContract(node.Identifier, supers, interfaces, types, properties)
+	contractType := NewContract(node.Identifier, supers, interfaces, types, properties, lifecycles)
 
 	v.declareContextualType(node.Identifier, contractType)
 }
@@ -292,11 +292,16 @@ func (v *Validator) validateTypeDeclaration(node ast.TypeDeclarationNode) {
 }
 
 func (v *Validator) validateLifecycleDeclaration(node ast.LifecycleDeclarationNode) {
+	// TODO: enforce location
+	types := make([]Type, 0)
 	for _, p := range node.Parameters {
 		typ := v.validateType(p.DeclaredType)
 		for _, i := range p.Identifiers {
 			v.declareContextualVar(i, typ)
+			types = append(types, typ)
 		}
 	}
 	v.validateScope(node.Body)
+	l := NewLifecycle(node.Category, types)
+	v.declareLifecycle(node.Category, l)
 }
