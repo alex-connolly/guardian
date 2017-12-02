@@ -121,13 +121,13 @@ func (nt NumericType) compare(t Type) bool {
 	if other, ok := resolveUnderlying(t).(NumericType); !ok {
 		return false
 	} else {
-		if nt.integer != other.integer {
+		if nt.Integer != other.Integer {
 			return false
 		}
-		if nt.size != other.size {
+		if nt.Size != other.Size {
 			return false
 		}
-		if nt.signed != other.signed {
+		if nt.Signed != other.Signed {
 			return false
 		}
 		return true

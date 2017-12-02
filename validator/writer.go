@@ -87,7 +87,7 @@ func (e Event) write(b *bytes.Buffer) {
 }
 
 func (nt NumericType) write(b *bytes.Buffer) {
-	b.WriteString(nt.name)
+	b.WriteString(nt.Name)
 }
 
 func (nt BooleanType) write(b *bytes.Buffer) {

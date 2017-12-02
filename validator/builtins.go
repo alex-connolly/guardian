@@ -7,10 +7,10 @@ import (
 
 // NumericType... used to pass types into the s
 type NumericType struct {
-	size    int
-	name    string
-	signed  bool
-	integer bool
+	Size    int
+	Name    string
+	Signed  bool
+	Integer bool
 }
 
 type BooleanType struct {
@@ -63,10 +63,10 @@ func BinaryNumericOperator() OperatorFunc {
 		right := resolveUnderlying(ts[1])
 		if na, ok := left.(NumericType); ok {
 			if nb, ok := right.(NumericType); ok {
-				if na.size > nb.size {
-					return v.smallestNumericType(na.size, true)
+				if na.Size > nb.Size {
+					return v.smallestNumericType(na.Size, true)
 				}
-				return v.smallestNumericType(nb.size, true)
+				return v.smallestNumericType(nb.Size, true)
 			}
 		}
 		return standards[Invalid]
@@ -75,12 +75,12 @@ func BinaryNumericOperator() OperatorFunc {
 
 func BinaryIntegerOperator() OperatorFunc {
 	return func(v *Validator, ts ...Type) Type {
-		if na, ok := ts[0].(NumericType); ok && na.integer {
-			if nb, ok := ts[1].(NumericType); ok && nb.integer {
-				if na.size > nb.size {
-					return v.smallestNumericType(na.size, false)
+		if na, ok := ts[0].(NumericType); ok && na.Integer {
+			if nb, ok := ts[1].(NumericType); ok && nb.Integer {
+				if na.Size > nb.Size {
+					return v.smallestNumericType(na.Size, false)
 				}
-				return v.smallestNumericType(nb.size, false)
+				return v.smallestNumericType(nb.Size, false)
 			}
 		}
 		return standards[Invalid]
@@ -93,14 +93,14 @@ func (v *Validator) smallestNumericType(bits int, allowFloat bool) Type {
 	for _, typ := range v.primitives {
 		n, ok := typ.(NumericType)
 		if ok {
-			if !n.integer && !allowFloat {
+			if !n.Integer && !allowFloat {
 				continue
 			}
-			if smallest == -1 || n.size < smallest {
-				if n.size >= bits {
-					if n.signed {
+			if smallest == -1 || n.Size < smallest {
+				if n.Size >= bits {
+					if n.Signed {
 						// TODO: only select signed?
-						smallest = n.size
+						smallest = n.Size
 						smallestType = n
 					}
 

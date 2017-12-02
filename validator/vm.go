@@ -70,11 +70,11 @@ func getIntegerTypes() map[string]Type {
 	for i := increment; i <= maxSize; i += increment {
 		intName := "int" + strconv.Itoa(i)
 		uintName := "u" + intName
-		m[uintName] = NumericType{name: uintName, size: i, signed: false, integer: true}
-		m[intName] = NumericType{name: intName, size: i, signed: true, integer: true}
+		m[uintName] = NumericType{Name: uintName, Size: i, Signed: false, Integer: true}
+		m[intName] = NumericType{Name: intName, Size: i, Signed: true, Integer: true}
 	}
-	m["int"] = NumericType{name: "int", size: maxSize, signed: false, integer: true}
-	m["uint"] = NumericType{name: "int", size: maxSize, signed: true, integer: true}
+	m["int"] = NumericType{Name: "int", Size: maxSize, Signed: false, Integer: true}
+	m["uint"] = NumericType{Name: "int", Size: maxSize, Signed: true, Integer: true}
 	return m
 }
 
