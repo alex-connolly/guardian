@@ -8,35 +8,35 @@ import (
 	"github.com/end-r/guardian/ast"
 )
 
-func (e *Traverser) traverseType(n ast.TypeDeclarationNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseType(n ast.TypeDeclarationNode) (code vmgen.Bytecode) {
 	return code
 }
 
-func (e *Traverser) traverseClass(n ast.ClassDeclarationNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseClass(n ast.ClassDeclarationNode) (code vmgen.Bytecode) {
 	// create constructor hooks
 	// create function hooks
 	return code
 }
 
-func (e *Traverser) traverseInterface(n ast.InterfaceDeclarationNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseInterface(n ast.InterfaceDeclarationNode) (code vmgen.Bytecode) {
 	// don't need to be interacted with
 	// all interfaces are dealt with by the type system
 	return code
 }
 
-func (e *Traverser) traverseEnum(n ast.EnumDeclarationNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseEnum(n ast.EnumDeclarationNode) (code vmgen.Bytecode) {
 	// create hook
 	return code
 }
 
-func (e *Traverser) traverseContract(n ast.ContractDeclarationNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseContract(n ast.ContractDeclarationNode) (code vmgen.Bytecode) {
 	// create hooks for functions
 	// create hooks for constructors
 	// create hooks for events
 	return code
 }
 
-func (e *Traverser) addHook(name string) {
+func (e *GuardianEVM) addHook(name string) {
 	h := hook{
 		name: name,
 	}
@@ -46,11 +46,11 @@ func (e *Traverser) addHook(name string) {
 	e.hooks = append(e.hooks, h)
 }
 
-func (e *Traverser) traverseEvent(n ast.EventDeclarationNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseEvent(n ast.EventDeclarationNode) (code vmgen.Bytecode) {
 	return code
 }
 
-func (e *Traverser) traverseFunc(n ast.FuncDeclarationNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseFunc(n ast.FuncDeclarationNode) (code vmgen.Bytecode) {
 
 	hook := EncodeName(n.Identifier)
 

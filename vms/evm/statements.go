@@ -7,7 +7,7 @@ import (
 	"github.com/end-r/guardian/lexer"
 )
 
-func (e *Traverser) traverseSwitchStatement(n ast.SwitchStatementNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseSwitchStatement(n ast.SwitchStatementNode) (code vmgen.Bytecode) {
 	// always traverse the target
 	e.Traverse(n.Target)
 	// switch statements are implicitly converted to if statements
@@ -16,11 +16,11 @@ func (e *Traverser) traverseSwitchStatement(n ast.SwitchStatementNode) (code vmg
 	return code
 }
 
-func (e *Traverser) traverseCaseStatement(n ast.CaseStatementNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseCaseStatement(n ast.CaseStatementNode) (code vmgen.Bytecode) {
 	return code
 }
 
-func (e *Traverser) traverseForStatement(n ast.ForStatementNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseForStatement(n ast.ForStatementNode) (code vmgen.Bytecode) {
 
 	// init statement
 	// jumpdest
@@ -51,14 +51,14 @@ func (e *Traverser) traverseForStatement(n ast.ForStatementNode) (code vmgen.Byt
 	return code
 }
 
-func (e *Traverser) traverseReturnStatement(n ast.ReturnStatementNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseReturnStatement(n ast.ReturnStatementNode) (code vmgen.Bytecode) {
 	for _, r := range n.Results {
 		e.Traverse(r)
 	}
 	return code
 }
 
-func (e *Traverser) traverseIfStatement(n ast.IfStatementNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseIfStatement(n ast.IfStatementNode) (code vmgen.Bytecode) {
 	for _, c := range n.Conditions {
 		e.Traverse(c.Condition)
 		e.Traverse(c.Body)
@@ -66,7 +66,7 @@ func (e *Traverser) traverseIfStatement(n ast.IfStatementNode) (code vmgen.Bytec
 	return code
 }
 
-func (e *Traverser) traverseAssignmentStatement(n ast.AssignmentStatementNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseAssignmentStatement(n ast.AssignmentStatementNode) (code vmgen.Bytecode) {
 	// consider mismatched lengths
 	if len(n.Left) > 1 && len(n.Right) == 1 {
 		for _, l := range n.Left {

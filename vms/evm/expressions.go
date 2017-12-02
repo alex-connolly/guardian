@@ -9,7 +9,7 @@ import (
 	"github.com/end-r/guardian/lexer"
 )
 
-func (e *Traverser) traverseExpression(n ast.ExpressionNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseExpression(n ast.ExpressionNode) (code vmgen.Bytecode) {
 	switch node := n.(type) {
 	case ast.ArrayLiteralNode:
 		return e.traverseArrayLiteral(node)
@@ -39,7 +39,7 @@ func (e *Traverser) traverseExpression(n ast.ExpressionNode) (code vmgen.Bytecod
 	return code
 }
 
-func (e *Traverser) traverseArrayLiteral(n ast.ArrayLiteralNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseArrayLiteral(n ast.ArrayLiteralNode) (code vmgen.Bytecode) {
 
 	// create array
 	for _, expr := range n.Data {
@@ -48,14 +48,14 @@ func (e *Traverser) traverseArrayLiteral(n ast.ArrayLiteralNode) (code vmgen.Byt
 	return code
 }
 
-func (e *Traverser) traverseSliceExpression(n ast.SliceExpressionNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseSliceExpression(n ast.SliceExpressionNode) (code vmgen.Bytecode) {
 	// evaluate the original expression first
 
 	code.Concat(e.traverseExpression(n.Expression))
 	return code
 }
 
-func (e *Traverser) traverseCompositeLiteral(n ast.CompositeLiteralNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseCompositeLiteral(n ast.CompositeLiteralNode) (code vmgen.Bytecode) {
 
 	if e.inStorage() {
 
@@ -85,7 +85,7 @@ var binaryOps = map[lexer.TokenType]string{
 	lexer.TknXor: "XOR",
 }
 
-func (e *Traverser) traverseBinaryExpr(n ast.BinaryExpressionNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseBinaryExpr(n ast.BinaryExpressionNode) (code vmgen.Bytecode) {
 	/* alter stack:
 
 	| Operand 1 |
@@ -105,7 +105,7 @@ var unaryOps = map[lexer.TokenType]string{
 	lexer.TknNot: "NOT",
 }
 
-func (e *Traverser) traverseUnaryExpr(n ast.UnaryExpressionNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseUnaryExpr(n ast.UnaryExpressionNode) (code vmgen.Bytecode) {
 	/* alter stack:
 
 	| Expression 1 |
@@ -119,7 +119,7 @@ func (e *Traverser) traverseUnaryExpr(n ast.UnaryExpressionNode) (code vmgen.Byt
 	return code
 }
 
-func (e *Traverser) traverseCallExpr(n ast.CallExpressionNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseCallExpr(n ast.CallExpressionNode) (code vmgen.Bytecode) {
 
 	for _, arg := range n.Arguments {
 		code.Concat(e.traverseExpression(arg))
@@ -179,7 +179,7 @@ func simpleInstruction(mnemonic string) Builtin {
 	}
 }
 
-func (e *Traverser) traverseLiteral(n ast.LiteralNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseLiteral(n ast.LiteralNode) (code vmgen.Bytecode) {
 	// Literal Nodes are directly converted to push instructions
 	// these nodes must be divided into blocks of 16 bytes
 	// in order to maintain
@@ -196,7 +196,7 @@ func (e *Traverser) traverseLiteral(n ast.LiteralNode) (code vmgen.Bytecode) {
 	return code
 }
 
-func (e *Traverser) traverseIndex(n ast.IndexExpressionNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseIndex(n ast.IndexExpressionNode) (code vmgen.Bytecode) {
 
 	code.Concat(e.traverseExpression(n.Index))
 	code.Concat(e.traverseExpression(n.Expression))
@@ -211,7 +211,7 @@ func (e *Traverser) traverseIndex(n ast.IndexExpressionNode) (code vmgen.Bytecod
 	return code
 }
 
-func (e *Traverser) traverseMapLiteral(n ast.MapLiteralNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseMapLiteral(n ast.MapLiteralNode) (code vmgen.Bytecode) {
 	// the evm doesn't support maps in the same way firevm does
 	// Solidity converts things to a mapping
 	// all keys to all values etc
@@ -224,7 +224,7 @@ func (e *Traverser) traverseMapLiteral(n ast.MapLiteralNode) (code vmgen.Bytecod
 	return code
 }
 
-func (e *Traverser) traverseFuncLiteral(n ast.FuncLiteralNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseFuncLiteral(n ast.FuncLiteralNode) (code vmgen.Bytecode) {
 	// create an internal hook
 	return code
 }
@@ -233,7 +233,7 @@ func isStorage(name string) bool {
 	return false
 }
 
-func (e *Traverser) traverseIdentifier(n ast.IdentifierNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseIdentifier(n ast.IdentifierNode) (code vmgen.Bytecode) {
 	code.Add("PUSH", EncodeName(n.Name)...)
 	if isStorage(n.Name) {
 		code.Add("SLOAD")
@@ -243,7 +243,7 @@ func (e *Traverser) traverseIdentifier(n ast.IdentifierNode) (code vmgen.Bytecod
 	return code
 }
 
-func (e *Traverser) traverseReference(n ast.ReferenceNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseReference(n ast.ReferenceNode) (code vmgen.Bytecode) {
 
 	code.Concat(e.traverse(n.Parent))
 

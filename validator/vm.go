@@ -1,8 +1,9 @@
 package validator
 
 import (
-	"fmt"
 	"strconv"
+
+	"github.com/end-r/guardian/util"
 
 	"github.com/end-r/guardian/lexer"
 
@@ -15,7 +16,7 @@ import (
 // A VM is the mechanism through which all vm-specific features are applied
 // to the Guardian AST: bytecode generation, type enforcement etc
 type VM interface {
-	Traverse(ast.Node) vmgen.Bytecode
+	Traverse(ast.Node) (vmgen.Bytecode, util.Errors)
 	Builtins() *ast.ScopeNode
 	Primitives() map[string]Type
 	Literals() LiteralMap
@@ -29,8 +30,8 @@ func NewTestVM() TestVM {
 	return TestVM{}
 }
 
-func (v TestVM) Traverse(ast.Node) vmgen.Bytecode {
-	return vmgen.Bytecode{}
+func (v TestVM) Traverse(ast.Node) (vmgen.Bytecode, util.Errors) {
+	return vmgen.Bytecode{}, nil
 }
 
 func (v TestVM) Builtins() *ast.ScopeNode {
@@ -123,7 +124,6 @@ func booleanOperator(v *Validator, ts ...Type) Type {
 	if len(ts) != 2 {
 
 	}
-	fmt.Println("booo")
 	return standards[Bool]
 }
 

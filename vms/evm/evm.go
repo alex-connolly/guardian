@@ -1,17 +1,107 @@
 package evm
 
 import (
+	"axia/guardian/parser"
+
+	"github.com/end-r/guardian/util"
+
 	"github.com/end-r/guardian/validator"
 
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/vmgen"
 )
 
-// Traverser ...
-type Traverser struct {
+// GuardianEVM
+type GuardianEVM struct {
 	VM        *vmgen.VM
 	hooks     []hook
 	callables []callable
+}
+
+func (evm GuardianEVM) Builtins() *ast.ScopeNode {
+	ast, errs := parser.ParseString(`
+
+			wei = 1
+			kwei = 1000 * wei
+			babbage = kwei
+			mwei = 1000 * kwei
+			lovelace = mwei
+			gwei = 1000 * mwei
+			shannon = gwei
+			microether = 1000 * gwei
+			szabo = microether
+			milliether = 1000 * microether
+			finney = milliether
+			ether = 1000 * milliether
+
+			balance func(a address) uint256
+			transfer func(a address, amount uint256) uint
+			send func(a address, amount uint256) bool
+			call func(a address) bool
+			delegateCall func(a address)
+
+			class BuiltinMessage {
+				data []byte
+				gas uint
+				sender address
+				sig [4]byte
+			}
+
+			class BuiltinBlock {
+				timestamp uint
+				number uint
+				coinbase address
+				gaslimit uint
+				blockhash func(blockNumber uint) [32]byte
+			}
+
+			class BuiltinTransaction {
+				gasprice uint
+				origin address
+			}
+
+			block BuiltinBlock
+			msg BuiltinMessage
+			tx BuiltinTransaction
+		`)
+	if errs != nil {
+
+	}
+	return ast
+}
+
+func (evm GuardianEVM) Literals() validator.LiteralMap {
+	return validator.LiteralMap{}
+}
+
+func (evm GuardianEVM) Operators() validator.OperatorMap {
+	return validator.OperatorMap{}
+}
+
+func (evm GuardianEVM) Primitives() map[string]validator.Type {
+
+	m := map[string]validator.Type{
+		"int":  validator.NumericType{Size: maxSize, Signed: false, Integer: true},
+		"uint": validator.NumericType{Size: maxSize, Signed: true, Integer: true},
+		"byte": validator.NumericType{Size: 8, Signed: true, Integer: true},
+		"bool": validator.BooleanType{},
+	}
+	const maxSize = 256
+	const increment = 8
+	for i := increment; i <= maxSize; i += increment {
+		m["uint"+string(i)] = validator.NumericType{Size: i, Signed: false, Integer: true}
+		m["int"+string(i)] = validator.NumericType{Size: i, Signed: true, Integer: true}
+	}
+
+	return m
+}
+
+func (evm GuardianEVM) Traverse(node ast.ScopeNode) (vmgen.Bytecode, util.Errors) {
+	// do pre-processing/hooks etc
+	e.traverse(node)
+	// generate the bytecode
+	// finalise the bytecode
+	e.finalise()
 }
 
 type hook struct {
@@ -26,101 +116,15 @@ type callable struct {
 	bytecode []byte
 }
 
-// NewTraverser ...
-func NewTraverser() Traverser {
-	return Traverser{}
-}
-
-func getIntegerTypes() map[string]validator.Type {
-	m := map[string]validator.Type{}
-	const maxSize = 256
-	const increment = 8
-	for i := increment; i <= maxSize; i += increment {
-		m["uint"+string(i)] = validator.NumericType{size: i, signed: false, integer: true}
-		m["int"+string(i)] = validator.NumericType{size: i, signed: true, integer: true}
-	}
-	m["int"] = validator.NumericType{size: maxSize, signed: false, integer: true}
-	m["uint"] = validator.NumericType{size: maxSize, signed: true, integer: true}
-	return m
-}
-
-func (e Traverser) GetTypes() map[string]validator.Type {
-	it := getIntegerTypes()
-
-	s := map[string]validator.Type{
-		"byte":    validator.NumericType{size: 8, signed: true, integer: true},
-		"string":  validator.ArrayType{key: "byte"},
-		"address": validator.ArrayType{key: "byte", length: 20},
-		"bool":    validator.BooleanType{},
-	}
-
-	for k, v := range it {
-		s[k] = v
-	}
-	return s
-}
-
-func (e Traverser) GetBuiltins() string {
-	return `
-
-		wei = 1
-		kwei = 1000 * wei
-		babbage = kwei
-		mwei = 1000 * kwei
-		lovelace = mwei
-		gwei = 1000 * mwei
-		shannon = gwei
-		microether = 1000 * gwei
-		szabo = microether
-		milliether = 1000 * microether
-		finney = milliether
-		ether = 1000 * milliether
-
-		balance func(a address) uint256
-		transfer func(a address, amount uint256) uint
-		send func(a address, amount uint256) bool
-		call func(a address) bool
-		delegateCall func(a address)
-
-		class BuiltinMessage {
-			data []byte
-			gas uint
-			sender address
-			sig [4]byte
-		}
-
-		class BuiltinBlock {
-			timestamp uint
-			number uint
-			coinbase address
-			gaslimit uint
-			blockhash func(blockNumber uint) [32]byte
-		}
-
-		class BuiltinTransaction {
-			gasprice uint
-			origin address
-		}
-
-		block BuiltinBlock
-		msg BuiltinMessage
-		tx BuiltinTransaction
-	`
+// NewGuardianEVM ...
+func NewVM() GuardianEVM {
+	return GuardianEVM{}
 }
 
 // A hook conditionally jumps the code to a particular point
 //
 
-// Traverse ...
-func (e Traverser) Traverse(node ast.Node) {
-	// do pre-processing/hooks etc
-	e.traverse(node)
-	// generate the bytecode
-	// finalise the bytecode
-	e.finalise()
-}
-
-func (e Traverser) finalise() {
+func (e GuardianEVM) finalise() {
 	// number of instructions =
 	/*
 		for _, hook := range e.hooks {
@@ -136,7 +140,7 @@ func (e Traverser) finalise() {
 		}*/
 }
 
-func (e Traverser) traverse(n ast.Node) (code vmgen.Bytecode) {
+func (e GuardianEVM) traverse(n ast.Node) (code vmgen.Bytecode) {
 	/* initialise the vm
 	if e.VM == nil {
 		e.VM = firevm.NewVM()
@@ -172,6 +176,6 @@ func (e Traverser) traverse(n ast.Node) (code vmgen.Bytecode) {
 	return code
 }
 
-func (e *Traverser) inStorage() bool {
+func (e *GuardianEVM) inStorage() bool {
 	return false
 }
