@@ -10,7 +10,7 @@ import (
 )
 
 func TestTraverseSimpleIdentifierExpression(t *testing.T) {
-	e := new(Traverser)
+	e := new(GuardianEVM)
 	expr := parser.ParseExpression("hello")
 	bytes := e.traverseExpression(expr)
 	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
@@ -19,16 +19,16 @@ func TestTraverseSimpleIdentifierExpression(t *testing.T) {
 }
 
 func TestTraverseLiteralsBinaryExpression(t *testing.T) {
-	e := new(Traverser)
+	e := new(GuardianEVM)
 	expr := parser.ParseExpression("1 + 2")
 	bytes := e.traverseExpression(expr)
 	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
-	Println(bytes.Format())
+	fmt.Println(bytes.Format())
 	goutil.Assert(t, bytes.Length() == 3, "wrong bc length")
 }
 
 func TestTraverseIdentifierBinaryExpression(t *testing.T) {
-	e := new(Traverser)
+	e := new(GuardianEVM)
 	expr := parser.ParseExpression("a + b")
 	bytes := e.traverseExpression(expr)
 	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
@@ -38,7 +38,7 @@ func TestTraverseIdentifierBinaryExpression(t *testing.T) {
 }
 
 func TestTraverseCallBinaryExpression(t *testing.T) {
-	e := new(Traverser)
+	e := new(GuardianEVM)
 	expr := parser.ParseExpression("a() + b()")
 	bytes := e.traverseExpression(expr)
 	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
@@ -48,7 +48,7 @@ func TestTraverseCallBinaryExpression(t *testing.T) {
 }
 
 func TestTraverseIndexExpressionIdentifierLiteral(t *testing.T) {
-	e := new(Traverser)
+	e := new(GuardianEVM)
 	expr := parser.ParseExpression("a[1]")
 	bytes := e.traverseExpression(expr)
 	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
@@ -58,7 +58,7 @@ func TestTraverseIndexExpressionIdentifierLiteral(t *testing.T) {
 }
 
 func TestTraverseIndexExpressionIdentifierIdentifier(t *testing.T) {
-	e := new(Traverser)
+	e := new(GuardianEVM)
 	expr := parser.ParseExpression("a[b]")
 	bytes := e.traverseExpression(expr)
 	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
@@ -68,7 +68,7 @@ func TestTraverseIndexExpressionIdentifierIdentifier(t *testing.T) {
 }
 
 func TestTraverseIndexExpressionIdentifierCall(t *testing.T) {
-	e := new(Traverser)
+	e := new(GuardianEVM)
 	expr := parser.ParseExpression("a[b()]")
 	bytes := e.traverseExpression(expr)
 	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
@@ -78,7 +78,7 @@ func TestTraverseIndexExpressionIdentifierCall(t *testing.T) {
 }
 
 func TestTraverseIndexExpressionIdentifierIndex(t *testing.T) {
-	e := new(Traverser)
+	e := new(GuardianEVM)
 	expr := parser.ParseExpression("a[b[c]]")
 	bytes := e.traverseExpression(expr)
 	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
@@ -88,7 +88,7 @@ func TestTraverseIndexExpressionIdentifierIndex(t *testing.T) {
 }
 
 func TestTraverseIndexExpressionCallIdentifier(t *testing.T) {
-	e := new(Traverser)
+	e := new(GuardianEVM)
 	expr := parser.ParseExpression("a()[b]")
 	bytes := e.traverseExpression(expr)
 	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
@@ -98,7 +98,7 @@ func TestTraverseIndexExpressionCallIdentifier(t *testing.T) {
 }
 
 func TestTraverseIndexExpressionCallLiteral(t *testing.T) {
-	e := new(Traverser)
+	e := new(GuardianEVM)
 	expr := parser.ParseExpression("a()[1]")
 	bytes := e.traverseExpression(expr)
 	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
@@ -108,7 +108,7 @@ func TestTraverseIndexExpressionCallLiteral(t *testing.T) {
 }
 
 func TestTraverseIndexExpressionCallCall(t *testing.T) {
-	e := new(Traverser)
+	e := new(GuardianEVM)
 	expr := parser.ParseExpression("a()[b()]")
 	bytes := e.traverseExpression(expr)
 	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
@@ -118,7 +118,7 @@ func TestTraverseIndexExpressionCallCall(t *testing.T) {
 }
 
 func TestTraverseReferenceCallEmpty(t *testing.T) {
-	e := new(Traverser)
+	e := new(GuardianEVM)
 	expr := parser.ParseExpression("math.Pow()")
 	bytes := e.traverseExpression(expr)
 	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))
@@ -128,7 +128,7 @@ func TestTraverseReferenceCallEmpty(t *testing.T) {
 }
 
 func TestTraverseReferenceCallArgs(t *testing.T) {
-	e := new(Traverser)
+	e := new(GuardianEVM)
 	expr := parser.ParseExpression("math.Pow(2, 2)")
 	bytes := e.traverseExpression(expr)
 	//goutil.Assert(t, bytes.compare(expected), invalidBytecodeMessage(bytes, expected))

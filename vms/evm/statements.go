@@ -9,7 +9,7 @@ import (
 
 func (e *GuardianEVM) traverseSwitchStatement(n ast.SwitchStatementNode) (code vmgen.Bytecode) {
 	// always traverse the target
-	e.Traverse(n.Target)
+	e.traverse(n.Target)
 	// switch statements are implicitly converted to if statements
 	// may be a better way to do this
 	// Solidity doesn't have a switch so shrug
@@ -53,15 +53,15 @@ func (e *GuardianEVM) traverseForStatement(n ast.ForStatementNode) (code vmgen.B
 
 func (e *GuardianEVM) traverseReturnStatement(n ast.ReturnStatementNode) (code vmgen.Bytecode) {
 	for _, r := range n.Results {
-		e.Traverse(r)
+		e.traverse(r)
 	}
 	return code
 }
 
 func (e *GuardianEVM) traverseIfStatement(n ast.IfStatementNode) (code vmgen.Bytecode) {
 	for _, c := range n.Conditions {
-		e.Traverse(c.Condition)
-		e.Traverse(c.Body)
+		e.traverse(c.Condition)
+		e.traverse(c.Body)
 	}
 	return code
 }
@@ -70,8 +70,8 @@ func (e *GuardianEVM) traverseAssignmentStatement(n ast.AssignmentStatementNode)
 	// consider mismatched lengths
 	if len(n.Left) > 1 && len(n.Right) == 1 {
 		for _, l := range n.Left {
-			e.Traverse(l)
-			e.Traverse(n.Right[0])
+			e.traverse(l)
+			e.traverse(n.Right[0])
 			// assignments are either in memory or storage depending on the context
 			if e.inStorage() || hasModifier(n, lexer.TknStorage) {
 				code.Add("")
@@ -79,8 +79,8 @@ func (e *GuardianEVM) traverseAssignmentStatement(n ast.AssignmentStatementNode)
 		}
 	} else {
 		for i, l := range n.Left {
-			e.Traverse(l)
-			e.Traverse(n.Right[i])
+			e.traverse(l)
+			e.traverse(n.Right[i])
 			// assignments are either in memory or storage depending on the context
 			if e.inStorage() || hasModifier(n, lexer.TknStorage) {
 				code.Add("")

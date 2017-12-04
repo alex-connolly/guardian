@@ -114,8 +114,17 @@ func (e *GuardianEVM) traverseUnaryExpr(n ast.UnaryExpressionNode) (code vmgen.B
 	Note that these expressions may contain further expressions of arbitrary depth.
 	*/
 	code.Concat(e.traverseExpression(n.Operand))
-	code.Add(unaryOps[n.Operator])
-	// TODO: typeof
+	switch n.Operator {
+	case lexer.TknAdd:
+		switch n.Operand.ResolvedType() {
+		case :
+			code.Add("ADD")
+			break
+		case :
+			code.Add()
+
+		}
+	}
 	return code
 }
 
@@ -212,11 +221,9 @@ func (e *GuardianEVM) traverseIndex(n ast.IndexExpressionNode) (code vmgen.Bytec
 }
 
 func (e *GuardianEVM) traverseMapLiteral(n ast.MapLiteralNode) (code vmgen.Bytecode) {
-	// the evm doesn't support maps in the same way firevm does
-	// Solidity converts things to a mapping
-	// all keys to all values etc
-	// precludes iteration
-	// TODO: can we do it better?
+	basicHash := keccak256(name)
+	// if we want to generate the same bytecode each time
+	// can't just iterate through them
 	for k, v := range n.Data {
 		code.Concat(e.traverse(k))
 		code.Concat(e.traverse(v))
@@ -226,6 +233,7 @@ func (e *GuardianEVM) traverseMapLiteral(n ast.MapLiteralNode) (code vmgen.Bytec
 
 func (e *GuardianEVM) traverseFuncLiteral(n ast.FuncLiteralNode) (code vmgen.Bytecode) {
 	// create an internal hook
+
 	return code
 }
 
@@ -234,13 +242,11 @@ func isStorage(name string) bool {
 }
 
 func (e *GuardianEVM) traverseIdentifier(n ast.IdentifierNode) (code vmgen.Bytecode) {
-	code.Add("PUSH", EncodeName(n.Name)...)
 	if isStorage(n.Name) {
-		code.Add("SLOAD")
+		return e.lookupStorage(n.Name).retriveValue()
 	} else {
-		code.Add("MLOAD")
+		return e.lookupMemory(n.Name)
 	}
-	return code
 }
 
 func (e *GuardianEVM) traverseReference(n ast.ReferenceNode) (code vmgen.Bytecode) {

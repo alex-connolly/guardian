@@ -47,6 +47,12 @@ func (e *GuardianEVM) addHook(name string) {
 }
 
 func (e *GuardianEVM) traverseEvent(n ast.EventDeclarationNode) (code vmgen.Bytecode) {
+
+	hook := string(EncodeName(n.Identifier))
+
+	e.addHook(hook)
+
+	code.Add("JUMPDEST")
 	return code
 }
 
@@ -57,7 +63,7 @@ func (e *GuardianEVM) traverseFunc(n ast.FuncDeclarationNode) (code vmgen.Byteco
 	e.addHook(string(hook))
 
 	code.Add("JUMPDEST")
-	e.Traverse(n.Body)
+	e.Traverse(*n.Body)
 	// TODO: add something to prevent further execution
 
 	// all evm functions create a hook at the start of the contract
@@ -70,6 +76,14 @@ func (e *GuardianEVM) traverseFunc(n ast.FuncDeclarationNode) (code vmgen.Byteco
 		//code.Add(EncodeSignature())
 		code.Add("EQL")
 		code.Add("JMPI")
+	}
+	return code
+}
+
+func (e *GuardianEVM) traverseExplicitVarDecl(n ast.ExplicitVarDeclarationNode) (code vmgen.Bytecode) {
+	// variable declarations don't require storage (yet), just have to designate a slot
+	for _, id := range n.Identifiers {
+		e.allocateStorage(id, 256 /* TODO: get size of type */)
 	}
 	return code
 }

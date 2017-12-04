@@ -11,6 +11,7 @@ type Error struct {
 // Errors ...
 type Errors []Error
 
+// Format ...
 func (e Errors) Format() string {
 	whole := ""
 	whole += fmt.Sprintf("%d errors\n", len(e))

@@ -14,12 +14,11 @@ type Lexer struct {
 	column      int
 	tokens      []Token
 	tokenOffset int
-	errors      []util.Error
-	//macros      map[string]macro
+	errors      util.Errors
 }
 
 // Lex ...
-func Lex(bytes []byte) (tokens []Token, errs []util.Error) {
+func Lex(bytes []byte) (tokens []Token, errs util.Errors) {
 	l := new(Lexer)
 	l.byteOffset = 0
 	l.buffer = bytes
@@ -28,7 +27,7 @@ func Lex(bytes []byte) (tokens []Token, errs []util.Error) {
 }
 
 // LexFile ...
-func LexFile(path string) (tokens []Token, errs []util.Error) {
+func LexFile(path string) (tokens []Token, errs util.Errors) {
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, append(errs, util.Error{
@@ -39,6 +38,6 @@ func LexFile(path string) (tokens []Token, errs []util.Error) {
 }
 
 // LexString lexes a string
-func LexString(str string) (tokens []Token, errs []util.Error) {
+func LexString(str string) (tokens []Token, errs util.Errors) {
 	return Lex([]byte(str))
 }

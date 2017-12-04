@@ -1,37 +1,39 @@
 # Guardian
 
-Guardian is a statically typed, object-oriented programming language, with a particular focus on providing a new and more complete set of tools for blockchain applications. Its syntax is primarily derived from Java and Go, with many of the blockchain-specific constructs drawn (at least in part) from [Solidity](https://github.com/ethereum/solidity).
+Guardian is a statically typed, object-oriented programming language for blockchain applications. Its syntax is primarily derived from [Go](https://golang.org), with many of the blockchain-specific constructs drawn (at least in part) from [Solidity](https://github.com/ethereum/solidity) and [Viper](https://github.com/ethereum/viper).
+
+Significantly, Guardian is (to some degree) virtual machine agnostic - the same syntax can be compiled into radically different bytecode depending on the virtual machine which is being targeted.
 
 ## Aims
 
 In no particular order, the Guardian programming language strives to:
 
 - Be executionally deterministic
-- Be safe
+- Successfully balance legibility and safety
 - Have a rich feature set reminiscent of full OOP languages
-- Be simple and easy to learn
+- Be easy to learn
+- Be capable of supporting bytecode generation for arbitrary VMs
+
+These aims should be considered not only in the design and implementation language itself, but also by all Guardian tooling and documentation.
 
 ## Contracts
 
-In simple terms, contracts may be understood. There are numerous parallels between . In Guardian, contracts are analogous to top-level classes, within which any number.
+In simple terms, contracts may be understood a. There are numerous parallels between . In Guardian, contracts are analogous to top-level classes, within which any number.
 
-## Packaging
+## Packaging and Version Declarations
 
-Guardian uses go-style packaging and importing.
+Guardian uses go-style packaging and importing, so that related constructs can be grouped into logical modules. There is no requirement that each file contain a ```contract```, or that it contain only one ```contract```.
 
-## Version Declarations
-
-In order for future versions of Guardian to include potentially backwards-incompatible changes, each Guardian contract must include a version declaration appended to the package declaration:
+In order for future versions of Guardian to include potentially backwards-incompatible changes, each Guardian file must include a version declaration appended to the package declaration:
 
 ```go
-guardian @ 0.0.1
+package calculator @ 0.0.1
 ```
 
-If you select an older Guardian version to run your , nodes which do not have
 
 ## Exported Variables
 
-Guardian functions and is 'private' by default. To increase clarity, the ```public``` keyword is replaced by ```external```.
+
 
 ## Imports
 
@@ -55,8 +57,8 @@ contract Watcher {
 Guardian is strongly and statically typed, and code which does not conform to these standards will not compile. However, in order to promote brevity, types may be omitted when declaring variables (so long as the compiler can infer them from context).
 
 ```go
-x := 5      // x will have type int
-y := x      // y will have type int
+x = 5      // x will have type int
+y = x      // y will have type int
 x = "hello" // will not compile (x has type int)
 ```
 

@@ -24,6 +24,7 @@ type Type interface {
 	compare(Type) bool
 	inherits(Type) bool
 	implements(Type) bool
+	Size() int
 }
 
 type BaseType int
@@ -136,14 +137,14 @@ func NewLifecycle(typ lexer.TokenType, params []Type) Lifecycle {
 // A Class is a collection of properties
 type Class struct {
 	Name       string
-	Lifecycles map[lexer.TokenType][]Lifecycle
+	Lifecycles lifecycleMap
 	Supers     []*Class
 	Properties map[string]Type
 	Types      map[string]Type
 	Interfaces []*Interface
 }
 
-func NewClass(name string, supers []*Class, interfaces []*Interface, types, properties map[string]Type, lifecycles map[lexer.TokenType][]Lifecycle) Class {
+func NewClass(name string, supers []*Class, interfaces []*Interface, types, properties map[string]Type, lifecycles lifecycleMap) Class {
 	return Class{
 		Name:       name,
 		Supers:     supers,

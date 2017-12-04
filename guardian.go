@@ -37,7 +37,7 @@ func CompileBytes(vm validator.VM, bytes []byte) vmgen.Bytecode {
 		reportErrors("Type Valdidation", errs)
 	}
 
-	bytecode := vm.Traverse(ast)
+	bytecode, errs := vm.Traverse(ast)
 
 	if errs != nil {
 		reportErrors("Bytecode Generation", errs)

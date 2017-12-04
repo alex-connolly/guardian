@@ -124,7 +124,7 @@ func (nt NumericType) compare(t Type) bool {
 		if nt.Integer != other.Integer {
 			return false
 		}
-		if nt.Size != other.Size {
+		if nt.BitSize != other.BitSize {
 			return false
 		}
 		if nt.Signed != other.Signed {
