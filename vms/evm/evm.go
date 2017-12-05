@@ -26,6 +26,7 @@ type GuardianEVM struct {
 }
 
 type storageBlock struct {
+	name   string
 	size   uint
 	offset uint
 	slot   uint
@@ -43,18 +44,12 @@ const (
 func (s storageBlock) retrive() (code vmgen.Bytecode) {
 	if s.size > wordSize {
 		// over at least 2 slots
-		// get last wordSize - s.offset bits from first
-		// if remaining < wordSize
-		// get first s.size - (wordSize - s.offset) bits from second
-		// else
-		// get whole slot
-		// and keep trying the first phase
 		first := wordSize - s.offset
 		code.Concat(getByteSectionOfSlot(s.slot, s.offset, first))
 
 		remaining := s.size - first
 		slot := s.slot
-		for remaining > wordSize {
+		for remaining >= wordSize {
 			// get whole slot
 			slot += 1
 			code.Concat(getByteSectionOfSlot(slot, 0, wordSize))

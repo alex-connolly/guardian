@@ -43,6 +43,9 @@ const (
 	ForStatement
 	FlowStatement
 
+	ImportStatement
+	PackageStatement
+
 	File
 	Scope
 )

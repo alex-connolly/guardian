@@ -245,3 +245,11 @@ func isModifierList(p *Parser) bool {
 		return p.parseOptional(lexer.TknOpenBracket)
 	})
 }
+
+func isPackageStatement(p *Parser) bool {
+	return p.isNextToken(lexer.TknPackage)
+}
+
+func isImportStatement(p *Parser) bool {
+	return p.isNextToken(lexer.TknImport)
+}

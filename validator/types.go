@@ -24,7 +24,7 @@ type Type interface {
 	compare(Type) bool
 	inherits(Type) bool
 	implements(Type) bool
-	Size() int
+	size() int
 }
 
 type BaseType int

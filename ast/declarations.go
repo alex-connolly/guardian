@@ -2,25 +2,25 @@ package ast
 
 import (
 	"github.com/end-r/guardian/lexer"
-	"github.com/end-r/guardian/util"
 )
 
 type TypeDeclarationNode struct {
 	Modifiers    []lexer.TokenType
 	Identifier   string
 	Value        Node
-	ResolvedType util.Type
+	ResolvedSize uint
 }
 
 // Type ...
 func (n TypeDeclarationNode) Type() NodeType { return TypeDeclaration }
 
 type FuncDeclarationNode struct {
-	Identifier string
-	Parameters []ExplicitVarDeclarationNode
-	Results    []Node
-	Body       *ScopeNode
-	Modifiers  []lexer.TokenType
+	Identifier   string
+	Parameters   []ExplicitVarDeclarationNode
+	Results      []Node
+	Body         *ScopeNode
+	Modifiers    []lexer.TokenType
+	ResolvedSize uint
 }
 
 func (n FuncDeclarationNode) Type() NodeType { return FuncDeclaration }
@@ -32,7 +32,7 @@ type ClassDeclarationNode struct {
 	Interfaces   []PlainTypeNode
 	Body         *ScopeNode
 	declarations map[string][]Node
-	ResolvedType util.Type
+	ResolvedSize uint
 }
 
 func (n ClassDeclarationNode) Type() NodeType { return ClassDeclaration }
@@ -42,7 +42,7 @@ type InterfaceDeclarationNode struct {
 	Modifiers    []lexer.TokenType
 	Signatures   []FuncTypeNode
 	Supers       []PlainTypeNode
-	ResolvedType util.Type
+	ResolvedSize uint
 }
 
 func (n InterfaceDeclarationNode) Type() NodeType { return InterfaceDeclaration }
@@ -53,7 +53,7 @@ type ContractDeclarationNode struct {
 	Supers       []PlainTypeNode
 	Interfaces   []PlainTypeNode
 	Body         *ScopeNode
-	ResolvedType util.Type
+	ResolvedSize uint
 }
 
 func (n ContractDeclarationNode) Type() NodeType { return ContractDeclaration }
@@ -62,7 +62,7 @@ type ExplicitVarDeclarationNode struct {
 	Modifiers    []lexer.TokenType
 	Identifiers  []string
 	DeclaredType Node
-	ResolvedType util.Type
+	ResolvedSize uint
 }
 
 func (n ExplicitVarDeclarationNode) Type() NodeType { return ExplicitVarDeclaration }
@@ -71,7 +71,7 @@ type EventDeclarationNode struct {
 	Modifiers    []lexer.TokenType
 	Identifier   string
 	Parameters   []ExplicitVarDeclarationNode
-	ResolvedType util.Type
+	ResolvedSize uint
 }
 
 func (n EventDeclarationNode) Type() NodeType { return EventDeclaration }
@@ -92,7 +92,7 @@ type EnumDeclarationNode struct {
 	Inherits   []PlainTypeNode
 	// consider whether to change this
 	Enums        []string
-	ResolvedType util.Type
+	ResolvedSize uint
 }
 
 func (n EnumDeclarationNode) Type() NodeType { return EnumDeclaration }

@@ -230,3 +230,38 @@ func parseSwitchStatement(p *Parser) {
 	p.scope.AddSequential(node)
 
 }
+
+func parseImportStatement(p *Parser) {
+	p.parseRequired(lexer.TknImport)
+
+	var alias, name string
+
+	if p.isNextToken(lexer.TknIdentifier) {
+		alias = p.parseIdentifier()
+	}
+	name = p.current().TrimmedString()
+
+	node := ast.ImportStatementNode{
+		Alias: alias,
+		Name:  name,
+	}
+
+	p.scope.AddSequential(node)
+}
+
+func parsePackageStatement(p *Parser) {
+	p.parseRequired(lexer.TknPackage)
+
+	name := p.parseIdentifier()
+
+	p.parseRequired(lexer.TknAt)
+
+	version := p.parseIdentifier()
+
+	node := ast.PackageStatementNode{
+		Name:    name,
+		Version: version,
+	}
+
+	p.scope.AddSequential(node)
+}

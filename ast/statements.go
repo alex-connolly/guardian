@@ -4,6 +4,20 @@ import (
 	"github.com/end-r/guardian/lexer"
 )
 
+type ImportStatementNode struct {
+	Path  string
+	Alias string
+}
+
+func (n ImportStatementNode) Type() NodeType { return ImportStatement }
+
+type PackageStatementNode struct {
+	Name       string
+	Versioning string
+}
+
+func (n PackageStatementNode) Type() NodeType { return PackageStatement }
+
 type AssignmentStatementNode struct {
 	Modifiers []lexer.TokenType
 	Left      []ExpressionNode

@@ -83,7 +83,7 @@ func (e *GuardianEVM) traverseFunc(n ast.FuncDeclarationNode) (code vmgen.Byteco
 func (e *GuardianEVM) traverseExplicitVarDecl(n ast.ExplicitVarDeclarationNode) (code vmgen.Bytecode) {
 	// variable declarations don't require storage (yet), just have to designate a slot
 	for _, id := range n.Identifiers {
-		e.allocateStorage(id, 256 /* TODO: get size of type */)
+		e.allocateStorage(id, n.ResolvedSize)
 	}
 	return code
 }

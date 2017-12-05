@@ -53,15 +53,22 @@ func (e *GuardianEVM) traverseForStatement(n ast.ForStatementNode) (code vmgen.B
 
 func (e *GuardianEVM) traverseReturnStatement(n ast.ReturnStatementNode) (code vmgen.Bytecode) {
 	for _, r := range n.Results {
+		// leave each of them on the stack in turn
 		e.traverse(r)
 	}
+	// jump back to somewhere
 	return code
 }
 
 func (e *GuardianEVM) traverseIfStatement(n ast.IfStatementNode) (code vmgen.Bytecode) {
+	conds := make([]vmgen.Bytecode, 0)
+	blocks := make([]vmgen.Bytecode, 0)
 	for _, c := range n.Conditions {
-		e.traverse(c.Condition)
-		e.traverse(c.Body)
+		conds = append(conds, e.traverse(c.Condition)
+		blocks = append(blocks, e.traverse(c.Body))
+	}
+	for i, _ := range n.Conditions {
+		
 	}
 	return code
 }
@@ -70,24 +77,33 @@ func (e *GuardianEVM) traverseAssignmentStatement(n ast.AssignmentStatementNode)
 	// consider mismatched lengths
 	if len(n.Left) > 1 && len(n.Right) == 1 {
 		for _, l := range n.Left {
-			e.traverse(l)
-			e.traverse(n.Right[0])
-			// assignments are either in memory or storage depending on the context
-			if e.inStorage() || hasModifier(n, lexer.TknStorage) {
-				code.Add("")
-			}
+			r := n.Right[0]
+			code.Concat(e.assign(l, r))
 		}
 	} else {
 		for i, l := range n.Left {
-			e.traverse(l)
-			e.traverse(n.Right[i])
-			// assignments are either in memory or storage depending on the context
-			if e.inStorage() || hasModifier(n, lexer.TknStorage) {
-				code.Add("")
-			}
+			r := n.Right[i]
+			code.Concat(e.assign(l, r))
 		}
 	}
 	return code
+}
+
+func (e *GuardianEVM) assign(left, right ast.ExpressionNode, inStorage bool) (code vmgen.Bytecode) {
+	left := e.traverse(l)
+	right := e.traverse(r)
+
+	// assignments are either in memory or storage depending on the context
+	if inStorage {
+		l.ResolvedType.Size()
+		r.ResolvedType.Size()
+		e.allocateStorage(name, size)
+		code.Add("SSTORE")
+	} else {
+		e.allocateMemory(name, size)
+		code.Add("MSTORE")
+	}
+
 }
 
 func hasModifier(n ast.Node, modifier lexer.TokenType) bool {

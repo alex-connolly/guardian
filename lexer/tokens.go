@@ -76,6 +76,7 @@ const (
 	TknCharacter
 	TknComment
 	TknAlias
+	TknAt           // @
 	TknAssign       // =
 	TknComma        // ,
 	TknOpenBrace    // {
@@ -178,6 +179,7 @@ const (
 	TknCommentOpen
 	TknCommentClose
 	TknTest
+	TknFallback
 )
 
 // TODO: protoToken{"Operator", isOperator, processOperator}
@@ -242,6 +244,8 @@ func getProtoTokens() []protoToken {
 		createDistinct("false", TknFalse),
 
 		createDistinct("test", TknTest),
+		createDistinct("fallback", TknFallback),
+		createDistinct("at", TknAt),
 
 		protoToken{"Float", isFloat, processFloat},
 		// must check float first

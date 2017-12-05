@@ -1,6 +1,7 @@
 package evm
 
 import (
+	"axia/guardian/validator"
 	"fmt"
 
 	"github.com/end-r/vmgen"
@@ -41,28 +42,38 @@ func (e *GuardianEVM) traverseExpression(n ast.ExpressionNode) (code vmgen.Bytec
 
 func (e *GuardianEVM) traverseArrayLiteral(n ast.ArrayLiteralNode) (code vmgen.Bytecode) {
 
-	// create array
+	// encode the size first
+	code.Concat(uintAsBytes(len(n.Data)))
+
 	for _, expr := range n.Data {
 		code.Concat(e.traverseExpression(expr))
 	}
+
 	return code
 }
 
 func (e *GuardianEVM) traverseSliceExpression(n ast.SliceExpressionNode) (code vmgen.Bytecode) {
 	// evaluate the original expression first
 
+	// get the data
 	code.Concat(e.traverseExpression(n.Expression))
+
+	// ignore the first (item size) * lower
+
+	// ignore the ones after
+
 	return code
 }
 
 func (e *GuardianEVM) traverseCompositeLiteral(n ast.CompositeLiteralNode) (code vmgen.Bytecode) {
 
-	if e.inStorage() {
+	var ty validator.Class
+	for _, f := range ty.Fields {
+		if n.Fields[f] != nil {
 
-	} else {
-		// the object exists in memory
-		// things will have a byte offset
-
+		} else {
+			n.Fields[f].Size()
+		}
 	}
 
 	for _, field := range n.Fields {
@@ -96,8 +107,16 @@ func (e *GuardianEVM) traverseBinaryExpr(n ast.BinaryExpressionNode) (code vmgen
 	*/
 	code.Concat(e.traverseExpression(n.Left))
 	code.Concat(e.traverseExpression(n.Right))
+
+	op := binaryOps[n.Operator]
+
+	if op == "ADD" {
+		if n.Left.Resolved().compare() {
+
+		}
+	}
 	// operation
-	code.Add(binaryOps[n.Operator])
+	code.Add()
 	return code
 }
 
@@ -114,17 +133,7 @@ func (e *GuardianEVM) traverseUnaryExpr(n ast.UnaryExpressionNode) (code vmgen.B
 	Note that these expressions may contain further expressions of arbitrary depth.
 	*/
 	code.Concat(e.traverseExpression(n.Operand))
-	switch n.Operator {
-	case lexer.TknAdd:
-		switch n.Operand.ResolvedType() {
-		case :
-			code.Add("ADD")
-			break
-		case :
-			code.Add()
-
-		}
-	}
+	code.Add(unaryOps[n.Operator])
 	return code
 }
 
@@ -196,38 +205,42 @@ func (e *GuardianEVM) traverseLiteral(n ast.LiteralNode) (code vmgen.Bytecode) {
 	// maximum number size is 256 bits (32 bytes)
 
 	bytes := []byte(n.Data)
-
-	if len(bytes) > 32 {
-		// TODO: error
+	max := 32
+	size := 0
+	for size = len(bytes); size > max; size -= max {
+		code.Add("PUSH32", bytes[len(bytes)-size:len(bytes)-size+max])
 	}
-	op := fmt.Sprintf("PUSH%d", len(bytes))
-	code.Add(op, bytes...)
+	op := fmt.Sprintf("PUSH%d", size)
+	code.Add(op, bytes[size:len(bytes)])
 	return code
 }
 
 func (e *GuardianEVM) traverseIndex(n ast.IndexExpressionNode) (code vmgen.Bytecode) {
 
-	code.Concat(e.traverseExpression(n.Index))
+	// load the data
 	code.Concat(e.traverseExpression(n.Expression))
 
-	// find the offset by multiplying the index by the type
+	// calculate offset, get bytes
+	code.Concat(e.traverseExpression(n.Index))
 
-	if e.inStorage() {
-		code.Add("SLOAD")
-	} else {
-		code.Add("MLOAD")
-	}
 	return code
 }
 
 func (e *GuardianEVM) traverseMapLiteral(n ast.MapLiteralNode) (code vmgen.Bytecode) {
-	basicHash := keccak256(name)
-	// if we want to generate the same bytecode each time
-	// can't just iterate through them
+	// use indirection to do this
+	// map literals will use an extra 20k gas
+	fakeKey := e.generateNextIndirect()
+	// keccak256(bytes32(key) + bytes32(position))
+
+	i := 0
+	// TODO: deterministic iteration
 	for k, v := range n.Data {
-		code.Concat(e.traverse(k))
-		code.Concat(e.traverse(v))
+		slot := EncodeName(fakeKey + bytes32(i))
+		code.Add()
+		code.Add()
+		i++
 	}
+	code.Add("PUSH", fakeKey)
 	return code
 }
 
