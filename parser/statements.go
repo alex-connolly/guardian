@@ -1,6 +1,9 @@
 package parser
 
 import (
+	"fmt"
+
+	"github.com/blang/semver"
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/lexer"
 )
@@ -234,16 +237,16 @@ func parseSwitchStatement(p *Parser) {
 func parseImportStatement(p *Parser) {
 	p.parseRequired(lexer.TknImport)
 
-	var alias, name string
+	var alias, path string
 
 	if p.isNextToken(lexer.TknIdentifier) {
 		alias = p.parseIdentifier()
 	}
-	name = p.current().TrimmedString()
+	path = p.current().TrimmedString()
 
 	node := ast.ImportStatementNode{
 		Alias: alias,
-		Name:  name,
+		Path:  path,
 	}
 
 	p.scope.AddSequential(node)
@@ -256,7 +259,7 @@ func parsePackageStatement(p *Parser) {
 
 	p.parseRequired(lexer.TknAt)
 
-	version := p.parseIdentifier()
+	version := p.parseSemver()
 
 	node := ast.PackageStatementNode{
 		Name:    name,
@@ -264,4 +267,17 @@ func parsePackageStatement(p *Parser) {
 	}
 
 	p.scope.AddSequential(node)
+}
+
+func (p *Parser) parseSemver() semver.Version {
+	s := ""
+	for p.current().Type != lexer.TknNewLine {
+		s += p.current().String()
+		p.next()
+	}
+	v, err := semver.Make(s)
+	if err != nil {
+		p.addError(fmt.Sprintf("Invalid semantic version %s", s))
+	}
+	return v
 }

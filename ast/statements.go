@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/blang/semver"
 	"github.com/end-r/guardian/lexer"
 )
 
@@ -12,8 +13,8 @@ type ImportStatementNode struct {
 func (n ImportStatementNode) Type() NodeType { return ImportStatement }
 
 type PackageStatementNode struct {
-	Name       string
-	Versioning string
+	Name    string
+	Version semver.Version
 }
 
 func (n PackageStatementNode) Type() NodeType { return PackageStatement }

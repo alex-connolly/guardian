@@ -605,3 +605,37 @@ func TestAssignmentStatementSingleAdd(t *testing.T) {
 	a := n.(ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be one left value")
 }
+
+func TestImportStatementPath(t *testing.T) {
+	p := createParser(`import "dog"`)
+	goutil.Assert(t, isImportStatement(p), "should detect import statement")
+	parseImportStatement(p)
+
+	n := p.scope.Next()
+	goutil.AssertNow(t, n.Type() == ast.ImportStatement, "wrong import type")
+	a := n.(ast.ImportStatementNode)
+	goutil.AssertNow(t, a.Path == "dog", "wrong import path value")
+}
+
+func TestImportStatementAlias(t *testing.T) {
+	p := createParser(`import d "dog"`)
+	goutil.Assert(t, isImportStatement(p), "should detect import statement")
+	parseImportStatement(p)
+
+	n := p.scope.Next()
+	goutil.AssertNow(t, n.Type() == ast.ImportStatement, "wrong import type")
+	a := n.(ast.ImportStatementNode)
+	goutil.AssertNow(t, a.Path == "dog", "wrong import path value")
+	goutil.AssertNow(t, a.Alias == "d", "wrong import alias value")
+}
+
+func TestPackageStatement(t *testing.T) {
+	p := createParser(`package dog at 0.0.1`)
+	goutil.Assert(t, isPackageStatement(p), "should detect package statement")
+	parsePackageStatement(p)
+
+	n := p.scope.Next()
+	goutil.AssertNow(t, n.Type() == ast.PackageStatement, "wrong package type")
+	a := n.(ast.PackageStatementNode)
+	goutil.AssertNow(t, a.Name == "dog", "wrong package name value")
+}
