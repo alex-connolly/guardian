@@ -43,7 +43,7 @@ func (n *ConditionNode) Type() NodeType { return IfStatement }
 
 type IfStatementNode struct {
 	Init       Node
-	Conditions []ConditionNode
+	Conditions []*ConditionNode
 	Else       *ScopeNode
 }
 

@@ -23,28 +23,28 @@ type ScopeNode struct {
 	Parent       *ScopeNode
 	ValidTypes   []NodeType
 	Declarations *goutil.DMap
-	Sequence     []*Node
+	Sequence     []Node
 	index        int
 }
 
-func (n *ScopeNode) Next() *Node {
+func (n *ScopeNode) Next() Node {
 	node := n.Sequence[n.index]
 	n.index++
 	return node
 }
 
-func (n *ScopeNode) AddSequential(node *Node) {
+func (n *ScopeNode) AddSequential(node Node) {
 	if n.Sequence == nil {
-		n.Sequence = make([]*Node, 0)
+		n.Sequence = make([]Node, 0)
 	}
 	n.Sequence = append(n.Sequence, node)
 }
 
-func (n *ScopeNode) NextDeclaration() *Node {
+func (n *ScopeNode) NextDeclaration() Node {
 	if n.Declarations == nil {
 		return nil
 	}
-	return n.Declarations.Next().(*Node)
+	return n.Declarations.Next().(Node)
 }
 
 func (n *ScopeNode) GetDeclaration(key string) Node {

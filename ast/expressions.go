@@ -70,7 +70,7 @@ type CallExpressionNode struct {
 func (n *CallExpressionNode) Type() NodeType { return CallExpression }
 
 type ArrayLiteralNode struct {
-	Signature ArrayTypeNode
+	Signature *ArrayTypeNode
 	Data      []ExpressionNode
 	Resolved  typing.Type
 }
@@ -78,7 +78,7 @@ type ArrayLiteralNode struct {
 func (n *ArrayLiteralNode) Type() NodeType { return ArrayLiteral }
 
 type MapLiteralNode struct {
-	Signature MapTypeNode
+	Signature *MapTypeNode
 	Data      map[ExpressionNode]ExpressionNode
 	Resolved  typing.Type
 }
