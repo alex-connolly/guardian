@@ -1,4 +1,4 @@
-package util
+package types
 
 // NumericType... used to pass types into the s
 type NumericType struct {
