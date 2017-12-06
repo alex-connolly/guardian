@@ -86,7 +86,7 @@ type MapLiteralNode struct {
 func (n *MapLiteralNode) Type() NodeType { return MapLiteral }
 
 type FuncLiteralNode struct {
-	Parameters []ExplicitVarDeclarationNode
+	Parameters []*ExplicitVarDeclarationNode
 	Results    []Node
 	Scope      *ScopeNode
 	Resolved   typing.Type
