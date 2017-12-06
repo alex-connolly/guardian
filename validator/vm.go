@@ -3,15 +3,11 @@ package validator
 import (
 	"strconv"
 
-	"github.com/end-r/guardian/typing"
-
-	"github.com/end-r/guardian/util"
-
-	"github.com/end-r/guardian/lexer"
-
-	"github.com/end-r/guardian/parser"
-
 	"github.com/end-r/guardian/ast"
+	"github.com/end-r/guardian/lexer"
+	"github.com/end-r/guardian/parser"
+	"github.com/end-r/guardian/typing"
+	"github.com/end-r/guardian/util"
 	"github.com/end-r/vmgen"
 )
 
@@ -23,6 +19,7 @@ type VM interface {
 	Primitives() map[string]typing.Type
 	Literals() LiteralMap
 	Operators() OperatorMap
+	BooleanName() string
 }
 
 type TestVM struct {
@@ -30,6 +27,10 @@ type TestVM struct {
 
 func NewTestVM() TestVM {
 	return TestVM{}
+}
+
+func (v TestVM) BooleanName() string {
+	return "bool"
 }
 
 func (v TestVM) Traverse(ast.Node) (vmgen.Bytecode, util.Errors) {

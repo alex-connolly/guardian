@@ -8,12 +8,12 @@ import (
 	"github.com/end-r/guardian/ast"
 )
 
-func (e *GuardianEVM) traverseType(n ast.TypeDeclarationNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseType(n *ast.TypeDeclarationNode) (code vmgen.Bytecode) {
 	// do nothing
 	return code
 }
 
-func (e *GuardianEVM) traverseClass(n ast.ClassDeclarationNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseClass(n *ast.ClassDeclarationNode) (code vmgen.Bytecode) {
 	// create constructor hooks
 	// create function hooks
 	for _, d := range n.Body.Declarations.Map() {
@@ -31,18 +31,18 @@ func (e *GuardianEVM) traverseClass(n ast.ClassDeclarationNode) (code vmgen.Byte
 	return code
 }
 
-func (e *GuardianEVM) traverseInterface(n ast.InterfaceDeclarationNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseInterface(n *ast.InterfaceDeclarationNode) (code vmgen.Bytecode) {
 	// don't need to be interacted with
 	// all interfaces are dealt with by the type system
 	return code
 }
 
-func (e *GuardianEVM) traverseEnum(n ast.EnumDeclarationNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseEnum(n *ast.EnumDeclarationNode) (code vmgen.Bytecode) {
 	// don't create anything
 	return code
 }
 
-func (e *GuardianEVM) traverseContract(n ast.ContractDeclarationNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseContract(n *ast.ContractDeclarationNode) (code vmgen.Bytecode) {
 	// create hooks for functions
 	// create hooks for constructors
 	// create hooks for events
@@ -93,7 +93,7 @@ func (e *GuardianEVM) addHook(name string) {
 	e.hooks = append(e.hooks, h)
 }
 
-func (e *GuardianEVM) traverseEvent(n ast.EventDeclarationNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseEvent(n *ast.EventDeclarationNode) (code vmgen.Bytecode) {
 
 	hook := string(EncodeName(n.Identifier))
 
@@ -103,7 +103,7 @@ func (e *GuardianEVM) traverseEvent(n ast.EventDeclarationNode) (code vmgen.Byte
 	return code
 }
 
-func (e *GuardianEVM) traverseParameters(params []ast.ExplicitVarDeclarationNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseParameters(params []*ast.ExplicitVarDeclarationNode) (code vmgen.Bytecode) {
 	storage := false
 	for _, p := range params {
 		// function parameters are passed in on the stack and then assigned
@@ -130,7 +130,7 @@ func (e *GuardianEVM) traverseParameters(params []ast.ExplicitVarDeclarationNode
 	return code
 }
 
-func (e *GuardianEVM) traverseFunc(n ast.FuncDeclarationNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseFunc(n *ast.FuncDeclarationNode) (code vmgen.Bytecode) {
 
 	// don't worry about hooking
 
@@ -147,7 +147,7 @@ func (e *GuardianEVM) traverseFunc(n ast.FuncDeclarationNode) (code vmgen.Byteco
 	return code
 }
 
-func (e *GuardianEVM) traverseExplicitVarDecl(n ast.ExplicitVarDeclarationNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseExplicitVarDecl(n *ast.ExplicitVarDeclarationNode) (code vmgen.Bytecode) {
 	// variable declarations don't require storage (yet), just have to designate a slot
 	storage := e.inStorage() || hasModifier(n.Modifiers, lexer.TknStorage)
 	for _, id := range n.Identifiers {

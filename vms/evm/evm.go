@@ -237,7 +237,7 @@ func (evm GuardianEVM) Primitives() map[string]typing.Type {
 	return m
 }
 
-func (evm GuardianEVM) Traverse(node ast.ScopeNode) (vmgen.Bytecode, util.Errors) {
+func (evm GuardianEVM) Traverse(node *ast.ScopeNode) (vmgen.Bytecode, util.Errors) {
 	// do pre-processing/hooks etc
 	evm.traverse(node)
 	// generate the bytecode
@@ -288,31 +288,31 @@ func (e GuardianEVM) traverse(n ast.Node) (code vmgen.Bytecode) {
 		e.VM = firevm.NewVM()
 	}*/
 	switch node := n.(type) {
-	case ast.ClassDeclarationNode:
+	case *ast.ClassDeclarationNode:
 		return e.traverseClass(node)
-	case ast.InterfaceDeclarationNode:
+	case *ast.InterfaceDeclarationNode:
 		return e.traverseInterface(node)
-	case ast.EnumDeclarationNode:
+	case *ast.EnumDeclarationNode:
 		return e.traverseEnum(node)
-	case ast.EventDeclarationNode:
+	case *ast.EventDeclarationNode:
 		return e.traverseEvent(node)
-	case ast.TypeDeclarationNode:
+	case *ast.TypeDeclarationNode:
 		return e.traverseType(node)
-	case ast.ContractDeclarationNode:
+	case *ast.ContractDeclarationNode:
 		return e.traverseContract(node)
-	case ast.FuncDeclarationNode:
+	case *ast.FuncDeclarationNode:
 		return e.traverseFunc(node)
-	case ast.ForStatementNode:
+	case *ast.ForStatementNode:
 		return e.traverseForStatement(node)
-	case ast.AssignmentStatementNode:
+	case *ast.AssignmentStatementNode:
 		return e.traverseAssignmentStatement(node)
-	case ast.CaseStatementNode:
+	case *ast.CaseStatementNode:
 		return e.traverseCaseStatement(node)
-	case ast.ReturnStatementNode:
+	case *ast.ReturnStatementNode:
 		return e.traverseReturnStatement(node)
-	case ast.IfStatementNode:
+	case *ast.IfStatementNode:
 		return e.traverseIfStatement(node)
-	case ast.SwitchStatementNode:
+	case *ast.SwitchStatementNode:
 		return e.traverseSwitchStatement(node)
 	}
 	return code

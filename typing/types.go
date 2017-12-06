@@ -22,7 +22,7 @@ type Type interface {
 	Compare(Type) bool
 	inherits(Type) bool
 	implements(Type) bool
-	size() int
+	Size() uint
 }
 type LifecycleMap map[lexer.TokenType][]Lifecycle
 

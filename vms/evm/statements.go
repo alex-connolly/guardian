@@ -7,7 +7,7 @@ import (
 	"github.com/end-r/guardian/lexer"
 )
 
-func (e *GuardianEVM) traverseSwitchStatement(n ast.SwitchStatementNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseSwitchStatement(n *ast.SwitchStatementNode) (code vmgen.Bytecode) {
 	// always traverse the target
 	e.traverse(n.Target)
 	// switch statements are implicitly converted to if statements
@@ -16,11 +16,11 @@ func (e *GuardianEVM) traverseSwitchStatement(n ast.SwitchStatementNode) (code v
 	return code
 }
 
-func (e *GuardianEVM) traverseCaseStatement(n ast.CaseStatementNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseCaseStatement(n *ast.CaseStatementNode) (code vmgen.Bytecode) {
 	return code
 }
 
-func (e *GuardianEVM) traverseForStatement(n ast.ForStatementNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseForStatement(n *ast.ForStatementNode) (code vmgen.Bytecode) {
 
 	// init statement
 	// jumpdest
@@ -51,7 +51,7 @@ func (e *GuardianEVM) traverseForStatement(n ast.ForStatementNode) (code vmgen.B
 	return code
 }
 
-func (e *GuardianEVM) traverseReturnStatement(n ast.ReturnStatementNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseReturnStatement(n *ast.ReturnStatementNode) (code vmgen.Bytecode) {
 	for _, r := range n.Results {
 		// leave each of them on the stack in turn
 		e.traverse(r)
@@ -60,7 +60,7 @@ func (e *GuardianEVM) traverseReturnStatement(n ast.ReturnStatementNode) (code v
 	return code
 }
 
-func (e *GuardianEVM) traverseIfStatement(n ast.IfStatementNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseIfStatement(n *ast.IfStatementNode) (code vmgen.Bytecode) {
 	conds := make([]vmgen.Bytecode, 0)
 	blocks := make([]vmgen.Bytecode, 0)
 	for _, c := range n.Conditions {
@@ -71,7 +71,7 @@ func (e *GuardianEVM) traverseIfStatement(n ast.IfStatementNode) (code vmgen.Byt
 	return code
 }
 
-func (e *GuardianEVM) traverseAssignmentStatement(n ast.AssignmentStatementNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseAssignmentStatement(n *ast.AssignmentStatementNode) (code vmgen.Bytecode) {
 	// consider mismatched lengths
 	if len(n.Left) > 1 && len(n.Right) == 1 {
 		for _, l := range n.Left {

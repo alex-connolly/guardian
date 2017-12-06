@@ -1,61 +1,61 @@
 package typing
 
-func (a Array) size() int {
-	return a.Length * a.Value.size()
+func (a Array) Size() uint {
+	return uint(a.Length) * a.Value.Size()
 }
 
-func (m Map) size() int {
+func (m Map) Size() uint {
 	return 0
 }
 
-func (c Class) size() int {
-	s := 0
+func (c Class) Size() uint {
+	s := uint(0)
 	for _, f := range c.Properties {
-		s += f.size()
+		s += f.Size()
 	}
 	return s
 }
 
-func (i Interface) size() int {
+func (i Interface) Size() uint {
 	return 0
 }
 
-func (t Tuple) size() int {
-	s := 0
+func (t Tuple) Size() uint {
+	s := uint(0)
 	for _, typ := range t.Types {
-		s += typ.size()
+		s += typ.Size()
 	}
 	return s
 }
 
-func (nt NumericType) size() int {
-	return nt.BitSize
+func (nt NumericType) Size() uint {
+	return uint(nt.BitSize)
 }
 
-func (bt BooleanType) size() int {
+func (bt BooleanType) Size() uint {
 	return 8
 }
 
-func (c Contract) size() int {
+func (c Contract) Size() uint {
 	return 0
 }
 
-func (e Enum) size() int {
+func (e Enum) Size() uint {
 	return 0
 }
 
-func (s StandardType) size() int {
+func (s StandardType) Size() uint {
 	return 0
 }
 
-func (f Func) size() int {
+func (f Func) Size() uint {
 	return 0
 }
 
-func (a Aliased) size() int {
-	return ResolveUnderlying(a).size()
+func (a Aliased) Size() uint {
+	return ResolveUnderlying(a).Size()
 }
 
-func (e Event) size() int {
+func (e Event) Size() uint {
 	return 0
 }

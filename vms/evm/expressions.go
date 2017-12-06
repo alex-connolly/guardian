@@ -11,35 +11,35 @@ import (
 
 func (e *GuardianEVM) traverseExpression(n ast.ExpressionNode) (code vmgen.Bytecode) {
 	switch node := n.(type) {
-	case ast.ArrayLiteralNode:
+	case *ast.ArrayLiteralNode:
 		return e.traverseArrayLiteral(node)
-	case ast.FuncLiteralNode:
+	case *ast.FuncLiteralNode:
 		return e.traverseFuncLiteral(node)
-	case ast.MapLiteralNode:
+	case *ast.MapLiteralNode:
 		return e.traverseMapLiteral(node)
-	case ast.CompositeLiteralNode:
+	case *ast.CompositeLiteralNode:
 		return e.traverseCompositeLiteral(node)
-	case ast.UnaryExpressionNode:
+	case *ast.UnaryExpressionNode:
 		return e.traverseUnaryExpr(node)
-	case ast.BinaryExpressionNode:
+	case *ast.BinaryExpressionNode:
 		return e.traverseBinaryExpr(node)
-	case ast.CallExpressionNode:
+	case *ast.CallExpressionNode:
 		return e.traverseCallExpr(node)
-	case ast.IndexExpressionNode:
+	case *ast.IndexExpressionNode:
 		return e.traverseIndex(node)
-	case ast.SliceExpressionNode:
+	case *ast.SliceExpressionNode:
 		return e.traverseSliceExpression(node)
-	case ast.IdentifierNode:
+	case *ast.IdentifierNode:
 		return e.traverseIdentifier(node)
-	case ast.ReferenceNode:
+	case *ast.ReferenceNode:
 		return e.traverseReference(node)
-	case ast.LiteralNode:
+	case *ast.LiteralNode:
 		return e.traverseLiteral(node)
 	}
 	return code
 }
 
-func (e *GuardianEVM) traverseArrayLiteral(n ast.ArrayLiteralNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseArrayLiteral(n *ast.ArrayLiteralNode) (code vmgen.Bytecode) {
 	/*
 		// encode the size first
 		code.Add(uintAsBytes(len(n.Data))...)
@@ -51,7 +51,7 @@ func (e *GuardianEVM) traverseArrayLiteral(n ast.ArrayLiteralNode) (code vmgen.B
 	return code
 }
 
-func (e *GuardianEVM) traverseSliceExpression(n ast.SliceExpressionNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseSliceExpression(n *ast.SliceExpressionNode) (code vmgen.Bytecode) {
 	// evaluate the original expression first
 
 	// get the data
@@ -64,7 +64,7 @@ func (e *GuardianEVM) traverseSliceExpression(n ast.SliceExpressionNode) (code v
 	return code
 }
 
-func (e *GuardianEVM) traverseCompositeLiteral(n ast.CompositeLiteralNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseCompositeLiteral(n *ast.CompositeLiteralNode) (code vmgen.Bytecode) {
 	/*
 		var ty validator.Class
 		for _, f := range ty.Fields {
@@ -95,7 +95,7 @@ var binaryOps = map[lexer.TokenType]string{
 	lexer.TknXor: "XOR",
 }
 
-func (e *GuardianEVM) traverseBinaryExpr(n ast.BinaryExpressionNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseBinaryExpr(n *ast.BinaryExpressionNode) (code vmgen.Bytecode) {
 	/* alter stack:
 
 	| Operand 1 |
@@ -116,7 +116,7 @@ var unaryOps = map[lexer.TokenType]string{
 	lexer.TknNot: "NOT",
 }
 
-func (e *GuardianEVM) traverseUnaryExpr(n ast.UnaryExpressionNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseUnaryExpr(n *ast.UnaryExpressionNode) (code vmgen.Bytecode) {
 	/* alter stack:
 
 	| Expression 1 |
@@ -129,7 +129,7 @@ func (e *GuardianEVM) traverseUnaryExpr(n ast.UnaryExpressionNode) (code vmgen.B
 	return code
 }
 
-func (e *GuardianEVM) traverseCallExpr(n ast.CallExpressionNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseCallExpr(n *ast.CallExpressionNode) (code vmgen.Bytecode) {
 
 	for _, arg := range n.Arguments {
 		code.Concat(e.traverseExpression(arg))
@@ -189,7 +189,7 @@ func simpleInstruction(mnemonic string) Builtin {
 	}
 }
 
-func (e *GuardianEVM) traverseLiteral(n ast.LiteralNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseLiteral(n *ast.LiteralNode) (code vmgen.Bytecode) {
 	// Literal Nodes are directly converted to push instructions
 	// these nodes must be divided into blocks of 16 bytes
 	// in order to maintain
@@ -207,7 +207,7 @@ func (e *GuardianEVM) traverseLiteral(n ast.LiteralNode) (code vmgen.Bytecode) {
 	return code
 }
 
-func (e *GuardianEVM) traverseIndex(n ast.IndexExpressionNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseIndex(n *ast.IndexExpressionNode) (code vmgen.Bytecode) {
 
 	// load the data
 	code.Concat(e.traverseExpression(n.Expression))
@@ -218,7 +218,7 @@ func (e *GuardianEVM) traverseIndex(n ast.IndexExpressionNode) (code vmgen.Bytec
 	return code
 }
 
-func (e *GuardianEVM) traverseMapLiteral(n ast.MapLiteralNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseMapLiteral(n *ast.MapLiteralNode) (code vmgen.Bytecode) {
 	/* use indirection to do this
 	// map literals will use an extra 20k gas
 	//fakeKey := e.generateNextIndirect()
@@ -236,7 +236,7 @@ func (e *GuardianEVM) traverseMapLiteral(n ast.MapLiteralNode) (code vmgen.Bytec
 	return code
 }
 
-func (e *GuardianEVM) traverseFuncLiteral(n ast.FuncLiteralNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseFuncLiteral(n *ast.FuncLiteralNode) (code vmgen.Bytecode) {
 	// create an internal hook
 
 	return code
@@ -246,7 +246,7 @@ func isStorage(name string) bool {
 	return false
 }
 
-func (e *GuardianEVM) traverseIdentifier(n ast.IdentifierNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseIdentifier(n *ast.IdentifierNode) (code vmgen.Bytecode) {
 	if isStorage(n.Name) {
 		return e.lookupStorage(n.Name).retrive()
 	} else {
@@ -255,7 +255,7 @@ func (e *GuardianEVM) traverseIdentifier(n ast.IdentifierNode) (code vmgen.Bytec
 	}
 }
 
-func (e *GuardianEVM) traverseReference(n ast.ReferenceNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseReference(n *ast.ReferenceNode) (code vmgen.Bytecode) {
 
 	code.Concat(e.traverse(n.Parent))
 

@@ -9,6 +9,7 @@ type VM interface {
 	Primitives() map[string]Type
 	Literals() LiteralMap
 	Operators() OperatorMap
+	BooleanName() string
 }
 ```
 
@@ -26,11 +27,41 @@ func operator(v *validator.Validator, ...validator.Type) validator.Type {
 }
 ```
 
-Where the returned ```Type``` is the type produced by the operator.
+Where the returned ```Type``` is the type produced by the operator in the given context (the operand types provided).
 
 To make this simple, Guardian provides a few helper functions:
 
 ```go
-// does a simple type lookup
+// does a simple type lookup using 'name'
 func SimpleOperator(name string) OperatorFunc
+// returns the smallest available numeric type
+func NumericalOperator() OperatorFunc
+// returns the smallest available integer type
+func IntegerOperator() OperatorFunc
+// returns the smallest available fixed point type
+func DecimalOperator() OperatorFunc
+```
+
+## Literals
+
+Guardian supports custom functions for converting lexer tokens to Types. While you can only use tokens which are defined in the lexer (see the lexer docs for a full list), each lexer token can be mapped to a function which can produce contextual types (dependent on the content of the string, for example).
+
+All Literal functions must be of the following form:
+
+```go
+func literal(v *validator.Validator, data string) validator.Type {
+
+}
+```
+
+## Primitives
+
+Primitive types are the fundamental building block of any Guardian VM.
+
+## Builtins
+
+
+
+```go
+
 ```
