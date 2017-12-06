@@ -3,7 +3,7 @@ package typing
 func (c Class) inherits(t Type) bool {
 	if other, ok := ResolveUnderlying(t).(Class); ok {
 		for _, super := range c.Supers {
-			if super.compare(other) || super.inherits(other) {
+			if super.Compare(other) || super.inherits(other) {
 				return true
 			}
 		}
@@ -14,7 +14,7 @@ func (c Class) inherits(t Type) bool {
 func (i Interface) inherits(t Type) bool {
 	if other, ok := ResolveUnderlying(t).(Interface); ok {
 		for _, super := range i.Supers {
-			if super.compare(other) || super.inherits(other) {
+			if super.Compare(other) || super.inherits(other) {
 				return true
 			}
 		}
@@ -25,7 +25,7 @@ func (i Interface) inherits(t Type) bool {
 func (e Enum) inherits(t Type) bool {
 	if other, ok := ResolveUnderlying(t).(Enum); ok {
 		for _, super := range e.Supers {
-			if super.compare(other) || super.inherits(other) {
+			if super.Compare(other) || super.inherits(other) {
 				return true
 			}
 		}
@@ -36,7 +36,7 @@ func (e Enum) inherits(t Type) bool {
 func (c Contract) inherits(t Type) bool {
 	if other, ok := ResolveUnderlying(t).(Contract); ok {
 		for _, super := range c.Supers {
-			if super.compare(other) || super.inherits(other) {
+			if super.Compare(other) || super.inherits(other) {
 				return true
 			}
 		}
@@ -49,12 +49,12 @@ func (a Aliased) inherits(t Type) bool {
 }
 
 // types which don't inherit or implement
-func (s standardType) inherits(t Type) bool { return false }
+func (s StandardType) inherits(t Type) bool { return false }
 func (p Tuple) inherits(t Type) bool        { return false }
 func (f Func) inherits(t Type) bool         { return false }
 func (a Array) inherits(t Type) bool        { return false }
 func (m Map) inherits(t Type) bool          { return false }
 func (e Event) inherits(t Type) bool        { return false }
 
-func (n NumericType) inherits(t Type) bool    { return false }
-func (n booleaneanType) inherits(t Type) bool { return false }
+func (n NumericType) inherits(t Type) bool { return false }
+func (n BooleanType) inherits(t Type) bool { return false }

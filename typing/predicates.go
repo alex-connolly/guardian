@@ -2,7 +2,7 @@ package typing
 
 func assignableTo(left, right Type) bool {
 	// assignable if the two types are equal
-	if left.compare(right) {
+	if left.Compare(right) {
 		return true
 	}
 	// assignable if o implements t

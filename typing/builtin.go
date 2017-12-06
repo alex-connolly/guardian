@@ -8,7 +8,7 @@ type NumericType struct {
 	Integer bool
 }
 
-type booleaneanType struct {
+type BooleanType struct {
 }
 
 // can probs use logs here

@@ -10,7 +10,7 @@ import (
 
 func (v *Validator) requireVisibleType(names ...string) typing.Type {
 	typ := v.getNamedType(names...)
-	if typ == standards[unknown] {
+	if typ == typing.Unknown() {
 		v.addError(errTypeNotVisible, makeName(names))
 	}
 	return typ
@@ -41,13 +41,13 @@ func (v *Validator) findVariable(name string) typing.Type {
 		}
 
 	}
-	return standards[unknown]
+	return typing.Unknown()
 }
 
 // DeclareVarOfType ...
 func (v *Validator) DeclareVarOfType(name string, t typing.Type) {
 	if v.scope.variables == nil {
-		v.scope.variables = make(map[string]Type)
+		v.scope.variables = make(map[string]typing.Type)
 	}
 	v.scope.variables[name] = t
 }
@@ -55,7 +55,7 @@ func (v *Validator) DeclareVarOfType(name string, t typing.Type) {
 // DeclareBuiltinOfType ...
 func (v *Validator) DeclareBuiltinOfType(name string, t typing.Type) {
 	if v.builtinVariables == nil {
-		v.builtinVariables = make(map[string]Type)
+		v.builtinVariables = make(map[string]typing.Type)
 	}
 	v.builtinVariables[name] = t
 }
@@ -63,14 +63,14 @@ func (v *Validator) DeclareBuiltinOfType(name string, t typing.Type) {
 // DeclareType ...
 func (v *Validator) DeclareType(name string, t typing.Type) {
 	if v.scope.types == nil {
-		v.scope.types = make(map[string]Type)
+		v.scope.types = make(map[string]typing.Type)
 	}
 	v.scope.types[name] = t
 }
 
 func (v *Validator) declareLifecycle(tk lexer.TokenType, l typing.Lifecycle) {
 	if v.scope.lifecycles == nil {
-		v.scope.lifecycles = lifecycleMap{}
+		v.scope.lifecycles = typing.LifecycleMap{}
 	}
 	v.scope.lifecycles[tk] = append(v.scope.lifecycles[tk], l)
 }
@@ -78,21 +78,13 @@ func (v *Validator) declareLifecycle(tk lexer.TokenType, l typing.Lifecycle) {
 // DeclareBuiltinType ...
 func (v *Validator) DeclareBuiltinType(name string, t typing.Type) {
 	if v.primitives == nil {
-		v.primitives = make(map[string]Type)
+		v.primitives = make(map[string]typing.Type)
 	}
 	v.primitives[name] = t
 }
 
 func (v *Validator) getNamedType(names ...string) typing.Type {
 	search := names[0]
-	// always check standards first
-	// not declaring them in top scope means not having to go up each time
-	// can simply go to the local scope
-	for _, s := range standards {
-		if search == s.name {
-			return s
-		}
-	}
 	if v.primitives != nil {
 		for k, typ := range v.primitives {
 			if k == search {
@@ -112,30 +104,41 @@ func (v *Validator) getNamedType(names ...string) typing.Type {
 		}
 
 	}
-	return standards[unknown]
+	return typing.Unknown()
 }
 
 func (v *Validator) requireType(expected, actual typing.Type) bool {
-	if resolveUnderlying(expected) != resolveUnderlying(actual) {
-		v.addError("required type %s, got %s", WriteType(expected), WriteType(actual))
+	if typing.ResolveUnderlying(expected) != typing.ResolveUnderlying(actual) {
+		v.addError("required type %s, got %s", typing.WriteType(expected), typing.WriteType(actual))
 		return false
 	}
 	return true
 }
 
 func (v *Validator) ExpressionTuple(exprs []ast.ExpressionNode) typing.Tuple {
-	var types []Type
+	var types []typing.Type
 	for _, expression := range exprs {
 		typ := v.resolveExpression(expression)
 		// expression tuples force inner tuples to just be lists of types
 		// ((int, string)) --> (int, string)
 		// ((int), string) --> (int, string)
 		// this is to facilitate assignment comparisons
-		if tuple, ok := typ.(Tuple); ok {
-			types = append(types, tuple.types...)
+		if tuple, ok := typ.(typing.Tuple); ok {
+			types = append(types, tuple.Types...)
 		} else {
 			types = append(types, typ)
 		}
 	}
-	return NewTuple(types...)
+	return typing.NewTuple(types...)
+}
+
+func makeName(names []string) string {
+	name := ""
+	for i, n := range names {
+		if i > 0 {
+			name += "."
+		}
+		name += n
+	}
+	return name
 }

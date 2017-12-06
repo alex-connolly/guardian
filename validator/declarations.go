@@ -126,11 +126,11 @@ func (v *Validator) validateVarDeclaration(node ast.ExplicitVarDeclarationNode) 
 }
 
 func (v *Validator) validateClassDeclaration(node ast.ClassDeclarationNode) {
-	var supers []*Class
+	var supers []*typing.Class
 	for _, super := range node.Supers {
 		t := v.validatePlainType(super)
-		if t != standards[unknown] {
-			if c, ok := t.(Class); ok {
+		if t != typing.Unknown() {
+			if c, ok := t.(typing.Class); ok {
 				supers = append(supers, &c)
 			} else {
 				v.addError(errTypeRequired, makeName(super.Names), "class")
@@ -138,11 +138,11 @@ func (v *Validator) validateClassDeclaration(node ast.ClassDeclarationNode) {
 		}
 	}
 
-	var interfaces []*Interface
+	var interfaces []*typing.Interface
 	for _, ifc := range node.Interfaces {
 		t := v.validatePlainType(ifc)
-		if t != standards[unknown] {
-			if c, ok := t.(Interface); ok {
+		if t != typing.Unknown() {
+			if c, ok := t.(typing.Interface); ok {
 				interfaces = append(interfaces, &c)
 			} else {
 				v.addError(errTypeRequired, makeName(ifc.Names), "interface")
@@ -152,16 +152,23 @@ func (v *Validator) validateClassDeclaration(node ast.ClassDeclarationNode) {
 
 	types, properties, lifecycles := v.validateScope(node.Body)
 
-	classType := NewClass(node.Identifier, supers, interfaces, types, properties, lifecycles)
+	classType := typing.Class{
+		Name:       node.Identifier,
+		Supers:     supers,
+		Interfaces: interfaces,
+		Types:      types,
+		Properties: properties,
+		Lifecycles: lifecycles,
+	}
 
 	v.declareContextualType(node.Identifier, classType)
 }
 
 func (v *Validator) validateEnumDeclaration(node ast.EnumDeclarationNode) {
-	var supers []*Enum
+	var supers []*typing.Enum
 	for _, super := range node.Inherits {
 		t := v.validatePlainType(super)
-		if c, ok := t.(Enum); ok {
+		if c, ok := t.(typing.Enum); ok {
 			supers = append(supers, &c)
 		} else {
 			v.addError(errTypeRequired, makeName(super.Names), "enum")
@@ -170,18 +177,22 @@ func (v *Validator) validateEnumDeclaration(node ast.EnumDeclarationNode) {
 
 	list := node.Enums
 
-	enumType := NewEnum(node.Identifier, supers, list)
+	enumType := typing.Enum{
+		Name:   node.Identifier,
+		Supers: supers,
+		Items:  list,
+	}
 
 	v.declareContextualType(node.Identifier, enumType)
 
 }
 
 func (v *Validator) validateContractDeclaration(node ast.ContractDeclarationNode) {
-	var supers []*Contract
+	var supers []*typing.Contract
 	for _, super := range node.Supers {
 		t := v.validatePlainType(super)
-		if t != standards[unknown] {
-			if c, ok := t.(Contract); ok {
+		if t != typing.Unknown() {
+			if c, ok := t.(typing.Contract); ok {
 				supers = append(supers, &c)
 			} else {
 				v.addError(errTypeRequired, makeName(super.Names), "contract")
@@ -189,11 +200,11 @@ func (v *Validator) validateContractDeclaration(node ast.ContractDeclarationNode
 		}
 	}
 
-	var interfaces []*Interface
+	var interfaces []*typing.Interface
 	for _, ifc := range node.Interfaces {
 		t := v.validatePlainType(ifc)
-		if t != standards[unknown] {
-			if c, ok := t.(Interface); ok {
+		if t != typing.Unknown() {
+			if c, ok := t.(typing.Interface); ok {
 				interfaces = append(interfaces, &c)
 			} else {
 				v.addError(errTypeRequired, makeName(ifc.Names), "interface")
@@ -203,17 +214,24 @@ func (v *Validator) validateContractDeclaration(node ast.ContractDeclarationNode
 
 	types, properties, lifecycles := v.validateScope(node.Body)
 
-	contractType := NewContract(node.Identifier, supers, interfaces, types, properties, lifecycles)
+	contractType := typing.Contract{
+		Name:       node.Identifier,
+		Supers:     supers,
+		Interfaces: interfaces,
+		Types:      types,
+		Properties: properties,
+		Lifecycles: lifecycles,
+	}
 
 	v.declareContextualType(node.Identifier, contractType)
 }
 
 func (v *Validator) validateInterfaceDeclaration(node ast.InterfaceDeclarationNode) {
-	var supers []*Interface
+	var supers []*typing.Interface
 	for _, super := range node.Supers {
 		t := v.validatePlainType(super)
-		if t != standards[unknown] {
-			if c, ok := t.(Interface); ok {
+		if t != typing.Unknown() {
+			if c, ok := t.(typing.Interface); ok {
 				supers = append(supers, &c)
 			} else {
 				v.addError(errTypeRequired, makeName(super.Names), "interface")
@@ -221,13 +239,17 @@ func (v *Validator) validateInterfaceDeclaration(node ast.InterfaceDeclarationNo
 		}
 	}
 
-	funcs := map[string]Func{}
+	funcs := map[string]typing.Func{}
 	for _, function := range node.Signatures {
-		f := v.validateContextualType(function).(Func)
+		f := v.validateContextualType(function).(typing.Func)
 		funcs[function.Identifier] = f
 	}
 
-	interfaceType := NewInterface(node.Identifier, supers, funcs)
+	interfaceType := typing.Interface{
+		Name:   node.Identifier,
+		Supers: supers,
+		Funcs:  funcs,
+	}
 
 	v.declareContextualType(node.Identifier, interfaceType)
 
@@ -247,7 +269,7 @@ func (v *Validator) declareContextualVar(name string, typ typing.Type) {
 
 func (v *Validator) validateFuncDeclaration(node ast.FuncDeclarationNode) {
 
-	var params []Type
+	var params []typing.Type
 	for _, p := range node.Parameters {
 		for _ = range p.Identifiers {
 			typ := v.validateContextualType(p.DeclaredType)
@@ -257,12 +279,15 @@ func (v *Validator) validateFuncDeclaration(node ast.FuncDeclarationNode) {
 		}
 	}
 
-	var results []Type
+	var results []typing.Type
 	for _, r := range node.Results {
 		results = append(results, v.validateType(r))
 	}
 
-	funcType := NewFunc(NewTuple(params...), NewTuple(results...))
+	funcType := typing.Func{
+		Params:  typing.NewTuple(params...),
+		Results: typing.NewTuple(results...),
+	}
 
 	v.declareContextualVar(node.Identifier, funcType)
 
@@ -271,11 +296,14 @@ func (v *Validator) validateFuncDeclaration(node ast.FuncDeclarationNode) {
 }
 
 func (v *Validator) validateEventDeclaration(node ast.EventDeclarationNode) {
-	var params []Type
+	var params []typing.Type
 	for _, n := range node.Parameters {
 		params = append(params, v.validateType(n.DeclaredType))
 	}
-	eventType := NewEvent(node.Identifier, NewTuple(params...))
+	eventType := typing.Event{
+		Name:       node.Identifier,
+		Parameters: typing.NewTuple(params...),
+	}
 
 	v.declareContextualVar(node.Identifier, eventType)
 }
@@ -295,7 +323,7 @@ func (v *Validator) validateTypeDeclaration(node ast.TypeDeclarationNode) {
 
 func (v *Validator) validateLifecycleDeclaration(node ast.LifecycleDeclarationNode) {
 	// TODO: enforce location
-	types := make([]Type, 0)
+	types := make([]typing.Type, 0)
 	for _, p := range node.Parameters {
 		typ := v.validateType(p.DeclaredType)
 		for _, i := range p.Identifiers {
@@ -304,6 +332,10 @@ func (v *Validator) validateLifecycleDeclaration(node ast.LifecycleDeclarationNo
 		}
 	}
 	v.validateScope(node.Body)
-	l := NewLifecycle(node.Category, types)
+	l := typing.Lifecycle{
+		Type:       node.Category,
+		Parameters: types,
+	}
+
 	v.declareLifecycle(node.Category, l)
 }

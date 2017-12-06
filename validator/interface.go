@@ -11,7 +11,7 @@ import (
 )
 
 // Validate...
-func Validate(scope *ast.ScopeNode, vm VM) (map[string]typing.Type, util.Errors) {
+func Validate(scope *ast.ScopeNode, vm VM) util.Errors {
 	v := new(Validator)
 	v.scope = &TypeScope{
 		parent: nil,
@@ -67,7 +67,7 @@ func (v *Validator) validateSequence(scope *ast.ScopeNode) {
 }
 
 func (v *Validator) validate(node ast.Node) {
-	if node.typing.Type() == ast.CallExpression {
+	if node.Type() == ast.CallExpression {
 		v.validateCallExpression(node.(ast.CallExpressionNode))
 	} else {
 		v.validateStatement(node)

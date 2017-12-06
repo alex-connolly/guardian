@@ -51,8 +51,8 @@ func BinaryNumericOperator() OperatorFunc {
 	return func(v *Validator, ts ...typing.Type) typing.Type {
 		left := typing.ResolveUnderlying(ts[0])
 		right := typing.ResolveUnderlying(ts[1])
-		if na, ok := left.(NumericType); ok {
-			if nb, ok := right.(NumericType); ok {
+		if na, ok := left.(typing.NumericType); ok {
+			if nb, ok := right.(typing.NumericType); ok {
 				if na.BitSize > nb.BitSize {
 					return v.smallestNumericType(na.BitSize, true)
 				}

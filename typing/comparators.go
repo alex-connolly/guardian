@@ -1,6 +1,6 @@
 package typing
 
-func (a Array) compare(t Type) bool {
+func (a Array) Compare(t Type) bool {
 	if at, ok := ResolveUnderlying(t).(Array); !ok {
 		return false
 	} else {
@@ -14,20 +14,20 @@ func (a Array) compare(t Type) bool {
 		if a.Length != at.Length {
 			return false
 		}
-		return a.Value.compare(at.Value)
+		return a.Value.Compare(at.Value)
 	}
 }
 
-func (m Map) compare(t Type) bool {
+func (m Map) Compare(t Type) bool {
 	if other, ok := ResolveUnderlying(t).(Map); !ok {
 		return false
 	} else {
 		// map Types are equal if they share the same key and value
-		return m.Key.compare(other.Key) && m.Value.compare(other.Value)
+		return m.Key.Compare(other.Key) && m.Value.Compare(other.Value)
 	}
 }
 
-func (t Tuple) compare(o Type) bool {
+func (t Tuple) Compare(o Type) bool {
 	if o == nil {
 		return false
 	}
@@ -56,28 +56,28 @@ func (t Tuple) compare(o Type) bool {
 
 }
 
-func (f Func) compare(t Type) bool {
+func (f Func) Compare(t Type) bool {
 	if other, ok := ResolveUnderlying(t).(Func); !ok {
 		return false
 	} else {
 		// func Types are equal if they share the same params and Results
-		return f.Params.compare(other.Params) && f.Results.compare(other.Results)
+		return f.Params.Compare(other.Params) && f.Results.Compare(other.Results)
 	}
 }
 
-func (a Aliased) compare(t Type) bool {
-	return ResolveUnderlying(a).compare(t)
+func (a Aliased) Compare(t Type) bool {
+	return ResolveUnderlying(a).Compare(t)
 }
 
-func (s standardType) compare(t Type) bool {
-	if other, ok := ResolveUnderlying(t).(standardType); !ok {
+func (s StandardType) Compare(t Type) bool {
+	if other, ok := ResolveUnderlying(t).(StandardType); !ok {
 		return false
 	} else {
 		return s == other
 	}
 }
 
-func (c Class) compare(t Type) bool {
+func (c Class) Compare(t Type) bool {
 	if other, ok := ResolveUnderlying(t).(Class); !ok {
 		return false
 	} else {
@@ -85,7 +85,7 @@ func (c Class) compare(t Type) bool {
 	}
 }
 
-func (i Interface) compare(t Type) bool {
+func (i Interface) Compare(t Type) bool {
 	if other, ok := ResolveUnderlying(t).(Interface); !ok {
 		return false
 	} else {
@@ -93,7 +93,7 @@ func (i Interface) compare(t Type) bool {
 	}
 }
 
-func (e Enum) compare(t Type) bool {
+func (e Enum) Compare(t Type) bool {
 	if other, ok := ResolveUnderlying(t).(Enum); !ok {
 		return false
 	} else {
@@ -101,7 +101,7 @@ func (e Enum) compare(t Type) bool {
 	}
 }
 
-func (c Contract) compare(t Type) bool {
+func (c Contract) Compare(t Type) bool {
 	if other, ok := ResolveUnderlying(t).(Contract); !ok {
 		return false
 	} else {
@@ -109,7 +109,7 @@ func (c Contract) compare(t Type) bool {
 	}
 }
 
-func (e Event) compare(t Type) bool {
+func (e Event) Compare(t Type) bool {
 	if other, ok := ResolveUnderlying(t).(Event); !ok {
 		return false
 	} else {
@@ -117,7 +117,7 @@ func (e Event) compare(t Type) bool {
 	}
 }
 
-func (nt NumericType) compare(t Type) bool {
+func (nt NumericType) Compare(t Type) bool {
 	if other, ok := ResolveUnderlying(t).(NumericType); !ok {
 		return false
 	} else {
@@ -134,7 +134,7 @@ func (nt NumericType) compare(t Type) bool {
 	}
 }
 
-func (nt booleaneanType) compare(t Type) bool {
-	_, ok := ResolveUnderlying(t).(booleaneanType)
+func (nt BooleanType) Compare(t Type) bool {
+	_, ok := ResolveUnderlying(t).(BooleanType)
 	return ok
 }

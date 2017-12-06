@@ -3,6 +3,7 @@ package validator
 import (
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/lexer"
+	"github.com/end-r/guardian/typing"
 )
 
 func (v *Validator) validateExpression(node ast.ExpressionNode) {
@@ -19,28 +20,28 @@ func (v *Validator) validateCallExpression(call ast.CallExpressionNode) {
 	fullType := v.resolveExpression(call)
 	args := v.ExpressionTuple(call.Arguments)
 	switch a := exprType.(type) {
-	case Func:
-		if !a.Params.compare(args) {
-			v.addError(errInvalidFuncCall, WriteType(a), WriteType(args))
+	case typing.Func:
+		if !typing.AssignableTo(a.Params, args) {
+			v.addError(errInvalidFuncCall, typing.WriteType(a), typing.WriteType(args))
 		}
 		break
-	case StandardType:
-		if a, ok := fullType.(Class); ok {
+	case typing.StandardType:
+		if a, ok := fullType.(typing.Class); ok {
 			constructors := a.Lifecycles[lexer.TknConstructor]
-			if NewTuple().compare(args) && len(constructors) == 0 {
+			if typing.NewTuple().Compare(args) && len(constructors) == 0 {
 				return
 			}
 			for _, c := range constructors {
-				paramTuple := NewTuple(c.Parameters...)
-				if paramTuple.compare(args) {
+				paramTuple := typing.NewTuple(c.Parameters...)
+				if paramTuple.Compare(args) {
 					return
 				}
 			}
-			v.addError(errInvalidConstructorCall, WriteType(a), WriteType(args))
+			v.addError(errInvalidConstructorCall, typing.WriteType(a), typing.WriteType(args))
 			break
 		}
 	default:
-		v.addError(errInvalidCall, WriteType(exprType))
+		v.addError(errInvalidCall, typing.WriteType(exprType))
 	}
 
 }

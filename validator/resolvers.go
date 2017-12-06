@@ -23,7 +23,7 @@ func (v *Validator) resolveType(node ast.Node) typing.Type {
 		f := node.(ast.FuncTypeNode)
 		return v.resolveFuncType(f)
 	}
-	return standards[invalid]
+	return typing.Invalid()
 }
 
 func (v *Validator) resolvePlainType(node ast.PlainTypeNode) typing.Type {
@@ -31,30 +31,30 @@ func (v *Validator) resolvePlainType(node ast.PlainTypeNode) typing.Type {
 }
 
 func (v *Validator) resolveArrayType(node ast.ArrayTypeNode) typing.Array {
-	a := Array{}
+	a := typing.Array{}
 	a.Value = v.resolveType(node.Value)
 	return a
 }
 
 func (v *Validator) resolveMapType(node ast.MapTypeNode) typing.Map {
-	m := Map{}
+	m := typing.Map{}
 	m.Key = v.resolveType(node.Key)
 	m.Value = v.resolveType(node.Value)
 	return m
 }
 
 func (v *Validator) resolveFuncType(node ast.FuncTypeNode) typing.Func {
-	f := Func{}
+	f := typing.Func{}
 	f.Params = v.resolveTuple(node.Parameters)
 	f.Results = v.resolveTuple(node.Results)
 	return f
 }
 
 func (v *Validator) resolveTuple(nodes []ast.Node) typing.Tuple {
-	t := Tuple{}
-	t.types = make([]Type, len(nodes))
+	t := typing.Tuple{}
+	t.Types = make([]typing.Type, len(nodes))
 	for i, n := range nodes {
-		t.types[i] = v.resolveType(n)
+		t.Types[i] = v.resolveType(n)
 	}
 	return t
 }
@@ -93,7 +93,7 @@ func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 		return literalResolver(v, l.Data)
 	} else {
 		v.addError(errStringLiteralUnsupported)
-		return standards[invalid]
+		return typing.Invalid()
 	}
 
 }
@@ -102,14 +102,18 @@ func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Ty
 	// must be literal
 	m := e.(ast.ArrayLiteralNode)
 	keyType := v.resolveType(m.Signature.Value)
-	arrayType := NewArray(keyType, m.Signature.Length, m.Signature.Variable)
+	arrayType := typing.Array{
+		Value:    keyType,
+		Length:   m.Signature.Length,
+		Variable: m.Signature.Variable,
+	}
 	return arrayType
 }
 
 func resolveCompositeLiteral(v *Validator, e ast.ExpressionNode) typing.Type {
 	c := e.(ast.CompositeLiteralNode)
 	typ := v.getNamedType(c.TypeName)
-	if typ == standards[unknown] {
+	if typ == typing.Unknown() {
 		return v.getDeclarationNode([]string{c.TypeName})
 	}
 	return typ
@@ -118,7 +122,7 @@ func resolveCompositeLiteral(v *Validator, e ast.ExpressionNode) typing.Type {
 func resolveFuncLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	// must be func literal
 	f := e.(ast.FuncLiteralNode)
-	var params, results []Type
+	var params, results []typing.Type
 	for _, p := range f.Parameters {
 		typ := v.resolveType(p.DeclaredType)
 		for _ = range p.Identifiers {
@@ -129,7 +133,11 @@ func resolveFuncLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Typ
 	for _, r := range f.Results {
 		results = append(results, v.resolveType(r))
 	}
-	return NewFunc(NewTuple(params...), NewTuple(results...))
+	return typing.Func{
+		Params:  typing.NewTuple(params...),
+		Results: typing.NewTuple(results...),
+	}
+
 }
 
 func resolveMapLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Type {
@@ -137,7 +145,7 @@ func resolveMapLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Type
 	m := e.(ast.MapLiteralNode)
 	keyType := v.resolveType(m.Signature.Key)
 	valueType := v.resolveType(m.Signature.Value)
-	mapType := NewMap(keyType, valueType)
+	mapType := typing.Map{keyType, valueType}
 	return mapType
 }
 
@@ -146,13 +154,13 @@ func resolveIndexExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	i := e.(ast.IndexExpressionNode)
 	exprType := v.resolveExpression(i.Expression)
 	// enforce that this must be an array/map type
-	switch exprType.(type) {
-	case Array:
-		return exprType.(Array).Value
-	case Map:
-		return exprType.(Map).Value
+	switch t := exprType.(type) {
+	case typing.Array:
+		return t.Value
+	case typing.Map:
+		return t.Value
 	}
-	return standards[invalid]
+	return typing.Invalid()
 }
 
 /*
@@ -171,26 +179,26 @@ func (v *Validator) attemptToFindType(e ast.ExpressionNode) typing.Type {
 				if p, ok := a.Parent.(ast.IdentifierNode); ok {
 					names = append(names, p.Name)
 				} else {
-					return standards[unknown]
+					return typing.Unknown()
 				}
 				break
 			case ast.IdentifierNode:
 				names = append(names, a.Name)
 				break
 			default:
-				return standards[unknown]
+				return typing.Unknown()
 			}
 		}
 		break
 	default:
-		return standards[unknown]
+		return typing.Unknown()
 	}
 	return v.getNamedType(names...)
 }*/
 
 func (v *Validator) resolveInContext(t typing.Type, property string) typing.Type {
 	switch r := t.(type) {
-	case Class:
+	case typing.Class:
 		t, ok := r.Types[property]
 		if ok {
 			return t
@@ -200,7 +208,7 @@ func (v *Validator) resolveInContext(t typing.Type, property string) typing.Type
 			return t
 		}
 		break
-	case Contract:
+	case typing.Contract:
 		t, ok := r.Types[property]
 		if ok {
 			return t
@@ -210,21 +218,21 @@ func (v *Validator) resolveInContext(t typing.Type, property string) typing.Type
 			return t
 		}
 		break
-	case Interface:
+	case typing.Interface:
 		t, ok := r.Funcs[property]
 		if ok {
 			return t
 		}
 		break
-	case Enum:
+	case typing.Enum:
 		for _, item := range r.Items {
 			if item == property {
-				return v.smallestNumericType(BitsNeeded(len(r.Items)), false)
+				return v.smallestNumericType(typing.BitsNeeded(len(r.Items)), false)
 			}
 		}
 		break
 	}
-	return standards[unknown]
+	return typing.Unknown()
 }
 
 func resolveCallExpression(v *Validator, e ast.ExpressionNode) typing.Type {
@@ -234,7 +242,7 @@ func resolveCallExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	// tuple may be empty or single-valued
 	call := v.resolveExpression(c.Call)
 	var under typing.Type
-	if call.compare(standards[unknown]) {
+	if call.Compare(typing.Unknown()) {
 		// try to resolve as a type name
 		switch n := c.Call.(type) {
 		case ast.IdentifierNode:
@@ -242,16 +250,16 @@ func resolveCallExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 		}
 
 	} else {
-		under = resolveUnderlying(call)
+		under = typing.ResolveUnderlying(call)
 	}
 	switch c := under.(type) {
-	case Func:
+	case typing.Func:
 		return c.Results
-	case Class:
+	case typing.Class:
 		return c
 	}
-	v.addError(errCallExpressionNoFunc, WriteType(call))
-	return standards[invalid]
+	v.addError(errCallExpressionNoFunc, typing.WriteType(call))
+	return typing.Invalid()
 
 }
 
@@ -261,10 +269,10 @@ func resolveSliceExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	exprType := v.resolveExpression(s.Expression)
 	// must be an array
 	switch t := exprType.(type) {
-	case Array:
+	case typing.Array:
 		return t
 	}
-	return standards[invalid]
+	return typing.Invalid()
 }
 
 func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
@@ -276,7 +284,7 @@ func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	operatorFunc, ok := v.operators[b.Operator]
 	if !ok {
 		fmt.Println(":(", b.Operator)
-		return standards[invalid]
+		return typing.Invalid()
 	}
 	return operatorFunc(v, leftType, rightType)
 	/*
@@ -285,7 +293,7 @@ func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 			// can be numeric or a string
 			// string = type user has defined as string literal
 			getStrType, ok := v.literals[lexer.TknString]
-			if ok && v.resolveExpression(b.Left).compare(getStrType(v)) {
+			if ok && v.resolveExpression(b.Left).Compare(getStrType(v)) {
 				return getStrType(v)
 			} else {
 				return v.resolveNumericType()
@@ -311,7 +319,7 @@ func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 		}
 
 		// else it is a type which is not defined for binary operators
-		return standards[invalid]
+		return typing.Invalid()
 	*/
 }
 
@@ -333,15 +341,15 @@ func (v *Validator) resolveContextualReference(context typing.Type, exp ast.Expr
 				}
 				return v.resolveExpression(exp)
 			} else {
-				v.addError(errPropertyNotFound, WriteType(context), name)
+				v.addError(errPropertyNotFound, typing.WriteType(context), name)
 			}
 		} else {
 			v.addError(errUnnamedReference)
 		}
 	} else {
-		v.addError(errInvalidSubscriptable, WriteType(context))
+		v.addError(errInvalidSubscriptable, typing.WriteType(context))
 	}
-	return standards[invalid]
+	return typing.Invalid()
 }
 
 func resolveReference(v *Validator, e ast.ExpressionNode) typing.Type {
@@ -387,16 +395,16 @@ func (v *Validator) getPropertiesType(t typing.Type, names []string) (resolved t
 func (v *Validator) getPropertyType(t typing.Type, name string) (typing.Type, bool) {
 	// only classes, interfaces, contracts and enums are subscriptable
 	switch c := t.(type) {
-	case Class:
+	case typing.Class:
 		p, has := c.Properties[name]
 		return p, has
-	case Contract:
+	case typing.Contract:
 		p, has := c.Properties[name]
 		return p, has
-	case Interface:
+	case typing.Interface:
 		p, has := c.Funcs[name]
 		return p, has
-	case Enum:
+	case typing.Enum:
 		for _, s := range c.Items {
 			if s == name {
 				return v.smallestNumericType(len(c.Items), false), true
@@ -405,13 +413,13 @@ func (v *Validator) getPropertyType(t typing.Type, name string) (typing.Type, bo
 		// TODO: fix this
 		return v.smallestNumericType(len(c.Items), false), false
 	}
-	return standards[invalid], false
+	return typing.Invalid(), false
 }
 
 func isSubscriptable(t typing.Type) bool {
 	// only classes, interfaces and enums are subscriptable
 	switch t.(type) {
-	case Class, Interface, Enum, Contract:
+	case typing.Class, typing.Interface, typing.Enum, typing.Contract:
 		return true
 	}
 	return false

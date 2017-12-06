@@ -11,18 +11,7 @@ func WriteType(t Type) string {
 	return b.String()
 }
 
-func makeName(names []string) string {
-	name := ""
-	for i, n := range names {
-		if i > 0 {
-			name += "."
-		}
-		name += n
-	}
-	return name
-}
-
-func (s standardType) write(b *bytes.Buffer) {
+func (s StandardType) write(b *bytes.Buffer) {
 	b.WriteString(s.name)
 }
 
@@ -90,6 +79,6 @@ func (nt NumericType) write(b *bytes.Buffer) {
 	b.WriteString(nt.Name)
 }
 
-func (nt booleaneanType) write(b *bytes.Buffer) {
+func (nt BooleanType) write(b *bytes.Buffer) {
 	b.WriteString("bool")
 }

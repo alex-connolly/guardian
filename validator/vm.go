@@ -56,13 +56,13 @@ func (v TestVM) Literals() LiteralMap {
 }
 
 func resolveIntegerLiteral(v *Validator, data string) typing.Type {
-	x := BitsNeeded(len(data))
+	x := typing.BitsNeeded(len(data))
 	return v.smallestNumericType(x, false)
 }
 
 func resolveFloatLiteral(v *Validator, data string) typing.Type {
 	// convert to float
-	return standards[unknown]
+	return typing.Unknown()
 }
 
 func getIntegerTypes() map[string]typing.Type {
@@ -72,11 +72,11 @@ func getIntegerTypes() map[string]typing.Type {
 	for i := increment; i <= maxSize; i += increment {
 		intName := "int" + strconv.Itoa(i)
 		uintName := "u" + intName
-		m[uintName] = NumericType{Name: uintName, BitSize: i, Signed: false, Integer: true}
-		m[intName] = NumericType{Name: intName, BitSize: i, Signed: true, Integer: true}
+		m[uintName] = typing.NumericType{Name: uintName, BitSize: i, Signed: false, Integer: true}
+		m[intName] = typing.NumericType{Name: intName, BitSize: i, Signed: true, Integer: true}
 	}
-	m["int"] = NumericType{Name: "int", BitSize: maxSize, Signed: false, Integer: true}
-	m["uint"] = NumericType{Name: "int", BitSize: maxSize, Signed: true, Integer: true}
+	m["int"] = typing.NumericType{Name: "int", BitSize: maxSize, Signed: false, Integer: true}
+	m["uint"] = typing.NumericType{Name: "int", BitSize: maxSize, Signed: true, Integer: true}
 	return m
 }
 
@@ -84,7 +84,7 @@ func (v TestVM) Primitives() map[string]typing.Type {
 	it := getIntegerTypes()
 
 	s := map[string]typing.Type{
-		"bool": booleaneanType{},
+		"bool": typing.BooleanType{},
 	}
 
 	for k, v := range it {
@@ -135,7 +135,7 @@ func operatorAdd(v *Validator, ts ...typing.Type) typing.Type {
 		return BinaryNumericOperator()(v, ts...)
 	}
 	strType := v.getNamedType("string")
-	if ts[0].compare(strType) {
+	if ts[0].Compare(strType) {
 		return strType
 	}
 	return standards[invalid]

@@ -18,7 +18,7 @@ There a couple of validator types which make this easy:
 // a 64-bit signed int (int64)
 a := validator.NumericType{size: 64, signed: true, integral: true}
 
-b := validator.booleaneanType{}
+b := validator.BooleanType{}
 ```
 
 Types which rely on primitive types (such as ```string```), or are aliased from primitive types (```byte``` from ```uint8```) should be included as builtin type declarations:

@@ -19,7 +19,7 @@ import (
 
 type Type interface {
 	write(*bytes.Buffer)
-	compare(Type) bool
+	Compare(Type) bool
 	inherits(Type) bool
 	implements(Type) bool
 	size() int
@@ -34,7 +34,7 @@ const (
 	boolean
 )
 
-type standardType struct {
+type StandardType struct {
 	name string
 }
 
@@ -46,14 +46,14 @@ func Unknown() Type {
 	return standards[unknown]
 }
 
-func booleanean() Type {
+func Boolean() Type {
 	return standards[boolean]
 }
 
-var standards = map[baseType]standardType{
-	invalid: standardType{"invalid"},
-	unknown: standardType{"unknown"},
-	boolean: standardType{"bool"},
+var standards = map[baseType]StandardType{
+	invalid: StandardType{"invalid"},
+	unknown: StandardType{"unknown"},
+	boolean: StandardType{"bool"},
 }
 
 type Array struct {

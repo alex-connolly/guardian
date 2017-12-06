@@ -49,36 +49,36 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 	leftTuple := v.ExpressionTuple(node.Left)
 	rightTuple := v.ExpressionTuple(node.Right)
 
-	if len(leftTuple.types) > len(rightTuple.types) && len(rightTuple.types) == 1 {
-		right := rightTuple.types[0]
-		for _, left := range leftTuple.types {
-			if !assignableTo(right, left) {
-				v.addError(errInvalidAssignment, WriteType(left), WriteType(right))
+	if len(leftTuple.Types) > len(rightTuple.Types) && len(rightTuple.Types) == 1 {
+		right := rightTuple.Types[0]
+		for _, left := range leftTuple.Types {
+			if !typing.AssignableTo(right, left) {
+				v.addError(errInvalidAssignment, typing.WriteType(left), typing.WriteType(right))
 			}
 		}
 
 		for i, left := range node.Left {
-			if leftTuple.types[i] == standards[unknown] {
+			if leftTuple.Types[i] == typing.Unknown() {
 				if id, ok := left.(ast.IdentifierNode); ok {
-					v.DeclareVarOfType(id.Name, rightTuple.types[0])
+					v.DeclareVarOfType(id.Name, rightTuple.Types[0])
 				}
 			}
 		}
 
 	} else {
-		if !rightTuple.compare(leftTuple) {
-			v.addError(errInvalidAssignment, WriteType(leftTuple), WriteType(rightTuple))
+		if !rightTuple.Compare(leftTuple) {
+			v.addError(errInvalidAssignment, typing.WriteType(leftTuple), typing.WriteType(rightTuple))
 		}
 
 		// length of left tuple should always equal length of left
 		// this is because tuples are not first class types
 		// cannot assign to tuple expressions
-		if len(node.Left) == len(leftTuple.types) {
+		if len(node.Left) == len(leftTuple.Types) {
 			for i, left := range node.Left {
-				if leftTuple.types[i] == standards[unknown] {
+				if leftTuple.Types[i] == typing.Unknown() {
 					if id, ok := left.(ast.IdentifierNode); ok {
-						//fmt.Printf("Declaring %s as %s\n", id.Name, WriteType(rightTuple.types[i]))
-						v.DeclareVarOfType(id.Name, rightTuple.types[i])
+						//fmt.Printf("Declaring %s as %s\n", id.Name,typing.WriteType(rightTuple.Types[i]))
+						v.DeclareVarOfType(id.Name, rightTuple.Types[i])
 					}
 				}
 			}
@@ -94,7 +94,7 @@ func (v *Validator) validateIfStatement(node ast.IfStatementNode) {
 
 	for _, cond := range node.Conditions {
 		// condition must be of type bool
-		v.requireType(standards[boolean], v.resolveExpression(cond.Condition))
+		v.requireType(typing.Boolean(), v.resolveExpression(cond.Condition))
 		v.validateScope(cond.Body)
 	}
 
@@ -138,7 +138,7 @@ func (v *Validator) validateForStatement(node ast.ForStatementNode) {
 	}
 
 	// cond statement must be a boolean
-	v.requireType(standards[boolean], v.resolveExpression(node.Cond))
+	v.requireType(typing.Boolean(), v.resolveExpression(node.Cond))
 
 	// post statement must be valid
 	if node.Post != nil {

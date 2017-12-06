@@ -32,7 +32,7 @@ func (nt NumericType) size() int {
 	return nt.BitSize
 }
 
-func (bt booleaneanType) size() int {
+func (bt BooleanType) size() int {
 	return 8
 }
 
@@ -44,7 +44,7 @@ func (e Enum) size() int {
 	return 0
 }
 
-func (s standardType) size() int {
+func (s StandardType) size() int {
 	return 0
 }
 
