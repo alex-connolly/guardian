@@ -2,6 +2,7 @@ package ast
 
 import (
 	"github.com/end-r/guardian/lexer"
+	"github.com/end-r/guardian/typing"
 )
 
 type TypeDeclarationNode struct {
@@ -9,7 +10,7 @@ type TypeDeclarationNode struct {
 	Identifier   string
 	Value        Node
 	ResolvedSize uint
-	Resolved     util.Type
+	Resolved     typing.Type
 }
 
 // Type ...
@@ -22,7 +23,7 @@ type FuncDeclarationNode struct {
 	Body         *ScopeNode
 	Modifiers    []lexer.TokenType
 	ResolvedSize uint
-	Resolved     util.Type
+	Resolved     typing.Type
 }
 
 func (n FuncDeclarationNode) Type() NodeType { return FuncDeclaration }
@@ -34,7 +35,7 @@ type ClassDeclarationNode struct {
 	Interfaces   []PlainTypeNode
 	Body         *ScopeNode
 	declarations map[string][]Node
-	Resolved     util.Type
+	Resolved     typing.Type
 }
 
 func (n ClassDeclarationNode) Type() NodeType { return ClassDeclaration }
@@ -44,7 +45,7 @@ type InterfaceDeclarationNode struct {
 	Modifiers  []lexer.TokenType
 	Signatures []FuncTypeNode
 	Supers     []PlainTypeNode
-	Resolved   util.Type
+	Resolved   typing.Type
 }
 
 func (n InterfaceDeclarationNode) Type() NodeType { return InterfaceDeclaration }
@@ -55,7 +56,7 @@ type ContractDeclarationNode struct {
 	Supers     []PlainTypeNode
 	Interfaces []PlainTypeNode
 	Body       *ScopeNode
-	Resolved   util.Type
+	Resolved   typing.Type
 }
 
 func (n ContractDeclarationNode) Type() NodeType { return ContractDeclaration }
@@ -64,7 +65,7 @@ type ExplicitVarDeclarationNode struct {
 	Modifiers    []lexer.TokenType
 	Identifiers  []string
 	DeclaredType Node
-	Resolved     util.Type
+	Resolved     typing.Type
 }
 
 func (n ExplicitVarDeclarationNode) Type() NodeType { return ExplicitVarDeclaration }
@@ -73,7 +74,7 @@ type EventDeclarationNode struct {
 	Modifiers  []lexer.TokenType
 	Identifier string
 	Parameters []ExplicitVarDeclarationNode
-	Resolved   util.Type
+	Resolved   typing.Type
 }
 
 func (n EventDeclarationNode) Type() NodeType { return EventDeclaration }
@@ -94,7 +95,7 @@ type EnumDeclarationNode struct {
 	Inherits   []PlainTypeNode
 	// consider whether to change this
 	Enums    []string
-	Resolved util.Type
+	Resolved typing.Type
 }
 
 func (n EnumDeclarationNode) Type() NodeType { return EnumDeclaration }
