@@ -270,8 +270,10 @@ func resolveSliceExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	// must be an array
 	switch t := exprType.(type) {
 	case typing.Array:
+		s.Resolved = t
 		return t
 	}
+	s.Resolved = typing.Invalid()
 	return typing.Invalid()
 }
 
@@ -284,9 +286,16 @@ func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	operatorFunc, ok := v.operators[b.Operator]
 	if !ok {
 		fmt.Println(":(", b.Operator)
+		b.Resolved = typing.Invalid()
 		return typing.Invalid()
 	}
-	return operatorFunc(v, leftType, rightType)
+	t := operatorFunc(v, leftType, rightType)
+	b.Resolved = t
+	if b.Resolved != nil {
+		fmt.Println("nn")
+	}
+	fmt.Println("here")
+	return t
 	/*
 		switch b.Operator {
 		case lexer.TknAdd:
@@ -326,6 +335,7 @@ func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 func resolveUnaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	m := e.(ast.UnaryExpressionNode)
 	operandType := v.resolveExpression(m.Operand)
+	m.Resolved = operandType
 	return operandType
 }
 

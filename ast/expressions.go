@@ -13,7 +13,7 @@ type BinaryExpressionNode struct {
 }
 
 // Type ...
-func (n BinaryExpressionNode) Type() NodeType { return BinaryExpression }
+func (n *BinaryExpressionNode) Type() NodeType { return BinaryExpression }
 
 // UnaryExpressionNode ...
 type UnaryExpressionNode struct {
@@ -22,7 +22,7 @@ type UnaryExpressionNode struct {
 	Resolved typing.Type
 }
 
-func (n UnaryExpressionNode) Type() NodeType { return UnaryExpression }
+func (n *UnaryExpressionNode) Type() NodeType { return UnaryExpression }
 
 type LiteralNode struct {
 	Data        string
@@ -30,10 +30,10 @@ type LiteralNode struct {
 	Resolved    typing.Type
 }
 
-func (n LiteralNode) Type() NodeType { return Literal }
+func (n *LiteralNode) Type() NodeType { return Literal }
 
-func (n LiteralNode) GetBytes() []byte {
-	return nil
+func (n *LiteralNode) GetBytes() []byte {
+	return []byte(n.Data)
 }
 
 type CompositeLiteralNode struct {
@@ -42,7 +42,7 @@ type CompositeLiteralNode struct {
 	Resolved typing.Type
 }
 
-func (n CompositeLiteralNode) Type() NodeType { return CompositeLiteral }
+func (n *CompositeLiteralNode) Type() NodeType { return CompositeLiteral }
 
 type IndexExpressionNode struct {
 	Expression ExpressionNode
@@ -50,7 +50,7 @@ type IndexExpressionNode struct {
 	Resolved   typing.Type
 }
 
-func (n IndexExpressionNode) Type() NodeType { return IndexExpression }
+func (n *IndexExpressionNode) Type() NodeType { return IndexExpression }
 
 type SliceExpressionNode struct {
 	Expression ExpressionNode
@@ -59,7 +59,7 @@ type SliceExpressionNode struct {
 	Resolved   typing.Type
 }
 
-func (n SliceExpressionNode) Type() NodeType { return SliceExpression }
+func (n *SliceExpressionNode) Type() NodeType { return SliceExpression }
 
 type CallExpressionNode struct {
 	Call      ExpressionNode
@@ -67,7 +67,7 @@ type CallExpressionNode struct {
 	Resolved  typing.Type
 }
 
-func (n CallExpressionNode) Type() NodeType { return CallExpression }
+func (n *CallExpressionNode) Type() NodeType { return CallExpression }
 
 type ArrayLiteralNode struct {
 	Signature ArrayTypeNode
@@ -75,7 +75,7 @@ type ArrayLiteralNode struct {
 	Resolved  typing.Type
 }
 
-func (n ArrayLiteralNode) Type() NodeType { return ArrayLiteral }
+func (n *ArrayLiteralNode) Type() NodeType { return ArrayLiteral }
 
 type MapLiteralNode struct {
 	Signature MapTypeNode
@@ -83,7 +83,7 @@ type MapLiteralNode struct {
 	Resolved  typing.Type
 }
 
-func (n MapLiteralNode) Type() NodeType { return MapLiteral }
+func (n *MapLiteralNode) Type() NodeType { return MapLiteral }
 
 type FuncLiteralNode struct {
 	Parameters []ExplicitVarDeclarationNode
@@ -93,14 +93,14 @@ type FuncLiteralNode struct {
 }
 
 // Type ...
-func (n FuncLiteralNode) Type() NodeType { return FuncLiteral }
+func (n *FuncLiteralNode) Type() NodeType { return FuncLiteral }
 
 type IdentifierNode struct {
 	Name     string
 	Resolved typing.Type
 }
 
-func (n IdentifierNode) Type() NodeType { return Identifier }
+func (n *IdentifierNode) Type() NodeType { return Identifier }
 
 type ReferenceNode struct {
 	Parent    ExpressionNode
@@ -108,4 +108,4 @@ type ReferenceNode struct {
 	Resolved  typing.Type
 }
 
-func (n ReferenceNode) Type() NodeType { return Reference }
+func (n *ReferenceNode) Type() NodeType { return Reference }

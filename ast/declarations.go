@@ -14,7 +14,7 @@ type TypeDeclarationNode struct {
 }
 
 // Type ...
-func (n TypeDeclarationNode) Type() NodeType { return TypeDeclaration }
+func (n *TypeDeclarationNode) Type() NodeType { return TypeDeclaration }
 
 type FuncDeclarationNode struct {
 	Identifier   string
@@ -26,7 +26,7 @@ type FuncDeclarationNode struct {
 	Resolved     typing.Type
 }
 
-func (n FuncDeclarationNode) Type() NodeType { return FuncDeclaration }
+func (n *FuncDeclarationNode) Type() NodeType { return FuncDeclaration }
 
 type ClassDeclarationNode struct {
 	Identifier   string
@@ -38,7 +38,7 @@ type ClassDeclarationNode struct {
 	Resolved     typing.Type
 }
 
-func (n ClassDeclarationNode) Type() NodeType { return ClassDeclaration }
+func (n *ClassDeclarationNode) Type() NodeType { return ClassDeclaration }
 
 type InterfaceDeclarationNode struct {
 	Identifier string
@@ -48,7 +48,7 @@ type InterfaceDeclarationNode struct {
 	Resolved   typing.Type
 }
 
-func (n InterfaceDeclarationNode) Type() NodeType { return InterfaceDeclaration }
+func (n *InterfaceDeclarationNode) Type() NodeType { return InterfaceDeclaration }
 
 type ContractDeclarationNode struct {
 	Identifier string
@@ -59,7 +59,7 @@ type ContractDeclarationNode struct {
 	Resolved   typing.Type
 }
 
-func (n ContractDeclarationNode) Type() NodeType { return ContractDeclaration }
+func (n *ContractDeclarationNode) Type() NodeType { return ContractDeclaration }
 
 type ExplicitVarDeclarationNode struct {
 	Modifiers    []lexer.TokenType
@@ -68,7 +68,7 @@ type ExplicitVarDeclarationNode struct {
 	Resolved     typing.Type
 }
 
-func (n ExplicitVarDeclarationNode) Type() NodeType { return ExplicitVarDeclaration }
+func (n *ExplicitVarDeclarationNode) Type() NodeType { return ExplicitVarDeclaration }
 
 type EventDeclarationNode struct {
 	Modifiers  []lexer.TokenType
@@ -77,7 +77,7 @@ type EventDeclarationNode struct {
 	Resolved   typing.Type
 }
 
-func (n EventDeclarationNode) Type() NodeType { return EventDeclaration }
+func (n *EventDeclarationNode) Type() NodeType { return EventDeclaration }
 
 // LifecycleDeclarationNode ...
 type LifecycleDeclarationNode struct {
@@ -87,7 +87,7 @@ type LifecycleDeclarationNode struct {
 	Body       *ScopeNode
 }
 
-func (n LifecycleDeclarationNode) Type() NodeType { return LifecycleDeclaration }
+func (n *LifecycleDeclarationNode) Type() NodeType { return LifecycleDeclaration }
 
 type EnumDeclarationNode struct {
 	Identifier string
@@ -98,4 +98,4 @@ type EnumDeclarationNode struct {
 	Resolved typing.Type
 }
 
-func (n EnumDeclarationNode) Type() NodeType { return EnumDeclaration }
+func (n *EnumDeclarationNode) Type() NodeType { return EnumDeclaration }

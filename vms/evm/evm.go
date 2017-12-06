@@ -1,6 +1,7 @@
 package evm
 
 import (
+	"axia/guardian/typing"
 	"encoding/binary"
 
 	"github.com/end-r/guardian/parser"
@@ -216,22 +217,21 @@ func (evm GuardianEVM) Operators() validator.OperatorMap {
 	return validator.OperatorMap{}
 }
 
-func (evm GuardianEVM) Primitives() map[string]validator.Type {
+func (evm GuardianEVM) Primitives() map[string]typing.Type {
 
 	const maxSize = 256
-	m := map[string]validator.Type{
-		"int":  validator.NumericType{Name: "int", BitSize: maxSize, Signed: false, Integer: true},
-		"uint": validator.NumericType{Name: "uint", BitSize: maxSize, Signed: true, Integer: true},
-		"byte": validator.NumericType{Name: "byte", BitSize: 8, Signed: true, Integer: true},
-		"bool": validator.BooleanType{},
+	m := map[string]typing.Type{
+		"int":  typing.NumericType{Name: "int", BitSize: maxSize, Signed: false, Integer: true},
+		"uint": typing.NumericType{Name: "uint", BitSize: maxSize, Signed: true, Integer: true},
+		"byte": typing.NumericType{Name: "byte", BitSize: 8, Signed: true, Integer: true},
 	}
 
 	const increment = 8
 	for i := increment; i <= maxSize; i += increment {
 		ints := "int" + string(i)
 		uints := "u" + ints
-		m[uints] = validator.NumericType{Name: uints, BitSize: i, Signed: false, Integer: true}
-		m[ints] = validator.NumericType{Name: ints, BitSize: i, Signed: true, Integer: true}
+		m[uints] = typing.NumericType{Name: uints, BitSize: i, Signed: false, Integer: true}
+		m[ints] = typing.NumericType{Name: ints, BitSize: i, Signed: true, Integer: true}
 	}
 
 	return m

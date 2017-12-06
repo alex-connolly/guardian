@@ -68,7 +68,7 @@ func (n *ScopeNode) AddDeclaration(key string, node Node) {
 	n.Declarations.Add(key, node)
 }
 
-func (n ScopeNode) Type() NodeType { return Scope }
+func (n *ScopeNode) Type() NodeType { return Scope }
 
 func (n *ScopeNode) IsValid(nt NodeType) bool {
 	for _, t := range n.ValidTypes {
@@ -83,15 +83,15 @@ type FileNode struct {
 	name string
 }
 
-func (n FileNode) Type() NodeType { return File }
+func (n *FileNode) Type() NodeType { return File }
 
 type PackageNode struct {
 	name string
 }
 
-func (n PackageNode) Type() NodeType { return File }
+func (n *PackageNode) Type() NodeType { return Package }
 
 type ProgramNode struct {
 }
 
-func (n ProgramNode) Type() NodeType { return File }
+func (n *ProgramNode) Type() NodeType { return File }

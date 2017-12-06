@@ -47,6 +47,7 @@ const (
 	PackageStatement
 
 	File
+	Package
 	Scope
 )
 
@@ -56,7 +57,7 @@ type MapTypeNode struct {
 	Value    Node
 }
 
-func (n MapTypeNode) Type() NodeType { return MapType }
+func (n *MapTypeNode) Type() NodeType { return MapType }
 
 type ArrayTypeNode struct {
 	Variable bool
@@ -64,14 +65,14 @@ type ArrayTypeNode struct {
 	Value    Node
 }
 
-func (n ArrayTypeNode) Type() NodeType { return ArrayType }
+func (n *ArrayTypeNode) Type() NodeType { return ArrayType }
 
 type PlainTypeNode struct {
 	Variable bool
 	Names    []string
 }
 
-func (n PlainTypeNode) Type() NodeType { return PlainType }
+func (n *PlainTypeNode) Type() NodeType { return PlainType }
 
 type FuncTypeNode struct {
 	Variable   bool
@@ -80,7 +81,7 @@ type FuncTypeNode struct {
 	Results    []Node
 }
 
-func (n FuncTypeNode) Type() NodeType { return FuncType }
+func (n *FuncTypeNode) Type() NodeType { return FuncType }
 
 func (t NodeType) isExpression() bool {
 	switch t {

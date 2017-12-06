@@ -116,11 +116,11 @@ func (e *GuardianEVM) traverseParameters(params []ast.ExplicitVarDeclarationNode
 		}
 		for _, i := range p.Identifiers {
 			if storage {
-				e.allocateStorage(i, p.ResolvedSize)
+				e.allocateStorage(i, p.Resolved.Size())
 				//code.Push(e.lookupStorage(i))
 				code.Add("SSTORE")
 			} else {
-				e.allocateMemory(i, p.ResolvedSize)
+				e.allocateMemory(i, p.Resolved.Size())
 				//code.Push(uintAsBytes(location)...)
 				code.Add("MSTORE")
 			}
@@ -152,9 +152,9 @@ func (e *GuardianEVM) traverseExplicitVarDecl(n ast.ExplicitVarDeclarationNode) 
 	storage := e.inStorage() || hasModifier(n.Modifiers, lexer.TknStorage)
 	for _, id := range n.Identifiers {
 		if storage {
-			e.allocateStorage(id, n.ResolvedSize)
+			e.allocateStorage(id, n.Resolved.Size())
 		} else {
-			e.allocateMemory(id, n.ResolvedSize)
+			e.allocateMemory(id, n.Resolved.Size())
 		}
 	}
 	return code
