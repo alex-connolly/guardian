@@ -31,6 +31,10 @@ func SimpleLiteral(typeName string) LiteralFunc {
 	}
 }
 
+func BooleanLiteral(v *Validator, data string) typing.Type {
+	return typing.Boolean()
+}
+
 type OperatorFunc func(*Validator, ...typing.Type) typing.Type
 type OperatorMap map[lexer.TokenType]OperatorFunc
 

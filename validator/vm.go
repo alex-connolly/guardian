@@ -48,8 +48,8 @@ func (v TestVM) Builtins() *ast.ScopeNode {
 func (v TestVM) Literals() LiteralMap {
 	return LiteralMap{
 		lexer.TknString:  SimpleLiteral("string"),
-		lexer.TknTrue:    SimpleLiteral("bool"),
-		lexer.TknFalse:   SimpleLiteral("bool"),
+		lexer.TknTrue:    BooleanLiteral,
+		lexer.TknFalse:   BooleanLiteral,
 		lexer.TknInteger: resolveIntegerLiteral,
 		lexer.TknFloat:   resolveFloatLiteral,
 	}
@@ -81,22 +81,15 @@ func getIntegerTypes() map[string]typing.Type {
 }
 
 func (v TestVM) Primitives() map[string]typing.Type {
-	it := getIntegerTypes()
-
-	s := map[string]typing.Type{
-		"bool": typing.BooleanType{},
-	}
-
-	for k, v := range it {
-		s[k] = v
-	}
-	return s
+	return getIntegerTypes()
 }
 
 func (v TestVM) Operators() (m OperatorMap) {
 	m = OperatorMap{}
-	m.Add(SimpleOperator("bool"), lexer.TknGeq, lexer.TknLeq,
+
+	m.Add(booleanOperator, lexer.TknGeq, lexer.TknLeq,
 		lexer.TknLss, lexer.TknNeq, lexer.TknEql, lexer.TknGtr)
+
 	m.Add(operatorAdd, lexer.TknAdd)
 	m.Add(booleanOperator, lexer.TknLogicalAnd, lexer.TknLogicalOr)
 
