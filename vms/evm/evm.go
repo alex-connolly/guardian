@@ -91,7 +91,7 @@ func uintAsBytes(a uint) []byte {
 func (m memoryBlock) retrieve() (code vmgen.Bytecode) {
 	for size := m.size; size > wordSize; size -= wordSize {
 		loc := m.offset + (m.size - size)
-		code.Add("PUSH", loc)
+		code.Add("PUSH", uintAsBytes(loc)...)
 		code.Add("MLOAD")
 	}
 	return code
@@ -103,13 +103,15 @@ func (s storageBlock) store() (code vmgen.Bytecode) {
 	} else {
 
 	}
+	return code
 }
 
 func (m memoryBlock) store() (code vmgen.Bytecode) {
-	free := []byte(0x40)
+	free := []byte{0x40}
 	code.Add("PUSH", free...)
-	code.Add("PUSH", uintAsBytes(m.offset))
-	code.add("MSTORE")
+	code.Add("PUSH", uintAsBytes(m.offset)...)
+	code.Add("MSTORE")
+	return code
 }
 
 func (evm *GuardianEVM) allocateMemory(name string, size uint) {
@@ -218,16 +220,18 @@ func (evm GuardianEVM) Primitives() map[string]validator.Type {
 
 	const maxSize = 256
 	m := map[string]validator.Type{
-		"int":  validator.NumericType{Size: maxSize, Signed: false, Integer: true},
-		"uint": validator.NumericType{Size: maxSize, Signed: true, Integer: true},
-		"byte": validator.NumericType{Size: 8, Signed: true, Integer: true},
+		"int":  validator.NumericType{Name: "int", BitSize: maxSize, Signed: false, Integer: true},
+		"uint": validator.NumericType{Name: "uint", BitSize: maxSize, Signed: true, Integer: true},
+		"byte": validator.NumericType{Name: "byte", BitSize: 8, Signed: true, Integer: true},
 		"bool": validator.BooleanType{},
 	}
 
 	const increment = 8
 	for i := increment; i <= maxSize; i += increment {
-		m["uint"+string(i)] = validator.NumericType{Size: i, Signed: false, Integer: true}
-		m["int"+string(i)] = validator.NumericType{Size: i, Signed: true, Integer: true}
+		ints := "int" + string(i)
+		uints := "u" + ints
+		m[uints] = validator.NumericType{Name: uints, BitSize: i, Signed: false, Integer: true}
+		m[ints] = validator.NumericType{Name: ints, BitSize: i, Signed: true, Integer: true}
 	}
 
 	return m

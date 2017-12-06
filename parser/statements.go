@@ -271,7 +271,7 @@ func parsePackageStatement(p *Parser) {
 
 func (p *Parser) parseSemver() semver.Version {
 	s := ""
-	for p.current().Type != lexer.TknNewLine {
+	for p.hasTokens(1) && p.current().Type != lexer.TknNewLine {
 		s += p.current().String()
 		p.next()
 	}

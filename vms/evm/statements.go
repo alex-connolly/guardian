@@ -64,12 +64,10 @@ func (e *GuardianEVM) traverseIfStatement(n ast.IfStatementNode) (code vmgen.Byt
 	conds := make([]vmgen.Bytecode, 0)
 	blocks := make([]vmgen.Bytecode, 0)
 	for _, c := range n.Conditions {
-		conds = append(conds, e.traverse(c.Condition)
+		conds = append(conds, e.traverse(c.Condition))
 		blocks = append(blocks, e.traverse(c.Body))
 	}
-	for i, _ := range n.Conditions {
-		
-	}
+
 	return code
 }
 
@@ -78,34 +76,37 @@ func (e *GuardianEVM) traverseAssignmentStatement(n ast.AssignmentStatementNode)
 	if len(n.Left) > 1 && len(n.Right) == 1 {
 		for _, l := range n.Left {
 			r := n.Right[0]
-			code.Concat(e.assign(l, r))
+			code.Concat(e.assign(l, r, true))
 		}
 	} else {
 		for i, l := range n.Left {
 			r := n.Right[i]
-			code.Concat(e.assign(l, r))
+			code.Concat(e.assign(l, r, true))
 		}
 	}
 	return code
 }
 
-func (e *GuardianEVM) assign(left, right ast.ExpressionNode, inStorage bool) (code vmgen.Bytecode) {
-	left := e.traverse(l)
-	right := e.traverse(r)
+func (e *GuardianEVM) assign(l, r ast.ExpressionNode, inStorage bool) (code vmgen.Bytecode) {
+	e.traverse(l)
+	e.traverse(r)
 
-	// assignments are either in memory or storage depending on the context
+	/* assignments are either in memory or storage depending on the context
 	if inStorage {
-		l.ResolvedType.Size()
-		r.ResolvedType.Size()
 		e.allocateStorage(name, size)
 		code.Add("SSTORE")
 	} else {
 		e.allocateMemory(name, size)
 		code.Add("MSTORE")
-	}
-
+	}*/
+	return code
 }
 
-func hasModifier(n ast.Node, modifier lexer.TokenType) bool {
+func hasModifier(mods []lexer.TokenType, modifier lexer.TokenType) bool {
+	for _, m := range mods {
+		if m == modifier {
+			return true
+		}
+	}
 	return false
 }

@@ -9,6 +9,7 @@ type TypeDeclarationNode struct {
 	Identifier   string
 	Value        Node
 	ResolvedSize uint
+	Resolved     util.Type
 }
 
 // Type ...
@@ -21,6 +22,7 @@ type FuncDeclarationNode struct {
 	Body         *ScopeNode
 	Modifiers    []lexer.TokenType
 	ResolvedSize uint
+	Resolved     util.Type
 }
 
 func (n FuncDeclarationNode) Type() NodeType { return FuncDeclaration }
@@ -32,28 +34,28 @@ type ClassDeclarationNode struct {
 	Interfaces   []PlainTypeNode
 	Body         *ScopeNode
 	declarations map[string][]Node
-	ResolvedSize uint
+	Resolved     util.Type
 }
 
 func (n ClassDeclarationNode) Type() NodeType { return ClassDeclaration }
 
 type InterfaceDeclarationNode struct {
-	Identifier   string
-	Modifiers    []lexer.TokenType
-	Signatures   []FuncTypeNode
-	Supers       []PlainTypeNode
-	ResolvedSize uint
+	Identifier string
+	Modifiers  []lexer.TokenType
+	Signatures []FuncTypeNode
+	Supers     []PlainTypeNode
+	Resolved   util.Type
 }
 
 func (n InterfaceDeclarationNode) Type() NodeType { return InterfaceDeclaration }
 
 type ContractDeclarationNode struct {
-	Identifier   string
-	Modifiers    []lexer.TokenType
-	Supers       []PlainTypeNode
-	Interfaces   []PlainTypeNode
-	Body         *ScopeNode
-	ResolvedSize uint
+	Identifier string
+	Modifiers  []lexer.TokenType
+	Supers     []PlainTypeNode
+	Interfaces []PlainTypeNode
+	Body       *ScopeNode
+	Resolved   util.Type
 }
 
 func (n ContractDeclarationNode) Type() NodeType { return ContractDeclaration }
@@ -62,16 +64,16 @@ type ExplicitVarDeclarationNode struct {
 	Modifiers    []lexer.TokenType
 	Identifiers  []string
 	DeclaredType Node
-	ResolvedSize uint
+	Resolved     util.Type
 }
 
 func (n ExplicitVarDeclarationNode) Type() NodeType { return ExplicitVarDeclaration }
 
 type EventDeclarationNode struct {
-	Modifiers    []lexer.TokenType
-	Identifier   string
-	Parameters   []ExplicitVarDeclarationNode
-	ResolvedSize uint
+	Modifiers  []lexer.TokenType
+	Identifier string
+	Parameters []ExplicitVarDeclarationNode
+	Resolved   util.Type
 }
 
 func (n EventDeclarationNode) Type() NodeType { return EventDeclaration }
@@ -91,8 +93,8 @@ type EnumDeclarationNode struct {
 	Modifiers  []lexer.TokenType
 	Inherits   []PlainTypeNode
 	// consider whether to change this
-	Enums        []string
-	ResolvedSize uint
+	Enums    []string
+	Resolved util.Type
 }
 
 func (n EnumDeclarationNode) Type() NodeType { return EnumDeclaration }

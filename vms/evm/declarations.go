@@ -9,12 +9,25 @@ import (
 )
 
 func (e *GuardianEVM) traverseType(n ast.TypeDeclarationNode) (code vmgen.Bytecode) {
+	// do nothing
 	return code
 }
 
 func (e *GuardianEVM) traverseClass(n ast.ClassDeclarationNode) (code vmgen.Bytecode) {
 	// create constructor hooks
 	// create function hooks
+	for _, d := range n.Body.Declarations.Map() {
+		switch a := d.(type) {
+		case ast.LifecycleDeclarationNode:
+			e.addLifecycleHook(n.Identifier, a)
+			break
+		case ast.FuncDeclarationNode:
+			e.addFunctionHook(n.Identifier, a)
+			break
+		default:
+			e.traverse(a.(ast.Node))
+		}
+	}
 	return code
 }
 
@@ -25,7 +38,7 @@ func (e *GuardianEVM) traverseInterface(n ast.InterfaceDeclarationNode) (code vm
 }
 
 func (e *GuardianEVM) traverseEnum(n ast.EnumDeclarationNode) (code vmgen.Bytecode) {
-	// create hook
+	// don't create anything
 	return code
 }
 
@@ -33,7 +46,41 @@ func (e *GuardianEVM) traverseContract(n ast.ContractDeclarationNode) (code vmge
 	// create hooks for functions
 	// create hooks for constructors
 	// create hooks for events
+	// traverse everything else?
+	for _, d := range n.Body.Declarations.Map() {
+		switch a := d.(type) {
+		case ast.LifecycleDeclarationNode:
+			e.addLifecycleHook(n.Identifier, a)
+			break
+		case ast.FuncDeclarationNode:
+			e.addFunctionHook(n.Identifier, a)
+			break
+		case ast.EventDeclarationNode:
+			e.addEventHook(n.Identifier, a)
+			break
+		default:
+			e.traverse(a.(ast.Node))
+		}
+	}
+
 	return code
+}
+
+func (e *GuardianEVM) addLifecycleHook(parent string, node ast.LifecycleDeclarationNode) {
+	//e.hooks[parent].hook[]
+}
+
+func (e *GuardianEVM) addFunctionHook(parent string, node ast.FuncDeclarationNode) {
+	/*e.hooks[parent][node.Identifier] = hook {
+		name: node.Identifier,
+	}*/
+
+}
+
+func (e *GuardianEVM) addEventHook(parent string, node ast.EventDeclarationNode) {
+	/*e.hooks[parent][node.Identifier] = hook{
+		name: node.Identifier,
+	}*/
 }
 
 func (e *GuardianEVM) addHook(name string) {
@@ -56,34 +103,59 @@ func (e *GuardianEVM) traverseEvent(n ast.EventDeclarationNode) (code vmgen.Byte
 	return code
 }
 
+func (e *GuardianEVM) traverseParameters(params []ast.ExplicitVarDeclarationNode) (code vmgen.Bytecode) {
+	storage := false
+	for _, p := range params {
+		// function parameters are passed in on the stack and then assigned
+		// default: memory, can be overriden to be storage
+		// check if it's in storage
+		for _, m := range p.Modifiers {
+			if m == lexer.TknStorage {
+				storage = true
+			}
+		}
+		for _, i := range p.Identifiers {
+			if storage {
+				e.allocateStorage(i, p.ResolvedSize)
+				//code.Push(e.lookupStorage(i))
+				code.Add("SSTORE")
+			} else {
+				e.allocateMemory(i, p.ResolvedSize)
+				//code.Push(uintAsBytes(location)...)
+				code.Add("MSTORE")
+			}
+		}
+		storage = false
+	}
+	return code
+}
+
 func (e *GuardianEVM) traverseFunc(n ast.FuncDeclarationNode) (code vmgen.Bytecode) {
 
-	hook := EncodeName(n.Identifier)
-
-	e.addHook(string(hook))
+	// don't worry about hooking
 
 	code.Add("JUMPDEST")
-	e.Traverse(*n.Body)
-	// TODO: add something to prevent further execution
 
-	// all evm functions create a hook at the start of the contract
-	// when executing, will jump to one of these functions
-	code.Add("CALLDATA")
-	// the ABI defines this as being the first 4 bytes of the SHA-3 hash of the function signature
-	// as guardian signatures are not stringified quite as easily
-	// have to do something clever
-	if hasModifier(n, lexer.TknExternal) {
-		//code.Add(EncodeSignature())
-		code.Add("EQL")
-		code.Add("JMPI")
+	params := e.traverseParameters(n.Parameters)
+
+	code.Concat(params)
+
+	for _, n := range n.Body.Sequence {
+		code.Concat(e.traverse(n))
 	}
+
 	return code
 }
 
 func (e *GuardianEVM) traverseExplicitVarDecl(n ast.ExplicitVarDeclarationNode) (code vmgen.Bytecode) {
 	// variable declarations don't require storage (yet), just have to designate a slot
+	storage := e.inStorage() || hasModifier(n.Modifiers, lexer.TknStorage)
 	for _, id := range n.Identifiers {
-		e.allocateStorage(id, n.ResolvedSize)
+		if storage {
+			e.allocateStorage(id, n.ResolvedSize)
+		} else {
+			e.allocateMemory(id, n.ResolvedSize)
+		}
 	}
 	return code
 }

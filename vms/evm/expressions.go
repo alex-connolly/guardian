@@ -1,7 +1,6 @@
 package evm
 
 import (
-	"axia/guardian/validator"
 	"fmt"
 
 	"github.com/end-r/vmgen"
@@ -41,13 +40,13 @@ func (e *GuardianEVM) traverseExpression(n ast.ExpressionNode) (code vmgen.Bytec
 }
 
 func (e *GuardianEVM) traverseArrayLiteral(n ast.ArrayLiteralNode) (code vmgen.Bytecode) {
+	/*
+		// encode the size first
+		code.Add(uintAsBytes(len(n.Data))...)
 
-	// encode the size first
-	code.Concat(uintAsBytes(len(n.Data)))
-
-	for _, expr := range n.Data {
-		code.Concat(e.traverseExpression(expr))
-	}
+		for _, expr := range n.Data {
+			code.Concat(e.traverseExpression(expr))
+		}*/
 
 	return code
 }
@@ -66,20 +65,20 @@ func (e *GuardianEVM) traverseSliceExpression(n ast.SliceExpressionNode) (code v
 }
 
 func (e *GuardianEVM) traverseCompositeLiteral(n ast.CompositeLiteralNode) (code vmgen.Bytecode) {
+	/*
+		var ty validator.Class
+		for _, f := range ty.Fields {
+			if n.Fields[f] != nil {
 
-	var ty validator.Class
-	for _, f := range ty.Fields {
-		if n.Fields[f] != nil {
-
-		} else {
-			n.Fields[f].Size()
+			} else {
+				n.Fields[f].Size()
+			}
 		}
-	}
 
-	for _, field := range n.Fields {
-		// evaluate each field
-		code.Concat(e.traverseExpression(field))
-	}
+		for _, field := range n.Fields {
+			// evaluate each field
+			code.Concat(e.traverseExpression(field))
+		}*/
 	return code
 }
 
@@ -108,15 +107,8 @@ func (e *GuardianEVM) traverseBinaryExpr(n ast.BinaryExpressionNode) (code vmgen
 	code.Concat(e.traverseExpression(n.Left))
 	code.Concat(e.traverseExpression(n.Right))
 
-	op := binaryOps[n.Operator]
+	//op := binaryOps[n.Operator]
 
-	if op == "ADD" {
-		if n.Left.Resolved().compare() {
-
-		}
-	}
-	// operation
-	code.Add()
 	return code
 }
 
@@ -162,11 +154,11 @@ func (e *GuardianEVM) traverseCallExpr(n ast.CallExpressionNode) (code vmgen.Byt
 }
 
 func checkBuiltin(code vmgen.Bytecode) (res vmgen.Bytecode, isBuiltin bool) {
-	for name, b := range builtins {
+	/*for name, b := range builtins {
 		if code.CompareBytes(EncodeName(name)) {
 			return b(), true
 		}
-	}
+	}*/
 	return code, false
 }
 
@@ -208,10 +200,10 @@ func (e *GuardianEVM) traverseLiteral(n ast.LiteralNode) (code vmgen.Bytecode) {
 	max := 32
 	size := 0
 	for size = len(bytes); size > max; size -= max {
-		code.Add("PUSH32", bytes[len(bytes)-size:len(bytes)-size+max])
+		code.Add("PUSH32", bytes[len(bytes)-size:len(bytes)-size+max]...)
 	}
 	op := fmt.Sprintf("PUSH%d", size)
-	code.Add(op, bytes[size:len(bytes)])
+	code.Add(op, bytes[size:len(bytes)]...)
 	return code
 }
 
@@ -227,9 +219,9 @@ func (e *GuardianEVM) traverseIndex(n ast.IndexExpressionNode) (code vmgen.Bytec
 }
 
 func (e *GuardianEVM) traverseMapLiteral(n ast.MapLiteralNode) (code vmgen.Bytecode) {
-	// use indirection to do this
+	/* use indirection to do this
 	// map literals will use an extra 20k gas
-	fakeKey := e.generateNextIndirect()
+	//fakeKey := e.generateNextIndirect()
 	// keccak256(bytes32(key) + bytes32(position))
 
 	i := 0
@@ -240,7 +232,7 @@ func (e *GuardianEVM) traverseMapLiteral(n ast.MapLiteralNode) (code vmgen.Bytec
 		code.Add()
 		i++
 	}
-	code.Add("PUSH", fakeKey)
+	code.Add("PUSH", fakeKey)*/
 	return code
 }
 
@@ -256,9 +248,10 @@ func isStorage(name string) bool {
 
 func (e *GuardianEVM) traverseIdentifier(n ast.IdentifierNode) (code vmgen.Bytecode) {
 	if isStorage(n.Name) {
-		return e.lookupStorage(n.Name).retriveValue()
+		return e.lookupStorage(n.Name).retrive()
 	} else {
-		return e.lookupMemory(n.Name)
+		return code
+		//return e.lookupMemory(n.Name).retrieve()
 	}
 }
 

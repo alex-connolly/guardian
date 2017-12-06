@@ -5,17 +5,6 @@ import (
 	"github.com/end-r/guardian/lexer"
 )
 
-// NumericType... used to pass types into the s
-type NumericType struct {
-	BitSize int
-	Name    string
-	Signed  bool
-	Integer bool
-}
-
-type BooleanType struct {
-}
-
 func (v *Validator) validateBuiltinDeclarations(scope *ast.ScopeNode) {
 	if scope.Declarations != nil {
 		// order doesn't matter here
@@ -109,17 +98,4 @@ func (v *Validator) smallestNumericType(bits int, allowFloat bool) Type {
 		}
 	}
 	return smallestType
-}
-
-// can probs use logs here
-func BitsNeeded(x int) int {
-	if x == 0 {
-		return 1
-	}
-	count := 0
-	for x > 0 {
-		count++
-		x = x >> 1
-	}
-	return count
 }

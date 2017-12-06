@@ -1,6 +1,10 @@
 package validator
 
-import "github.com/end-r/guardian/lexer"
+import (
+	"axia/guardian/ast"
+
+	"github.com/end-r/guardian/lexer"
+)
 
 func (v *Validator) requireVisibleType(names ...string) Type {
 	typ := v.getNamedType(names...)
@@ -115,4 +119,21 @@ func (v *Validator) requireType(expected, actual Type) bool {
 		return false
 	}
 	return true
+}
+
+func (v *Validator) ExpressionTuple(exprs []ast.ExpressionNode) Tuple {
+	var types []Type
+	for _, expression := range exprs {
+		typ := v.resolveExpression(expression)
+		// expression tuples force inner tuples to just be lists of types
+		// ((int, string)) --> (int, string)
+		// ((int), string) --> (int, string)
+		// this is to facilitate assignment comparisons
+		if tuple, ok := typ.(Tuple); ok {
+			types = append(types, tuple.types...)
+		} else {
+			types = append(types, typ)
+		}
+	}
+	return NewTuple(types...)
 }
