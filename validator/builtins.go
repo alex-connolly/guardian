@@ -1,10 +1,9 @@
 package validator
 
 import (
-	"axia/guardian/typing"
-
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/lexer"
+	"github.com/end-r/guardian/typing"
 )
 
 func (v *Validator) validateBuiltinDeclarations(scope *ast.ScopeNode) {
@@ -27,12 +26,12 @@ type LiteralFunc func(*Validator, string) typing.Type
 type LiteralMap map[lexer.TokenType]LiteralFunc
 
 func SimpleLiteral(typeName string) LiteralFunc {
-	return func(v *Validator, data string) Type {
+	return func(v *Validator, data string) typing.Type {
 		return v.getNamedType(typeName)
 	}
 }
 
-type OperatorFunc func(*Validator, ...Type) Type
+type OperatorFunc func(*Validator, ...typing.Type) typing.Type
 type OperatorMap map[lexer.TokenType]OperatorFunc
 
 func (m OperatorMap) Add(function OperatorFunc, types ...lexer.TokenType) {
@@ -43,15 +42,15 @@ func (m OperatorMap) Add(function OperatorFunc, types ...lexer.TokenType) {
 }
 
 func SimpleOperator(typeName string) OperatorFunc {
-	return func(v *Validator, types ...Type) Type {
+	return func(v *Validator, types ...typing.Type) typing.Type {
 		return v.getNamedType(typeName)
 	}
 }
 
 func BinaryNumericOperator() OperatorFunc {
-	return func(v *Validator, ts ...Type) Type {
-		left := resolveUnderlying(ts[0])
-		right := resolveUnderlying(ts[1])
+	return func(v *Validator, ts ...typing.Type) typing.Type {
+		left := typing.ResolveUnderlying(ts[0])
+		right := typing.ResolveUnderlying(ts[1])
 		if na, ok := left.(NumericType); ok {
 			if nb, ok := right.(NumericType); ok {
 				if na.BitSize > nb.BitSize {
@@ -60,29 +59,29 @@ func BinaryNumericOperator() OperatorFunc {
 				return v.smallestNumericType(nb.BitSize, true)
 			}
 		}
-		return standards[Invalid]
+		return typing.Invalid()
 	}
 }
 
 func BinaryIntegerOperator() OperatorFunc {
-	return func(v *Validator, ts ...Type) Type {
-		if na, ok := ts[0].(NumericType); ok && na.Integer {
-			if nb, ok := ts[1].(NumericType); ok && nb.Integer {
+	return func(v *Validator, ts ...typing.Type) typing.Type {
+		if na, ok := ts[0].(typing.NumericType); ok && na.Integer {
+			if nb, ok := ts[1].(typing.NumericType); ok && nb.Integer {
 				if na.BitSize > nb.BitSize {
 					return v.smallestNumericType(na.BitSize, false)
 				}
 				return v.smallestNumericType(nb.BitSize, false)
 			}
 		}
-		return standards[Invalid]
+		return typing.Invalid()
 	}
 }
 
-func (v *Validator) smallestNumericType(bits int, allowFloat bool) Type {
+func (v *Validator) smallestNumericType(bits int, allowFloat bool) typing.Type {
 	smallest := -1
-	smallestType := Type(standards[Unknown])
+	smallestType := typing.Type(typing.Unknown())
 	for _, typ := range v.primitives {
-		n, ok := typ.(NumericType)
+		n, ok := typ.(typing.NumericType)
 		if ok {
 			if !n.Integer && !allowFloat {
 				continue

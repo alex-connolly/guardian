@@ -3,10 +3,12 @@ package validator
 import (
 	"fmt"
 
+	"github.com/end-r/guardian/typing"
+
 	"github.com/end-r/guardian/ast"
 )
 
-func (v *Validator) validateType(destination ast.Node) Type {
+func (v *Validator) validateType(destination ast.Node) typing.Type {
 	switch n := destination.(type) {
 	case ast.PlainTypeNode:
 		return v.validatePlainType(n)
@@ -17,39 +19,39 @@ func (v *Validator) validateType(destination ast.Node) Type {
 	case ast.FuncTypeNode:
 		return v.validateFuncType(n)
 	}
-	return standards[Invalid]
+	return typing.Invalid()
 }
 
-func (v *Validator) validatePlainType(node ast.PlainTypeNode) Type {
+func (v *Validator) validatePlainType(node ast.PlainTypeNode) typing.Type {
 	// start the validating process for another node
 	typ := v.getNamedType(node.Names...)
-	if typ == standards[Unknown] {
+	if typ == typing.Unknown() {
 		return v.getDeclarationNode(node.Names)
 	}
 	return typ
 }
 
-func (v *Validator) validateArrayType(node ast.ArrayTypeNode) Array {
+func (v *Validator) validateArrayType(node ast.ArrayTypeNode) typing.Array {
 	value := v.validateType(node.Value)
-	return NewArray(value, node.Length, node.Variable)
+	return typing.Array{Value: value, Length: node.Length, Variable: node.Variable}
 }
 
-func (v *Validator) validateMapType(node ast.MapTypeNode) Map {
+func (v *Validator) validateMapType(node ast.MapTypeNode) typing.Map {
 	key := v.validateType(node.Key)
 	value := v.validateType(node.Value)
-	return NewMap(key, value)
+	return typing.Map{Key: key, Value: value}
 }
 
-func (v *Validator) validateFuncType(node ast.FuncTypeNode) Func {
-	var params []Type
+func (v *Validator) validateFuncType(node ast.FuncTypeNode) typing.Func {
+	var params []typing.Type
 	for _, p := range node.Parameters {
 		params = append(params, v.validateType(p))
 	}
-	var results []Type
+	var results []typing.Type
 	for _, r := range node.Results {
 		results = append(results, v.validateType(r))
 	}
-	return NewFunc(NewTuple(params...), NewTuple(results...))
+	return typing.Func{Params: typing.NewTuple(params...), Results: typing.NewTuple(results...)}
 }
 
 func (v *Validator) validateDeclaration(node ast.Node) {
@@ -87,7 +89,7 @@ func (v *Validator) validateDeclaration(node ast.Node) {
 
 }
 
-func (v *Validator) getDeclarationNode(names []string) Type {
+func (v *Validator) getDeclarationNode(names []string) typing.Type {
 	if v.isParsingBuiltins {
 		if v.builtinScope != nil {
 			decl := v.builtinScope.GetDeclaration(names[0])
@@ -107,9 +109,9 @@ func (v *Validator) getDeclarationNode(names []string) Type {
 	return v.requireValidType(names)
 }
 
-func (v *Validator) requireValidType(names []string) Type {
+func (v *Validator) requireValidType(names []string) typing.Type {
 	typ := v.getNamedType(names...)
-	if typ == standards[Unknown] {
+	if typ == typing.Unknown() {
 		v.addError(errTypeNotVisible, makeName(names))
 	}
 	return typ
@@ -127,7 +129,7 @@ func (v *Validator) validateClassDeclaration(node ast.ClassDeclarationNode) {
 	var supers []*Class
 	for _, super := range node.Supers {
 		t := v.validatePlainType(super)
-		if t != standards[Unknown] {
+		if t != standards[unknown] {
 			if c, ok := t.(Class); ok {
 				supers = append(supers, &c)
 			} else {
@@ -139,7 +141,7 @@ func (v *Validator) validateClassDeclaration(node ast.ClassDeclarationNode) {
 	var interfaces []*Interface
 	for _, ifc := range node.Interfaces {
 		t := v.validatePlainType(ifc)
-		if t != standards[Unknown] {
+		if t != standards[unknown] {
 			if c, ok := t.(Interface); ok {
 				interfaces = append(interfaces, &c)
 			} else {
@@ -178,7 +180,7 @@ func (v *Validator) validateContractDeclaration(node ast.ContractDeclarationNode
 	var supers []*Contract
 	for _, super := range node.Supers {
 		t := v.validatePlainType(super)
-		if t != standards[Unknown] {
+		if t != standards[unknown] {
 			if c, ok := t.(Contract); ok {
 				supers = append(supers, &c)
 			} else {
@@ -190,7 +192,7 @@ func (v *Validator) validateContractDeclaration(node ast.ContractDeclarationNode
 	var interfaces []*Interface
 	for _, ifc := range node.Interfaces {
 		t := v.validatePlainType(ifc)
-		if t != standards[Unknown] {
+		if t != standards[unknown] {
 			if c, ok := t.(Interface); ok {
 				interfaces = append(interfaces, &c)
 			} else {
@@ -210,7 +212,7 @@ func (v *Validator) validateInterfaceDeclaration(node ast.InterfaceDeclarationNo
 	var supers []*Interface
 	for _, super := range node.Supers {
 		t := v.validatePlainType(super)
-		if t != standards[Unknown] {
+		if t != standards[unknown] {
 			if c, ok := t.(Interface); ok {
 				supers = append(supers, &c)
 			} else {
@@ -231,11 +233,11 @@ func (v *Validator) validateInterfaceDeclaration(node ast.InterfaceDeclarationNo
 
 }
 
-func (v *Validator) validateContextualType(node ast.Node) Type {
+func (v *Validator) validateContextualType(node ast.Node) typing.Type {
 	return v.validateType(node)
 }
 
-func (v *Validator) declareContextualVar(name string, typ Type) {
+func (v *Validator) declareContextualVar(name string, typ typing.Type) {
 	if v.isParsingBuiltins {
 		v.DeclareBuiltinOfType(name, typ)
 	} else {
@@ -278,7 +280,7 @@ func (v *Validator) validateEventDeclaration(node ast.EventDeclarationNode) {
 	v.declareContextualVar(node.Identifier, eventType)
 }
 
-func (v *Validator) declareContextualType(name string, typ Type) {
+func (v *Validator) declareContextualType(name string, typ typing.Type) {
 	if v.isParsingBuiltins {
 		v.DeclareBuiltinType(name, typ)
 	} else {

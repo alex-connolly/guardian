@@ -3,13 +3,15 @@ package validator
 import (
 	"fmt"
 
+	"github.com/end-r/guardian/typing"
+
 	"github.com/end-r/guardian/util"
 
 	"github.com/end-r/guardian/ast"
 )
 
 // Validate...
-func Validate(scope *ast.ScopeNode, vm VM) (map[string]Type, util.Errors) {
+func Validate(scope *ast.ScopeNode, vm VM) (map[string]typing.Type, util.Errors) {
 	v := new(Validator)
 	v.scope = &TypeScope{
 		parent: nil,
@@ -23,7 +25,7 @@ func Validate(scope *ast.ScopeNode, vm VM) (map[string]Type, util.Errors) {
 	return v.errs
 }
 
-func (v *Validator) validateScope(scope *ast.ScopeNode) (types map[string]Type, properties map[string]Type, lifecycles lifecycleMap) {
+func (v *Validator) validateScope(scope *ast.ScopeNode) (types map[string]typing.Type, properties map[string]typing.Type, lifecycles typing.LifecycleMap) {
 
 	ts := &TypeScope{
 		parent: v.scope,
@@ -65,7 +67,7 @@ func (v *Validator) validateSequence(scope *ast.ScopeNode) {
 }
 
 func (v *Validator) validate(node ast.Node) {
-	if node.Type() == ast.CallExpression {
+	if node.typing.Type() == ast.CallExpression {
 		v.validateCallExpression(node.(ast.CallExpressionNode))
 	} else {
 		v.validateStatement(node)
@@ -80,17 +82,17 @@ type Validator struct {
 	isParsingBuiltins bool
 	literals          LiteralMap
 	operators         OperatorMap
-	primitives        map[string]Type
-	builtinVariables  map[string]Type
+	primitives        map[string]typing.Type
+	builtinVariables  map[string]typing.Type
 }
 
 // TypeScope ...
 type TypeScope struct {
 	parent     *TypeScope
 	scope      *ast.ScopeNode
-	lifecycles lifecycleMap
-	variables  map[string]Type
-	types      map[string]Type
+	lifecycles typing.LifecycleMap
+	variables  map[string]typing.Type
+	types      map[string]typing.Type
 }
 
 func (v *Validator) importVM(vm VM) {

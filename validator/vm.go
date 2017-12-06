@@ -3,6 +3,8 @@ package validator
 import (
 	"strconv"
 
+	"github.com/end-r/guardian/typing"
+
 	"github.com/end-r/guardian/util"
 
 	"github.com/end-r/guardian/lexer"
@@ -18,7 +20,7 @@ import (
 type VM interface {
 	Traverse(ast.Node) (vmgen.Bytecode, util.Errors)
 	Builtins() *ast.ScopeNode
-	Primitives() map[string]Type
+	Primitives() map[string]typing.Type
 	Literals() LiteralMap
 	Operators() OperatorMap
 }
@@ -53,18 +55,18 @@ func (v TestVM) Literals() LiteralMap {
 	}
 }
 
-func resolveIntegerLiteral(v *Validator, data string) Type {
+func resolveIntegerLiteral(v *Validator, data string) typing.Type {
 	x := BitsNeeded(len(data))
 	return v.smallestNumericType(x, false)
 }
 
-func resolveFloatLiteral(v *Validator, data string) Type {
+func resolveFloatLiteral(v *Validator, data string) typing.Type {
 	// convert to float
-	return standards[Unknown]
+	return standards[unknown]
 }
 
-func getIntegerTypes() map[string]Type {
-	m := map[string]Type{}
+func getIntegerTypes() map[string]typing.Type {
+	m := map[string]typing.Type{}
 	const maxSize = 256
 	const increment = 8
 	for i := increment; i <= maxSize; i += increment {
@@ -78,11 +80,11 @@ func getIntegerTypes() map[string]Type {
 	return m
 }
 
-func (v TestVM) Primitives() map[string]Type {
+func (v TestVM) Primitives() map[string]typing.Type {
 	it := getIntegerTypes()
 
-	s := map[string]Type{
-		"bool": BooleanType{},
+	s := map[string]typing.Type{
+		"bool": booleaneanType{},
 	}
 
 	for k, v := range it {
@@ -109,7 +111,7 @@ func (v TestVM) Operators() (m OperatorMap) {
 	return m
 }
 
-func castOperator(v *Validator, ts ...Type) Type {
+func castOperator(v *Validator, ts ...typing.Type) typing.Type {
 	// pretend it's a valid type
 	left := ts[0]
 	right := ts[1]
@@ -120,14 +122,14 @@ func castOperator(v *Validator, ts ...Type) Type {
 	return right
 }
 
-func booleanOperator(v *Validator, ts ...Type) Type {
+func booleanOperator(v *Validator, ts ...typing.Type) typing.Type {
 	if len(ts) != 2 {
 
 	}
-	return standards[Bool]
+	return standards[boolean]
 }
 
-func operatorAdd(v *Validator, ts ...Type) Type {
+func operatorAdd(v *Validator, ts ...typing.Type) typing.Type {
 	switch ts[0].(type) {
 	case NumericType:
 		return BinaryNumericOperator()(v, ts...)
@@ -136,5 +138,5 @@ func operatorAdd(v *Validator, ts ...Type) Type {
 	if ts[0].compare(strType) {
 		return strType
 	}
-	return standards[Invalid]
+	return standards[invalid]
 }

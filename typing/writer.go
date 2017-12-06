@@ -22,7 +22,7 @@ func makeName(names []string) string {
 	return name
 }
 
-func (s StandardType) write(b *bytes.Buffer) {
+func (s standardType) write(b *bytes.Buffer) {
 	b.WriteString(s.name)
 }
 
@@ -90,6 +90,6 @@ func (nt NumericType) write(b *bytes.Buffer) {
 	b.WriteString(nt.Name)
 }
 
-func (nt BooleanType) write(b *bytes.Buffer) {
+func (nt booleaneanType) write(b *bytes.Buffer) {
 	b.WriteString("bool")
 }

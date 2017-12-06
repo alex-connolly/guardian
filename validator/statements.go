@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"github.com/end-r/guardian/typing"
+
 	"github.com/end-r/guardian/ast"
 )
 
@@ -56,7 +58,7 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 		}
 
 		for i, left := range node.Left {
-			if leftTuple.types[i] == standards[Unknown] {
+			if leftTuple.types[i] == standards[unknown] {
 				if id, ok := left.(ast.IdentifierNode); ok {
 					v.DeclareVarOfType(id.Name, rightTuple.types[0])
 				}
@@ -73,7 +75,7 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 		// cannot assign to tuple expressions
 		if len(node.Left) == len(leftTuple.types) {
 			for i, left := range node.Left {
-				if leftTuple.types[i] == standards[Unknown] {
+				if leftTuple.types[i] == standards[unknown] {
 					if id, ok := left.(ast.IdentifierNode); ok {
 						//fmt.Printf("Declaring %s as %s\n", id.Name, WriteType(rightTuple.types[i]))
 						v.DeclareVarOfType(id.Name, rightTuple.types[i])
@@ -92,7 +94,7 @@ func (v *Validator) validateIfStatement(node ast.IfStatementNode) {
 
 	for _, cond := range node.Conditions {
 		// condition must be of type bool
-		v.requireType(standards[Bool], v.resolveExpression(cond.Condition))
+		v.requireType(standards[boolean], v.resolveExpression(cond.Condition))
 		v.validateScope(cond.Body)
 	}
 
@@ -113,7 +115,7 @@ func (v *Validator) validateSwitchStatement(node ast.SwitchStatementNode) {
 
 }
 
-func (v *Validator) validateCaseStatement(switchType Type, clause ast.CaseStatementNode) {
+func (v *Validator) validateCaseStatement(switchType typing.Type, clause ast.CaseStatementNode) {
 	for _, expr := range clause.Expressions {
 		v.requireType(switchType, v.resolveExpression(expr))
 	}
@@ -136,7 +138,7 @@ func (v *Validator) validateForStatement(node ast.ForStatementNode) {
 	}
 
 	// cond statement must be a boolean
-	v.requireType(standards[Bool], v.resolveExpression(node.Cond))
+	v.requireType(standards[boolean], v.resolveExpression(node.Cond))
 
 	// post statement must be valid
 	if node.Post != nil {

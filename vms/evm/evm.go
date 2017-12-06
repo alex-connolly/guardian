@@ -223,7 +223,7 @@ func (evm GuardianEVM) Primitives() map[string]validator.Type {
 		"int":  validator.NumericType{Name: "int", BitSize: maxSize, Signed: false, Integer: true},
 		"uint": validator.NumericType{Name: "uint", BitSize: maxSize, Signed: true, Integer: true},
 		"byte": validator.NumericType{Name: "byte", BitSize: 8, Signed: true, Integer: true},
-		"bool": validator.BooleanType{},
+		"bool": validator.booleaneanType{},
 	}
 
 	const increment = 8

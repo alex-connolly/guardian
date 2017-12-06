@@ -1,20 +1,22 @@
 package validator
 
 import (
-	"axia/guardian/ast"
+	"github.com/end-r/guardian/typing"
+
+	"github.com/end-r/guardian/ast"
 
 	"github.com/end-r/guardian/lexer"
 )
 
-func (v *Validator) requireVisibleType(names ...string) Type {
+func (v *Validator) requireVisibleType(names ...string) typing.Type {
 	typ := v.getNamedType(names...)
-	if typ == standards[Unknown] {
+	if typ == standards[unknown] {
 		v.addError(errTypeNotVisible, makeName(names))
 	}
 	return typ
 }
 
-func (v *Validator) findVariable(name string) Type {
+func (v *Validator) findVariable(name string) typing.Type {
 	if v.builtinVariables != nil {
 		if typ, ok := v.builtinVariables[name]; ok {
 			return typ
@@ -39,11 +41,11 @@ func (v *Validator) findVariable(name string) Type {
 		}
 
 	}
-	return standards[Unknown]
+	return standards[unknown]
 }
 
 // DeclareVarOfType ...
-func (v *Validator) DeclareVarOfType(name string, t Type) {
+func (v *Validator) DeclareVarOfType(name string, t typing.Type) {
 	if v.scope.variables == nil {
 		v.scope.variables = make(map[string]Type)
 	}
@@ -51,7 +53,7 @@ func (v *Validator) DeclareVarOfType(name string, t Type) {
 }
 
 // DeclareBuiltinOfType ...
-func (v *Validator) DeclareBuiltinOfType(name string, t Type) {
+func (v *Validator) DeclareBuiltinOfType(name string, t typing.Type) {
 	if v.builtinVariables == nil {
 		v.builtinVariables = make(map[string]Type)
 	}
@@ -59,14 +61,14 @@ func (v *Validator) DeclareBuiltinOfType(name string, t Type) {
 }
 
 // DeclareType ...
-func (v *Validator) DeclareType(name string, t Type) {
+func (v *Validator) DeclareType(name string, t typing.Type) {
 	if v.scope.types == nil {
 		v.scope.types = make(map[string]Type)
 	}
 	v.scope.types[name] = t
 }
 
-func (v *Validator) declareLifecycle(tk lexer.TokenType, l Lifecycle) {
+func (v *Validator) declareLifecycle(tk lexer.TokenType, l typing.Lifecycle) {
 	if v.scope.lifecycles == nil {
 		v.scope.lifecycles = lifecycleMap{}
 	}
@@ -74,14 +76,14 @@ func (v *Validator) declareLifecycle(tk lexer.TokenType, l Lifecycle) {
 }
 
 // DeclareBuiltinType ...
-func (v *Validator) DeclareBuiltinType(name string, t Type) {
+func (v *Validator) DeclareBuiltinType(name string, t typing.Type) {
 	if v.primitives == nil {
 		v.primitives = make(map[string]Type)
 	}
 	v.primitives[name] = t
 }
 
-func (v *Validator) getNamedType(names ...string) Type {
+func (v *Validator) getNamedType(names ...string) typing.Type {
 	search := names[0]
 	// always check standards first
 	// not declaring them in top scope means not having to go up each time
@@ -110,10 +112,10 @@ func (v *Validator) getNamedType(names ...string) Type {
 		}
 
 	}
-	return standards[Unknown]
+	return standards[unknown]
 }
 
-func (v *Validator) requireType(expected, actual Type) bool {
+func (v *Validator) requireType(expected, actual typing.Type) bool {
 	if resolveUnderlying(expected) != resolveUnderlying(actual) {
 		v.addError("required type %s, got %s", WriteType(expected), WriteType(actual))
 		return false
@@ -121,7 +123,7 @@ func (v *Validator) requireType(expected, actual Type) bool {
 	return true
 }
 
-func (v *Validator) ExpressionTuple(exprs []ast.ExpressionNode) Tuple {
+func (v *Validator) ExpressionTuple(exprs []ast.ExpressionNode) typing.Tuple {
 	var types []Type
 	for _, expression := range exprs {
 		typ := v.resolveExpression(expression)

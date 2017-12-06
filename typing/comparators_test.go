@@ -7,43 +7,43 @@ import (
 )
 
 func TestCompareArraysExplicitlyEqual(t *testing.T) {
-	one := Array{Value: standards[Bool], Length: 0, Variable: true}
-	two := Array{Value: standards[Bool], Length: 0, Variable: true}
+	one := Array{Value: standards[boolean], Length: 0, Variable: true}
+	two := Array{Value: standards[boolean], Length: 0, Variable: true}
 	goutil.Assert(t, one.compare(two), "should be equal")
 }
 
 func TestCompareArraysImplicitlyEqual(t *testing.T) {
-	one := Array{Value: standards[Bool], Length: 0, Variable: true}
+	one := Array{Value: standards[boolean], Length: 0, Variable: true}
 	two := Aliased{
 		Alias:      "a",
-		Underlying: Array{Value: standards[Bool], Length: 0, Variable: true},
+		Underlying: Array{Value: standards[boolean], Length: 0, Variable: true},
 	}
 	goutil.Assert(t, one.compare(two), "should be equal")
 }
 
 func TestCompareArraysExplicitlyWrongKey(t *testing.T) {
-	one := Array{Value: standards[Bool], Length: 0, Variable: true}
-	two := Array{Value: standards[Invalid], Length: 0, Variable: true}
+	one := Array{Value: standards[boolean], Length: 0, Variable: true}
+	two := Array{Value: standards[invalid], Length: 0, Variable: true}
 	goutil.Assert(t, !one.compare(two), "should not be equal")
 }
 
 func TestCompareArraysImplicitlyWrongKey(t *testing.T) {
-	one := Array{Value: standards[Bool], Length: 0, Variable: true}
+	one := Array{Value: standards[boolean], Length: 0, Variable: true}
 	two := Aliased{
 		Alias:      "a",
-		Underlying: Array{Value: standards[Invalid], Length: 0, Variable: true},
+		Underlying: Array{Value: standards[invalid], Length: 0, Variable: true},
 	}
 	goutil.Assert(t, !one.compare(two), "should not be equal")
 }
 
 func TestCompareArraysExplicitlyWrongType(t *testing.T) {
-	one := Array{Value: standards[Bool], Length: 0, Variable: true}
+	one := Array{Value: standards[boolean], Length: 0, Variable: true}
 	two := Func{Params: NewTuple(), Results: NewTuple()}
 	goutil.Assert(t, !one.compare(two), "should not be equal")
 }
 
 func TestCompareArraysImplicitlyWrongType(t *testing.T) {
-	one := Array{Value: standards[Bool], Length: 0, Variable: true}
+	one := Array{Value: standards[boolean], Length: 0, Variable: true}
 	two := Aliased{
 		Alias:      "a",
 		Underlying: Func{Params: NewTuple(), Results: NewTuple()},
@@ -52,16 +52,16 @@ func TestCompareArraysImplicitlyWrongType(t *testing.T) {
 }
 
 func TestCompareMapsExplicitlyEqual(t *testing.T) {
-	one := Map{Key: standards[Bool], Value: standards[Bool]}
-	two := Map{Key: standards[Bool], Value: standards[Bool]}
+	one := Map{Key: standards[boolean], Value: standards[boolean]}
+	two := Map{Key: standards[boolean], Value: standards[boolean]}
 	goutil.Assert(t, one.compare(two), "should be equal")
 }
 
 func TestCompareMapsImplicitlyEqual(t *testing.T) {
-	one := Map{Key: standards[Bool], Value: standards[Bool]}
+	one := Map{Key: standards[boolean], Value: standards[boolean]}
 	two := Aliased{
 		Alias:      "a",
-		Underlying: Map{Key: standards[Bool], Value: standards[Bool]},
+		Underlying: Map{Key: standards[boolean], Value: standards[boolean]},
 	}
 	goutil.Assert(t, one.compare(two), "should be equal")
 }
@@ -82,25 +82,25 @@ func TestCompareTuples(t *testing.T) {
 }
 
 func TestCompareTuplesWrongLength(t *testing.T) {
-	one := NewTuple(standards[Bool], standards[Unknown])
+	one := NewTuple(standards[boolean], standards[unknown])
 	two := NewTuple()
 	goutil.Assert(t, !one.compare(two), "should not be equal")
 }
 
 func TestCompareTuplesWrongType(t *testing.T) {
-	one := NewTuple(standards[Bool], standards[Unknown])
-	two := NewTuple(standards[Unknown], standards[Bool])
+	one := NewTuple(standards[boolean], standards[unknown])
+	two := NewTuple(standards[unknown], standards[boolean])
 	goutil.Assert(t, !one.compare(two), "should not be equal")
 }
 
 func TestCompareStandards(t *testing.T) {
-	one := standards[Bool]
-	two := standards[Bool]
+	one := standards[boolean]
+	two := standards[boolean]
 	goutil.Assert(t, one.compare(two), "should be equal")
 }
 
 func TestCompareStandardsWrongType(t *testing.T) {
-	one := standards[Bool]
-	two := standards[Unknown]
+	one := standards[boolean]
+	two := standards[unknown]
 	goutil.Assert(t, !one.compare(two), "should not be equal")
 }

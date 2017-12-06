@@ -26,22 +26,34 @@ type Type interface {
 }
 type LifecycleMap map[lexer.TokenType][]Lifecycle
 
-type BaseType int
+type baseType int
 
 const (
-	Invalid BaseType = iota
-	Unknown
-	Bool
+	invalid baseType = iota
+	unknown
+	boolean
 )
 
-type StandardType struct {
+type standardType struct {
 	name string
 }
 
-var standards = map[BaseType]StandardType{
-	Invalid: StandardType{"invalid"},
-	Unknown: StandardType{"unknown"},
-	Bool:    StandardType{"bool"},
+func Invalid() Type {
+	return standards[invalid]
+}
+
+func Unknown() Type {
+	return standards[unknown]
+}
+
+func booleanean() Type {
+	return standards[boolean]
+}
+
+var standards = map[baseType]standardType{
+	invalid: standardType{"invalid"},
+	unknown: standardType{"unknown"},
+	boolean: standardType{"bool"},
 }
 
 type Array struct {
@@ -76,7 +88,7 @@ type Aliased struct {
 	Underlying Type
 }
 
-func resolveUnderlying(t Type) Type {
+func ResolveUnderlying(t Type) Type {
 	for al, ok := t.(Aliased); ok; al, ok = t.(Aliased) {
 		t = al.Underlying
 	}

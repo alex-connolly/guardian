@@ -3,10 +3,12 @@ package validator
 import (
 	"fmt"
 
+	"github.com/end-r/guardian/typing"
+
 	"github.com/end-r/guardian/ast"
 )
 
-func (v *Validator) resolveType(node ast.Node) Type {
+func (v *Validator) resolveType(node ast.Node) typing.Type {
 	switch node.Type() {
 	case ast.PlainType:
 		r := node.(ast.PlainTypeNode)
@@ -21,34 +23,34 @@ func (v *Validator) resolveType(node ast.Node) Type {
 		f := node.(ast.FuncTypeNode)
 		return v.resolveFuncType(f)
 	}
-	return standards[Invalid]
+	return standards[invalid]
 }
 
-func (v *Validator) resolvePlainType(node ast.PlainTypeNode) Type {
+func (v *Validator) resolvePlainType(node ast.PlainTypeNode) typing.Type {
 	return v.getNamedType(node.Names...)
 }
 
-func (v *Validator) resolveArrayType(node ast.ArrayTypeNode) Array {
+func (v *Validator) resolveArrayType(node ast.ArrayTypeNode) typing.Array {
 	a := Array{}
 	a.Value = v.resolveType(node.Value)
 	return a
 }
 
-func (v *Validator) resolveMapType(node ast.MapTypeNode) Map {
+func (v *Validator) resolveMapType(node ast.MapTypeNode) typing.Map {
 	m := Map{}
 	m.Key = v.resolveType(node.Key)
 	m.Value = v.resolveType(node.Value)
 	return m
 }
 
-func (v *Validator) resolveFuncType(node ast.FuncTypeNode) Func {
+func (v *Validator) resolveFuncType(node ast.FuncTypeNode) typing.Func {
 	f := Func{}
 	f.Params = v.resolveTuple(node.Parameters)
 	f.Results = v.resolveTuple(node.Results)
 	return f
 }
 
-func (v *Validator) resolveTuple(nodes []ast.Node) Tuple {
+func (v *Validator) resolveTuple(nodes []ast.Node) typing.Tuple {
 	t := Tuple{}
 	t.types = make([]Type, len(nodes))
 	for i, n := range nodes {
@@ -57,7 +59,7 @@ func (v *Validator) resolveTuple(nodes []ast.Node) Tuple {
 	return t
 }
 
-func (v *Validator) resolveExpression(e ast.ExpressionNode) Type {
+func (v *Validator) resolveExpression(e ast.ExpressionNode) typing.Type {
 	resolvers := map[ast.NodeType]resolver{
 		ast.Literal:          resolveLiteralExpression,
 		ast.MapLiteral:       resolveMapLiteralExpression,
@@ -75,15 +77,15 @@ func (v *Validator) resolveExpression(e ast.ExpressionNode) Type {
 	return resolvers[e.Type()](v, e)
 }
 
-type resolver func(v *Validator, e ast.ExpressionNode) Type
+type resolver func(v *Validator, e ast.ExpressionNode) typing.Type
 
-func resolveIdentifier(v *Validator, e ast.ExpressionNode) Type {
+func resolveIdentifier(v *Validator, e ast.ExpressionNode) typing.Type {
 	i := e.(ast.IdentifierNode)
 	// look up the identifier in scope
 	return v.findVariable(i.Name)
 }
 
-func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
+func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	// must be literal
 	l := e.(ast.LiteralNode)
 	literalResolver, ok := v.literals[l.LiteralType]
@@ -91,12 +93,12 @@ func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 		return literalResolver(v, l.Data)
 	} else {
 		v.addError(errStringLiteralUnsupported)
-		return standards[Invalid]
+		return standards[invalid]
 	}
 
 }
 
-func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
+func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	// must be literal
 	m := e.(ast.ArrayLiteralNode)
 	keyType := v.resolveType(m.Signature.Value)
@@ -104,16 +106,16 @@ func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	return arrayType
 }
 
-func resolveCompositeLiteral(v *Validator, e ast.ExpressionNode) Type {
+func resolveCompositeLiteral(v *Validator, e ast.ExpressionNode) typing.Type {
 	c := e.(ast.CompositeLiteralNode)
 	typ := v.getNamedType(c.TypeName)
-	if typ == standards[Unknown] {
+	if typ == standards[unknown] {
 		return v.getDeclarationNode([]string{c.TypeName})
 	}
 	return typ
 }
 
-func resolveFuncLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
+func resolveFuncLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	// must be func literal
 	f := e.(ast.FuncLiteralNode)
 	var params, results []Type
@@ -130,7 +132,7 @@ func resolveFuncLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	return NewFunc(NewTuple(params...), NewTuple(results...))
 }
 
-func resolveMapLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
+func resolveMapLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	// must be literal
 	m := e.(ast.MapLiteralNode)
 	keyType := v.resolveType(m.Signature.Key)
@@ -139,7 +141,7 @@ func resolveMapLiteralExpression(v *Validator, e ast.ExpressionNode) Type {
 	return mapType
 }
 
-func resolveIndexExpression(v *Validator, e ast.ExpressionNode) Type {
+func resolveIndexExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	// must be literal
 	i := e.(ast.IndexExpressionNode)
 	exprType := v.resolveExpression(i.Expression)
@@ -150,13 +152,13 @@ func resolveIndexExpression(v *Validator, e ast.ExpressionNode) Type {
 	case Map:
 		return exprType.(Map).Value
 	}
-	return standards[Invalid]
+	return standards[invalid]
 }
 
 /*
 // attempts to resolve an expression component as a type name
 // used in constructors e.g. Dog()
-func (v *Validator) attemptToFindType(e ast.ExpressionNode) Type {
+func (v *Validator) attemptToFindType(e ast.ExpressionNode) typing.Type {
 	var names []string
 	switch res := e.(type) {
 	case ast.IdentifierNode:
@@ -169,24 +171,24 @@ func (v *Validator) attemptToFindType(e ast.ExpressionNode) Type {
 				if p, ok := a.Parent.(ast.IdentifierNode); ok {
 					names = append(names, p.Name)
 				} else {
-					return standards[Unknown]
+					return standards[unknown]
 				}
 				break
 			case ast.IdentifierNode:
 				names = append(names, a.Name)
 				break
 			default:
-				return standards[Unknown]
+				return standards[unknown]
 			}
 		}
 		break
 	default:
-		return standards[Unknown]
+		return standards[unknown]
 	}
 	return v.getNamedType(names...)
 }*/
 
-func (v *Validator) resolveInContext(t Type, property string) Type {
+func (v *Validator) resolveInContext(t typing.Type, property string) typing.Type {
 	switch r := t.(type) {
 	case Class:
 		t, ok := r.Types[property]
@@ -222,17 +224,17 @@ func (v *Validator) resolveInContext(t Type, property string) Type {
 		}
 		break
 	}
-	return standards[Unknown]
+	return standards[unknown]
 }
 
-func resolveCallExpression(v *Validator, e ast.ExpressionNode) Type {
+func resolveCallExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	// must be call expression
 	c := e.(ast.CallExpressionNode)
 	// return type of a call expression is always a tuple
 	// tuple may be empty or single-valued
 	call := v.resolveExpression(c.Call)
-	var under Type
-	if call.compare(standards[Unknown]) {
+	var under typing.Type
+	if call.compare(standards[unknown]) {
 		// try to resolve as a type name
 		switch n := c.Call.(type) {
 		case ast.IdentifierNode:
@@ -249,11 +251,11 @@ func resolveCallExpression(v *Validator, e ast.ExpressionNode) Type {
 		return c
 	}
 	v.addError(errCallExpressionNoFunc, WriteType(call))
-	return standards[Invalid]
+	return standards[invalid]
 
 }
 
-func resolveSliceExpression(v *Validator, e ast.ExpressionNode) Type {
+func resolveSliceExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	// must be literal
 	s := e.(ast.SliceExpressionNode)
 	exprType := v.resolveExpression(s.Expression)
@@ -262,10 +264,10 @@ func resolveSliceExpression(v *Validator, e ast.ExpressionNode) Type {
 	case Array:
 		return t
 	}
-	return standards[Invalid]
+	return standards[invalid]
 }
 
-func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) Type {
+func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	// must be literal
 	b := e.(ast.BinaryExpressionNode)
 	// rules for binary Expressions
@@ -274,7 +276,7 @@ func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) Type {
 	operatorFunc, ok := v.operators[b.Operator]
 	if !ok {
 		fmt.Println(":(", b.Operator)
-		return standards[Invalid]
+		return standards[invalid]
 	}
 	return operatorFunc(v, leftType, rightType)
 	/*
@@ -293,33 +295,33 @@ func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) Type {
 			return v.resolveNumericType()
 		case lexer.TknGeq, lexer.TknLeq, lexer.TknLss, lexer.TknGtr:
 			// must be numeric
-			return standards[Bool]
+			return standards[boolean]
 		case lexer.TknEql, lexer.TknNeq:
 			// don't have to be numeric
-			return standards[Bool]
+			return standards[boolean]
 		case lexer.TknShl, lexer.TknShr, lexer.TknAnd, lexer.TknOr, lexer.TknXor:
 			// must be numeric
 			return standards[Int]
 		case lexer.TknLogicalAnd, lexer.TknLogicalOr:
 			// must be boolean
-			return standards[Bool]
+			return standards[boolean]
 		case lexer.TknAs:
 			// make sure this is a type
 
 		}
 
 		// else it is a type which is not defined for binary operators
-		return standards[Invalid]
+		return standards[invalid]
 	*/
 }
 
-func resolveUnaryExpression(v *Validator, e ast.ExpressionNode) Type {
+func resolveUnaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	m := e.(ast.UnaryExpressionNode)
 	operandType := v.resolveExpression(m.Operand)
 	return operandType
 }
 
-func (v *Validator) resolveContextualReference(context Type, exp ast.ExpressionNode) Type {
+func (v *Validator) resolveContextualReference(context typing.Type, exp ast.ExpressionNode) typing.Type {
 	// check if context is subscriptable
 	if isSubscriptable(context) {
 		if name, ok := getIdentifier(exp); ok {
@@ -339,10 +341,10 @@ func (v *Validator) resolveContextualReference(context Type, exp ast.ExpressionN
 	} else {
 		v.addError(errInvalidSubscriptable, WriteType(context))
 	}
-	return standards[Invalid]
+	return standards[invalid]
 }
 
-func resolveReference(v *Validator, e ast.ExpressionNode) Type {
+func resolveReference(v *Validator, e ast.ExpressionNode) typing.Type {
 	// must be reference
 	m := e.(ast.ReferenceNode)
 	context := v.resolveExpression(m.Parent)
@@ -371,7 +373,7 @@ func getIdentifier(exp ast.ExpressionNode) (string, bool) {
 	}
 }
 
-func (v *Validator) getPropertiesType(t Type, names []string) (resolved Type) {
+func (v *Validator) getPropertiesType(t typing.Type, names []string) (resolved typing.Type) {
 	var working bool
 	for _, name := range names {
 		if !working {
@@ -382,7 +384,7 @@ func (v *Validator) getPropertiesType(t Type, names []string) (resolved Type) {
 	return t
 }
 
-func (v *Validator) getPropertyType(t Type, name string) (Type, bool) {
+func (v *Validator) getPropertyType(t typing.Type, name string) (typing.Type, bool) {
 	// only classes, interfaces, contracts and enums are subscriptable
 	switch c := t.(type) {
 	case Class:
@@ -403,10 +405,10 @@ func (v *Validator) getPropertyType(t Type, name string) (Type, bool) {
 		// TODO: fix this
 		return v.smallestNumericType(len(c.Items), false), false
 	}
-	return standards[Invalid], false
+	return standards[invalid], false
 }
 
-func isSubscriptable(t Type) bool {
+func isSubscriptable(t typing.Type) bool {
 	// only classes, interfaces and enums are subscriptable
 	switch t.(type) {
 	case Class, Interface, Enum, Contract:
