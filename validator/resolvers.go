@@ -59,7 +59,7 @@ func (v *Validator) resolveTuple(nodes []ast.Node) typing.Tuple {
 	return t
 }
 
-func (v *Validator) resolveExpression(e ast.ExpressionNode) typing.Type {
+func (v *Validator) resolveExpression(e *ast.ExpressionNode) typing.Type {
 	resolvers := map[ast.NodeType]resolver{
 		ast.Literal:          resolveLiteralExpression,
 		ast.MapLiteral:       resolveMapLiteralExpression,
