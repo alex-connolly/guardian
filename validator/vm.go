@@ -115,8 +115,8 @@ func castOperator(v *Validator, ts ...typing.Type) typing.Type {
 	// pretend it's a valid type
 	left := ts[0]
 	right := ts[1]
-	if !assignableTo(left, right) {
-		v.addError(errImpossibleCast, WriteType(left), WriteType(right))
+	if !typing.AssignableTo(left, right) {
+		v.addError(errImpossibleCast, typing.WriteType(left), typing.WriteType(right))
 		return left
 	}
 	return right
@@ -126,17 +126,17 @@ func booleanOperator(v *Validator, ts ...typing.Type) typing.Type {
 	if len(ts) != 2 {
 
 	}
-	return standards[boolean]
+	return typing.Boolean()
 }
 
 func operatorAdd(v *Validator, ts ...typing.Type) typing.Type {
 	switch ts[0].(type) {
-	case NumericType:
+	case typing.NumericType:
 		return BinaryNumericOperator()(v, ts...)
 	}
 	strType := v.getNamedType("string")
 	if ts[0].Compare(strType) {
 		return strType
 	}
-	return standards[invalid]
+	return typing.Invalid()
 }

@@ -1,6 +1,6 @@
 package typing
 
-func assignableTo(left, right Type) bool {
+func AssignableTo(left, right Type) bool {
 	// assignable if the two types are equal
 	if left.Compare(right) {
 		return true
