@@ -8,14 +8,14 @@ import (
 
 func (v *Validator) validateExpression(node ast.ExpressionNode) {
 	switch n := node.(type) {
-	case ast.CallExpressionNode:
+	case *ast.CallExpressionNode:
 		v.validateCallExpression(n)
 		break
 
 	}
 }
 
-func (v *Validator) validateCallExpression(call ast.CallExpressionNode) {
+func (v *Validator) validateCallExpression(call *ast.CallExpressionNode) {
 	exprType := v.resolveExpression(call.Call)
 	fullType := v.resolveExpression(call)
 	args := v.ExpressionTuple(call.Arguments)

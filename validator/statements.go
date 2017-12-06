@@ -9,25 +9,25 @@ import (
 func (v *Validator) validateStatement(node ast.Node) {
 	switch node.Type() {
 	case ast.AssignmentStatement:
-		v.validateAssignment(node.(ast.AssignmentStatementNode))
+		v.validateAssignment(node.(*ast.AssignmentStatementNode))
 		break
 	case ast.ForStatement:
-		v.validateForStatement(node.(ast.ForStatementNode))
+		v.validateForStatement(node.(*ast.ForStatementNode))
 		break
 	case ast.IfStatement:
-		v.validateIfStatement(node.(ast.IfStatementNode))
+		v.validateIfStatement(node.(*ast.IfStatementNode))
 		break
 	case ast.ReturnStatement:
-		v.validateReturnStatement(node.(ast.ReturnStatementNode))
+		v.validateReturnStatement(node.(*ast.ReturnStatementNode))
 		break
 	case ast.SwitchStatement:
-		v.validateSwitchStatement(node.(ast.SwitchStatementNode))
+		v.validateSwitchStatement(node.(*ast.SwitchStatementNode))
 		break
 		// TODO: handle call statement
 	}
 }
 
-func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
+func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 	// TODO: fundamental: define operator or not
 	// valid assignments must have
 	// 1. valid left hand expression (cannot be a call, literal, slice)
@@ -59,7 +59,7 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 
 		for i, left := range node.Left {
 			if leftTuple.Types[i] == typing.Unknown() {
-				if id, ok := left.(ast.IdentifierNode); ok {
+				if id, ok := left.(*ast.IdentifierNode); ok {
 					v.DeclareVarOfType(id.Name, rightTuple.Types[0])
 				}
 			}
@@ -76,7 +76,7 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 		if len(node.Left) == len(leftTuple.Types) {
 			for i, left := range node.Left {
 				if leftTuple.Types[i] == typing.Unknown() {
-					if id, ok := left.(ast.IdentifierNode); ok {
+					if id, ok := left.(*ast.IdentifierNode); ok {
 						//fmt.Printf("Declaring %s as %s\n", id.Name,typing.WriteType(rightTuple.Types[i]))
 						v.DeclareVarOfType(id.Name, rightTuple.Types[i])
 					}
@@ -86,7 +86,7 @@ func (v *Validator) validateAssignment(node ast.AssignmentStatementNode) {
 	}
 }
 
-func (v *Validator) validateIfStatement(node ast.IfStatementNode) {
+func (v *Validator) validateIfStatement(node *ast.IfStatementNode) {
 
 	if node.Init != nil {
 		v.validateStatement(node.Init)
@@ -103,26 +103,26 @@ func (v *Validator) validateIfStatement(node ast.IfStatementNode) {
 	}
 }
 
-func (v *Validator) validateSwitchStatement(node ast.SwitchStatementNode) {
+func (v *Validator) validateSwitchStatement(node *ast.SwitchStatementNode) {
 
 	switchType := v.resolveExpression(node.Target)
 	// target must be matched by all cases
 	for _, node := range node.Cases.Sequence {
 		if node.Type() == ast.CaseStatement {
-			v.validateCaseStatement(switchType, node.(ast.CaseStatementNode))
+			v.validateCaseStatement(switchType, node.(*ast.CaseStatementNode))
 		}
 	}
 
 }
 
-func (v *Validator) validateCaseStatement(switchType typing.Type, clause ast.CaseStatementNode) {
+func (v *Validator) validateCaseStatement(switchType typing.Type, clause *ast.CaseStatementNode) {
 	for _, expr := range clause.Expressions {
 		v.requireType(switchType, v.resolveExpression(expr))
 	}
 	v.validateScope(clause.Block)
 }
 
-func (v *Validator) validateReturnStatement(node ast.ReturnStatementNode) {
+func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
 	// must be in the context of a function (checked during ast generation)
 	// resolved tuple must match function expression
 
@@ -130,11 +130,11 @@ func (v *Validator) validateReturnStatement(node ast.ReturnStatementNode) {
 
 }
 
-func (v *Validator) validateForStatement(node ast.ForStatementNode) {
+func (v *Validator) validateForStatement(node *ast.ForStatementNode) {
 	// init statement must be valid
 	// if it exists
 	if node.Init != nil {
-		v.validateAssignment(*node.Init)
+		v.validateAssignment(node.Init)
 	}
 
 	// cond statement must be a boolean

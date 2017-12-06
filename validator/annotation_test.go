@@ -16,7 +16,7 @@ func TestBinaryExpressionAnnotation(t *testing.T) {
 	v := NewValidator(NewTestVM())
 	v.resolveExpression(e)
 	goutil.AssertNow(t, e.Type() == ast.BinaryExpression, "wrong node type")
-	b := e.(ast.BinaryExpressionNode)
+	b := e.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Resolved != nil, "resolved nil")
 	goutil.AssertNow(t, b.Resolved.Compare(typing.Boolean()), "wrong resolved type")
 }

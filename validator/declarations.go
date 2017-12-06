@@ -10,19 +10,19 @@ import (
 
 func (v *Validator) validateType(destination ast.Node) typing.Type {
 	switch n := destination.(type) {
-	case ast.PlainTypeNode:
+	case *ast.PlainTypeNode:
 		return v.validatePlainType(n)
-	case ast.MapTypeNode:
+	case *ast.MapTypeNode:
 		return v.validateMapType(n)
-	case ast.ArrayTypeNode:
+	case *ast.ArrayTypeNode:
 		return v.validateArrayType(n)
-	case ast.FuncTypeNode:
+	case *ast.FuncTypeNode:
 		return v.validateFuncType(n)
 	}
 	return typing.Invalid()
 }
 
-func (v *Validator) validatePlainType(node ast.PlainTypeNode) typing.Type {
+func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 	// start the validating process for another node
 	typ := v.getNamedType(node.Names...)
 	if typ == typing.Unknown() {
@@ -31,18 +31,18 @@ func (v *Validator) validatePlainType(node ast.PlainTypeNode) typing.Type {
 	return typ
 }
 
-func (v *Validator) validateArrayType(node ast.ArrayTypeNode) typing.Array {
+func (v *Validator) validateArrayType(node *ast.ArrayTypeNode) typing.Array {
 	value := v.validateType(node.Value)
 	return typing.Array{Value: value, Length: node.Length, Variable: node.Variable}
 }
 
-func (v *Validator) validateMapType(node ast.MapTypeNode) typing.Map {
+func (v *Validator) validateMapType(node *ast.MapTypeNode) typing.Map {
 	key := v.validateType(node.Key)
 	value := v.validateType(node.Value)
 	return typing.Map{Key: key, Value: value}
 }
 
-func (v *Validator) validateFuncType(node ast.FuncTypeNode) typing.Func {
+func (v *Validator) validateFuncType(node *ast.FuncTypeNode) typing.Func {
 	var params []typing.Type
 	for _, p := range node.Parameters {
 		params = append(params, v.validateType(p))
@@ -56,31 +56,31 @@ func (v *Validator) validateFuncType(node ast.FuncTypeNode) typing.Func {
 
 func (v *Validator) validateDeclaration(node ast.Node) {
 	switch n := node.(type) {
-	case ast.ClassDeclarationNode:
+	case *ast.ClassDeclarationNode:
 		v.validateClassDeclaration(n)
 		break
-	case ast.ContractDeclarationNode:
+	case *ast.ContractDeclarationNode:
 		v.validateContractDeclaration(n)
 		break
-	case ast.EnumDeclarationNode:
+	case *ast.EnumDeclarationNode:
 		v.validateEnumDeclaration(n)
 		break
-	case ast.FuncDeclarationNode:
+	case *ast.FuncDeclarationNode:
 		v.validateFuncDeclaration(n)
 		break
-	case ast.InterfaceDeclarationNode:
+	case *ast.InterfaceDeclarationNode:
 		v.validateInterfaceDeclaration(n)
 		break
-	case ast.ExplicitVarDeclarationNode:
+	case *ast.ExplicitVarDeclarationNode:
 		v.validateVarDeclaration(n)
 		break
-	case ast.EventDeclarationNode:
+	case *ast.EventDeclarationNode:
 		v.validateEventDeclaration(n)
 		break
-	case ast.TypeDeclarationNode:
+	case *ast.TypeDeclarationNode:
 		v.validateTypeDeclaration(n)
 		break
-	case ast.LifecycleDeclarationNode:
+	case *ast.LifecycleDeclarationNode:
 		v.validateLifecycleDeclaration(n)
 		break
 	default:
@@ -117,7 +117,7 @@ func (v *Validator) requireValidType(names []string) typing.Type {
 	return typ
 }
 
-func (v *Validator) validateVarDeclaration(node ast.ExplicitVarDeclarationNode) {
+func (v *Validator) validateVarDeclaration(node *ast.ExplicitVarDeclarationNode) {
 	for _, id := range node.Identifiers {
 		typ := v.validateType(node.DeclaredType)
 		v.declareContextualVar(id, typ)
@@ -125,7 +125,7 @@ func (v *Validator) validateVarDeclaration(node ast.ExplicitVarDeclarationNode) 
 	}
 }
 
-func (v *Validator) validateClassDeclaration(node ast.ClassDeclarationNode) {
+func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 	var supers []*typing.Class
 	for _, super := range node.Supers {
 		t := v.validatePlainType(super)
@@ -164,7 +164,7 @@ func (v *Validator) validateClassDeclaration(node ast.ClassDeclarationNode) {
 	v.declareContextualType(node.Identifier, classType)
 }
 
-func (v *Validator) validateEnumDeclaration(node ast.EnumDeclarationNode) {
+func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
 	var supers []*typing.Enum
 	for _, super := range node.Inherits {
 		t := v.validatePlainType(super)
@@ -187,7 +187,7 @@ func (v *Validator) validateEnumDeclaration(node ast.EnumDeclarationNode) {
 
 }
 
-func (v *Validator) validateContractDeclaration(node ast.ContractDeclarationNode) {
+func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNode) {
 	var supers []*typing.Contract
 	for _, super := range node.Supers {
 		t := v.validatePlainType(super)
@@ -226,7 +226,7 @@ func (v *Validator) validateContractDeclaration(node ast.ContractDeclarationNode
 	v.declareContextualType(node.Identifier, contractType)
 }
 
-func (v *Validator) validateInterfaceDeclaration(node ast.InterfaceDeclarationNode) {
+func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationNode) {
 	var supers []*typing.Interface
 	for _, super := range node.Supers {
 		t := v.validatePlainType(super)
@@ -267,7 +267,7 @@ func (v *Validator) declareContextualVar(name string, typ typing.Type) {
 	}
 }
 
-func (v *Validator) validateFuncDeclaration(node ast.FuncDeclarationNode) {
+func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
 	var params []typing.Type
 	for _, p := range node.Parameters {
@@ -295,7 +295,7 @@ func (v *Validator) validateFuncDeclaration(node ast.FuncDeclarationNode) {
 
 }
 
-func (v *Validator) validateEventDeclaration(node ast.EventDeclarationNode) {
+func (v *Validator) validateEventDeclaration(node *ast.EventDeclarationNode) {
 	var params []typing.Type
 	for _, n := range node.Parameters {
 		params = append(params, v.validateType(n.DeclaredType))
@@ -316,12 +316,12 @@ func (v *Validator) declareContextualType(name string, typ typing.Type) {
 	}
 }
 
-func (v *Validator) validateTypeDeclaration(node ast.TypeDeclarationNode) {
+func (v *Validator) validateTypeDeclaration(node *ast.TypeDeclarationNode) {
 	typ := v.validateType(node.Value)
 	v.declareContextualType(node.Identifier, typ)
 }
 
-func (v *Validator) validateLifecycleDeclaration(node ast.LifecycleDeclarationNode) {
+func (v *Validator) validateLifecycleDeclaration(node *ast.LifecycleDeclarationNode) {
 	// TODO: enforce location
 	types := make([]typing.Type, 0)
 	for _, p := range node.Parameters {

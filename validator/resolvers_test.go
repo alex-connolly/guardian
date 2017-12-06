@@ -17,7 +17,7 @@ func TestResolveLiteralExpressionBoolean(t *testing.T) {
 	p := parser.ParseExpression("true")
 	goutil.AssertNow(t, p != nil, "expr should not be nil")
 	goutil.AssertNow(t, p.Type() == ast.Literal, "wrong expression type")
-	a := p.(ast.LiteralNode)
+	a := p.(*ast.LiteralNode)
 	goutil.Assert(t, v.resolveExpression(a).Compare(typing.Boolean()), "wrong true expression type")
 }
 
@@ -32,7 +32,7 @@ func TestResolveCallExpression(t *testing.T) {
 	})
 	p := parser.ParseExpression("hello(5, 5)")
 	goutil.AssertNow(t, p.Type() == ast.CallExpression, "wrong expression type")
-	a := p.(ast.CallExpressionNode)
+	a := p.(*ast.CallExpressionNode)
 	resolved, ok := v.resolveExpression(a).(typing.Tuple)
 	goutil.Assert(t, ok, "wrong base type")
 	goutil.Assert(t, len(resolved.Types) == 1, "wrong type length")
@@ -44,7 +44,7 @@ func TestResolveArrayLiteralExpression(t *testing.T) {
 	v.DeclareType("dog", typing.Unknown())
 	p := parser.ParseExpression("[]dog{}")
 	goutil.AssertNow(t, p.Type() == ast.ArrayLiteral, "wrong expression type")
-	a := p.(ast.ArrayLiteralNode)
+	a := p.(*ast.ArrayLiteralNode)
 	_, ok := v.resolveExpression(a).(typing.Array)
 	goutil.Assert(t, ok, "wrong base type")
 }
@@ -102,7 +102,7 @@ func TestResolveIndexExpressionArrayLiteral(t *testing.T) {
 	v.DeclareVarOfType("cat", typing.Boolean())
 	p := parser.ParseExpression("[]cat{}[0]")
 	goutil.AssertNow(t, p.Type() == ast.IndexExpression, "wrong expression type")
-	b := p.(ast.IndexExpressionNode)
+	b := p.(*ast.IndexExpressionNode)
 	resolved := v.resolveExpression(b)
 	goutil.AssertNow(t, resolved.Compare(v.getNamedType("cat")), "wrong expression type")
 }
@@ -121,7 +121,7 @@ func TestResolveIndexExpressionMapLiteral(t *testing.T) {
 func TestResolveBinaryExpressionSimpleNumeric(t *testing.T) {
 	p := parser.ParseExpression("5 + 5")
 	goutil.AssertNow(t, p.Type() == ast.BinaryExpression, "wrong expression type")
-	b := p.(ast.BinaryExpressionNode)
+	b := p.(*ast.BinaryExpressionNode)
 	v := NewValidator(NewTestVM())
 	resolved := v.resolveExpression(b)
 	goutil.AssertNow(t, resolved.Compare(v.smallestNumericType(0, false)), fmt.Sprintf("wrong expression type: %s", typing.WriteType(resolved)))
@@ -130,7 +130,7 @@ func TestResolveBinaryExpressionSimpleNumeric(t *testing.T) {
 func TestResolveBinaryExpressionConcatenation(t *testing.T) {
 	p := parser.ParseExpression(`"a" + "b"`)
 	goutil.AssertNow(t, p.Type() == ast.BinaryExpression, "wrong expression type")
-	b := p.(ast.BinaryExpressionNode)
+	b := p.(*ast.BinaryExpressionNode)
 	v := NewValidator(NewTestVM())
 	resolved := v.resolveExpression(b)
 	goutil.AssertNow(t, resolved.Compare(v.getNamedType("string")), "wrong expression type")
@@ -139,7 +139,7 @@ func TestResolveBinaryExpressionConcatenation(t *testing.T) {
 func TestResolveBinaryExpressionEql(t *testing.T) {
 	p := parser.ParseExpression("5 == 5")
 	goutil.AssertNow(t, p.Type() == ast.BinaryExpression, "wrong expression type")
-	b := p.(ast.BinaryExpressionNode)
+	b := p.(*ast.BinaryExpressionNode)
 	v := NewValidator(NewTestVM())
 	resolved := v.resolveExpression(b)
 	goutil.AssertNow(t, resolved.Compare(typing.Boolean()), "wrong expression type")
@@ -148,7 +148,7 @@ func TestResolveBinaryExpressionEql(t *testing.T) {
 func TestResolveBinaryExpressionGeq(t *testing.T) {
 	p := parser.ParseExpression("5 >= 5")
 	goutil.AssertNow(t, p.Type() == ast.BinaryExpression, "wrong expression type")
-	b := p.(ast.BinaryExpressionNode)
+	b := p.(*ast.BinaryExpressionNode)
 	v := NewValidator(NewTestVM())
 	resolved := v.resolveExpression(b)
 	goutil.AssertNow(t, resolved.Compare(typing.Boolean()), "wrong expression type")
@@ -157,7 +157,7 @@ func TestResolveBinaryExpressionGeq(t *testing.T) {
 func TestResolveBinaryExpressionLeq(t *testing.T) {
 	p := parser.ParseExpression("5 <= 5")
 	goutil.AssertNow(t, p.Type() == ast.BinaryExpression, "wrong expression type")
-	b := p.(ast.BinaryExpressionNode)
+	b := p.(*ast.BinaryExpressionNode)
 	v := NewValidator(NewTestVM())
 	resolved := v.resolveExpression(b)
 	goutil.AssertNow(t, resolved.Compare(typing.Boolean()), "wrong expression type")
@@ -166,7 +166,7 @@ func TestResolveBinaryExpressionLeq(t *testing.T) {
 func TestResolveBinaryExpressionLss(t *testing.T) {
 	p := parser.ParseExpression("5 < 5")
 	goutil.AssertNow(t, p.Type() == ast.BinaryExpression, "wrong expression type")
-	b := p.(ast.BinaryExpressionNode)
+	b := p.(*ast.BinaryExpressionNode)
 	v := NewValidator(NewTestVM())
 	resolved := v.resolveExpression(b)
 	goutil.AssertNow(t, resolved.Compare(typing.Boolean()), "wrong expression type")
@@ -175,7 +175,7 @@ func TestResolveBinaryExpressionLss(t *testing.T) {
 func TestResolveBinaryExpressionGtr(t *testing.T) {
 	p := parser.ParseExpression("5 > 5")
 	goutil.AssertNow(t, p.Type() == ast.BinaryExpression, "wrong b expression type")
-	b := p.(ast.BinaryExpressionNode)
+	b := p.(*ast.BinaryExpressionNode)
 	v := NewValidator(NewTestVM())
 	resolved := v.resolveExpression(b)
 	goutil.AssertNow(t, resolved.Compare(typing.Boolean()), fmt.Sprintf("wrong resolved expression type: %s", typing.WriteType(resolved)))
