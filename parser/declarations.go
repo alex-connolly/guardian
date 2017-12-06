@@ -37,7 +37,7 @@ func parseInterfaceDeclaration(p *Parser) {
 	p.parseRequired(lexer.TknInterface)
 	identifier := p.parseIdentifier()
 
-	var inherits []ast.PlainTypeNode
+	var inherits []*ast.PlainTypeNode
 
 	if p.parseOptional(lexer.TknInherits) {
 		inherits = p.parsePlainTypeList()
@@ -52,10 +52,10 @@ func parseInterfaceDeclaration(p *Parser) {
 		Signatures: signatures,
 	}
 
-	p.scope.AddDeclaration(identifier, node)
+	p.scope.AddDeclaration(identifier, &node)
 }
 
-func (p *Parser) parseInterfaceSignatures() []ast.FuncTypeNode {
+func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
 
 	p.parseRequired(lexer.TknOpenBrace)
 
@@ -63,7 +63,7 @@ func (p *Parser) parseInterfaceSignatures() []ast.FuncTypeNode {
 		parseNewLine(p)
 	}
 
-	var sigs []ast.FuncTypeNode
+	var sigs []*ast.FuncTypeNode
 
 	first := p.parseFuncType()
 	sigs = append(sigs, first)
@@ -136,7 +136,7 @@ func parseEnumDeclaration(p *Parser) {
 	p.parseRequired(lexer.TknEnum)
 	identifier := p.parseIdentifier()
 
-	var inherits []ast.PlainTypeNode
+	var inherits []*ast.PlainTypeNode
 
 	if p.parseOptional(lexer.TknInherits) {
 		inherits = p.parsePlainTypeList()
@@ -151,10 +151,10 @@ func parseEnumDeclaration(p *Parser) {
 		Enums:      enums,
 	}
 
-	p.scope.AddDeclaration(identifier, node)
+	p.scope.AddDeclaration(identifier, &node)
 }
 
-func (p *Parser) parsePlainType() ast.PlainTypeNode {
+func (p *Parser) parsePlainType() *ast.PlainTypeNode {
 
 	variable := p.parseOptional(lexer.TknEllipsis)
 
@@ -163,15 +163,15 @@ func (p *Parser) parsePlainType() ast.PlainTypeNode {
 	for p.parseOptional(lexer.TknDot) {
 		names = append(names, p.parseIdentifier())
 	}
-	return ast.PlainTypeNode{
+	return &ast.PlainTypeNode{
 		Names:    names,
 		Variable: variable,
 	}
 }
 
 // like any list parser, but enforces that each node must be a plain type
-func (p *Parser) parsePlainTypeList() []ast.PlainTypeNode {
-	var refs []ast.PlainTypeNode
+func (p *Parser) parsePlainTypeList() []*ast.PlainTypeNode {
+	var refs []*ast.PlainTypeNode
 	refs = append(refs, p.parsePlainType())
 	for p.parseOptional(lexer.TknComma) {
 		refs = append(refs, p.parsePlainType())
@@ -193,7 +193,7 @@ func parseClassDeclaration(p *Parser) {
 
 	// is and inherits can be in any order
 
-	var inherits, interfaces []ast.PlainTypeNode
+	var inherits, interfaces []*ast.PlainTypeNode
 
 	if p.parseOptional(lexer.TknInherits) {
 		inherits = p.parsePlainTypeList()
@@ -217,7 +217,7 @@ func parseClassDeclaration(p *Parser) {
 		Body:       body,
 	}
 
-	p.scope.AddDeclaration(identifier, node)
+	p.scope.AddDeclaration(identifier, &node)
 }
 
 func parseContractDeclaration(p *Parser) {
@@ -233,7 +233,7 @@ func parseContractDeclaration(p *Parser) {
 
 	// is and inherits can be in any order
 
-	var inherits, interfaces []ast.PlainTypeNode
+	var inherits, interfaces []*ast.PlainTypeNode
 
 	if p.parseOptional(lexer.TknInherits) {
 		inherits = p.parsePlainTypeList()
@@ -264,7 +264,7 @@ func parseContractDeclaration(p *Parser) {
 		Body:       body,
 	}
 
-	p.scope.AddDeclaration(identifier, node)
+	p.scope.AddDeclaration(identifier, &node)
 }
 
 func (p *Parser) parseType() ast.Node {
@@ -292,7 +292,7 @@ func (p *Parser) parseTypeList() []ast.Node {
 	return types
 }
 
-func (p *Parser) parseVarDeclaration() ast.ExplicitVarDeclarationNode {
+func (p *Parser) parseVarDeclaration() *ast.ExplicitVarDeclarationNode {
 
 	modifiers := p.parseModifiers(lexer.TknIdentifier)
 
@@ -308,15 +308,15 @@ func (p *Parser) parseVarDeclaration() ast.ExplicitVarDeclarationNode {
 
 	dType := p.parseType()
 
-	return ast.ExplicitVarDeclarationNode{
+	return &ast.ExplicitVarDeclarationNode{
 		Modifiers:    modifiers,
 		DeclaredType: dType,
 		Identifiers:  names,
 	}
 }
 
-func (p *Parser) parseParameters() []ast.ExplicitVarDeclarationNode {
-	var params []ast.ExplicitVarDeclarationNode
+func (p *Parser) parseParameters() []*ast.ExplicitVarDeclarationNode {
+	var params []*ast.ExplicitVarDeclarationNode
 	p.parseRequired(lexer.TknOpenBracket)
 	if !p.parseOptional(lexer.TknCloseBracket) {
 		params = append(params, p.parseVarDeclaration())
@@ -374,7 +374,7 @@ func parseFuncDeclaration(p *Parser) {
 		Body:       body,
 	}
 
-	p.scope.AddDeclaration(identifier, node)
+	p.scope.AddDeclaration(identifier, &node)
 }
 
 func parseLifecycleDeclaration(p *Parser) {
@@ -402,7 +402,7 @@ func parseLifecycleDeclaration(p *Parser) {
 		node.Parameters = params
 	}
 
-	p.scope.AddDeclaration("constructor", node)
+	p.scope.AddDeclaration("constructor", &node)
 }
 
 func parseTypeDeclaration(p *Parser) {
@@ -424,10 +424,10 @@ func parseTypeDeclaration(p *Parser) {
 		Value:      value,
 	}
 
-	p.scope.AddDeclaration(identifier, n)
+	p.scope.AddDeclaration(identifier, &n)
 }
 
-func (p *Parser) parseMapType() ast.MapTypeNode {
+func (p *Parser) parseMapType() *ast.MapTypeNode {
 
 	variable := p.parseOptional(lexer.TknEllipsis)
 
@@ -446,10 +446,10 @@ func (p *Parser) parseMapType() ast.MapTypeNode {
 		Variable: variable,
 	}
 
-	return mapType
+	return &mapType
 }
 
-func (p *Parser) parseFuncType() ast.FuncTypeNode {
+func (p *Parser) parseFuncType() *ast.FuncTypeNode {
 
 	f := ast.FuncTypeNode{}
 
@@ -471,10 +471,10 @@ func (p *Parser) parseFuncType() ast.FuncTypeNode {
 		p.parseRequired(lexer.TknCloseBracket)
 	}
 	f.Results = p.parseTypeList()
-	return f
+	return &f
 }
 
-func (p *Parser) parseArrayType() ast.ArrayTypeNode {
+func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 
 	variable := p.parseOptional(lexer.TknEllipsis)
 
@@ -488,7 +488,7 @@ func (p *Parser) parseArrayType() ast.ArrayTypeNode {
 
 	typ := p.parseType()
 
-	return ast.ArrayTypeNode{
+	return &ast.ArrayTypeNode{
 		Value:    typ,
 		Variable: variable,
 	}
@@ -519,11 +519,11 @@ func parseExplicitVarDeclaration(p *Parser) {
 	// surely needs to be a declaration in some contexts
 	switch p.scope.Type() {
 	case ast.FuncDeclaration, ast.LifecycleDeclaration:
-		p.scope.AddSequential(node)
+		p.scope.AddSequential(&node)
 		break
 	default:
 		for _, n := range names {
-			p.scope.AddDeclaration(n, node)
+			p.scope.AddDeclaration(n, &node)
 		}
 	}
 
@@ -540,5 +540,5 @@ func parseEventDeclaration(p *Parser) {
 		Identifier: name,
 		Parameters: types,
 	}
-	p.scope.AddDeclaration(name, node)
+	p.scope.AddDeclaration(name, &node)
 }

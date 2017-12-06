@@ -73,7 +73,7 @@ func pushNode(stack []ast.ExpressionNode, op lexer.TokenType) []ast.ExpressionNo
 	n.Right, stack = stack[len(stack)-1], stack[:len(stack)-1]
 	n.Left, stack = stack[len(stack)-1], stack[:len(stack)-1]
 	n.Operator = op
-	return append(stack, n)
+	return append(stack, &n)
 }
 
 func (p *Parser) parseExpression() ast.ExpressionNode {
@@ -142,7 +142,7 @@ func finalise(expStack []ast.ExpressionNode, opStack []lexer.TokenType) ast.Expr
 		n.Right, expStack = expStack[len(expStack)-1], expStack[:len(expStack)-1]
 		n.Left, expStack = expStack[len(expStack)-1], expStack[:len(expStack)-1]
 		n.Operator, opStack = opStack[len(opStack)-1], opStack[:len(opStack)-1]
-		expStack = append(expStack, n)
+		expStack = append(expStack, &n)
 	}
 	if len(expStack) == 0 {
 		return nil
@@ -223,21 +223,21 @@ func (p *Parser) isCompositeLiteral() bool {
 	return p.current().Type == lexer.TknIdentifier && p.token(1).Type == lexer.TknOpenBrace
 }
 
-func (p *Parser) parsePrefixUnaryExpression() (n ast.UnaryExpressionNode) {
+func (p *Parser) parsePrefixUnaryExpression() (n *ast.UnaryExpressionNode) {
 	n.Operator = p.current().Type
 	p.next()
 	n.Operand = p.parseExpression()
 	return n
 }
 
-func (p *Parser) parseReference(expr ast.ExpressionNode) (n ast.ReferenceNode) {
+func (p *Parser) parseReference(expr ast.ExpressionNode) (n *ast.ReferenceNode) {
 	p.parseRequired(lexer.TknDot)
 	n.Parent = expr
 	n.Reference = p.parseExpressionComponent()
 	return n
 }
 
-func (p *Parser) parseCallExpression(expr ast.ExpressionNode) (n ast.CallExpressionNode) {
+func (p *Parser) parseCallExpression(expr ast.ExpressionNode) (n *ast.CallExpressionNode) {
 	n.Call = expr
 	p.parseRequired(lexer.TknOpenBracket)
 	if !p.parseOptional(lexer.TknCloseBracket) {
@@ -247,7 +247,7 @@ func (p *Parser) parseCallExpression(expr ast.ExpressionNode) (n ast.CallExpress
 	return n
 }
 
-func (p *Parser) parseArrayLiteral() (n ast.ArrayLiteralNode) {
+func (p *Parser) parseArrayLiteral() (n *ast.ArrayLiteralNode) {
 	// [string:3]{"Dog", "Cat", ""}
 
 	n.Signature = p.parseArrayType()
@@ -261,7 +261,7 @@ func (p *Parser) parseArrayLiteral() (n ast.ArrayLiteralNode) {
 	return n
 }
 
-func (p *Parser) parseFuncLiteral() (n ast.FuncLiteralNode) {
+func (p *Parser) parseFuncLiteral() (n *ast.FuncLiteralNode) {
 	n.Parameters = p.parseParameters()
 
 	n.Results = p.parseResults()
@@ -270,7 +270,7 @@ func (p *Parser) parseFuncLiteral() (n ast.FuncLiteralNode) {
 	return n
 }
 
-func (p *Parser) parseMapLiteral() (n ast.MapLiteralNode) {
+func (p *Parser) parseMapLiteral() (n *ast.MapLiteralNode) {
 	n.Signature = p.parseMapType()
 
 	p.parseRequired(lexer.TknOpenBrace)
@@ -312,12 +312,11 @@ func (p *Parser) parseIndexExpression(expr ast.ExpressionNode) ast.ExpressionNod
 	p.parseRequired(lexer.TknCloseSquare)
 	n.Expression = expr
 	n.Index = index
-
-	return n
+	return &n
 }
 
 func (p *Parser) parseSliceExpression(expr ast.ExpressionNode,
-	first ast.ExpressionNode) ast.SliceExpressionNode {
+	first ast.ExpressionNode) *ast.SliceExpressionNode {
 	n := ast.SliceExpressionNode{}
 	n.Expression = expr
 	n.Low = first
@@ -325,22 +324,22 @@ func (p *Parser) parseSliceExpression(expr ast.ExpressionNode,
 		n.High = p.parseExpression()
 		p.parseRequired(lexer.TknCloseSquare)
 	}
-	return n
+	return &n
 }
 
-func (p *Parser) parseIdentifierExpression() (n ast.IdentifierNode) {
+func (p *Parser) parseIdentifierExpression() (n *ast.IdentifierNode) {
 	n.Name = p.parseIdentifier()
 	return n
 }
 
-func (p *Parser) parseLiteral() (n ast.LiteralNode) {
+func (p *Parser) parseLiteral() (n *ast.LiteralNode) {
 	n.LiteralType = p.current().Type
 	n.Data = p.current().String()
 	p.next()
 	return n
 }
 
-func (p *Parser) parseCompositeLiteral() (n ast.CompositeLiteralNode) {
+func (p *Parser) parseCompositeLiteral() (n *ast.CompositeLiteralNode) {
 	// expr must be a reference or identifier node
 	n.TypeName = p.parseIdentifier()
 
