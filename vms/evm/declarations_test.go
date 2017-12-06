@@ -1,6 +1,7 @@
 package evm
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/end-r/guardian/validator"
@@ -10,9 +11,15 @@ import (
 )
 
 func TestTraverseExplicitVariableDeclaration(t *testing.T) {
-	ast, _ := parser.ParseString(`name uint8`)
+	ast, errs := parser.ParseString(`name uint8`)
+	goutil.AssertNow(t, errs == nil, "errs should be nil")
+	goutil.AssertNow(t, ast != nil, "ast shouldn't be nil")
+	goutil.AssertNow(t, ast.Declarations != nil, "ast decls shouldn't be nil")
 	e := NewVM()
-	validator.Validate(ast, e)
+	fmt.Println("$$")
+	errs = validator.Validate(ast, e)
+	goutil.Assert(t, errs == nil, "errs should be nil")
+	fmt.Println("$$$")
 	e.Traverse(ast)
 	goutil.Assert(t, len(e.storage) == 1, "didn't allocate a block")
 }

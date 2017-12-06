@@ -118,11 +118,12 @@ func (v *Validator) requireValidType(names []string) typing.Type {
 }
 
 func (v *Validator) validateVarDeclaration(node *ast.ExplicitVarDeclarationNode) {
+	typ := v.validateType(node.DeclaredType)
 	for _, id := range node.Identifiers {
-		typ := v.validateType(node.DeclaredType)
 		v.declareContextualVar(id, typ)
 		//fmt.Printf("Declared: %s as %s\n", id, WriteType(typ))
 	}
+	node.Resolved = typ
 }
 
 func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
@@ -161,6 +162,8 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 		Lifecycles: lifecycles,
 	}
 
+	node.Resolved = classType
+
 	v.declareContextualType(node.Identifier, classType)
 }
 
@@ -182,6 +185,8 @@ func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
 		Supers: supers,
 		Items:  list,
 	}
+
+	node.Resolved = enumType
 
 	v.declareContextualType(node.Identifier, enumType)
 
@@ -223,6 +228,8 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 		Lifecycles: lifecycles,
 	}
 
+	node.Resolved = contractType
+
 	v.declareContextualType(node.Identifier, contractType)
 }
 
@@ -250,6 +257,8 @@ func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationN
 		Supers: supers,
 		Funcs:  funcs,
 	}
+
+	node.Resolved = interfaceType
 
 	v.declareContextualType(node.Identifier, interfaceType)
 
@@ -289,6 +298,7 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 		Results: typing.NewTuple(results...),
 	}
 
+	node.Resolved = funcType
 	v.declareContextualVar(node.Identifier, funcType)
 
 	v.validateScope(node.Body)
@@ -304,7 +314,7 @@ func (v *Validator) validateEventDeclaration(node *ast.EventDeclarationNode) {
 		Name:       node.Identifier,
 		Parameters: typing.NewTuple(params...),
 	}
-
+	node.Resolved = eventType
 	v.declareContextualVar(node.Identifier, eventType)
 }
 
@@ -318,6 +328,7 @@ func (v *Validator) declareContextualType(name string, typ typing.Type) {
 
 func (v *Validator) validateTypeDeclaration(node *ast.TypeDeclarationNode) {
 	typ := v.validateType(node.Value)
+	node.Resolved = typ
 	v.declareContextualType(node.Identifier, typ)
 }
 

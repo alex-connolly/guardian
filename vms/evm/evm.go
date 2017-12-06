@@ -2,6 +2,7 @@ package evm
 
 import (
 	"encoding/binary"
+	"fmt"
 
 	"github.com/end-r/guardian/lexer"
 
@@ -130,9 +131,11 @@ func (evm *GuardianEVM) allocateStorage(name string, size uint) {
 	// TODO: check whether there's a way to using some bin packing algo
 	// with a modified heuristic to reduce the cost of extracting variables using bitshifts
 	// maybe?
+	fmt.Println("a")
 	if evm.storage == nil {
 		evm.storage = make(map[string]storageBlock)
 	}
+	fmt.Println("b")
 	block := storageBlock{
 		size:   size,
 		offset: evm.lastOffset,
@@ -190,7 +193,7 @@ func (evm GuardianEVM) Builtins() *ast.ScopeNode {
 				number uint
 				coinbase address
 				gaslimit uint
-				blockhash func(blockNumber uint) [32]byte
+				//blockhash func(blockNumber uint) [32]byte
 			}
 
 			class BuiltinTransaction {
@@ -250,6 +253,14 @@ func (evm GuardianEVM) Operators() (m validator.OperatorMap) {
 	m.Add(validator.CastOperator, lexer.TknAs)
 
 	return m
+}
+
+func operatorAdd(v *validator.Validator, ts ...typing.Type) typing.Type {
+	switch ts[0].(type) {
+	case typing.NumericType:
+		return validator.BinaryNumericOperator(v, ts...)
+	}
+	return typing.Invalid()
 }
 
 func (evm GuardianEVM) Primitives() map[string]typing.Type {
