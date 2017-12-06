@@ -32,7 +32,7 @@ func TestParseLiteralInteger(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr should not be nil")
 	goutil.AssertNow(t, expr.Type() == ast.Literal, "wrong expr type")
-	lit := expr.(ast.LiteralNode)
+	lit := expr.(*ast.LiteralNode)
 	goutil.AssertNow(t, lit.LiteralType == lexer.TknInteger, "wrong literal type")
 }
 
@@ -42,7 +42,7 @@ func TestParseLiteralString(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr should not be nil")
 	goutil.AssertNow(t, expr.Type() == ast.Literal, "wrong expr type")
-	lit := expr.(ast.LiteralNode)
+	lit := expr.(*ast.LiteralNode)
 	goutil.AssertNow(t, lit.LiteralType == lexer.TknString, "wrong literal type")
 }
 
@@ -67,7 +67,7 @@ func TestParseMapLiteralMultiple(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.MapLiteral, "wrong node type")
-	n := expr.(ast.MapLiteralNode)
+	n := expr.(*ast.MapLiteralNode)
 
 	goutil.Assert(t, len(n.Data) == 2, "wrong data length")
 }
@@ -77,11 +77,11 @@ func TestParseSliceExpressionReferenceLowLiteral(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.SliceExpression, "wrong node type")
-	s := expr.(ast.SliceExpressionNode)
+	s := expr.(*ast.SliceExpressionNode)
 	goutil.AssertNow(t, s.Expression != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, s.Expression.Type() == ast.Identifier, "wrong expression type")
 	goutil.AssertNow(t, s.Low.Type() == ast.Literal, "wrong low type")
-	l := s.Low.(ast.LiteralNode)
+	l := s.Low.(*ast.LiteralNode)
 	goutil.AssertNow(t, l.Data == "6", "wrong data")
 }
 
@@ -90,7 +90,7 @@ func TestParseSliceExpressionReferenceLowReference(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.SliceExpression, "wrong node type")
-	s := expr.(ast.SliceExpressionNode)
+	s := expr.(*ast.SliceExpressionNode)
 	goutil.AssertNow(t, s.Expression.Type() == ast.Identifier, "wrong expression type")
 }
 
@@ -99,10 +99,10 @@ func TestParseSliceExpressionReferenceLowCall(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.SliceExpression, "wrong node type")
-	s := expr.(ast.SliceExpressionNode)
+	s := expr.(*ast.SliceExpressionNode)
 	goutil.AssertNow(t, s.Expression.Type() == ast.Identifier, "wrong expression type")
 	goutil.AssertNow(t, s.Low.Type() == ast.CallExpression, "wrong low type")
-	l := s.Low.(ast.CallExpressionNode)
+	l := s.Low.(*ast.CallExpressionNode)
 	goutil.AssertNow(t, l.Arguments == nil, "call arguments should be nil")
 	goutil.AssertNow(t, l.Call.Type() == ast.Identifier, "wrong call type")
 }
@@ -112,9 +112,9 @@ func TestParseSliceExpressionCallLowLiteral(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.SliceExpression, "wrong node type")
-	s := expr.(ast.SliceExpressionNode)
+	s := expr.(*ast.SliceExpressionNode)
 	goutil.AssertNow(t, s.Expression.Type() == ast.CallExpression, "wrong expression type")
-	c := s.Expression.(ast.CallExpressionNode)
+	c := s.Expression.(*ast.CallExpressionNode)
 	goutil.AssertNow(t, c.Arguments == nil, "arguments should be nil")
 	goutil.AssertNow(t, c.Call.Type() == ast.Identifier, "wrong call type")
 }
@@ -124,9 +124,9 @@ func TestParseSliceExpressionCallLowReference(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.SliceExpression, "wrong node type")
-	s := expr.(ast.SliceExpressionNode)
+	s := expr.(*ast.SliceExpressionNode)
 	goutil.AssertNow(t, s.Expression.Type() == ast.CallExpression, "wrong expression type")
-	c := s.Expression.(ast.CallExpressionNode)
+	c := s.Expression.(*ast.CallExpressionNode)
 	goutil.AssertNow(t, c.Arguments == nil, "arguments should be nil")
 	goutil.AssertNow(t, c.Call.Type() == ast.Identifier, "wrong call type")
 }
@@ -136,9 +136,9 @@ func TestParseSliceExpressionCallLowCall(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.SliceExpression, "wrong node type")
-	s := expr.(ast.SliceExpressionNode)
+	s := expr.(*ast.SliceExpressionNode)
 	goutil.AssertNow(t, s.Expression.Type() == ast.CallExpression, "wrong expression type")
-	c := s.Expression.(ast.CallExpressionNode)
+	c := s.Expression.(*ast.CallExpressionNode)
 	goutil.AssertNow(t, c.Arguments == nil, "arguments should be nil")
 	goutil.AssertNow(t, c.Call.Type() == ast.Identifier, "wrong call type")
 }
@@ -309,7 +309,7 @@ func TestParseCompositeLiteralInline(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expression shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.CompositeLiteral, "wrong node type")
-	n := expr.(ast.CompositeLiteralNode)
+	n := expr.(*ast.CompositeLiteralNode)
 	goutil.AssertNow(t, n.Fields != nil, "fields shouldn't be nil")
 	goutil.AssertNow(t, len(n.Fields) == 1, "wrong number of fields")
 }
@@ -348,7 +348,7 @@ func TestParseIndexExpressionReferenceReference(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
-	indexExpr := expr.(ast.IndexExpressionNode)
+	indexExpr := expr.(*ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
 	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
@@ -361,7 +361,7 @@ func TestParseIndexExpressionReferenceLiteral(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
-	indexExpr := expr.(ast.IndexExpressionNode)
+	indexExpr := expr.(*ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
 	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
@@ -374,7 +374,7 @@ func TestParseIndexExpressionReferenceCall(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
-	indexExpr := expr.(ast.IndexExpressionNode)
+	indexExpr := expr.(*ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
 	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
@@ -387,7 +387,7 @@ func TestParseIndexExpressionReferenceIndex(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
-	indexExpr := expr.(ast.IndexExpressionNode)
+	indexExpr := expr.(*ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
 	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
@@ -400,7 +400,7 @@ func TestParseIndexExpressionCallReference(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
-	indexExpr := expr.(ast.IndexExpressionNode)
+	indexExpr := expr.(*ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
 	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
@@ -413,7 +413,7 @@ func TestParseIndexExpressionCallLiteral(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
-	indexExpr := expr.(ast.IndexExpressionNode)
+	indexExpr := expr.(*ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
 	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
@@ -426,7 +426,7 @@ func TestParseIndexExpressionCallCall(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
-	indexExpr := expr.(ast.IndexExpressionNode)
+	indexExpr := expr.(*ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
 	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
@@ -439,7 +439,7 @@ func TestParseIndexExpressionCallIndex(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
-	indexExpr := expr.(ast.IndexExpressionNode)
+	indexExpr := expr.(*ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
 	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
@@ -452,7 +452,7 @@ func TestParseIndexExpressionIndexReference(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
-	indexExpr := expr.(ast.IndexExpressionNode)
+	indexExpr := expr.(*ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
 	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
@@ -465,7 +465,7 @@ func TestParseIndexExpressionIndexLiteral(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
-	indexExpr := expr.(ast.IndexExpressionNode)
+	indexExpr := expr.(*ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
 	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
@@ -478,7 +478,7 @@ func TestParseIndexExpressionIndexCall(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
-	indexExpr := expr.(ast.IndexExpressionNode)
+	indexExpr := expr.(*ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
 	goutil.AssertNow(t, expression != nil, "expression shouldn't be nil")
@@ -491,7 +491,7 @@ func TestParseIndexExpressionIndexIndex(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.IndexExpression, "wrong expr type")
-	indexExpr := expr.(ast.IndexExpressionNode)
+	indexExpr := expr.(*ast.IndexExpressionNode)
 	index := indexExpr.Index
 	expression := indexExpr.Expression
 	goutil.AssertNow(t, expression.Type() == ast.IndexExpression, "wrong expression type")
@@ -503,7 +503,7 @@ func TestParseBinaryExpressionLiteralLiteral(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
-	b := expr.(ast.BinaryExpressionNode)
+	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left.Type() == ast.Literal, "wrong left type")
 	goutil.AssertNow(t, b.Right.Type() == ast.Literal, "wrong right type")
 	goutil.AssertNow(t, b.Operator == lexer.TknAdd, "wrong operator")
@@ -514,7 +514,7 @@ func TestParseBinaryExpressionLiteralLiteralBracketed(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
-	b := expr.(ast.BinaryExpressionNode)
+	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left.Type() == ast.Literal, "wrong left type")
 	goutil.AssertNow(t, b.Right.Type() == ast.Literal, "wrong right type")
 	goutil.AssertNow(t, b.Operator == lexer.TknAdd, "wrong operator")
@@ -525,7 +525,7 @@ func TestParseBinaryExpressionReferenceReference(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
-	b := expr.(ast.BinaryExpressionNode)
+	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left.Type() == ast.Identifier, "wrong left type")
 	goutil.AssertNow(t, b.Right.Type() == ast.Identifier, "wrong right type")
 	goutil.AssertNow(t, b.Operator == lexer.TknSub, "wrong operator")
@@ -536,7 +536,7 @@ func TestParseBinaryExpressionIndexIndex(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
-	b := expr.(ast.BinaryExpressionNode)
+	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left.Type() == ast.IndexExpression, "wrong left type")
 	goutil.AssertNow(t, b.Right.Type() == ast.IndexExpression, "wrong right type")
 	goutil.AssertNow(t, b.Operator == lexer.TknMul, "wrong operator")
@@ -547,7 +547,7 @@ func TestParseBinaryExpressionCallCall(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
-	b := expr.(ast.BinaryExpressionNode)
+	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left.Type() == ast.CallExpression, "wrong left type")
 	goutil.AssertNow(t, b.Right.Type() == ast.CallExpression, "wrong right type")
 	goutil.AssertNow(t, b.Operator == lexer.TknDiv, "wrong operator")
@@ -558,7 +558,7 @@ func TestParseUnaryExpressionReference(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.UnaryExpression, "wrong expr type")
-	u := expr.(ast.UnaryExpressionNode)
+	u := expr.(*ast.UnaryExpressionNode)
 	goutil.AssertNow(t, u.Operand.Type() == ast.Identifier, "wrong left type")
 	goutil.AssertNow(t, u.Operator == lexer.TknNot, "wrong operator")
 }
@@ -568,7 +568,7 @@ func TestParseUnaryExpressionIndex(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.UnaryExpression, "wrong expr type")
-	u := expr.(ast.UnaryExpressionNode)
+	u := expr.(*ast.UnaryExpressionNode)
 	goutil.AssertNow(t, u.Operand.Type() == ast.IndexExpression, "wrong left type")
 	goutil.AssertNow(t, u.Operator == lexer.TknNot, "wrong operator")
 }
@@ -578,7 +578,7 @@ func TestParseChainedExpressionSimple(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
-	b := expr.(ast.BinaryExpressionNode)
+	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left.Type() == ast.Literal, "wrong left type")
 	goutil.AssertNow(t, b.Right.Type() == ast.Literal, "wrong right type")
 	goutil.AssertNow(t, b.Operator == lexer.TknAdd, "wrong operator")
@@ -589,7 +589,7 @@ func TestParseBinaryExpressionComparative(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
-	b := expr.(ast.BinaryExpressionNode)
+	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left.Type() == ast.Literal, "wrong left type")
 	goutil.AssertNow(t, b.Right.Type() == ast.Literal, "wrong right type")
 	goutil.AssertNow(t, b.Operator == lexer.TknGtr, "wrong operator")
@@ -600,7 +600,7 @@ func TestParseChainedExpressionThreeLiterals(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
-	b := expr.(ast.BinaryExpressionNode)
+	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left.Type() == ast.BinaryExpression, "wrong left type")
 	goutil.AssertNow(t, b.Right.Type() == ast.Literal, "wrong right type")
 	goutil.AssertNow(t, b.Operator == lexer.TknSub, "wrong operator")
@@ -611,7 +611,7 @@ func TestParseChainedExpressionLiteralsSingleBracket(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
-	b := expr.(ast.BinaryExpressionNode)
+	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left.Type() == ast.Literal, "wrong left type")
 	goutil.AssertNow(t, b.Right.Type() == ast.BinaryExpression, "wrong right type")
 	goutil.AssertNow(t, b.Operator == lexer.TknAdd, "wrong operator")
@@ -622,7 +622,7 @@ func TestParseChainedExpressionLiteralsDoubleBracket(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
-	b := expr.(ast.BinaryExpressionNode)
+	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left.Type() == ast.BinaryExpression, "wrong left type")
 	goutil.AssertNow(t, b.Right.Type() == ast.BinaryExpression, "wrong right type")
 	goutil.AssertNow(t, b.Operator == lexer.TknAdd, "wrong operator")
@@ -633,7 +633,7 @@ func TestParseChainedExpressionLiteralsExpectPrecedence(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
-	b := expr.(ast.BinaryExpressionNode)
+	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left.Type() == ast.Literal, "wrong left type")
 	goutil.AssertNow(t, b.Right.Type() == ast.BinaryExpression, "wrong right type")
 	goutil.AssertNow(t, b.Operator == lexer.TknAdd, "wrong operator")
@@ -644,7 +644,7 @@ func TestParseChainedExpressionLiteralsOverridePrecedence(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
-	b := expr.(ast.BinaryExpressionNode)
+	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left.Type() == ast.BinaryExpression, "wrong left type")
 	goutil.AssertNow(t, b.Right.Type() == ast.Literal, "wrong right type")
 	goutil.AssertNow(t, b.Operator == lexer.TknMul, "wrong operator")
@@ -655,7 +655,7 @@ func TestParseChainedExpressionReferencesOverridePrecedence(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
-	b := expr.(ast.BinaryExpressionNode)
+	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left.Type() == ast.BinaryExpression, "wrong left type")
 	goutil.AssertNow(t, b.Right.Type() == ast.Identifier, "wrong right type")
 	goutil.AssertNow(t, b.Operator == lexer.TknMul, "wrong operator")
@@ -666,7 +666,7 @@ func TestParseChainedExpressionCallsOverridePrecedence(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
-	b := expr.(ast.BinaryExpressionNode)
+	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left.Type() == ast.BinaryExpression, "wrong left type")
 	goutil.AssertNow(t, b.Right.Type() == ast.CallExpression, "wrong right type")
 	goutil.AssertNow(t, b.Operator == lexer.TknMul, "wrong operator")
@@ -677,7 +677,7 @@ func TestParseHighlyChainedExpressionCallsOverridePrecedence(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong expr type")
-	b := expr.(ast.BinaryExpressionNode)
+	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left.Type() == ast.BinaryExpression, "wrong left type")
 	goutil.AssertNow(t, b.Right.Type() == ast.BinaryExpression, "wrong right type")
 	goutil.AssertNow(t, b.Operator == lexer.TknMul, "wrong operator")
@@ -688,7 +688,7 @@ func TestParseCallExpressionSingleParameter(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.CallExpression, "wrong expr type")
-	c := expr.(ast.CallExpressionNode)
+	c := expr.(*ast.CallExpressionNode)
 	goutil.AssertNow(t, c.Call.Type() == ast.Identifier, "wrong call type")
 	goutil.AssertNow(t, len(c.Arguments) == 1, "wrong arg length")
 }
@@ -698,7 +698,7 @@ func TestParseCallExpressionMultipleParameters(t *testing.T) {
 	expr := p.parseExpression()
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.CallExpression, "wrong expr type")
-	c := expr.(ast.CallExpressionNode)
+	c := expr.(*ast.CallExpressionNode)
 	goutil.AssertNow(t, c.Call.Type() == ast.Identifier, "wrong call type")
 	goutil.AssertNow(t, len(c.Arguments) == 2, "wrong arg length")
 }
@@ -735,7 +735,7 @@ func TestParseFuncLiteralSingleParameter(t *testing.T) {
 	expr := ParseExpression("func(a string) int { return 0 }")
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.FuncLiteral, "wrong expr type")
-	f := expr.(ast.FuncLiteralNode)
+	f := expr.(*ast.FuncLiteralNode)
 	goutil.AssertNow(t, len(f.Parameters) == 1, "wrong parameter length")
 	goutil.AssertNow(t, len(f.Results) == 1, "wrong result length")
 }

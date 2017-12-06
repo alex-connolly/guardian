@@ -16,7 +16,7 @@ func TestParseAssignmentStatementSingleConstant(t *testing.T) {
 
 	first := p.scope.Next()
 	goutil.AssertNow(t, first.Type() == ast.AssignmentStatement, "wrong node type")
-	assignmentStmt := first.(ast.AssignmentStatementNode)
+	assignmentStmt := first.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(assignmentStmt.Left) == 1, "wrong left length")
 	goutil.AssertNow(t, len(assignmentStmt.Right) == 1, "wrong right length")
 	left := assignmentStmt.Left[0]
@@ -76,7 +76,7 @@ func TestParseIfStatementElse(t *testing.T) {
 	goutil.AssertNow(t, len(p.errs) == 0, p.errs.Format())
 	first := p.scope.Next()
 	goutil.Assert(t, first.Type() == ast.IfStatement, "wrong node type")
-	ifStat := first.(ast.IfStatementNode)
+	ifStat := first.(*ast.IfStatementNode)
 	goutil.Assert(t, ifStat.Init == nil, "init should be nil")
 }
 
@@ -91,7 +91,7 @@ func TestParseIfStatementInitElse(t *testing.T) {
 	goutil.AssertNow(t, len(p.errs) == 0, p.errs.Format())
 	first := p.scope.Next()
 	goutil.Assert(t, first.Type() == ast.IfStatement, "wrong node type")
-	ifStat := first.(ast.IfStatementNode)
+	ifStat := first.(*ast.IfStatementNode)
 	goutil.Assert(t, ifStat.Init != nil, "init shouldn't be nil")
 }
 
@@ -108,7 +108,7 @@ func TestParseIfStatementElifElse(t *testing.T) {
 	goutil.AssertNow(t, len(p.errs) == 0, p.errs.Format())
 	first := p.scope.Next()
 	goutil.Assert(t, first.Type() == ast.IfStatement, "wrong node type")
-	ifStat := first.(ast.IfStatementNode)
+	ifStat := first.(*ast.IfStatementNode)
 	goutil.Assert(t, ifStat.Init == nil, "init should be nil")
 	goutil.AssertNow(t, len(ifStat.Conditions) == 2, "should have two conditions")
 	nextFirst := ifStat.Conditions[0]
@@ -126,7 +126,7 @@ func TestParseForStatementCondition(t *testing.T) {
 
 	first := p.scope.Next()
 	goutil.Assert(t, first.Type() == ast.ForStatement, "wrong node type")
-	forStat := first.(ast.ForStatementNode)
+	forStat := first.(*ast.ForStatementNode)
 	goutil.Assert(t, forStat.Init == nil, "init should be nil")
 	goutil.Assert(t, forStat.Cond != nil, "cond should not be nil")
 	goutil.Assert(t, forStat.Post == nil, "post should be nil")
@@ -139,7 +139,7 @@ func TestParseForStatementInitCondition(t *testing.T) {
 	goutil.AssertNow(t, len(p.errs) == 0, p.errs.Format())
 	first := p.scope.Next()
 	goutil.Assert(t, first.Type() == ast.ForStatement, "wrong node type")
-	forStat := first.(ast.ForStatementNode)
+	forStat := first.(*ast.ForStatementNode)
 	goutil.Assert(t, forStat.Init != nil, "init should not be nil")
 	goutil.Assert(t, forStat.Cond != nil, "cond should not be nil")
 	goutil.Assert(t, forStat.Post == nil, "post should be nil")
@@ -154,7 +154,7 @@ func TestParseForStatementInitConditionStatement(t *testing.T) {
 	goutil.AssertNow(t, len(p.scope.Sequence) == 1, fmt.Sprintf("wrong sequence length: %d", len(p.scope.Sequence)))
 	first := p.scope.Next()
 	goutil.Assert(t, first.Type() == ast.ForStatement, "wrong node type")
-	forStat := first.(ast.ForStatementNode)
+	forStat := first.(*ast.ForStatementNode)
 	goutil.Assert(t, forStat.Init != nil, "init should not be nil")
 	goutil.Assert(t, forStat.Cond != nil, "cond should not be nil")
 	goutil.Assert(t, forStat.Post != nil, "post should not be nil")
@@ -221,7 +221,7 @@ func TestSingleLiteralReturnStatement(t *testing.T) {
 
 	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
-	r := u.(ast.ReturnStatementNode)
+	r := u.(*ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 1, "wrong result length")
 	goutil.AssertNow(t, r.Results[0].Type() == ast.Literal, "wrong literal type")
 }
@@ -233,7 +233,7 @@ func TestMultipleLiteralReturnStatement(t *testing.T) {
 
 	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
-	r := u.(ast.ReturnStatementNode)
+	r := u.(*ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 2, "wrong result length")
 	goutil.AssertNow(t, r.Results[0].Type() == ast.Literal, "wrong result 0 type")
 	goutil.AssertNow(t, r.Results[1].Type() == ast.Literal, "wrong result 1 type")
@@ -246,7 +246,7 @@ func TestSingleReferenceReturnStatement(t *testing.T) {
 
 	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
-	r := u.(ast.ReturnStatementNode)
+	r := u.(*ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 1, "wrong result length")
 	goutil.AssertNow(t, r.Results[0].Type() == ast.Identifier, "wrong result 0 type")
 }
@@ -258,7 +258,7 @@ func TestMultipleReferenceReturnStatement(t *testing.T) {
 
 	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
-	r := u.(ast.ReturnStatementNode)
+	r := u.(*ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 2, "wrong result length")
 	goutil.AssertNow(t, r.Results[0].Type() == ast.Identifier, "wrong result 0 type")
 	goutil.AssertNow(t, r.Results[1].Type() == ast.Identifier, "wrong result 1 type")
@@ -271,7 +271,7 @@ func TestSingleCallReturnStatement(t *testing.T) {
 
 	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
-	r := u.(ast.ReturnStatementNode)
+	r := u.(*ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 1, "wrong result length")
 	goutil.AssertNow(t, r.Results[0].Type() == ast.CallExpression, "wrong result 0 type")
 }
@@ -283,10 +283,10 @@ func TestMultipleCallReturnStatement(t *testing.T) {
 
 	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
-	r := u.(ast.ReturnStatementNode)
+	r := u.(*ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 2, fmt.Sprintf("wrong result length: %d", len(r.Results)))
 	goutil.AssertNow(t, r.Results[0].Type() == ast.CallExpression, "wrong result 0 type")
-	c1 := r.Results[0].(ast.CallExpressionNode)
+	c1 := r.Results[0].(*ast.CallExpressionNode)
 	goutil.AssertNow(t, len(c1.Arguments) == 2, fmt.Sprintf("wrong c1 args length: %d", len(c1.Arguments)))
 	goutil.AssertNow(t, r.Results[1].Type() == ast.CallExpression, "wrong result 1 type")
 }
@@ -298,7 +298,7 @@ func TestSingleArrayLiteralReturnStatement(t *testing.T) {
 
 	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
-	r := u.(ast.ReturnStatementNode)
+	r := u.(*ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 1, "wrong result length")
 	goutil.AssertNow(t, r.Results[0].Type() == ast.ArrayLiteral, "wrong result 0 type")
 }
@@ -310,7 +310,7 @@ func TestMultipleArrayLiteralReturnStatement(t *testing.T) {
 
 	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
-	r := u.(ast.ReturnStatementNode)
+	r := u.(*ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 2, "wrong result length")
 	goutil.AssertNow(t, r.Results[0].Type() == ast.ArrayLiteral, "wrong result 0 type")
 	goutil.AssertNow(t, r.Results[1].Type() == ast.ArrayLiteral, "wrong result 1 type")
@@ -323,7 +323,7 @@ func TestSingleMapLiteralReturnStatement(t *testing.T) {
 
 	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
-	r := u.(ast.ReturnStatementNode)
+	r := u.(*ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 1, "wrong result length")
 	goutil.AssertNow(t, r.Results[0].Type() == ast.MapLiteral, "wrong result 0 type")
 }
@@ -335,7 +335,7 @@ func TestMultipleMapLiteralReturnStatement(t *testing.T) {
 
 	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
-	r := u.(ast.ReturnStatementNode)
+	r := u.(*ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 2, "wrong result length")
 	goutil.AssertNow(t, r.Results[0].Type() == ast.MapLiteral, "wrong result 0 type")
 	goutil.AssertNow(t, r.Results[1].Type() == ast.MapLiteral, "wrong result 1 type")
@@ -348,7 +348,7 @@ func TestSingleCompositeLiteralReturnStatement(t *testing.T) {
 
 	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
-	r := u.(ast.ReturnStatementNode)
+	r := u.(*ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 1, "wrong result length")
 	goutil.AssertNow(t, r.Results[0].Type() == ast.CompositeLiteral, "wrong result 0 type")
 }
@@ -360,7 +360,7 @@ func TestMultipleCompositeLiteralReturnStatement(t *testing.T) {
 
 	u := p.scope.Next()
 	goutil.AssertNow(t, u.Type() == ast.ReturnStatement, "wrong return type")
-	r := u.(ast.ReturnStatementNode)
+	r := u.(*ast.ReturnStatementNode)
 	goutil.AssertNow(t, len(r.Results) == 2, fmt.Sprintf("wrong result length: %d", len(r.Results)))
 	goutil.AssertNow(t, r.Results[0].Type() == ast.CompositeLiteral, "wrong result 0 type")
 	goutil.AssertNow(t, r.Results[1].Type() == ast.CompositeLiteral, "wrong result 1 type")
@@ -373,7 +373,7 @@ func TestSimpleLiteralAssignmentStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be one left value")
 	goutil.AssertNow(t, a.Left[0].Type() == ast.Identifier, "wrong left type")
 }
@@ -384,7 +384,7 @@ func TestIncrementReferenceAssignmentStatement(t *testing.T) {
 	parseAssignmentStatement(p)
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be one left value")
 	goutil.AssertNow(t, a.Left[0].Type() == ast.Identifier, "wrong left type")
 }
@@ -396,7 +396,7 @@ func TestMultiToSingleLiteralAssignmentStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
 	goutil.AssertNow(t, a.Left[0].Type() == ast.Identifier, "wrong left type")
 }
@@ -426,7 +426,7 @@ func TestMultiLiteralAssignmentStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
 }
 
@@ -437,7 +437,7 @@ func TestSimpleReferenceAssignmentStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be 1 left value")
 }
 
@@ -448,7 +448,7 @@ func TestMultiToSingleReferenceAssignmentStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
 }
 
@@ -459,7 +459,7 @@ func TestMultiReferenceAssignmentStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
 }
 
@@ -470,7 +470,7 @@ func TestSimpleCallAssignmentStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be one left values")
 }
 
@@ -481,7 +481,7 @@ func TestMultiToSingleCallAssignmentStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
 }
 
@@ -492,7 +492,7 @@ func TestMultiCallAssignmentStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
 }
 
@@ -503,7 +503,7 @@ func TestSimpleCompositeLiteralAssignmentStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be two left values")
 }
 
@@ -514,7 +514,7 @@ func TestMultiToSingleCompositeLiteralAssignmentStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
 }
 
@@ -525,7 +525,7 @@ func TestMultiCompositeLiteralAssignmentStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
 }
 
@@ -536,7 +536,7 @@ func TestSimpleArrayLiteralAssignmentStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be 1 left values")
 }
 
@@ -547,7 +547,7 @@ func TestMultiToSingleArrayLiteralAssignmentStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
 }
 
@@ -558,7 +558,7 @@ func TestMultiArrayLiteralAssignmentStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
 }
 
@@ -569,7 +569,7 @@ func TestSimpleMapLiteralAssignmentStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be 1 left values")
 }
 
@@ -580,7 +580,7 @@ func TestMultiToSingleMapLiteralAssignmentStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
 }
 
@@ -591,7 +591,7 @@ func TestMultiMapLiteralAssignmentStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 2, "should be two left values")
 }
 
@@ -602,7 +602,7 @@ func TestAssignmentStatementSingleAdd(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
-	a := n.(ast.AssignmentStatementNode)
+	a := n.(*ast.AssignmentStatementNode)
 	goutil.AssertNow(t, len(a.Left) == 1, "should be one left value")
 }
 
@@ -613,7 +613,7 @@ func TestImportStatementPath(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.ImportStatement, "wrong import type")
-	a := n.(ast.ImportStatementNode)
+	a := n.(*ast.ImportStatementNode)
 	goutil.AssertNow(t, a.Path == "dog", "wrong import path value")
 }
 
@@ -624,7 +624,7 @@ func TestImportStatementAlias(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.ImportStatement, "wrong import type")
-	a := n.(ast.ImportStatementNode)
+	a := n.(*ast.ImportStatementNode)
 	goutil.AssertNow(t, a.Path == "dog", "wrong import path value")
 	goutil.AssertNow(t, a.Alias == "d", "wrong import alias value")
 }
@@ -636,6 +636,6 @@ func TestPackageStatement(t *testing.T) {
 
 	n := p.scope.Next()
 	goutil.AssertNow(t, n.Type() == ast.PackageStatement, "wrong package type")
-	a := n.(ast.PackageStatementNode)
+	a := n.(*ast.PackageStatementNode)
 	goutil.AssertNow(t, a.Name == "dog", "wrong package name value")
 }

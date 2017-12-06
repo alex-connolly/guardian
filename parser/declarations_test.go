@@ -17,7 +17,7 @@ func TestParseInterfaceDeclarationEmpty(t *testing.T) {
 	goutil.AssertNow(t, p.scope != nil, "scope should not be nil")
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.InterfaceDeclaration, "wrong node type")
-	i := n.(ast.InterfaceDeclarationNode)
+	i := n.(*ast.InterfaceDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, i.Supers == nil, "wrong supers")
 }
@@ -28,7 +28,7 @@ func TestParseInterfaceDeclarationSingleInheritance(t *testing.T) {
 	parseInterfaceDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.InterfaceDeclaration, "wrong node type")
-	i := n.(ast.InterfaceDeclarationNode)
+	i := n.(*ast.InterfaceDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 1, "wrong supers length")
 }
@@ -39,7 +39,7 @@ func TestParseInterfaceDeclarationMultipleInheritance(t *testing.T) {
 	parseInterfaceDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.InterfaceDeclaration, "wrong node type")
-	i := n.(ast.InterfaceDeclarationNode)
+	i := n.(*ast.InterfaceDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 2, "wrong supers length")
 }
@@ -50,7 +50,7 @@ func TestParseInterfaceDeclarationAbstract(t *testing.T) {
 	parseInterfaceDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.InterfaceDeclaration, "wrong node type")
-	i := n.(ast.InterfaceDeclarationNode)
+	i := n.(*ast.InterfaceDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 0, "wrong supers length")
 }
@@ -62,7 +62,7 @@ func TestParseContractDeclarationEmpty(t *testing.T) {
 	parseContractDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ContractDeclaration, "wrong node type")
-	i := n.(ast.ContractDeclarationNode)
+	i := n.(*ast.ContractDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 0, "wrong supers length")
 }
@@ -73,7 +73,7 @@ func TestParseContractDeclarationSingleInterface(t *testing.T) {
 	parseContractDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ContractDeclaration, "wrong node type")
-	i := n.(ast.ContractDeclarationNode)
+	i := n.(*ast.ContractDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 0, "wrong supers length")
 }
@@ -84,7 +84,7 @@ func TestParseContractDeclarationMultipleInterfaces(t *testing.T) {
 	parseContractDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ContractDeclaration, "wrong node type")
-	i := n.(ast.ContractDeclarationNode)
+	i := n.(*ast.ContractDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 0, "wrong supers length")
 }
@@ -95,7 +95,7 @@ func TestParseContractDeclarationSingleInterfaceSingleInheritance(t *testing.T) 
 	parseContractDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ContractDeclaration, "wrong node type")
-	i := n.(ast.ContractDeclarationNode)
+	i := n.(*ast.ContractDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Interfaces) == 1, "wrong interfaces length")
 	goutil.AssertNow(t, len(i.Supers) == 1, "wrong supers length")
@@ -107,7 +107,7 @@ func TestParseContractDeclarationMultipleInterfaceMultipleInheritance(t *testing
 	parseContractDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ContractDeclaration, "wrong node type")
-	i := n.(ast.ContractDeclarationNode)
+	i := n.(*ast.ContractDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 2, "wrong supers length")
 }
@@ -118,7 +118,7 @@ func TestParseContractDeclarationSingleInheritance(t *testing.T) {
 	parseContractDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ContractDeclaration, "wrong node type")
-	i := n.(ast.ContractDeclarationNode)
+	i := n.(*ast.ContractDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 1, "wrong supers length")
 }
@@ -129,7 +129,7 @@ func TestParseContractDeclarationMultipleInheritance(t *testing.T) {
 	parseContractDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ContractDeclaration, "wrong node type")
-	i := n.(ast.ContractDeclarationNode)
+	i := n.(*ast.ContractDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 2, "wrong supers length")
 }
@@ -140,7 +140,7 @@ func TestParseContractDeclarationSingleInheritanceMultipleInterface(t *testing.T
 	parseContractDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ContractDeclaration, "wrong node type")
-	i := n.(ast.ContractDeclarationNode)
+	i := n.(*ast.ContractDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 1, "wrong supers length")
 }
@@ -151,7 +151,7 @@ func TestParseContractDeclarationSingleInheritanceSingleInterface(t *testing.T) 
 	parseContractDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ContractDeclaration, "wrong node type")
-	i := n.(ast.ContractDeclarationNode)
+	i := n.(*ast.ContractDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 1, "wrong supers length")
 }
@@ -162,7 +162,7 @@ func TestParseContractDeclarationMultipleInterfaceSingleInheritance(t *testing.T
 	parseContractDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ContractDeclaration, "wrong node type")
-	i := n.(ast.ContractDeclarationNode)
+	i := n.(*ast.ContractDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 1, "wrong supers length")
 	goutil.AssertNow(t, len(i.Interfaces) == 2, "wrong interfaces length")
@@ -174,7 +174,7 @@ func TestParseContractDeclarationMultipleInheritanceMultipleInterface(t *testing
 	parseContractDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ContractDeclaration, "wrong node type")
-	i := n.(ast.ContractDeclarationNode)
+	i := n.(*ast.ContractDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 2, "wrong supers length")
 }
@@ -185,7 +185,7 @@ func TestParseContractDeclarationAbstract(t *testing.T) {
 	parseContractDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ContractDeclaration, "wrong node type")
-	i := n.(ast.ContractDeclarationNode)
+	i := n.(*ast.ContractDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 0, "wrong supers length")
 }
@@ -196,7 +196,7 @@ func TestParseClassDeclarationSingleInterface(t *testing.T) {
 	parseClassDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ClassDeclaration, "wrong node type")
-	i := n.(ast.ClassDeclarationNode)
+	i := n.(*ast.ClassDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 0, "wrong supers length")
 }
@@ -207,7 +207,7 @@ func TestParseClassDeclarationMultipleInterfaces(t *testing.T) {
 	parseClassDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ClassDeclaration, "wrong node type")
-	i := n.(ast.ClassDeclarationNode)
+	i := n.(*ast.ClassDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 0, "wrong supers length")
 }
@@ -218,7 +218,7 @@ func TestParseClassDeclarationSingleInterfaceSingleInheritance(t *testing.T) {
 	parseClassDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ClassDeclaration, "wrong node type")
-	i := n.(ast.ClassDeclarationNode)
+	i := n.(*ast.ClassDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 1, "wrong supers length")
 }
@@ -229,7 +229,7 @@ func TestParseClassDeclarationMultipleInterfaceMultipleInheritance(t *testing.T)
 	parseClassDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ClassDeclaration, "wrong node type")
-	i := n.(ast.ClassDeclarationNode)
+	i := n.(*ast.ClassDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 2, "wrong supers length")
 }
@@ -240,7 +240,7 @@ func TestParseClassDeclarationSingleInheritance(t *testing.T) {
 	parseClassDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ClassDeclaration, "wrong node type")
-	i := n.(ast.ClassDeclarationNode)
+	i := n.(*ast.ClassDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 1, "wrong supers length")
 }
@@ -251,7 +251,7 @@ func TestParseClassDeclarationMultipleInheritance(t *testing.T) {
 	parseClassDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ClassDeclaration, "wrong node type")
-	i := n.(ast.ClassDeclarationNode)
+	i := n.(*ast.ClassDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 2, "wrong supers length")
 }
@@ -262,7 +262,7 @@ func TestParseClassDeclarationSingleInheritanceMultipleInterface(t *testing.T) {
 	parseClassDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ClassDeclaration, "wrong node type")
-	i := n.(ast.ClassDeclarationNode)
+	i := n.(*ast.ClassDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 1, "wrong supers length")
 }
@@ -273,7 +273,7 @@ func TestParseClassDeclarationSingleInheritanceSingleInterface(t *testing.T) {
 	parseClassDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ClassDeclaration, "wrong node type")
-	i := n.(ast.ClassDeclarationNode)
+	i := n.(*ast.ClassDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 1, "wrong supers length")
 }
@@ -284,7 +284,7 @@ func TestParseClassDeclarationMultipleInheritanceSingleInterface(t *testing.T) {
 	parseClassDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ClassDeclaration, "wrong node type")
-	i := n.(ast.ClassDeclarationNode)
+	i := n.(*ast.ClassDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 1, "wrong supers length")
 }
@@ -295,7 +295,7 @@ func TestParseClassDeclarationMultipleInheritanceMultipleInterface(t *testing.T)
 	parseClassDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ClassDeclaration, "wrong node type")
-	i := n.(ast.ClassDeclarationNode)
+	i := n.(*ast.ClassDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, len(i.Supers) == 2, "wrong supers length")
 }
@@ -306,7 +306,7 @@ func TestParseClassDeclarationAbstract(t *testing.T) {
 	parseClassDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.ClassDeclaration, "wrong node type")
-	i := n.(ast.ClassDeclarationNode)
+	i := n.(*ast.ClassDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 }
 
@@ -317,7 +317,7 @@ func TestParseTypeDeclaration(t *testing.T) {
 	parseTypeDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.TypeDeclaration, "wrong node type")
-	e := n.(ast.TypeDeclarationNode)
+	e := n.(*ast.TypeDeclarationNode)
 	goutil.AssertNow(t, e.Identifier == "Wagable", "wrong type name")
 
 }
@@ -335,7 +335,7 @@ func TestParseEventDeclarationEmpty(t *testing.T) {
 	parseEventDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.EventDeclaration, "wrong node type")
-	e := n.(ast.EventDeclarationNode)
+	e := n.(*ast.EventDeclarationNode)
 	goutil.AssertNow(t, len(e.Parameters) == 0, "wrong param length")
 }
 
@@ -345,7 +345,7 @@ func TestParseEventDeclarationSingle(t *testing.T) {
 	parseEventDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.EventDeclaration, "wrong node type")
-	e := n.(ast.EventDeclarationNode)
+	e := n.(*ast.EventDeclarationNode)
 	goutil.AssertNow(t, len(e.Parameters) == 1, "wrong param length")
 }
 
@@ -355,7 +355,7 @@ func TestParseEventDeclarationMultiple(t *testing.T) {
 	parseEventDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.EventDeclaration, "wrong node type")
-	e := n.(ast.EventDeclarationNode)
+	e := n.(*ast.EventDeclarationNode)
 	goutil.AssertNow(t, len(e.Parameters) == 2, "wrong param length")
 }
 
@@ -366,7 +366,7 @@ func TestParseEnum(t *testing.T) {
 	parseEnumDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.EnumDeclaration, "wrong node type")
-	e := n.(ast.EnumDeclarationNode)
+	e := n.(*ast.EnumDeclarationNode)
 	goutil.AssertNow(t, e.Identifier == "Weekday", "wrong identifier")
 }
 
@@ -377,7 +377,7 @@ func TestParseEnumInheritsSingle(t *testing.T) {
 	parseEnumDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.EnumDeclaration, "wrong node type")
-	e := n.(ast.EnumDeclarationNode)
+	e := n.(*ast.EnumDeclarationNode)
 	goutil.AssertNow(t, e.Identifier == "Day", "wrong identifier")
 }
 
@@ -388,7 +388,7 @@ func TestParseEnumInheritsMultiple(t *testing.T) {
 	parseEnumDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.EnumDeclaration, "wrong node type")
-	e := n.(ast.EnumDeclarationNode)
+	e := n.(*ast.EnumDeclarationNode)
 	goutil.AssertNow(t, e.Identifier == "Day", "wrong identifier")
 }
 
@@ -427,7 +427,7 @@ func TestParseVarDeclarationMap(t *testing.T) {
 	goutil.AssertNow(t, d.Identifiers[1] == "b", "wrong id 1 value")
 	dt := d.DeclaredType
 	goutil.AssertNow(t, dt.Type() == ast.MapType, "wrong node type")
-	m := dt.(ast.MapTypeNode)
+	m := dt.(*ast.MapTypeNode)
 	goutil.AssertNow(t, m.Key.Type() == ast.PlainType, "wrong key type")
 	goutil.AssertNow(t, m.Value.Type() == ast.PlainType, "wrong value type")
 }
@@ -440,7 +440,7 @@ func TestParseVarDeclarationArray(t *testing.T) {
 	goutil.AssertNow(t, d.Identifiers[1] == "b", "wrong id 1 value")
 	dt := d.DeclaredType
 	goutil.AssertNow(t, dt.Type() == ast.ArrayType, "wrong node type")
-	m := dt.(ast.ArrayTypeNode)
+	m := dt.(*ast.ArrayTypeNode)
 	goutil.AssertNow(t, m.Value.Type() == ast.PlainType, "wrong key type")
 }
 
@@ -451,7 +451,7 @@ func TestParseFuncNoParameters(t *testing.T) {
 
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
-	f := n.(ast.FuncDeclarationNode)
+	f := n.(*ast.FuncDeclarationNode)
 	goutil.AssertNow(t, len(f.Parameters) == 0,
 		fmt.Sprintf("wrong param length: %d", len(f.Parameters)))
 }
@@ -463,7 +463,7 @@ func TestParseFuncOneParameter(t *testing.T) {
 
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
-	f := n.(ast.FuncDeclarationNode)
+	f := n.(*ast.FuncDeclarationNode)
 	goutil.AssertNow(t, len(f.Parameters) == 1, "wrong param length")
 }
 
@@ -474,7 +474,7 @@ func TestParseFuncParameters(t *testing.T) {
 
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
-	f := n.(ast.FuncDeclarationNode)
+	f := n.(*ast.FuncDeclarationNode)
 	goutil.AssertNow(t, len(f.Parameters) == 2, "wrong param length")
 }
 
@@ -484,7 +484,7 @@ func TestParseFuncMultiplePerType(t *testing.T) {
 	parseFuncDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
-	f := n.(ast.FuncDeclarationNode)
+	f := n.(*ast.FuncDeclarationNode)
 	goutil.AssertNow(t, len(f.Parameters) == 1, "wrong param length")
 }
 
@@ -495,7 +495,7 @@ func TestParseFuncMultiplePerTypeExtra(t *testing.T) {
 
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
-	f := n.(ast.FuncDeclarationNode)
+	f := n.(*ast.FuncDeclarationNode)
 	goutil.AssertNow(t, len(f.Parameters) == 2, "wrong param length")
 }
 
@@ -505,7 +505,7 @@ func TestParseConstructorNoParameters(t *testing.T) {
 	parseLifecycleDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.LifecycleDeclaration, "wrong node type")
-	c := n.(ast.LifecycleDeclarationNode)
+	c := n.(*ast.LifecycleDeclarationNode)
 	goutil.AssertNow(t, len(c.Parameters) == 0, "wrong param length")
 }
 
@@ -515,7 +515,7 @@ func TestParseConstructorOneParameter(t *testing.T) {
 	parseLifecycleDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.LifecycleDeclaration, "wrong node type")
-	c := n.(ast.LifecycleDeclarationNode)
+	c := n.(*ast.LifecycleDeclarationNode)
 	goutil.AssertNow(t, len(c.Parameters) == 1, "wrong param length")
 }
 
@@ -525,7 +525,7 @@ func TestParseConstructorParameters(t *testing.T) {
 	parseLifecycleDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.LifecycleDeclaration, "wrong node type")
-	c := n.(ast.LifecycleDeclarationNode)
+	c := n.(*ast.LifecycleDeclarationNode)
 	goutil.AssertNow(t, len(c.Parameters) == 2, "wrong param length")
 }
 
@@ -535,7 +535,7 @@ func TestParseConstructorMultiplePerType(t *testing.T) {
 	parseLifecycleDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.LifecycleDeclaration, "wrong node type")
-	c := n.(ast.LifecycleDeclarationNode)
+	c := n.(*ast.LifecycleDeclarationNode)
 	goutil.AssertNow(t, len(c.Parameters) == 1, "wrong param length")
 }
 
@@ -545,7 +545,7 @@ func TestParseConstructorMultiplePerTypeExtra(t *testing.T) {
 	parseLifecycleDeclaration(p)
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.LifecycleDeclaration, "wrong node type")
-	c := n.(ast.LifecycleDeclarationNode)
+	c := n.(*ast.LifecycleDeclarationNode)
 	goutil.AssertNow(t, len(c.Parameters) == 2, "wrong param length")
 	first := c.Parameters[0]
 	second := c.Parameters[1]

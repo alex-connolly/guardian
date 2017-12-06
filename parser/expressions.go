@@ -223,21 +223,24 @@ func (p *Parser) isCompositeLiteral() bool {
 	return p.current().Type == lexer.TknIdentifier && p.token(1).Type == lexer.TknOpenBrace
 }
 
-func (p *Parser) parsePrefixUnaryExpression() (n *ast.UnaryExpressionNode) {
+func (p *Parser) parsePrefixUnaryExpression() *ast.UnaryExpressionNode {
+	n := new(ast.UnaryExpressionNode)
 	n.Operator = p.current().Type
 	p.next()
 	n.Operand = p.parseExpression()
 	return n
 }
 
-func (p *Parser) parseReference(expr ast.ExpressionNode) (n *ast.ReferenceNode) {
+func (p *Parser) parseReference(expr ast.ExpressionNode) *ast.ReferenceNode {
+	n := new(ast.ReferenceNode)
 	p.parseRequired(lexer.TknDot)
 	n.Parent = expr
 	n.Reference = p.parseExpressionComponent()
 	return n
 }
 
-func (p *Parser) parseCallExpression(expr ast.ExpressionNode) (n *ast.CallExpressionNode) {
+func (p *Parser) parseCallExpression(expr ast.ExpressionNode) *ast.CallExpressionNode {
+	n := new(ast.CallExpressionNode)
 	n.Call = expr
 	p.parseRequired(lexer.TknOpenBracket)
 	if !p.parseOptional(lexer.TknCloseBracket) {
@@ -247,7 +250,9 @@ func (p *Parser) parseCallExpression(expr ast.ExpressionNode) (n *ast.CallExpres
 	return n
 }
 
-func (p *Parser) parseArrayLiteral() (n *ast.ArrayLiteralNode) {
+func (p *Parser) parseArrayLiteral() *ast.ArrayLiteralNode {
+
+	n := new(ast.ArrayLiteralNode)
 	// [string:3]{"Dog", "Cat", ""}
 
 	n.Signature = p.parseArrayType()
@@ -261,7 +266,8 @@ func (p *Parser) parseArrayLiteral() (n *ast.ArrayLiteralNode) {
 	return n
 }
 
-func (p *Parser) parseFuncLiteral() (n *ast.FuncLiteralNode) {
+func (p *Parser) parseFuncLiteral() *ast.FuncLiteralNode {
+	n := new(ast.FuncLiteralNode)
 	n.Parameters = p.parseParameters()
 
 	n.Results = p.parseResults()
@@ -270,7 +276,8 @@ func (p *Parser) parseFuncLiteral() (n *ast.FuncLiteralNode) {
 	return n
 }
 
-func (p *Parser) parseMapLiteral() (n *ast.MapLiteralNode) {
+func (p *Parser) parseMapLiteral() *ast.MapLiteralNode {
+	n := new(ast.MapLiteralNode)
 	n.Signature = p.parseMapType()
 
 	p.parseRequired(lexer.TknOpenBrace)
@@ -327,19 +334,22 @@ func (p *Parser) parseSliceExpression(expr ast.ExpressionNode,
 	return &n
 }
 
-func (p *Parser) parseIdentifierExpression() (n *ast.IdentifierNode) {
+func (p *Parser) parseIdentifierExpression() *ast.IdentifierNode {
+	n := new(ast.IdentifierNode)
 	n.Name = p.parseIdentifier()
 	return n
 }
 
-func (p *Parser) parseLiteral() (n *ast.LiteralNode) {
+func (p *Parser) parseLiteral() *ast.LiteralNode {
+	n := new(ast.LiteralNode)
 	n.LiteralType = p.current().Type
 	n.Data = p.current().String()
 	p.next()
 	return n
 }
 
-func (p *Parser) parseCompositeLiteral() (n *ast.CompositeLiteralNode) {
+func (p *Parser) parseCompositeLiteral() *ast.CompositeLiteralNode {
+	n := new(ast.CompositeLiteralNode)
 	// expr must be a reference or identifier node
 	n.TypeName = p.parseIdentifier()
 
