@@ -58,7 +58,7 @@ func (v TestVM) Literals() LiteralMap {
 
 func resolveIntegerLiteral(v *Validator, data string) typing.Type {
 	x := typing.BitsNeeded(len(data))
-	return v.smallestNumericType(x, false)
+	return v.SmallestNumericType(x, false)
 }
 
 func resolveFloatLiteral(v *Validator, data string) typing.Type {
@@ -88,45 +88,27 @@ func (v TestVM) Primitives() map[string]typing.Type {
 func (v TestVM) Operators() (m OperatorMap) {
 	m = OperatorMap{}
 
-	m.Add(booleanOperator, lexer.TknGeq, lexer.TknLeq,
+	m.Add(BooleanOperator, lexer.TknGeq, lexer.TknLeq,
 		lexer.TknLss, lexer.TknNeq, lexer.TknEql, lexer.TknGtr)
 
 	m.Add(operatorAdd, lexer.TknAdd)
-	m.Add(booleanOperator, lexer.TknLogicalAnd, lexer.TknLogicalOr)
+	m.Add(BooleanOperator, lexer.TknLogicalAnd, lexer.TknLogicalOr)
 
 	// numericalOperator with floats/ints
-	m.Add(BinaryNumericOperator(), lexer.TknSub, lexer.TknMul, lexer.TknDiv)
+	m.Add(BinaryNumericOperator, lexer.TknSub, lexer.TknMul, lexer.TknDiv)
 
 	// integers only
-	m.Add(BinaryIntegerOperator(), lexer.TknShl, lexer.TknShr)
+	m.Add(BinaryIntegerOperator, lexer.TknShl, lexer.TknShr)
 
-	m.Add(castOperator, lexer.TknAs)
+	m.Add(CastOperator, lexer.TknAs)
 
 	return m
-}
-
-func castOperator(v *Validator, ts ...typing.Type) typing.Type {
-	// pretend it's a valid type
-	left := ts[0]
-	right := ts[1]
-	if !typing.AssignableTo(left, right) {
-		v.addError(errImpossibleCast, typing.WriteType(left), typing.WriteType(right))
-		return left
-	}
-	return right
-}
-
-func booleanOperator(v *Validator, ts ...typing.Type) typing.Type {
-	if len(ts) != 2 {
-
-	}
-	return typing.Boolean()
 }
 
 func operatorAdd(v *Validator, ts ...typing.Type) typing.Type {
 	switch ts[0].(type) {
 	case typing.NumericType:
-		return BinaryNumericOperator()(v, ts...)
+		return BinaryNumericOperator(v, ts...)
 	}
 	strType := v.getNamedType("string")
 	if ts[0].Compare(strType) {

@@ -51,37 +51,51 @@ func SimpleOperator(typeName string) OperatorFunc {
 	}
 }
 
-func BinaryNumericOperator() OperatorFunc {
-	return func(v *Validator, ts ...typing.Type) typing.Type {
-		left := typing.ResolveUnderlying(ts[0])
-		right := typing.ResolveUnderlying(ts[1])
-		if na, ok := left.(typing.NumericType); ok {
-			if nb, ok := right.(typing.NumericType); ok {
-				if na.BitSize > nb.BitSize {
-					return v.smallestNumericType(na.BitSize, true)
-				}
-				return v.smallestNumericType(nb.BitSize, true)
+func BinaryNumericOperator(v *Validator, ts ...typing.Type) typing.Type {
+	left := typing.ResolveUnderlying(ts[0])
+	right := typing.ResolveUnderlying(ts[1])
+	if na, ok := left.(typing.NumericType); ok {
+		if nb, ok := right.(typing.NumericType); ok {
+			if na.BitSize > nb.BitSize {
+				return v.SmallestNumericType(na.BitSize, true)
 			}
+			return v.SmallestNumericType(nb.BitSize, true)
 		}
-		return typing.Invalid()
 	}
+	return typing.Invalid()
 }
 
-func BinaryIntegerOperator() OperatorFunc {
-	return func(v *Validator, ts ...typing.Type) typing.Type {
-		if na, ok := ts[0].(typing.NumericType); ok && na.Integer {
-			if nb, ok := ts[1].(typing.NumericType); ok && nb.Integer {
-				if na.BitSize > nb.BitSize {
-					return v.smallestNumericType(na.BitSize, false)
-				}
-				return v.smallestNumericType(nb.BitSize, false)
+func BinaryIntegerOperator(v *Validator, ts ...typing.Type) typing.Type {
+	if na, ok := ts[0].(typing.NumericType); ok && na.Integer {
+		if nb, ok := ts[1].(typing.NumericType); ok && nb.Integer {
+			if na.BitSize > nb.BitSize {
+				return v.SmallestNumericType(na.BitSize, false)
 			}
+			return v.SmallestNumericType(nb.BitSize, false)
 		}
-		return typing.Invalid()
 	}
+	return typing.Invalid()
 }
 
-func (v *Validator) smallestNumericType(bits int, allowFloat bool) typing.Type {
+func CastOperator(v *Validator, ts ...typing.Type) typing.Type {
+	// pretend it's a valid type
+	left := ts[0]
+	right := ts[1]
+	if !typing.AssignableTo(left, right) {
+		v.addError(errImpossibleCast, typing.WriteType(left), typing.WriteType(right))
+		return left
+	}
+	return right
+}
+
+func BooleanOperator(v *Validator, ts ...typing.Type) typing.Type {
+	if len(ts) != 2 {
+
+	}
+	return typing.Boolean()
+}
+
+func (v *Validator) SmallestNumericType(bits int, allowFloat bool) typing.Type {
 	smallest := -1
 	smallestType := typing.Type(typing.Unknown())
 	for _, typ := range v.primitives {

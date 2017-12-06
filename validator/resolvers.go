@@ -232,7 +232,7 @@ func (v *Validator) resolveInContext(t typing.Type, property string) typing.Type
 	case typing.Enum:
 		for _, item := range r.Items {
 			if item == property {
-				return v.smallestNumericType(typing.BitsNeeded(len(r.Items)), false)
+				return v.SmallestNumericType(typing.BitsNeeded(len(r.Items)), false)
 			}
 		}
 		break
@@ -420,11 +420,11 @@ func (v *Validator) getPropertyType(t typing.Type, name string) (typing.Type, bo
 	case typing.Enum:
 		for _, s := range c.Items {
 			if s == name {
-				return v.smallestNumericType(len(c.Items), false), true
+				return v.SmallestNumericType(len(c.Items), false), true
 			}
 		}
 		// TODO: fix this
-		return v.smallestNumericType(len(c.Items), false), false
+		return v.SmallestNumericType(len(c.Items), false), false
 	}
 	return typing.Invalid(), false
 }

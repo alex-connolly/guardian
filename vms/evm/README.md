@@ -19,7 +19,7 @@ Block/Transaction Properties:
 
 | Name | Type | EVM Opcode | Description |
 |:-----------:|:----:|:----------:|:----|
-| msg.data | bytes | CALLDATA | complete calldata |
+| msg.data | string | CALLDATA | complete calldata |
 | msg.gas | uint | GAS | remaining gas |
 | msg.sender | address | CALLER | sender of the message (current call) |
 | msg.sig | bytes4 | N/A | First 4 bytes of msg.data |
@@ -210,7 +210,7 @@ General structure:
 ```
 evaluate original expression
 for each case:
-    evaluate each expression, compare to result
+    evaluate each expression, Compare to result
     execute from there
     break = JUMP to end of most recent break-able construct
 ```

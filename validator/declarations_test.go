@@ -211,3 +211,11 @@ func TestValidateContractDeclMixed(t *testing.T) {
 	errs := Validate(scope, NewTestVM())
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
+
+func TestValidateExplicitVarDecl(t *testing.T) {
+	scope, _ := parser.ParseString("hi uint8")
+	goutil.AssertNow(t, scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, scope.Declarations != nil, "declarations shouldn't be nil")
+	errs := Validate(scope, NewTestVM())
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}

@@ -1,16 +1,15 @@
 package evm
 
 import (
-	"axia/guardian/typing"
 	"encoding/binary"
 
-	"github.com/end-r/guardian/parser"
-
-	"github.com/end-r/guardian/util"
-
-	"github.com/end-r/guardian/validator"
+	"github.com/end-r/guardian/lexer"
 
 	"github.com/end-r/guardian/ast"
+	"github.com/end-r/guardian/parser"
+	"github.com/end-r/guardian/typing"
+	"github.com/end-r/guardian/util"
+	"github.com/end-r/guardian/validator"
 	"github.com/end-r/vmgen"
 )
 
@@ -209,12 +208,48 @@ func (evm GuardianEVM) Builtins() *ast.ScopeNode {
 	return ast
 }
 
-func (evm GuardianEVM) Literals() validator.LiteralMap {
-	return validator.LiteralMap{}
+func (evm GuardianEVM) BooleanName() string {
+	return "bool"
 }
 
-func (evm GuardianEVM) Operators() validator.OperatorMap {
-	return validator.OperatorMap{}
+func (evm GuardianEVM) Literals() validator.LiteralMap {
+	return validator.LiteralMap{
+		lexer.TknString:  validator.SimpleLiteral("string"),
+		lexer.TknTrue:    validator.BooleanLiteral,
+		lexer.TknFalse:   validator.BooleanLiteral,
+		lexer.TknInteger: resolveIntegerLiteral,
+		lexer.TknFloat:   resolveFloatLiteral,
+	}
+}
+
+func resolveIntegerLiteral(v *validator.Validator, data string) typing.Type {
+	x := typing.BitsNeeded(len(data))
+	return v.SmallestNumericType(x, false)
+}
+
+func resolveFloatLiteral(v *validator.Validator, data string) typing.Type {
+	// convert to float
+	return typing.Unknown()
+}
+
+func (evm GuardianEVM) Operators() (m validator.OperatorMap) {
+	m = validator.OperatorMap{}
+
+	m.Add(validator.BooleanOperator, lexer.TknGeq, lexer.TknLeq,
+		lexer.TknLss, lexer.TknNeq, lexer.TknEql, lexer.TknGtr)
+
+	m.Add(operatorAdd, lexer.TknAdd)
+	m.Add(validator.BooleanOperator, lexer.TknLogicalAnd, lexer.TknLogicalOr)
+
+	// numericalOperator with floats/ints
+	m.Add(validator.BinaryNumericOperator, lexer.TknSub, lexer.TknMul, lexer.TknDiv)
+
+	// integers only
+	m.Add(validator.BinaryIntegerOperator, lexer.TknShl, lexer.TknShr)
+
+	m.Add(validator.CastOperator, lexer.TknAs)
+
+	return m
 }
 
 func (evm GuardianEVM) Primitives() map[string]typing.Type {
@@ -237,13 +272,13 @@ func (evm GuardianEVM) Primitives() map[string]typing.Type {
 	return m
 }
 
-func (evm GuardianEVM) Traverse(node *ast.ScopeNode) (vmgen.Bytecode, util.Errors) {
+func (evm GuardianEVM) Traverse(node ast.Node) (vmgen.Bytecode, util.Errors) {
 	// do pre-processing/hooks etc
-	evm.traverse(node)
+	code := evm.traverse(node)
 	// generate the bytecode
 	// finalise the bytecode
-	evm.finalise()
-	return vmgen.Bytecode{}, nil
+	//evm.finalise()
+	return code, nil
 }
 
 type hook struct {
@@ -288,6 +323,8 @@ func (e GuardianEVM) traverse(n ast.Node) (code vmgen.Bytecode) {
 		e.VM = firevm.NewVM()
 	}*/
 	switch node := n.(type) {
+	case *ast.ScopeNode:
+		return e.traverseScope(node)
 	case *ast.ClassDeclarationNode:
 		return e.traverseClass(node)
 	case *ast.InterfaceDeclarationNode:
@@ -296,6 +333,8 @@ func (e GuardianEVM) traverse(n ast.Node) (code vmgen.Bytecode) {
 		return e.traverseEnum(node)
 	case *ast.EventDeclarationNode:
 		return e.traverseEvent(node)
+	case *ast.ExplicitVarDeclarationNode:
+		return e.traverseExplicitVarDecl(node)
 	case *ast.TypeDeclarationNode:
 		return e.traverseType(node)
 	case *ast.ContractDeclarationNode:
@@ -318,6 +357,13 @@ func (e GuardianEVM) traverse(n ast.Node) (code vmgen.Bytecode) {
 	return code
 }
 
+func (e *GuardianEVM) traverseScope(s *ast.ScopeNode) (code vmgen.Bytecode) {
+	for _, d := range s.Declarations.Array() {
+		code.Concat(e.traverse(d.(ast.Node)))
+	}
+	return code
+}
+
 func (e *GuardianEVM) inStorage() bool {
-	return false
+	return true
 }
