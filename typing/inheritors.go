@@ -1,4 +1,4 @@
-package validator
+package typing
 
 func (c Class) inherits(t Type) bool {
 	if other, ok := resolveUnderlying(t).(Class); ok {

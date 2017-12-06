@@ -1,14 +1,6 @@
-package validator
+package typing
 
-import (
-	"fmt"
-	"testing"
-
-	"github.com/end-r/guardian/parser"
-
-	"github.com/end-r/goutil"
-)
-
+/*
 func TestClassImplementsTypeValid(t *testing.T) {
 	scope, _ := parser.ParseString(`
         interface Switchable{}
@@ -90,3 +82,4 @@ func TestClassImplementsTypeValidClassAndInterfaceInheritance(t *testing.T) {
 	errs := Validate(scope, NewTestVM())
 	goutil.Assert(t, len(errs) == 0, errs.Format())
 }
+*/

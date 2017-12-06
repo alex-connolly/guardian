@@ -253,13 +253,6 @@ func resolveCallExpression(v *Validator, e ast.ExpressionNode) Type {
 
 }
 
-func resolveUnderlying(t Type) Type {
-	for al, ok := t.(Aliased); ok; al, ok = t.(Aliased) {
-		t = al.underlying
-	}
-	return t
-}
-
 func resolveSliceExpression(v *Validator, e ast.ExpressionNode) Type {
 	// must be literal
 	s := e.(ast.SliceExpressionNode)

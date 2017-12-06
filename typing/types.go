@@ -62,12 +62,25 @@ type Func struct {
 }
 
 type Tuple struct {
-	types []Type
+	Types []Type
+}
+
+func NewTuple(types ...Type) Tuple {
+	return Tuple{
+		Types: types,
+	}
 }
 
 type Aliased struct {
-	alias      string
-	underlying Type
+	Alias      string
+	Underlying Type
+}
+
+func resolveUnderlying(t Type) Type {
+	for al, ok := t.(Aliased); ok; al, ok = t.(Aliased) {
+		t = al.Underlying
+	}
+	return t
 }
 
 type Lifecycle struct {

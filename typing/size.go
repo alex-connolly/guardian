@@ -1,4 +1,4 @@
-package validator
+package typing
 
 func (a Array) size() int {
 	return a.Length * a.Value.size()
@@ -22,7 +22,7 @@ func (i Interface) size() int {
 
 func (t Tuple) size() int {
 	s := 0
-	for _, typ := range t.types {
+	for _, typ := range t.Types {
 		s += typ.size()
 	}
 	return s

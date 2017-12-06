@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"axia/guardian/typing"
+
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/lexer"
 )
@@ -21,7 +23,7 @@ func (v *Validator) validateBuiltinSequence(scope *ast.ScopeNode) {
 	}
 }
 
-type LiteralFunc func(*Validator, string) Type
+type LiteralFunc func(*Validator, string) typing.Type
 type LiteralMap map[lexer.TokenType]LiteralFunc
 
 func SimpleLiteral(typeName string) LiteralFunc {

@@ -28,8 +28,8 @@ func (s StandardType) write(b *bytes.Buffer) {
 
 func (t Tuple) write(b *bytes.Buffer) {
 	b.WriteByte('(')
-	if t.types != nil {
-		for i, v := range t.types {
+	if t.Types != nil {
+		for i, v := range t.Types {
 			if i > 0 {
 				b.WriteString(", ")
 			}
@@ -44,7 +44,7 @@ func (t Tuple) write(b *bytes.Buffer) {
 }
 
 func (a Aliased) write(b *bytes.Buffer) {
-	b.WriteString(a.alias)
+	b.WriteString(a.Alias)
 }
 
 func (a Array) write(b *bytes.Buffer) {

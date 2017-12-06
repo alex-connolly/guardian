@@ -1,4 +1,4 @@
-package validator
+package typing
 
 func (a Array) compare(t Type) bool {
 	if at, ok := resolveUnderlying(t).(Array); !ok {
@@ -22,7 +22,7 @@ func (m Map) compare(t Type) bool {
 	if other, ok := resolveUnderlying(t).(Map); !ok {
 		return false
 	} else {
-		// map types are equal if they share the same key and value
+		// map Types are equal if they share the same key and value
 		return m.Key.compare(other.Key) && m.Value.compare(other.Value)
 	}
 }
@@ -35,15 +35,15 @@ func (t Tuple) compare(o Type) bool {
 		return false
 	} else {
 		// short circuit if not the same length
-		if other.types == nil && t.types != nil {
+		if other.Types == nil && t.Types != nil {
 			return false
 		}
-		if len(t.types) != len(other.types) {
+		if len(t.Types) != len(other.Types) {
 			return false
 		}
-		for i, typ := range t.types {
+		for i, typ := range t.Types {
 			if typ != nil {
-				if !assignableTo(typ, other.types[i]) && other.types[i] != standards[Unknown] {
+				if !assignableTo(typ, other.Types[i]) && other.Types[i] != standards[Unknown] {
 					return false
 				}
 			} else {
@@ -60,7 +60,7 @@ func (f Func) compare(t Type) bool {
 	if other, ok := resolveUnderlying(t).(Func); !ok {
 		return false
 	} else {
-		// func types are equal if they share the same params and results
+		// func Types are equal if they share the same params and results
 		return f.Params.compare(other.Params) && f.Results.compare(other.Results)
 	}
 }

@@ -1,4 +1,4 @@
-package validator
+package typing
 
 import (
 	"testing"
@@ -7,56 +7,71 @@ import (
 )
 
 func TestCompareArraysExplicitlyEqual(t *testing.T) {
-	one := NewArray(standards[Bool], 0, true)
-	two := NewArray(standards[Bool], 0, true)
+	one := Array{Value: standards[Bool], Length: 0, Variable: true}
+	two := Array{Value: standards[Bool], Length: 0, Variable: true}
 	goutil.Assert(t, one.compare(two), "should be equal")
 }
 
 func TestCompareArraysImplicitlyEqual(t *testing.T) {
-	one := NewArray(standards[Bool], 0, true)
-	two := NewAliased("a", NewArray(standards[Bool], 0, true))
+	one := Array{Value: standards[Bool], Length: 0, Variable: true}
+	two := Aliased{
+		Alias:      "a",
+		Underlying: Array{Value: standards[Bool], Length: 0, Variable: true},
+	}
 	goutil.Assert(t, one.compare(two), "should be equal")
 }
 
 func TestCompareArraysExplicitlyWrongKey(t *testing.T) {
-	one := NewArray(standards[Bool], 0, true)
-	two := NewArray(standards[Invalid], 0, true)
+	one := Array{Value: standards[Bool], Length: 0, Variable: true}
+	two := Array{Value: standards[Invalid], Length: 0, Variable: true}
 	goutil.Assert(t, !one.compare(two), "should not be equal")
 }
 
 func TestCompareArraysImplicitlyWrongKey(t *testing.T) {
-	one := NewArray(standards[Bool], 0, true)
-	two := NewAliased("a", NewArray(standards[Invalid], 0, true))
+	one := Array{Value: standards[Bool], Length: 0, Variable: true}
+	two := Aliased{
+		Alias:      "a",
+		Underlying: Array{Value: standards[Invalid], Length: 0, Variable: true},
+	}
 	goutil.Assert(t, !one.compare(two), "should not be equal")
 }
 
 func TestCompareArraysExplicitlyWrongType(t *testing.T) {
-	one := NewArray(standards[Bool], 0, true)
-	two := NewFunc(NewTuple(), NewTuple())
+	one := Array{Value: standards[Bool], Length: 0, Variable: true}
+	two := Func{Params: NewTuple(), Results: NewTuple()}
 	goutil.Assert(t, !one.compare(two), "should not be equal")
 }
 
 func TestCompareArraysImplicitlyWrongType(t *testing.T) {
-	one := NewArray(standards[Bool], 0, true)
-	two := NewAliased("a", NewFunc(NewTuple(), NewTuple()))
+	one := Array{Value: standards[Bool], Length: 0, Variable: true}
+	two := Aliased{
+		Alias:      "a",
+		Underlying: Func{Params: NewTuple(), Results: NewTuple()},
+	}
 	goutil.Assert(t, !one.compare(two), "should not be equal")
 }
 
 func TestCompareMapsExplicitlyEqual(t *testing.T) {
-	one := NewMap(standards[Bool], standards[Bool])
-	two := NewMap(standards[Bool], standards[Bool])
+	one := Map{Key: standards[Bool], Value: standards[Bool]}
+	two := Map{Key: standards[Bool], Value: standards[Bool]}
 	goutil.Assert(t, one.compare(two), "should be equal")
 }
 
 func TestCompareMapsImplicitlyEqual(t *testing.T) {
-	one := NewMap(standards[Bool], standards[Bool])
-	two := NewAliased("a", NewMap(standards[Bool], standards[Bool]))
+	one := Map{Key: standards[Bool], Value: standards[Bool]}
+	two := Aliased{
+		Alias:      "a",
+		Underlying: Map{Key: standards[Bool], Value: standards[Bool]},
+	}
 	goutil.Assert(t, one.compare(two), "should be equal")
 }
 
 func TestCompareEmptyFuncs(t *testing.T) {
-	one := NewFunc(NewTuple(), NewTuple())
-	two := NewAliased("a", NewFunc(NewTuple(), NewTuple()))
+	one := Func{Params: NewTuple(), Results: NewTuple()}
+	two := Aliased{
+		Alias:      "a",
+		Underlying: Func{Params: NewTuple(), Results: NewTuple()},
+	}
 	goutil.Assert(t, one.compare(two), "should be equal")
 }
 
