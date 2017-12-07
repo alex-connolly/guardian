@@ -1,8 +1,6 @@
 package evm
 
 import (
-	"fmt"
-
 	"github.com/end-r/vmgen"
 
 	"github.com/end-r/guardian/lexer"
@@ -154,12 +152,7 @@ func (e *GuardianEVM) traverseExplicitVarDecl(n *ast.ExplicitVarDeclarationNode)
 	storage := e.inStorage() || hasModifier(n.Modifiers, lexer.TknStorage)
 	for _, id := range n.Identifiers {
 		if storage {
-			fmt.Println("yolo")
-			if n.Resolved == nil {
-				fmt.Println("whyyyy")
-			}
 			e.allocateStorage(id, n.Resolved.Size())
-			fmt.Println("xx")
 		} else {
 			e.allocateMemory(id, n.Resolved.Size())
 		}

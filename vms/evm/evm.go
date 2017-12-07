@@ -2,7 +2,6 @@ package evm
 
 import (
 	"encoding/binary"
-	"fmt"
 
 	"github.com/end-r/guardian/lexer"
 
@@ -131,11 +130,9 @@ func (evm *GuardianEVM) allocateStorage(name string, size uint) {
 	// TODO: check whether there's a way to using some bin packing algo
 	// with a modified heuristic to reduce the cost of extracting variables using bitshifts
 	// maybe?
-	fmt.Println("a")
 	if evm.storage == nil {
 		evm.storage = make(map[string]storageBlock)
 	}
-	fmt.Println("b")
 	block := storageBlock{
 		size:   size,
 		offset: evm.lastOffset,

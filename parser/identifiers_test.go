@@ -113,6 +113,8 @@ func TestIsExplicitVarDeclaration(t *testing.T) {
 	goutil.Assert(t, isExplicitVarDeclaration(p), "modifier statement not recognised")
 	p = createParser("abstract external x string")
 	goutil.Assert(t, isExplicitVarDeclaration(p), "double modifier statement not recognised")
+	p = createParser("transfer func(a address, amount uint256) uint")
+	goutil.Assert(t, isExplicitVarDeclaration(p), "func type statement not recognised")
 	p = createParser("x = 5")
 	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not recognise simple assignment")
 	p = createParser("a[b] = 5")
@@ -259,4 +261,9 @@ func TestVariableTypes(t *testing.T) {
 	goutil.Assert(t, p.isArrayType(), "variable array type not recognised")
 	p = createParser("...string")
 	goutil.Assert(t, p.isPlainType(), "variable type not recognised")
+}
+
+func TestIsFuncType(t *testing.T) {
+	p := createParser("func(a address, amount uint256) uint")
+	goutil.Assert(t, p.isFuncType(), "func type not recognised")
 }

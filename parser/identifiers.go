@@ -47,7 +47,7 @@ func isExplicitVarDeclaration(p *Parser) bool {
 }
 
 func (p *Parser) isNextTerminating() bool {
-	return p.parseOptional(lexer.TknNewLine, lexer.TknSemicolon, lexer.TknComma)
+	return p.parseOptional(lexer.TknNewLine, lexer.TknSemicolon, lexer.TknComma, lexer.TknCloseBracket)
 }
 
 func (p *Parser) isNextAType() bool {

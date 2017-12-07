@@ -16,10 +16,8 @@ func TestTraverseExplicitVariableDeclaration(t *testing.T) {
 	goutil.AssertNow(t, ast != nil, "ast shouldn't be nil")
 	goutil.AssertNow(t, ast.Declarations != nil, "ast decls shouldn't be nil")
 	e := NewVM()
-	fmt.Println("$$")
 	errs = validator.Validate(ast, e)
-	goutil.Assert(t, errs == nil, "errs should be nil")
-	fmt.Println("$$$")
+	goutil.Assert(t, errs == nil, errs.Format())
 	e.Traverse(ast)
-	goutil.Assert(t, len(e.storage) == 1, "didn't allocate a block")
+	goutil.Assert(t, len(e.storage) == 1, fmt.Sprintf("didn't allocate a block: %d", len(e.storage)))
 }

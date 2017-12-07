@@ -100,6 +100,11 @@ func (v *Validator) importVM(vm VM) {
 	v.operators = vm.Operators()
 	v.primitives = vm.Primitives()
 	v.builtinScope = vm.Builtins()
+
+	v.parseBuiltins()
+}
+
+func (v *Validator) parseBuiltins() {
 	if v.builtinScope != nil {
 		v.isParsingBuiltins = true
 		if v.builtinScope.Declarations != nil {

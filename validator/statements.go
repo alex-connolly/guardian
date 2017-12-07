@@ -60,7 +60,7 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 		for i, left := range node.Left {
 			if leftTuple.Types[i] == typing.Unknown() {
 				if id, ok := left.(*ast.IdentifierNode); ok {
-					v.DeclareVarOfType(id.Name, rightTuple.Types[0])
+					v.declareContextualVar(id.Name, rightTuple.Types[0])
 				}
 			}
 		}
@@ -78,7 +78,7 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 				if leftTuple.Types[i] == typing.Unknown() {
 					if id, ok := left.(*ast.IdentifierNode); ok {
 						//fmt.Printf("Declaring %s as %s\n", id.Name,typing.WriteType(rightTuple.Types[i]))
-						v.DeclareVarOfType(id.Name, rightTuple.Types[i])
+						v.declareContextualVar(id.Name, rightTuple.Types[i])
 					}
 				}
 			}

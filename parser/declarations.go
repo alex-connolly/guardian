@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"strconv"
+
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/lexer"
 )
@@ -282,16 +284,6 @@ func (p *Parser) parseType() ast.Node {
 	return nil
 }
 
-func (p *Parser) parseTypeList() []ast.Node {
-	var types []ast.Node
-	first := p.parseType()
-	types = append(types, first)
-	for p.parseOptional(lexer.TknComma) {
-		types = append(types, p.parseType())
-	}
-	return types
-}
-
 func (p *Parser) parseVarDeclaration() *ast.ExplicitVarDeclarationNode {
 
 	modifiers := p.parseModifiers(lexer.TknIdentifier)
@@ -326,6 +318,16 @@ func (p *Parser) parseParameters() []*ast.ExplicitVarDeclarationNode {
 		p.parseRequired(lexer.TknCloseBracket)
 	}
 	return params
+}
+
+func (p *Parser) parseTypeList() []ast.Node {
+	var types []ast.Node
+	first := p.parseType()
+	types = append(types, first)
+	for p.parseOptional(lexer.TknComma) {
+		types = append(types, p.parseType())
+	}
+	return types
 }
 
 // currently not supporting named return types
@@ -462,16 +464,45 @@ func (p *Parser) parseFuncType() *ast.FuncTypeNode {
 	}
 	p.parseRequired(lexer.TknOpenBracket)
 
-	if !p.parseOptional(lexer.TknCloseBracket) {
-		f.Parameters = p.parseTypeList()
-		p.parseRequired(lexer.TknCloseBracket)
-	}
+	f.Parameters = p.parseFuncTypeParameters()
+	p.parseRequired(lexer.TknCloseBracket)
+
 	if p.parseOptional(lexer.TknOpenBracket) {
-		f.Results = p.parseTypeList()
+		f.Results = p.parseFuncTypeParameters()
 		p.parseRequired(lexer.TknCloseBracket)
+	} else {
+		f.Results = p.parseFuncTypeParameters()
 	}
-	f.Results = p.parseTypeList()
+
 	return &f
+}
+
+func (p *Parser) parseFuncTypeParameters() []ast.Node {
+	// can't mix named and unnamed
+	var params []ast.Node
+	if isExplicitVarDeclaration(p) {
+		params = append(params, p.parseVarDeclaration())
+		for p.parseOptional(lexer.TknComma) {
+			if isExplicitVarDeclaration(p) {
+				params = append(params, p.parseVarDeclaration())
+			} else if p.isNextAType() {
+				p.addError("Mixed named and unnamed parameters")
+				p.parseType()
+			} else {
+				// TODO: add error
+				p.next()
+			}
+		}
+	} else {
+		// must be types
+		params = append(params, p.parseType())
+		for p.parseOptional(lexer.TknComma) {
+			t := p.parseType()
+			params = append(params, t)
+			// TODO: handle errors
+		}
+	}
+	return params
 }
 
 func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
@@ -480,9 +511,15 @@ func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 
 	p.parseRequired(lexer.TknOpenSquare)
 
-	/*if p.parseOptional(lexer.TknColon) {
-		//	max = p.parseExpression()
-	}*/
+	var max int
+
+	if p.nextTokens(lexer.TknInteger) {
+		i, err := strconv.ParseInt(p.current().String(), 10, 64)
+		if err != nil {
+
+		}
+		max = int(i)
+	}
 
 	p.parseRequired(lexer.TknCloseSquare)
 
@@ -491,39 +528,22 @@ func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 	return &ast.ArrayTypeNode{
 		Value:    typ,
 		Variable: variable,
+		Length:   max,
 	}
 }
 
 func parseExplicitVarDeclaration(p *Parser) {
 	// parse variable Names
+	node := p.parseVarDeclaration()
 
-	modifiers := p.parseModifiers(lexer.TknIdentifier)
-
-	if p.modifiers != nil {
-		modifiers = append(modifiers, p.modifiers...)
-	}
-
-	var names []string
-	names = append(names, p.parseIdentifier())
-	for p.parseOptional(lexer.TknComma) {
-		names = append(names, p.parseIdentifier())
-	}
-	// parse type
-	typ := p.parseType()
-
-	node := ast.ExplicitVarDeclarationNode{
-		Modifiers:    modifiers,
-		Identifiers:  names,
-		DeclaredType: typ,
-	}
 	// surely needs to be a declaration in some contexts
 	switch p.scope.Type() {
 	case ast.FuncDeclaration, ast.LifecycleDeclaration:
-		p.scope.AddSequential(&node)
+		p.scope.AddSequential(node)
 		break
 	default:
-		for _, n := range names {
-			p.scope.AddDeclaration(n, &node)
+		for _, n := range node.Identifiers {
+			p.scope.AddDeclaration(n, node)
 		}
 	}
 
