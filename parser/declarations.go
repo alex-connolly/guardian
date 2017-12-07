@@ -516,9 +516,10 @@ func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 	if p.nextTokens(lexer.TknInteger) {
 		i, err := strconv.ParseInt(p.current().String(), 10, 64)
 		if err != nil {
-
+			p.addError("Invalid array size")
 		}
 		max = int(i)
+		p.next()
 	}
 
 	p.parseRequired(lexer.TknCloseSquare)
@@ -533,6 +534,7 @@ func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 }
 
 func parseExplicitVarDeclaration(p *Parser) {
+
 	// parse variable Names
 	node := p.parseVarDeclaration()
 

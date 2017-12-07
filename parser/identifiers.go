@@ -39,6 +39,7 @@ func isExplicitVarDeclaration(p *Parser) bool {
 	if p.hasTokens(1) {
 		if !p.isNextTerminating() {
 			*p = saved
+
 			return false
 		}
 	}
@@ -66,8 +67,8 @@ func (p *Parser) isPlainType() bool {
 }
 
 func (p *Parser) isArrayType() bool {
-	immediate := p.nextTokens(lexer.TknOpenSquare, lexer.TknCloseSquare)
-	variable := p.nextTokens(lexer.TknEllipsis, lexer.TknOpenSquare, lexer.TknCloseSquare)
+	immediate := p.nextTokens(lexer.TknOpenSquare)
+	variable := p.nextTokens(lexer.TknEllipsis, lexer.TknOpenSquare)
 	return immediate || variable
 }
 

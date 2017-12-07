@@ -131,6 +131,11 @@ func TestIsExplicitVarDeclaration(t *testing.T) {
 	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not recognise empty call")
 }
 
+func TestIsExpVarFunc(t *testing.T) {
+	p := createParser("blockhash func(blockNumber uint) [32]byte")
+	goutil.Assert(t, isExplicitVarDeclaration(p), "second func type statement not recognised")
+}
+
 func TestIsExpVarCall(t *testing.T) {
 
 	p := createParser(`full("hi", "bye")`)
@@ -229,8 +234,6 @@ func TestIsArrayType(t *testing.T) {
 	p := createParser("[]string")
 	goutil.Assert(t, p.isArrayType(), "array type not recognised")
 
-	p = createParser("[string]")
-	goutil.Assert(t, !p.isArrayType(), "index array type should not be recognised")
 	p = createParser("a[b]")
 	goutil.Assert(t, !p.isArrayType(), "index array type should not be recognised")
 }
@@ -266,4 +269,7 @@ func TestVariableTypes(t *testing.T) {
 func TestIsFuncType(t *testing.T) {
 	p := createParser("func(a address, amount uint256) uint")
 	goutil.Assert(t, p.isFuncType(), "func type not recognised")
+	p = createParser("func(blockNumber uint) [32]byte")
+	goutil.Assert(t, p.isFuncType(), "second func type not recognised")
+
 }

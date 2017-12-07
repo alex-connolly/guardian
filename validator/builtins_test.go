@@ -79,5 +79,5 @@ func TestParseBuiltinsPartialFunctions(t *testing.T) {
 	v.builtinScope = ast
 	v.parseBuiltins()
 	goutil.AssertNow(t, v.builtinVariables != nil, "vars should not be nil")
-	goutil.AssertNow(t, len(v.builtinVariables) == 5, "should be 1 vars")
+	goutil.AssertNow(t, len(v.builtinVariables) == 5, "should be 5 vars")
 }
