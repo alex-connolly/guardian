@@ -50,7 +50,6 @@ func SimpleOperator(typeName string) OperatorFunc {
 		return v.getNamedType(typeName)
 	}
 }
-
 func BinaryNumericOperator(v *Validator, ts ...typing.Type) typing.Type {
 	left := typing.ResolveUnderlying(ts[0])
 	right := typing.ResolveUnderlying(ts[1])

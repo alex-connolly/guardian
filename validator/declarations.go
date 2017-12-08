@@ -269,7 +269,7 @@ func (v *Validator) validateContextualType(node ast.Node) typing.Type {
 }
 
 func (v *Validator) declareContextualVar(name string, typ typing.Type) {
-	if v.isParsingBuiltins {
+	if v.scope == nil {
 		v.DeclareBuiltinOfType(name, typ)
 	} else {
 		v.DeclareVarOfType(name, typ)
@@ -319,7 +319,7 @@ func (v *Validator) validateEventDeclaration(node *ast.EventDeclarationNode) {
 }
 
 func (v *Validator) declareContextualType(name string, typ typing.Type) {
-	if v.isParsingBuiltins {
+	if v.scope == nil {
 		v.DeclareBuiltinType(name, typ)
 	} else {
 		v.DeclareType(name, typ)

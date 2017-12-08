@@ -1,9 +1,10 @@
 package validator
 
 import (
-	"axia/guardian/parser"
 	"fmt"
 	"testing"
+
+	"github.com/end-r/guardian/parser"
 
 	"github.com/end-r/guardian/lexer"
 
@@ -80,4 +81,57 @@ func TestParseBuiltinsPartialFunctions(t *testing.T) {
 	v.parseBuiltins()
 	goutil.AssertNow(t, v.builtinVariables != nil, "vars should not be nil")
 	goutil.AssertNow(t, len(v.builtinVariables) == 5, "should be 5 vars")
+}
+
+func TestParseBuiltinsClasses(t *testing.T) {
+	v := new(Validator)
+	ast, _ := parser.ParseString(`
+		class BuiltinMessage {
+			data []byte
+			gas uint
+			sender address
+			sig [4]byte
+		}
+
+		class BuiltinBlock {
+			timestamp uint
+			number uint
+			coinbase address
+			gaslimit uint
+			blockhash func(blockNumber uint) [32]byte
+		}
+
+		class BuiltinTransaction {
+			gasprice uint
+			origin address
+		}
+
+		block BuiltinBlock
+		msg BuiltinMessage
+		tx BuiltinTransaction
+	`)
+	tvm := NewTestVM()
+	v.primitives = tvm.Primitives()
+	v.builtinScope = ast
+	v.parseBuiltins()
+	goutil.AssertNow(t, v.builtinVariables != nil, "vars should not be nil")
+	goutil.AssertNow(t, len(v.builtinVariables) == 3, "should be 3 vars")
+	goutil.AssertNow(t, v.primitives != nil, "vars should not be nil")
+	goutil.AssertNow(t, len(v.primitives) == len(tvm.Primitives())+3, "should be 3 extra types")
+}
+
+func TestParseBuiltinsTypeDeclarations(t *testing.T) {
+	v := new(Validator)
+	ast, _ := parser.ParseString(`
+		type byte uint8
+		type string []byte
+		type address [20]byte
+	`)
+	tvm := NewTestVM()
+	v.primitives = tvm.Primitives()
+	v.builtinScope = ast
+	v.parseBuiltins()
+	goutil.AssertNow(t, len(v.builtinVariables) == 0, "should be 0 vars")
+	goutil.AssertNow(t, v.primitives != nil, "vars should not be nil")
+	goutil.AssertNow(t, len(v.primitives) == len(tvm.Primitives())+3, "should be 3 extra types")
 }

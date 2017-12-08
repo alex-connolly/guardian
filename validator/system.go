@@ -89,7 +89,8 @@ func (v *Validator) getNamedType(names ...string) typing.Type {
 		for k, typ := range v.primitives {
 			if k == search {
 				// found top level type
-				return v.getPropertiesType(typ, names[1:])
+				//return v.getPropertiesType(typ, names[1:])
+				return typ
 			}
 		}
 	}
@@ -98,7 +99,8 @@ func (v *Validator) getNamedType(names ...string) typing.Type {
 			for k, typ := range s.types {
 				if k == search {
 					// found top level type
-					return v.getPropertiesType(typ, names[1:])
+					//return v.getPropertiesType(typ, names[1:])
+					return typ
 				}
 			}
 		}
