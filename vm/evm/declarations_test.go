@@ -57,3 +57,39 @@ func TestTraverseExplicitVariableDeclarationVariableArray(t *testing.T) {
 	e.Traverse(ast)
 	goutil.Assert(t, len(e.storage) == 1, fmt.Sprintf("didn't allocate a block: %d", len(e.storage)))
 }
+
+func TestTraverseTypeDeclaration(t *testing.T) {
+	ast, errs := parser.ParseString(`type Dog int`)
+	goutil.AssertNow(t, errs == nil, errs.Format())
+	goutil.AssertNow(t, ast != nil, "ast shouldn't be nil")
+	goutil.AssertNow(t, ast.Declarations != nil, "ast decls shouldn't be nil")
+	e := NewVM()
+	errs = validator.Validate(ast, e)
+	goutil.Assert(t, errs == nil, errs.Format())
+	e.Traverse(ast)
+	goutil.Assert(t, len(e.storage) == 0, fmt.Sprintf("allocate a block: %d", len(e.storage)))
+}
+
+func TestTraverseClassDeclaration(t *testing.T) {
+	ast, errs := parser.ParseString(`class Dog {}`)
+	goutil.AssertNow(t, errs == nil, errs.Format())
+	goutil.AssertNow(t, ast != nil, "ast shouldn't be nil")
+	goutil.AssertNow(t, ast.Declarations != nil, "ast decls shouldn't be nil")
+	e := NewVM()
+	errs = validator.Validate(ast, e)
+	goutil.Assert(t, errs == nil, errs.Format())
+	e.Traverse(ast)
+	goutil.Assert(t, len(e.storage) == 0, fmt.Sprintf("allocate a block: %d", len(e.storage)))
+}
+
+func TestTraverseInterfaceDeclaration(t *testing.T) {
+	ast, errs := parser.ParseString(`interface Dog {}`)
+	goutil.AssertNow(t, errs == nil, errs.Format())
+	goutil.AssertNow(t, ast != nil, "ast shouldn't be nil")
+	goutil.AssertNow(t, ast.Declarations != nil, "ast decls shouldn't be nil")
+	e := NewVM()
+	errs = validator.Validate(ast, e)
+	goutil.Assert(t, errs == nil, errs.Format())
+	e.Traverse(ast)
+	goutil.Assert(t, len(e.storage) == 0, fmt.Sprintf("allocate a block: %d", len(e.storage)))
+}

@@ -101,6 +101,8 @@ func (v *Validator) importVM(vm VM) {
 	v.primitives = vm.Primitives()
 	v.builtinScope = vm.Builtins()
 
+	v.DeclareBuiltinType(vm.BooleanName(), typing.BooleanType{})
+
 	v.parseBuiltins()
 }
 

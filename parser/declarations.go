@@ -8,7 +8,6 @@ import (
 )
 
 func (p *Parser) parseModifiers(targets ...lexer.TokenType) []lexer.TokenType {
-
 	var mods []lexer.TokenType
 	for p.hasTokens(1) {
 		for _, t := range targets {
@@ -20,8 +19,8 @@ func (p *Parser) parseModifiers(targets ...lexer.TokenType) []lexer.TokenType {
 			mods = append(mods, p.current().Type)
 			p.next()
 		} else {
-			p.addError("Invalid modifier")
 			p.next()
+			return mods
 		}
 	}
 
