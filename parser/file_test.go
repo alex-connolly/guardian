@@ -66,3 +66,9 @@ func TestCommentsContract(t *testing.T) {
 	goutil.Assert(t, p != nil, "parser should not be nil")
 	goutil.Assert(t, errs == nil, errs.Format())
 }
+
+func TestGroupsContract(t *testing.T) {
+	p, errs := ParseFile("tests/groups.grd")
+	goutil.Assert(t, p != nil, "parser should not be nil")
+	goutil.Assert(t, errs == nil, errs.Format())
+}

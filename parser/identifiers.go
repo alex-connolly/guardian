@@ -241,7 +241,8 @@ func isCaseStatement(p *Parser) bool {
 func isKeywordGroup(p *Parser) bool {
 
 	return p.preserveState(func(p *Parser) bool {
-		for p.parseOptional(lexer.GetModifiers()..., lexer.GetDeclarations()) {
+
+		for p.parseOptional(append(lexer.GetModifiers(), lexer.GetDeclarations()...)...) {
 		}
 		return p.parseOptional(lexer.TknOpenBracket)
 	})

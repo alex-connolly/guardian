@@ -1,6 +1,6 @@
 package typing
 
-// NumericType... used to pass types into the s
+// NumericType ... used to pass types into the s
 type NumericType struct {
 	BitSize int
 	Name    string

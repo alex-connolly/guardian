@@ -26,6 +26,11 @@ func (t TokenType) IsModifier() bool {
 	return t.isToken(GetModifiers())
 }
 
+// IsDeclaration reports whether a token is a modifier
+func (t TokenType) IsDeclaration() bool {
+	return t.isToken(GetDeclarations())
+}
+
 // IsAssignment reports whether a token is an assignment operator
 func (t TokenType) IsAssignment() bool {
 	return t.isToken(GetAssignments())

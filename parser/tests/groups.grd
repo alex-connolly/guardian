@@ -1,0 +1,28 @@
+package tests at 0.0.1
+
+/*
+Group keywords can be:
+- any non-conflicting modifiers
+- any one top-level type declaration keyword
+*/
+
+/*
+These keywords will be applied to all the top level
+If this keyword cannot be applied to a top
+*/
+
+contract (
+
+    Dog {
+        public (
+            name string
+            age int
+        )
+    }
+
+    Cat {
+        name string
+        age int
+    }
+
+)

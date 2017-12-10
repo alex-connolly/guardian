@@ -36,7 +36,7 @@ func (p *Parser) parseOptionalAssignment() *ast.AssignmentStatementNode {
 
 func (p *Parser) parseSimpleAssignment() ast.AssignmentStatementNode {
 
-	modifiers := p.parseModifiers(lexer.TknIdentifier)
+	modifiers := p.parseKeywords(lexer.TknIdentifier)
 
 	var assigned []ast.ExpressionNode
 	assigned = append(assigned, p.parseSimpleExpression())
@@ -69,7 +69,7 @@ func (p *Parser) parseSimpleAssignment() ast.AssignmentStatementNode {
 
 func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 
-	modifiers := p.parseModifiers(lexer.TknIdentifier)
+	modifiers := p.parseKeywords(lexer.TknIdentifier)
 
 	var assigned []ast.ExpressionNode
 	assigned = append(assigned, p.parseExpression())
