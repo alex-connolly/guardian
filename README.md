@@ -30,14 +30,9 @@ In order for future versions of Guardian to include potentially backwards-incomp
 package calculator @ 0.0.1
 ```
 
+## Importing packages
 
-## Exported Variables
-
-
-
-## Imports
-
-Guardian contracts may be imported using the following syntax:
+Guardian packages may be imported using the following syntax:
 
 ```go
 
@@ -45,8 +40,9 @@ import "guard"
 
 contract Watcher {
 
-    guard(){
-        guard.Guard() // this is a function from guard.grd
+    doThing(){
+        // this is a function from the guard package
+        guard.Guard()
     }
 }
 
@@ -60,6 +56,7 @@ Guardian is strongly and statically typed, and code which does not conform to th
 x = 5      // x will have type int
 y = x      // y will have type int
 x = "hello" // will not compile (x has type int)
+y = 5.5 //  will not compile (y has type int)
 ```
 
 ### Inheritance
@@ -74,7 +71,7 @@ class Liger inherits Lion, Tiger {
 
 All EXPORTED methods and fields will be available in the subclass. The introduction of a ```protected``` keyword, or some other mechanism for allowing inheritance of imported methods, is currently under consideration.
 
-However, in cases where a class inherits two methods with identical names and parameters, the methods will 'cancel', and a warning will be raised. To ignore this warning, simply annotate the offending class with ```@Ignore("cancellation")``` This sidesteps the diamond inheritance problem.
+However, in cases where a class inherits two methods with identical names and parameters, the methods will 'cancel' and neither will be available in the subclass.
 
 ### Interfaces
 
@@ -91,10 +88,6 @@ class Liger inherits Lion, Tiger is Walkable {
 ```
 
 All types which explicitly implement an interface through the ```is``` keyword may be referenced as that interface type. However, there is no go-like implicit implementation, as it can be confusing and serves no particular purpose in a class-based language.
-
-## Builtins
-
-Similarly to Solidity, data about the current block may be extracted from the environment using a series of builtins. However, Solidity uses syntax reminiscent of object fields (e.g. ```msg.sender```), which are misleading as to the true nature of these builtins, which are immutable. Guardian therefore replaces them with a series of builtin method calls.
 
 ## Key Features
 
@@ -183,4 +176,48 @@ enforceLocal(loc Location){
 chat(loc Location, msg string){
     enforceLocal(loc)
 }
+```
+
+### Groups
+
+Like Go, Guardian allows for the creation of keyword groups, to simplify declaring variables or types with similar characteristics, and to group logically-related declarations together.
+
+These declarations can be any top-level type, or another group.
+```go
+class (
+    Dog {
+
+    }
+
+    Cat {
+
+    }
+)
+```
+
+```go
+public (
+    a string
+    b int
+    c string
+)
+```
+
+Groups only apply to the first level of declarations reached, so nested groups are possible:
+
+```go
+internal (
+
+    func (
+
+        add(a, b int) int {
+            return a + b
+        }
+
+        sub(a, b int) int {
+            return a - b
+        }
+
+    )
+)
 ```

@@ -14,7 +14,7 @@ type Parser struct {
 	scope      *ast.ScopeNode
 	Expression ast.ExpressionNode
 	tokens     []lexer.Token
-	modifiers  []lexer.TokenType
+	keywords   []lexer.TokenType
 	index      int
 	errs       util.Errors
 	line       int
@@ -126,11 +126,11 @@ func parseMultiLineComment(p *Parser) {
 	p.parseOptional(lexer.TknCommentClose)
 }
 
-func parseModifierList(p *Parser) {
-	old := p.modifiers
-	p.modifiers = p.parseModifiers(lexer.TknOpenBracket)
+func parseKeywordGroup(p *Parser) {
+	old := p.keywords
+	p.keywords = p.parseKeywords(lexer.TknOpenBracket)
 	p.parseEnclosedScope(lexer.TknOpenBracket, lexer.TknCloseBracket)
-	p.modifiers = old
+	p.keywords = old
 }
 
 func (p *Parser) addError(message string) {

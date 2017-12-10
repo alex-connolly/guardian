@@ -7,6 +7,10 @@ import (
 )
 
 func (v *Validator) resolveType(node ast.Node) typing.Type {
+	if node == nil {
+		// ?
+		return typing.Invalid()
+	}
 	switch node.Type() {
 	case ast.PlainType:
 		r := node.(*ast.PlainTypeNode)

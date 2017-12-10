@@ -29,10 +29,10 @@ func (p *Parser) parseModifiers(targets ...lexer.TokenType) []lexer.TokenType {
 
 func parseInterfaceDeclaration(p *Parser) {
 
-	modifiers := p.parseModifiers(lexer.TknInterface)
+	keywords := p.parseModifiers(lexer.TknInterface)
 
-	if p.modifiers != nil {
-		modifiers = append(modifiers, p.modifiers...)
+	if p.keywords != nil {
+		keywords = append(keywords, p.keywords...)
 	}
 
 	p.parseRequired(lexer.TknInterface)
@@ -49,7 +49,7 @@ func parseInterfaceDeclaration(p *Parser) {
 	node := ast.InterfaceDeclarationNode{
 		Identifier: identifier,
 		Supers:     inherits,
-		Modifiers:  modifiers,
+		Modifiers:  keywords,
 		Signatures: signatures,
 	}
 
@@ -128,10 +128,10 @@ func (p *Parser) parseEnumBody() []string {
 
 func parseEnumDeclaration(p *Parser) {
 
-	modifiers := p.parseModifiers(lexer.TknEnum)
+	keywords := p.parseModifiers(lexer.TknEnum)
 
-	if p.modifiers != nil {
-		modifiers = append(modifiers, p.modifiers...)
+	if p.keywords != nil {
+		keywords = append(keywords, p.keywords...)
 	}
 
 	p.parseRequired(lexer.TknEnum)
@@ -146,7 +146,7 @@ func parseEnumDeclaration(p *Parser) {
 	enums := p.parseEnumBody()
 
 	node := ast.EnumDeclarationNode{
-		Modifiers:  modifiers,
+		Modifiers:  keywords,
 		Identifier: identifier,
 		Inherits:   inherits,
 		Enums:      enums,
@@ -182,10 +182,10 @@ func (p *Parser) parsePlainTypeList() []*ast.PlainTypeNode {
 
 func parseClassDeclaration(p *Parser) {
 
-	modifiers := p.parseModifiers(lexer.TknClass)
+	keywords := p.parseModifiers(lexer.TknClass)
 
-	if p.modifiers != nil {
-		modifiers = append(modifiers, p.modifiers...)
+	if p.keywords != nil {
+		keywords = append(keywords, p.keywords...)
 	}
 
 	p.parseRequired(lexer.TknClass)
@@ -214,7 +214,7 @@ func parseClassDeclaration(p *Parser) {
 		Identifier: identifier,
 		Supers:     inherits,
 		Interfaces: interfaces,
-		Modifiers:  modifiers,
+		Modifiers:  keywords,
 		Body:       body,
 	}
 
@@ -223,10 +223,10 @@ func parseClassDeclaration(p *Parser) {
 
 func parseContractDeclaration(p *Parser) {
 
-	modifiers := p.parseModifiers(lexer.TknContract)
+	keywords := p.parseModifiers(lexer.TknContract)
 
-	if p.modifiers != nil {
-		modifiers = append(modifiers, p.modifiers...)
+	if p.keywords != nil {
+		keywords = append(keywords, p.keywords...)
 	}
 
 	p.parseRequired(lexer.TknContract)
@@ -261,7 +261,7 @@ func parseContractDeclaration(p *Parser) {
 		Identifier: identifier,
 		Supers:     inherits,
 		Interfaces: interfaces,
-		Modifiers:  modifiers,
+		Modifiers:  keywords,
 		Body:       body,
 	}
 
@@ -285,10 +285,10 @@ func (p *Parser) parseType() ast.Node {
 
 func (p *Parser) parseVarDeclaration() *ast.ExplicitVarDeclarationNode {
 
-	modifiers := p.parseModifiers(lexer.TknIdentifier)
+	keywords := p.parseModifiers(lexer.TknIdentifier)
 
-	if p.modifiers != nil {
-		modifiers = append(modifiers, p.modifiers...)
+	if p.keywords != nil {
+		keywords = append(keywords, p.keywords...)
 	}
 
 	var names []string
@@ -300,7 +300,7 @@ func (p *Parser) parseVarDeclaration() *ast.ExplicitVarDeclarationNode {
 	dType := p.parseType()
 
 	return &ast.ExplicitVarDeclarationNode{
-		Modifiers:    modifiers,
+		Modifiers:    keywords,
 		DeclaredType: dType,
 		Identifiers:  names,
 	}
@@ -351,10 +351,10 @@ func (p *Parser) parseResults() []ast.Node {
 
 func parseFuncDeclaration(p *Parser) {
 
-	modifiers := p.parseModifiers(lexer.TknFunc)
+	keywords := p.parseModifiers(lexer.TknFunc)
 
-	if p.modifiers != nil {
-		modifiers = append(modifiers, p.modifiers...)
+	if p.keywords != nil {
+		keywords = append(keywords, p.keywords...)
 	}
 
 	p.parseRequired(lexer.TknFunc)
@@ -371,7 +371,7 @@ func parseFuncDeclaration(p *Parser) {
 		Identifier: identifier,
 		Parameters: params,
 		Results:    results,
-		Modifiers:  modifiers,
+		Modifiers:  keywords,
 		Body:       body,
 	}
 
@@ -380,10 +380,10 @@ func parseFuncDeclaration(p *Parser) {
 
 func parseLifecycleDeclaration(p *Parser) {
 
-	modifiers := p.parseModifiers(lexer.GetLifecycles()...)
+	keywords := p.parseModifiers(lexer.GetLifecycles()...)
 
-	if p.modifiers != nil {
-		modifiers = append(modifiers, p.modifiers...)
+	if p.keywords != nil {
+		keywords = append(keywords, p.keywords...)
 	}
 
 	category := p.parseRequired(lexer.GetLifecycles()...)
@@ -393,7 +393,7 @@ func parseLifecycleDeclaration(p *Parser) {
 	body := p.parseBracesScope(ast.ExplicitVarDeclaration, ast.FuncDeclaration)
 
 	node := ast.LifecycleDeclarationNode{
-		Modifiers:  modifiers,
+		Modifiers:  keywords,
 		Category:   category,
 		Parameters: params,
 		Body:       body,
@@ -408,10 +408,10 @@ func parseLifecycleDeclaration(p *Parser) {
 
 func parseTypeDeclaration(p *Parser) {
 
-	modifiers := p.parseModifiers(lexer.TknIdentifier)
+	keywords := p.parseModifiers(lexer.TknIdentifier)
 
-	if p.modifiers != nil {
-		modifiers = append(modifiers, p.modifiers...)
+	if p.keywords != nil {
+		keywords = append(keywords, p.keywords...)
 	}
 
 	p.parseRequired(lexer.TknType)
@@ -420,7 +420,7 @@ func parseTypeDeclaration(p *Parser) {
 	value := p.parseType()
 
 	n := ast.TypeDeclarationNode{
-		Modifiers:  modifiers,
+		Modifiers:  keywords,
 		Identifier: identifier,
 		Value:      value,
 	}
