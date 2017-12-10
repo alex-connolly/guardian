@@ -48,6 +48,13 @@ func GetBinaryOperators() []TokenType {
 	}
 }
 
+// GetDeclarations ...
+func GetDeclarations() []TokenType {
+	return []TokenType{
+		TknClass, TknInterface, TknEnum, TknType, TknContract, TknFunc,
+	}
+}
+
 // GetModifiers ....
 func GetModifiers() []TokenType {
 	return []TokenType{TknConst, TknInternal, TknExternal, TknPublic, TknPrivate,
