@@ -127,7 +127,20 @@ func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
 	// resolved tuple must match function expression
 
 	// scope is now a func declaration
+}
 
+func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
+	// get type of
+	gen := v.resolveExpression(node.Producer)
+
+	switch a := gen.(type) {
+	case typing.Map:
+		break
+	case typing.Array:
+		break
+	default:
+		// TODO: add error
+	}
 }
 
 func (v *Validator) validateForStatement(node *ast.ForStatementNode) {

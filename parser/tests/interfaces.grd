@@ -15,4 +15,10 @@ contract C {
         func iCantBelieveIveDoneThis([]string) map[string]int
     }
 
+    interface Named {
+        func doEvenMoreStuff(a string) string
+        func wowALotOfStuff(b map[string]int) map[string]int
+        func iCantBelieveIveDoneThis(c []string) map[string]int
+    }
+
 }

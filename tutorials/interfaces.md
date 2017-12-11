@@ -3,16 +3,16 @@
 
 Guardian interface types. They should generally be adjectives or participles. Note that the
 
-```
+```go
 interface Floating {
-    getHeight() int
-    getPosition() LatLng
+    height() int
+    position() LatLng
 }
 ```
 
-Interfaces can inherit from other interfaces.
+Interfaces can inherit from other interfaces, such that the implementation of all parent methods is also required.
 
-```
+```go
 interface Hovering inherits Floating {
     duration() int
 }
@@ -29,12 +29,11 @@ class Balloon is Floating {
 // Compiler will not error: interface fully implemented
 class Cloud is Floating {
 
-    func getHeight() int {
+    func height() int {
         return 1000
     }
 
-
-    func getPosition() LatLng {
+    func position() LatLng {
         return LatLng(63.4, 64.4)
     }
 }

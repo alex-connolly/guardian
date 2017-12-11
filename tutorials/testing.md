@@ -5,27 +5,27 @@ Guardian provides the capability for built-in unit tests. Tests must be stored i
 ```go
 package calculator
 
-import "bastion"
-
-func TestAddition(){
+test func TestAddition(){
     res = calculator.Add(5, 10)
-    bastion.Assert(res == 15, "incorrect addition value")
+    assert(res == 15, "incorrect addition value")
 }
 
-func TestSubtraction(){
+test func TestSubtraction(){
     res = calculator.Sub(10, 5)
-    bastion.Assert(res == 5, "incorrect subtraction value")
+    assert(res == 5, "incorrect subtraction value")
 }
 
-func TestMultiplication(){
+test func TestMultiplication(){
     res = calculator.Mul(10, 5)
-    bastion.Assert(res == 50, "incorrect multiplication value")
+    assert(res == 50, "incorrect multiplication value")
 }
 
-func TestDivision(){
+test func TestDivision(){
     res = calculator.Sub(10, 5)
-    bastion.Assert(res == 2, "incorrect division value")
+    assert(res == 2, "incorrect division value")
 }
 ```
 
 These tests can be run using ```guardian test```.
+
+Unlike Go, tests do not have to be named ```Testxxx```, and the ```test``` modifier is sufficient.

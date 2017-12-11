@@ -20,6 +20,9 @@ type VM interface {
 	Literals() LiteralMap
 	Operators() OperatorMap
 	BooleanName() string
+	ValidExpressions() []ast.NodeType
+	ValidStatements() []ast.NodeType
+	ValidDeclarations() []ast.NodeType
 }
 
 type TestVM struct {
@@ -115,4 +118,16 @@ func operatorAdd(v *Validator, ts ...typing.Type) typing.Type {
 		return strType
 	}
 	return typing.Invalid()
+}
+
+func (v TestVM) ValidExpressions() []ast.NodeType {
+	return nil
+}
+
+func (v TestVM) ValidStatements() []ast.NodeType {
+	return nil
+}
+
+func (v TestVM) ValidDeclarations() []ast.NodeType {
+	return nil
 }

@@ -239,6 +239,18 @@ func (p *Parser) parseReference(expr ast.ExpressionNode) *ast.ReferenceNode {
 	return n
 }
 
+func (p *Parser) parseIdentifierList() []string {
+	var ids []string
+	if p.current().Type != lexer.TknString {
+		return nil
+	}
+	ids = append(ids, p.parseIdentifier())
+	for p.parseOptional(lexer.TknComma) {
+		ids = append(ids, p.parseIdentifier())
+	}
+	return ids
+}
+
 func (p *Parser) parseCallExpression(expr ast.ExpressionNode) *ast.CallExpressionNode {
 	n := new(ast.CallExpressionNode)
 	n.Call = expr

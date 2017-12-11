@@ -41,6 +41,7 @@ const (
 	CaseStatement
 	BlockStatement
 	ForStatement
+	ForEachStatement
 	FlowStatement
 
 	ImportStatement
@@ -49,6 +50,24 @@ const (
 	File
 	Package
 	Scope
+)
+
+var (
+	AllDeclarations = []NodeType{
+		ClassDeclaration, EnumDeclaration, InterfaceDeclaration,
+		FuncDeclaration, LifecycleDeclaration, EventDeclaration,
+		ContractDeclaration, TypeDeclaration, ExplicitVarDeclaration,
+	}
+
+	AllStatements = []NodeType{
+		ForStatement, IfStatement, PackageStatement, ImportStatement,
+		SwitchStatement, ForEachStatement,
+	}
+
+	AllExpressions = []NodeType{
+		UnaryExpression, BinaryExpression, SliceExpression, CallExpression, IndexExpression,
+		GenericExpression, MapLiteral, ArrayLiteral, CompositeLiteral, Literal, Reference,
+	}
 )
 
 type MapTypeNode struct {

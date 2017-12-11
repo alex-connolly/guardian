@@ -73,6 +73,14 @@ type ForStatementNode struct {
 
 func (n *ForStatementNode) Type() NodeType { return ForStatement }
 
+type ForEachStatementNode struct {
+	Variables []string
+	Producer  ExpressionNode
+	Block     *ScopeNode
+}
+
+func (n *ForEachStatementNode) Type() NodeType { return ForEachStatement }
+
 type FlowStatementNode struct {
 	Token lexer.TokenType
 }

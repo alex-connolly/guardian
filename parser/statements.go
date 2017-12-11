@@ -190,6 +190,27 @@ func parseForStatement(p *Parser) {
 	p.scope.AddSequential(&node)
 }
 
+func parseForEachStatement(p *Parser) {
+
+	p.parseRequired(lexer.TknFor)
+
+	vars := p.parseIdentifierList()
+
+	p.parseRequired(lexer.TknIn)
+
+	producer := p.parseExpression()
+
+	body := p.parseBracesScope()
+
+	node := ast.ForEachStatementNode{
+		Variables: vars,
+		Producer:  producer,
+		Body:      body,
+	}
+
+	p.scope.AddSequential(&node)
+}
+
 func parseFlowStatement(p *Parser) {
 	node := ast.FlowStatementNode{
 		Token: p.current().Type,

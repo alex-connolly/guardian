@@ -5,14 +5,16 @@ contract BlindAuction {
         deposit uint
     }
 
-    external beneficiary address
-    external biddingEnd uint
-    external revealEnd uint
-    external ended bool
+    external (
+        beneficiary address
+        biddingEnd uint
+        revealEnd uint
+        ended bool
 
-    external bids map[address][]Bid
-    external highestBidder address
-    external highestBid uint
+        bids map[address][]Bid
+        highestBidder address
+        highestBid uint
+    )
 
     pendingReturns map[address]uint
 
@@ -53,7 +55,7 @@ contract BlindAuction {
 
         refund uint
         for i := 0; i < length; i++ {
-            
+
             v, f, s := values[i], fake[i], secret[i]
             if bid.blindedBid != keccak256(v, f, s) {
                 continue

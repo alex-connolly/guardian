@@ -1,10 +1,11 @@
 contract SimpleAuction {
 
-    external beneficiary address
-    external auctionEnd uint
-
-    external highestBidder address
-    external highestBid uint
+    external (
+        beneficiary address
+        auctionEnd uint
+        highestBidder address
+        highestBid uint
+    )
 
     pendingReturns map[address]uint
 
@@ -18,38 +19,42 @@ contract SimpleAuction {
         this.auctionEnd = now() + biddingTime
     }
 
-    external func bid() {
-        enforce(now() <= auctionEnd)
-        enforce(msg.value > highestBid)
-        if highestBidder != 0 {
-            pendingReturns[highestBidder] += highestBid
-        }
-        highestBidder = msg.sender
-        highestBid = msg.value
-        HighestBidIncreased(msg.sender, msg.value)
-    }
+    external (
 
-    external func withdraw() bool {
-        amount := pendingReturns[msg.sender]
-        if amount > 0 {
-            pendingReturns[msg.sender] = 0
-
-            if !send(msg.sender, amount) {
-                pendingReturns[msg.sender] = amount
-                return false
+        func bid() {
+            enforce(now() <= auctionEnd)
+            enforce(msg.value > highestBid)
+            if highestBidder != 0 {
+                pendingReturns[highestBidder] += highestBid
             }
+            highestBidder = msg.sender
+            highestBid = msg.value
+            HighestBidIncreased(msg.sender, msg.value)
         }
-        return true
-    }
 
-    external func auctionEnd(){
-        enforce(now() >= auctionEnd)
-        enforce(!ended)
+        func withdraw() bool {
+            amount := pendingReturns[msg.sender]
+            if amount > 0 {
+                pendingReturns[msg.sender] = 0
 
-        ended = true
-        AuctionEnded(highestBidder, highestBid)
+                if !send(msg.sender, amount) {
+                    pendingReturns[msg.sender] = amount
+                    return false
+                }
+            }
+            return true
+        }
 
-        transfer(beneficiary, highestBid)
-    }
+        func auctionEnd(){
+            enforce(now() >= auctionEnd)
+            enforce(!ended)
+
+            ended = true
+            AuctionEnded(highestBidder, highestBid)
+
+            transfer(beneficiary, highestBid)
+        }
+
+    )
 
 }
