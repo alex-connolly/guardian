@@ -154,54 +154,7 @@ func (evm *GuardianEVM) lookupStorage(name string) storageBlock {
 }
 
 func (evm GuardianEVM) Builtins() *ast.ScopeNode {
-	ast, errs := parser.ParseString(`
-
-			type string []byte
-			type address [20]byte
-
-			wei = 1
-			kwei = 1000 * wei
-			babbage = kwei
-			mwei = 1000 * kwei
-			lovelace = mwei
-			gwei = 1000 * mwei
-			shannon = gwei
-			microether = 1000 * gwei
-			szabo = microether
-			milliether = 1000 * microether
-			finney = milliether
-			ether = 1000 * milliether
-
-			balance func(a address) uint256
-			transfer func(a address, amount uint256) uint
-			send func(a address, amount uint256) bool
-			call func(a address) bool
-			delegateCall func(a address)
-
-			class BuiltinMessage {
-				data []byte
-				gas uint
-				sender address
-				sig [4]byte
-			}
-
-			class BuiltinBlock {
-				timestamp uint
-				number uint
-				coinbase address
-				gaslimit uint
-				//blockhash func(blockNumber uint) [32]byte
-			}
-
-			class BuiltinTransaction {
-				gasprice uint
-				origin address
-			}
-
-			block BuiltinBlock
-			msg BuiltinMessage
-			tx BuiltinTransaction
-		`)
+	ast, errs := parser.ParseFile(`builtins.grd`)
 	if errs != nil {
 
 	}

@@ -205,7 +205,7 @@ func parseForEachStatement(p *Parser) {
 	node := ast.ForEachStatementNode{
 		Variables: vars,
 		Producer:  producer,
-		Body:      body,
+		Block:     body,
 	}
 
 	p.scope.AddSequential(&node)

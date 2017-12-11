@@ -1,18 +1,18 @@
 # Guardian
 
-Guardian is a statically typed, object-oriented programming language for blockchain applications. Its syntax is primarily derived from [Go](https://golang.org), with many of the blockchain-specific constructs drawn (at least in part) from [Solidity](https://github.com/ethereum/solidity) and [Viper](https://github.com/ethereum/viper).
+Guardian is a statically typed, object-oriented programming language for decentralised blockchain applications. Its syntax is primarily derived from [Go](https://golang.org), [Java]() and [Python](), with many of the blockchain-specific constructs drawn (at least in part) from [Solidity](https://github.com/ethereum/solidity) and [Viper](https://github.com/ethereum/viper).
 
-Significantly, Guardian is (to some degree) virtual machine agnostic - the same syntax can be compiled into radically different bytecode depending on the virtual machine which is being targeted.
+Significantly, Guardian is virtual machine agnostic - the same syntax can be compiled into radically different bytecode for different virtual machines.
 
 ## Aims
 
-In no particular order, the Guardian programming language strives to:
+In no particular order, Guardian strives to:
 
 - Be executionally deterministic
 - Successfully balance legibility and safety
 - Have a rich feature set reminiscent of full OOP languages
 - Be easy to learn
-- Be capable of supporting bytecode generation for arbitrary VMs
+- Be capable of supporting bytecode generation for arbitrary stack-based VMs
 
 These aims should be considered not only in the design and implementation language itself, but also by all Guardian tooling and documentation.
 
@@ -203,7 +203,7 @@ public (
 )
 ```
 
-Groups only apply to the first level of declarations reached, so nested groups are possible:
+Groups apply to the first level of declarations reached, so nested groups are possible:
 
 ```go
 internal (

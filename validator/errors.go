@@ -16,4 +16,6 @@ const (
 	errInvalidExpressionLeft    = "Cannot assign to expression"
 	errStringLiteralUnsupported = "The current VM does not support string literals"
 	errImpossibleCast           = "Type %s cannot be cast to type %s"
+	errInvalidForEachType       = "Cannot iterate over type %s"
+	errInvalidForEachVariables  = "Cannot assign %d variables to iterator producing %d variables"
 )

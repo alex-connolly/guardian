@@ -51,6 +51,13 @@ func (e *GuardianEVM) traverseForStatement(n *ast.ForStatementNode) (code vmgen.
 	return code
 }
 
+func (e *GuardianEVM) traverseForEachStatement(n *ast.ForEachStatementNode) (code vmgen.Bytecode) {
+	// starting from index 0
+	// same for
+	code.Add("PUSH", 1)
+	code.Add("ADD")
+}
+
 func (e *GuardianEVM) traverseReturnStatement(n *ast.ReturnStatementNode) (code vmgen.Bytecode) {
 	for _, r := range n.Results {
 		// leave each of them on the stack in turn

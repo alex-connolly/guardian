@@ -132,14 +132,24 @@ func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
 func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
 	// get type of
 	gen := v.resolveExpression(node.Producer)
-
+	var req int
 	switch a := gen.(type) {
 	case typing.Map:
+		// maps must handle k, v in MAP
+		req = 2
 		break
 	case typing.Array:
+		// arrays must handle i, v in ARRAY
+		req = 2
 		break
 	default:
-		// TODO: add error
+		v.addError(errInvalidForEachType, typing.WriteType(gen))
+		// prevent double errors
+		req = len(node.Variables)
+	}
+	if len(node.Variables) != req {
+		v.addError(errInvalidForEachVariables, len(node.Variables), req)
+
 	}
 }
 

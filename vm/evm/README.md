@@ -64,13 +64,6 @@ Contract Related:
 | selfdestruct(recipient address) | uint256 | SELFDESTRUCT | destroy the current contract, sending its funds to the given Address |
 
 
-
-
-
-
-
-
-
 The general structure of a file is as follows:
 
 ### Functions
@@ -229,18 +222,23 @@ case 5, 6:
 ```go
 // evaluate original expression
 1 | PUSH "hash of x"
-1 | MLOAD
+2 | MLOAD
 
 // first case
-1 | PUSH 3
-1 | EQ
+3 | PUSH 3
+4 | EQ
 // conditional jump to the next case
-1 | JUMPI
+5 | JUMPI
 // first case code
-1 | JUMP // optional break statement
+6 | JUMP // optional break statement
 
 // second case
-2 | PUSH 5
+7 | PUSH 5
+8 | EQ
+// condition failed, jump to end
+// 2.2
+9 | PUSH 6
+10 | EQ
 // conditional jump to t
 ```
 
