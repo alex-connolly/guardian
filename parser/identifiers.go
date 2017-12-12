@@ -255,3 +255,17 @@ func isPackageStatement(p *Parser) bool {
 func isImportStatement(p *Parser) bool {
 	return p.isNextToken(lexer.TknImport)
 }
+
+func isForEachStatement(p *Parser) bool {
+	return p.preserveState(func(p *Parser) bool {
+
+		if !p.parseOptional(lexer.TknFor) {
+			return false
+		}
+		p.parseOptional(lexer.TknIdentifier)
+		for p.parseOptional(lexer.TknComma) {
+			p.parseOptional(lexer.TknIdentifier)
+		}
+		return p.isNextToken(lexer.TknIn)
+	})
+}

@@ -94,6 +94,27 @@ func BooleanOperator(v *Validator, ts ...typing.Type) typing.Type {
 	return typing.Boolean()
 }
 
+func (v *Validator) LargestNumericType(allowFloat bool) typing.Type {
+	largest := -1
+	largestType := typing.Type(typing.Unknown())
+	for _, typ := range v.primitives {
+		n, ok := typ.(typing.NumericType)
+		if ok {
+			if !n.Integer && !allowFloat {
+				continue
+			}
+			if largest == -1 || n.BitSize > largest {
+				if n.Signed {
+					// TODO: only select signed?
+					largest = n.BitSize
+					largestType = n
+				}
+			}
+		}
+	}
+	return largestType
+}
+
 func (v *Validator) SmallestNumericType(bits int, allowFloat bool) typing.Type {
 	smallest := -1
 	smallestType := typing.Type(typing.Unknown())

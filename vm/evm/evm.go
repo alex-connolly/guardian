@@ -2,6 +2,7 @@ package evm
 
 import (
 	"encoding/binary"
+	"strconv"
 
 	"github.com/end-r/guardian/lexer"
 
@@ -15,14 +16,23 @@ import (
 
 // GuardianEVM
 type GuardianEVM struct {
-	VM           *vmgen.VM
-	hooks        []hook
-	callables    []callable
-	lastSlot     uint
-	lastOffset   uint
-	storage      map[string]storageBlock
-	memoryCursor uint
-	memory       map[string]memoryBlock
+	VM                 *vmgen.VM
+	hooks              []hook
+	callables          []callable
+	lastSlot           uint
+	lastOffset         uint
+	storage            map[string]storageBlock
+	memoryCursor       uint
+	memory             map[string]memoryBlock
+	currentlyAssigning string
+}
+
+func (e *GuardianEVM) pusher(data ...byte) (code vmgen.Bytecode) {
+	if len(data) > 32 {
+		// problemo
+	} else {
+		code.Add("PUSH"+strconv.Itoa(len(data)), data)
+	}
 }
 
 type storageBlock struct {
@@ -195,7 +205,8 @@ func (evm GuardianEVM) Operators() (m validator.OperatorMap) {
 	m.Add(validator.BooleanOperator, lexer.TknLogicalAnd, lexer.TknLogicalOr)
 
 	// numericalOperator with floats/ints
-	m.Add(validator.BinaryNumericOperator, lexer.TknSub, lexer.TknMul, lexer.TknDiv)
+	m.Add(validator.BinaryNumericOperator, lexer.TknSub, lexer.TknMul, lexer.TknDiv,
+		lexer.TknMod)
 
 	// integers only
 	m.Add(validator.BinaryIntegerOperator, lexer.TknShl, lexer.TknShr)

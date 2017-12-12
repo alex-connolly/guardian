@@ -158,6 +158,7 @@ func parseForStatement(p *Parser) {
 	// parse init expr, can be nil
 	// TODO: should be able to be any statement
 	init := p.parseOptionalAssignment()
+
 	// parse condition, required
 
 	// must evaluate to boolean, checked at validation
@@ -224,6 +225,8 @@ func parseCaseStatement(p *Parser) {
 	p.parseRequired(lexer.TknCase)
 
 	exprs := p.parseExpressionList()
+
+	p.parseRequired(lexer.TknColon)
 
 	body := p.parseBracesScope()
 

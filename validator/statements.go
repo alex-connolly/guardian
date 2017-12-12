@@ -137,20 +137,29 @@ func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
 	case typing.Map:
 		// maps must handle k, v in MAP
 		req = 2
+		if len(node.Variables) != req {
+			v.addError(errInvalidForEachVariables, len(node.Variables), req)
+		} else {
+			v.declareContextualVar(node.Variables[0], a.Key)
+			v.declareContextualVar(node.Variables[1], a.Value)
+		}
 		break
 	case typing.Array:
 		// arrays must handle i, v in ARRAY
 		req = 2
+		if len(node.Variables) != req {
+			v.addError(errInvalidForEachVariables, len(node.Variables), req)
+		} else {
+			v.declareContextualVar(node.Variables[0], v.LargestNumericType(false))
+			v.declareContextualVar(node.Variables[1], a.Value)
+		}
 		break
 	default:
 		v.addError(errInvalidForEachType, typing.WriteType(gen))
 		// prevent double errors
 		req = len(node.Variables)
 	}
-	if len(node.Variables) != req {
-		v.addError(errInvalidForEachVariables, len(node.Variables), req)
 
-	}
 }
 
 func (v *Validator) validateForStatement(node *ast.ForStatementNode) {

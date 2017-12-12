@@ -639,3 +639,17 @@ func TestPackageStatement(t *testing.T) {
 	a := n.(*ast.PackageStatementNode)
 	goutil.AssertNow(t, a.Name == "dog", "wrong package name value")
 }
+
+func TestForEachStatement(t *testing.T) {
+	p := createParser(`for x, y in a {
+
+		}
+	`)
+	goutil.Assert(t, isForEachStatement(p), "should detect for statement")
+	parseForEachStatement(p)
+
+	n := p.scope.Next()
+	goutil.AssertNow(t, n.Type() == ast.ForEachStatement, "wrong node type")
+	a := n.(*ast.ForEachStatementNode)
+	goutil.AssertNow(t, len(a.Variables) == 2, "wrong var length")
+}

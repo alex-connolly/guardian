@@ -34,7 +34,7 @@ ecrecover func (v uint8, h, r, s bytes32) address
 // contract functions
 // NO THIS KEYWORD: confusing for most programmers, unintentional bugs etc
 
-selfdestruct func(recipient address) uint256
+selfDestruct func(recipient address) uint256
 
 
 class BuiltinMessage {
@@ -49,7 +49,7 @@ class BuiltinBlock {
 	number uint
 	coinbase address
 	gaslimit uint
-	//blockhash func(blockNumber uint) [32]byte
+	blockhash func(blockNumber uint) [32]byte
 }
 
 class BuiltinTransaction {

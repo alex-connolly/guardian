@@ -88,7 +88,8 @@ const (
 	TknCharacter
 	TknComment
 	TknAlias
-	TknAt           // @
+
+	TknAt           // at
 	TknAssign       // =
 	TknComma        // ,
 	TknOpenBrace    // {
@@ -110,36 +111,37 @@ const (
 	TknMul          // *
 	TknDiv          // /
 	TknMod          // %
-	TknIncrement    // ++
-	TknDecrement    // --
-	TknAddAssign    // +=
-	TknSubAssign    // -=
-	TknMulAssign    // *=
-	TknDivAssign    // /=
-	TknModAssign    // %=
-	TknAndAssign    // &=
-	TknOrAssign     // |=
-	TknXorAssign    // ^=
-	TknShlAssign    // <<=
-	TknShrAssign    // >>=
-	TknLogicalAnd   // and
-	TknLogicalOr    // or
-	TknArrowLeft    // <-
-	TknArrowRight   // ->
-	TknInc          // ++
-	TknDec          // --
-	TknEql          // ==
-	TknLss          // <
-	TknGtr          // >
-	TknNot          // !
-	TknNeq          // !=
-	TknLeq          // <=
-	TknGeq          // >=
-	TknDefine       // :=
-	TknEllipsis     // ...
-	TknDot          // .
-	TknSemicolon    // ;
-	TknTernary      // ?
+
+	TknIncrement  // ++
+	TknDecrement  // --
+	TknAddAssign  // +=
+	TknSubAssign  // -=
+	TknMulAssign  // *=
+	TknDivAssign  // /=
+	TknModAssign  // %=
+	TknAndAssign  // &=
+	TknOrAssign   // |=
+	TknXorAssign  // ^=
+	TknShlAssign  // <<=
+	TknShrAssign  // >>=
+	TknLogicalAnd // and
+	TknLogicalOr  // or
+	TknArrowLeft  // <-
+	TknArrowRight // ->
+	TknInc        // ++
+	TknDec        // --
+	TknEql        // ==
+	TknLss        // <
+	TknGtr        // >
+	TknNot        // !
+	TknNeq        // !=
+	TknLeq        // <=
+	TknGeq        // >=
+	TknDefine     // :=
+	TknEllipsis   // ...
+	TknDot        // .
+	TknSemicolon  // ;
+	TknTernary    // ?
 	TknBreak
 	TknContinue
 	TknContract

@@ -1,6 +1,6 @@
 
 main(){
-    x := 5 // type = int
-    y := float(x) // type = float
+    x = 5 // type = int
+    y = float(x) // type = float
     y += 5 // type = float
 }

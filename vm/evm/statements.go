@@ -51,11 +51,53 @@ func (e *GuardianEVM) traverseForStatement(n *ast.ForStatementNode) (code vmgen.
 	return code
 }
 
+func increment(varName string) (code vmgen.Bytecode) {
+
+	code.Concat(pusher([]byte(name)...)
+	code.Add("DUP1")
+	code.Add("MLOAD")
+	code.Concat(pusher(1))
+	code.Add("ADD")
+	code.Add("MSTORE")
+}
+
 func (e *GuardianEVM) traverseForEachStatement(n *ast.ForEachStatementNode) (code vmgen.Bytecode) {
 	// starting from index 0
 	// same for
-	code.Add("PUSH", 1)
-	code.Add("ADD")
+	// allocate memory for the index
+	// NOTE:
+	// can potentially support dmaps by encoding a backing array as well
+	// would be more expensive - add a keyword?
+
+	switch n.ResolvedType {
+	case typing.Array:
+		// TODO: index size must be large enough for any vars
+		name := n.Variables[0])
+		e.allocateMemory(name, 10)
+		memloc := e.lookupMemory(name).offset
+		increment := increment(name)
+		block := e.traverse(n.Block)
+		code.Add(pusher(0))
+
+		code.Add(pusher(memloc))
+		code.Add("MSTORE")
+		code.Add("JUMPDEST")
+		code.Add(pusher(memloc))
+		code.Add("MLOAD")
+		code.Add("LT")
+		code.AddMarked(pusher(1 + len(increment) + len(body)))
+		code.Add("JUMPI")
+		
+		code.Concat(block)
+		code.Concat(increment)
+
+		code.Add("JUMPDEST")
+		break
+	case typing.Map:
+		break
+	}
+	if n.Variables
+
 }
 
 func (e *GuardianEVM) traverseReturnStatement(n *ast.ReturnStatementNode) (code vmgen.Bytecode) {
@@ -68,12 +110,17 @@ func (e *GuardianEVM) traverseReturnStatement(n *ast.ReturnStatementNode) (code 
 }
 
 func (e *GuardianEVM) traverseIfStatement(n *ast.IfStatementNode) (code vmgen.Bytecode) {
-	conds := make([]vmgen.Bytecode, 0)
-	blocks := make([]vmgen.Bytecode, 0)
 	for _, c := range n.Conditions {
-		conds = append(conds, e.traverse(c.Condition))
-		blocks = append(blocks, e.traverse(c.Body))
+		cond := e.traverse(c.Condition)
+		block = e.traverse(c.Body)
+		code.Concat(cond)
+		code.Concat("ISZERO")
+		code.AddMarked("PUSH", code.MarkOffset(len(block)+1))
+		code.Concat("JUMPI")
+		code.Concat(block)
 	}
+
+	code.Concat(e.traverse(n.Else))
 
 	return code
 }
@@ -95,17 +142,18 @@ func (e *GuardianEVM) traverseAssignmentStatement(n *ast.AssignmentStatementNode
 }
 
 func (e *GuardianEVM) assign(l, r ast.ExpressionNode, inStorage bool) (code vmgen.Bytecode) {
+	e.currentlyAssigning = l
 	e.traverse(l)
 	e.traverse(r)
 
-	/* assignments are either in memory or storage depending on the context
+	// assignments are either in memory or storage depending on the context
 	if inStorage {
 		e.allocateStorage(name, size)
 		code.Add("SSTORE")
 	} else {
 		e.allocateMemory(name, size)
 		code.Add("MSTORE")
-	}*/
+	}
 	return code
 }
 
