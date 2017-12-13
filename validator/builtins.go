@@ -1,8 +1,9 @@
 package validator
 
 import (
+	"axia/guardian/token"
+
 	"github.com/end-r/guardian/ast"
-	"github.com/end-r/guardian/lexer"
 	"github.com/end-r/guardian/typing"
 )
 
@@ -23,7 +24,7 @@ func (v *Validator) validateBuiltinSequence(scope *ast.ScopeNode) {
 }
 
 type LiteralFunc func(*Validator, string) typing.Type
-type LiteralMap map[lexer.TokenType]LiteralFunc
+type LiteralMap map[token.Type]LiteralFunc
 
 func SimpleLiteral(typeName string) LiteralFunc {
 	return func(v *Validator, data string) typing.Type {
@@ -36,9 +37,9 @@ func BooleanLiteral(v *Validator, data string) typing.Type {
 }
 
 type OperatorFunc func(*Validator, ...typing.Type) typing.Type
-type OperatorMap map[lexer.TokenType]OperatorFunc
+type OperatorMap map[token.Type]OperatorFunc
 
-func (m OperatorMap) Add(function OperatorFunc, types ...lexer.TokenType) {
+func (m OperatorMap) Add(function OperatorFunc, types ...token.Type) {
 	for _, t := range types {
 
 		m[t] = function

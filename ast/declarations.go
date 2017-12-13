@@ -1,12 +1,13 @@
 package ast
 
 import (
-	"github.com/end-r/guardian/lexer"
+	"axia/guardian/token"
+
 	"github.com/end-r/guardian/typing"
 )
 
 type TypeDeclarationNode struct {
-	Modifiers    []lexer.TokenType
+	Modifiers    []token.Type
 	Identifier   string
 	Value        Node
 	ResolvedSize uint
@@ -21,7 +22,7 @@ type FuncDeclarationNode struct {
 	Parameters   []*ExplicitVarDeclarationNode
 	Results      []Node
 	Body         *ScopeNode
-	Modifiers    []lexer.TokenType
+	Modifiers    []token.Type
 	ResolvedSize uint
 	Resolved     typing.Type
 }
@@ -30,7 +31,7 @@ func (n *FuncDeclarationNode) Type() NodeType { return FuncDeclaration }
 
 type ClassDeclarationNode struct {
 	Identifier   string
-	Modifiers    []lexer.TokenType
+	Modifiers    []token.Type
 	Supers       []*PlainTypeNode
 	Interfaces   []*PlainTypeNode
 	Body         *ScopeNode
@@ -42,7 +43,7 @@ func (n *ClassDeclarationNode) Type() NodeType { return ClassDeclaration }
 
 type InterfaceDeclarationNode struct {
 	Identifier string
-	Modifiers  []lexer.TokenType
+	Modifiers  []token.Type
 	Signatures []*FuncTypeNode
 	Supers     []*PlainTypeNode
 	Resolved   typing.Type
@@ -52,7 +53,7 @@ func (n *InterfaceDeclarationNode) Type() NodeType { return InterfaceDeclaration
 
 type ContractDeclarationNode struct {
 	Identifier string
-	Modifiers  []lexer.TokenType
+	Modifiers  []token.Type
 	Supers     []*PlainTypeNode
 	Interfaces []*PlainTypeNode
 	Body       *ScopeNode
@@ -62,7 +63,7 @@ type ContractDeclarationNode struct {
 func (n *ContractDeclarationNode) Type() NodeType { return ContractDeclaration }
 
 type ExplicitVarDeclarationNode struct {
-	Modifiers    []lexer.TokenType
+	Modifiers    []token.Type
 	Identifiers  []string
 	DeclaredType Node
 	Resolved     typing.Type
@@ -71,7 +72,7 @@ type ExplicitVarDeclarationNode struct {
 func (n *ExplicitVarDeclarationNode) Type() NodeType { return ExplicitVarDeclaration }
 
 type EventDeclarationNode struct {
-	Modifiers  []lexer.TokenType
+	Modifiers  []token.Type
 	Identifier string
 	Parameters []*ExplicitVarDeclarationNode
 	Resolved   typing.Type
@@ -81,8 +82,8 @@ func (n *EventDeclarationNode) Type() NodeType { return EventDeclaration }
 
 // LifecycleDeclarationNode ...
 type LifecycleDeclarationNode struct {
-	Modifiers  []lexer.TokenType
-	Category   lexer.TokenType
+	Modifiers  []token.Type
+	Category   token.Type
 	Parameters []*ExplicitVarDeclarationNode
 	Body       *ScopeNode
 }
@@ -91,7 +92,7 @@ func (n *LifecycleDeclarationNode) Type() NodeType { return LifecycleDeclaration
 
 type EnumDeclarationNode struct {
 	Identifier string
-	Modifiers  []lexer.TokenType
+	Modifiers  []token.Type
 	Inherits   []*PlainTypeNode
 	// consider whether to change this
 	Enums    []string

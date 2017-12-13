@@ -1,10 +1,11 @@
 package ast
 
 import (
+	"axia/guardian/token"
+
 	"github.com/end-r/guardian/typing"
 
 	"github.com/blang/semver"
-	"github.com/end-r/guardian/lexer"
 )
 
 type ImportStatementNode struct {
@@ -22,9 +23,9 @@ type PackageStatementNode struct {
 func (n *PackageStatementNode) Type() NodeType { return PackageStatement }
 
 type AssignmentStatementNode struct {
-	Modifiers []lexer.TokenType
+	Modifiers []token.Type
 	Left      []ExpressionNode
-	Operator  lexer.TokenType
+	Operator  token.Type
 	Right     []ExpressionNode
 }
 
@@ -85,7 +86,7 @@ type ForEachStatementNode struct {
 func (n *ForEachStatementNode) Type() NodeType { return ForEachStatement }
 
 type FlowStatementNode struct {
-	Token lexer.TokenType
+	Token token.Type
 }
 
 func (n *FlowStatementNode) Type() NodeType { return FlowStatement }

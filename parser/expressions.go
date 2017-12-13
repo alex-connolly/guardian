@@ -4,7 +4,6 @@ import (
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/ast"
-	"github.com/end-r/guardian/lexer"
 )
 
 // Operator ...
@@ -27,7 +26,7 @@ var (
 	exponentiveOperator    = Operator{false, 160}
 )
 
-var operators = map[lexer.TokenType]Operator{
+var operators = map[token.Type]Operator{
 	// exponentive operators
 	token.Shl: exponentiveOperator,
 	token.Shr: exponentiveOperator,
@@ -70,7 +69,7 @@ var operators = map[lexer.TokenType]Operator{
 	token.XorAssign: assignmentOperator,*/
 }
 
-func pushNode(stack []ast.ExpressionNode, op lexer.TokenType) []ast.ExpressionNode {
+func pushNode(stack []ast.ExpressionNode, op token.Type) []ast.ExpressionNode {
 	n := ast.BinaryExpressionNode{}
 	n.Right, stack = stack[len(stack)-1], stack[:len(stack)-1]
 	n.Left, stack = stack[len(stack)-1], stack[:len(stack)-1]
@@ -79,9 +78,9 @@ func pushNode(stack []ast.ExpressionNode, op lexer.TokenType) []ast.ExpressionNo
 }
 
 func (p *Parser) parseExpression() ast.ExpressionNode {
-	var opStack []lexer.TokenType
+	var opStack []token.Type
 	var expStack []ast.ExpressionNode
-	var current lexer.TokenType
+	var current token.Type
 main:
 	for p.hasTokens(1) {
 		current = p.current().Type
@@ -91,7 +90,7 @@ main:
 			opStack = append(opStack, current)
 			break
 		case token.CloseBracket:
-			var op lexer.TokenType
+			var op token.Type
 			for len(opStack) > 0 {
 				op, opStack = opStack[len(opStack)-1], opStack[:len(opStack)-1]
 				if op == token.OpenBracket {
@@ -137,7 +136,7 @@ main:
 	return finalise(expStack, opStack)
 }
 
-func finalise(expStack []ast.ExpressionNode, opStack []lexer.TokenType) ast.ExpressionNode {
+func finalise(expStack []ast.ExpressionNode, opStack []token.Type) ast.ExpressionNode {
 	for len(opStack) > 0 {
 
 		n := ast.BinaryExpressionNode{}

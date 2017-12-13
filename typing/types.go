@@ -1,9 +1,8 @@
 package typing
 
 import (
+	"axia/guardian/token"
 	"bytes"
-
-	"github.com/end-r/guardian/lexer"
 )
 
 // There are 5 first-class guardian types:
@@ -24,7 +23,7 @@ type Type interface {
 	implements(Type) bool
 	Size() uint
 }
-type LifecycleMap map[lexer.TokenType][]Lifecycle
+type LifecycleMap map[token.Type][]Lifecycle
 
 type baseType int
 
@@ -96,7 +95,7 @@ func ResolveUnderlying(t Type) Type {
 }
 
 type Lifecycle struct {
-	Type       lexer.TokenType
+	Type       token.Type
 	Parameters []Type
 }
 
@@ -127,7 +126,7 @@ type Contract struct {
 	Name       string
 	Supers     []*Contract
 	Interfaces []*Interface
-	Lifecycles map[lexer.TokenType][]Lifecycle
+	Lifecycles map[token.Type][]Lifecycle
 	Types      map[string]Type
 	Properties map[string]Type
 }

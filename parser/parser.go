@@ -16,7 +16,7 @@ type Parser struct {
 	scope      *ast.ScopeNode
 	Expression ast.ExpressionNode
 	tokens     []lexer.Token
-	keywords   []lexer.TokenType
+	keywords   []token.Type
 	index      int
 	errs       util.Errors
 	line       int
@@ -55,7 +55,7 @@ func (p *Parser) hasTokens(offset int) bool {
 	return p.index+offset <= len(p.tokens)
 }
 
-func (p *Parser) parseOptional(types ...lexer.TokenType) bool {
+func (p *Parser) parseOptional(types ...token.Type) bool {
 	if !p.hasTokens(1) {
 		return false
 	}
@@ -69,7 +69,7 @@ func (p *Parser) parseOptional(types ...lexer.TokenType) bool {
 }
 
 // TODO: clarify what this actually returns
-func (p *Parser) parseRequired(types ...lexer.TokenType) lexer.TokenType {
+func (p *Parser) parseRequired(types ...token.Type) token.Type {
 	if !p.hasTokens(1) {
 		p.addError(fmt.Sprintf("Required %s, found nothing", "x"))
 		// TODO: what should be returned here
@@ -85,7 +85,7 @@ func (p *Parser) parseRequired(types ...lexer.TokenType) lexer.TokenType {
 	return p.current().Type
 }
 
-func listTypes(types []lexer.TokenType) string {
+func listTypes(types []token.Type) string {
 	s := ""
 	for _, t := range types {
 		s += t.String()
@@ -154,14 +154,14 @@ func (p *Parser) parseBracesScope(valids ...ast.NodeType) *ast.ScopeNode {
 	return p.parseEnclosedScope(token.OpenBrace, token.CloseBrace, valids...)
 }
 
-func (p *Parser) parseEnclosedScope(opener, closer lexer.TokenType, valids ...ast.NodeType) *ast.ScopeNode {
+func (p *Parser) parseEnclosedScope(opener, closer token.Type, valids ...ast.NodeType) *ast.ScopeNode {
 	p.parseRequired(opener)
 	scope := p.parseScope(closer, valids...)
 	p.parseRequired(closer)
 	return scope
 }
 
-func (p *Parser) parseScope(terminator lexer.TokenType, valids ...ast.NodeType) *ast.ScopeNode {
+func (p *Parser) parseScope(terminator token.Type, valids ...ast.NodeType) *ast.ScopeNode {
 	scope := new(ast.ScopeNode)
 	scope.Parent = p.scope
 	p.scope = scope

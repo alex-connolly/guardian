@@ -3,63 +3,41 @@ package lexer
 import (
 	"testing"
 
-	"github.com/end-r/goutil"
+	"github.com/end-r/guardian/token"
 )
-
-func TestIsUnaryOperator(t *testing.T) {
-	x := TknNot
-	goutil.Assert(t, x.IsUnaryOperator(), "not should be unary")
-	x = TknAdd
-	goutil.Assert(t, !x.IsUnaryOperator(), "add should not be unary")
-}
-
-func TestIsBinaryOperator(t *testing.T) {
-	x := TknAdd
-	goutil.Assert(t, x.IsBinaryOperator(), "add should be binary")
-	x = TknNot
-	goutil.Assert(t, !x.IsBinaryOperator(), "not should not be binary")
-}
-
-func TestIsIdentifierByte(t *testing.T) {
-	goutil.Assert(t, isIdentifierByte('A'), "upper letter not id byte")
-	goutil.Assert(t, isIdentifierByte('t'), "lower letter not id byte")
-	goutil.Assert(t, isIdentifierByte('2'), "number not id byte")
-	goutil.Assert(t, isIdentifierByte('_'), "underscore not id byte")
-	goutil.Assert(t, !isIdentifierByte(' '), "space should not be id byte")
-}
 
 func TestDistinguishKeywordsConst(t *testing.T) {
 	tokens, _ := LexString("constant")
-	checkTokens(t, tokens, []TokenType{TknIdentifier})
+	checkTokens(t, tokens, []token.Type{token.Identifier})
 	tokens, _ = LexString("const (")
-	checkTokens(t, tokens, []TokenType{TknConst, TknOpenBracket})
+	checkTokens(t, tokens, []token.Type{token.Const, token.OpenBracket})
 	tokens, _ = LexString("const(")
-	checkTokens(t, tokens, []TokenType{TknConst, TknOpenBracket})
+	checkTokens(t, tokens, []token.Type{token.Const, token.OpenBracket})
 }
 
 func TestDistinguishKeywordsInt(t *testing.T) {
 	tokens, _ := LexString("int")
-	checkTokens(t, tokens, []TokenType{TknIdentifier})
+	checkTokens(t, tokens, []token.Type{token.Identifier})
 	tokens, _ = LexString("int (")
-	checkTokens(t, tokens, []TokenType{TknIdentifier, TknOpenBracket})
+	checkTokens(t, tokens, []token.Type{token.Identifier, token.OpenBracket})
 	tokens, _ = LexString("int(")
-	checkTokens(t, tokens, []TokenType{TknIdentifier, TknOpenBracket})
+	checkTokens(t, tokens, []token.Type{token.Identifier, token.OpenBracket})
 }
 
 func TestDistinguishKeywordsInterface(t *testing.T) {
 	tokens, _ := LexString("interface")
-	checkTokens(t, tokens, []TokenType{TknInterface})
+	checkTokens(t, tokens, []token.Type{token.Interface})
 	tokens, _ = LexString("interface (")
-	checkTokens(t, tokens, []TokenType{TknInterface, TknOpenBracket})
+	checkTokens(t, tokens, []token.Type{token.Interface, token.OpenBracket})
 	tokens, _ = LexString("interface(")
-	checkTokens(t, tokens, []TokenType{TknInterface, TknOpenBracket})
+	checkTokens(t, tokens, []token.Type{token.Interface, token.OpenBracket})
 }
 
 func TestDistinguishDots(t *testing.T) {
 	tokens, _ := LexString("...")
-	checkTokens(t, tokens, []TokenType{TknEllipsis})
+	checkTokens(t, tokens, []token.Type{token.Ellipsis})
 	tokens, _ = LexString(".")
-	checkTokens(t, tokens, []TokenType{TknDot})
+	checkTokens(t, tokens, []token.Type{token.Dot})
 	tokens, _ = LexString("....")
-	checkTokens(t, tokens, []TokenType{TknEllipsis, TknDot})
+	checkTokens(t, tokens, []token.Type{token.Ellipsis, token.Dot})
 }

@@ -1,14 +1,15 @@
 package ast
 
 import (
-	"github.com/end-r/guardian/lexer"
+	"axia/guardian/token"
+
 	"github.com/end-r/guardian/typing"
 )
 
 // BinaryExpressionNode ...
 type BinaryExpressionNode struct {
 	Left, Right ExpressionNode
-	Operator    lexer.TokenType
+	Operator    token.Type
 	Resolved    typing.Type
 }
 
@@ -17,7 +18,7 @@ func (n *BinaryExpressionNode) Type() NodeType { return BinaryExpression }
 
 // UnaryExpressionNode ...
 type UnaryExpressionNode struct {
-	Operator lexer.TokenType
+	Operator token.Type
 	Operand  ExpressionNode
 	Resolved typing.Type
 }
@@ -26,7 +27,7 @@ func (n *UnaryExpressionNode) Type() NodeType { return UnaryExpression }
 
 type LiteralNode struct {
 	Data        string
-	LiteralType lexer.TokenType
+	LiteralType token.Type
 	Resolved    typing.Type
 }
 

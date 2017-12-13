@@ -13,7 +13,7 @@ type VM interface {
 }
 ```
 
-Where ```LiteralMap``` is an alias for ```map[lexer.TokenType]func(*Validator, string) Type``` and ```OperatorMap``` is an alias for ```map[lexer.TokenType]func(*Validator, ...Type) Type```.
+Where ```LiteralMap``` is an alias for ```map[token.Type]func(*Validator, string) Type``` and ```OperatorMap``` is an alias for ```map[token.Type]func(*Validator, ...Type) Type```.
 
 This interface is how language-specific features are implemented on top of the Guardian core systems.
 

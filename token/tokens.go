@@ -370,7 +370,7 @@ func (t Token) Name() string {
 	return t.Proto.Name
 }
 
-func (t *Token) finalise(b Byterable) {
+func (t *Token) Finalise(b Byterable) {
 	t.Data = make([]byte, t.End-t.Start)
 	copy(t.Data, b.Bytes()[t.Start:t.End])
 }

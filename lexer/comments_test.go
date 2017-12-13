@@ -1,6 +1,10 @@
 package lexer
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/end-r/guardian/token"
+)
 
 func TestComments(t *testing.T) {
 	tokens, _ := LexString(`
@@ -16,18 +20,18 @@ func TestComments(t *testing.T) {
         // comment
         */
     `)
-	checkTokens(t, tokens, []TokenType{
-		TknNewLine,
-		TknLineComment, TknIdentifier, TknNewLine,
-		TknNewLine,
-		TknCommentOpen, TknNewLine,
-		TknIdentifier, TknNewLine,
-		TknCommentClose, TknNewLine,
-		TknNewLine,
-		TknCommentOpen, TknIdentifier, TknCommentClose, TknNewLine,
-		TknNewLine,
-		TknCommentOpen, TknNewLine,
-		TknLineComment, TknIdentifier, TknNewLine,
-		TknCommentClose, TknNewLine,
+	checkTokens(t, tokens, []token.Type{
+		token.NewLine,
+		token.LineComment, token.Identifier, token.NewLine,
+		token.NewLine,
+		token.CommentOpen, token.NewLine,
+		token.Identifier, token.NewLine,
+		token.CommentClose, token.NewLine,
+		token.NewLine,
+		token.CommentOpen, token.Identifier, token.CommentClose, token.NewLine,
+		token.NewLine,
+		token.CommentOpen, token.NewLine,
+		token.LineComment, token.Identifier, token.NewLine,
+		token.CommentClose, token.NewLine,
 	})
 }

@@ -17,7 +17,7 @@ func (a *Arsonist) traverseCompositeLiteral(n ast.CompositeLiteralNode) {
 
 }
 
-var binaryOps = map[lexer.TokenType]string{
+var binaryOps = map[token.Type]string{
 	token.Add: "ADD",
 	token.Sub: "SUB",
 	token.Mul: "MUL",
@@ -37,7 +37,7 @@ func (a *Arsonist) traverseBinaryExpr(n ast.BinaryExpressionNode) {
 	a.VM.AddBytecode(binaryOps[n.Operator])
 }
 
-var unaryOps = map[lexer.TokenType]string{
+var unaryOps = map[token.Type]string{
 	token.Not: "NOT",
 }
 

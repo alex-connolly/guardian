@@ -1,11 +1,11 @@
 package validator
 
 import (
+	"axia/guardian/token"
+
 	"github.com/end-r/guardian/typing"
 
 	"github.com/end-r/guardian/ast"
-
-	"github.com/end-r/guardian/lexer"
 )
 
 func (v *Validator) requireVisibleType(names ...string) typing.Type {
@@ -68,7 +68,7 @@ func (v *Validator) DeclareType(name string, t typing.Type) {
 	v.scope.types[name] = t
 }
 
-func (v *Validator) declareLifecycle(tk lexer.TokenType, l typing.Lifecycle) {
+func (v *Validator) declareLifecycle(tk token.Type, l typing.Lifecycle) {
 	if v.scope.lifecycles == nil {
 		v.scope.lifecycles = typing.LifecycleMap{}
 	}

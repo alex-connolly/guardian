@@ -1,12 +1,13 @@
 package evm
 
 import (
+	"axia/guardian/token"
+
 	"github.com/end-r/guardian/typing"
 
 	"github.com/end-r/vmgen"
 
 	"github.com/end-r/guardian/ast"
-	"github.com/end-r/guardian/lexer"
 )
 
 func (e *GuardianEVM) traverseSwitchStatement(n *ast.SwitchStatementNode) (code vmgen.Bytecode) {
@@ -164,7 +165,7 @@ func (e *GuardianEVM) assign(l, r ast.ExpressionNode, inStorage bool) (code vmge
 	return code
 }
 
-func hasModifier(mods []lexer.TokenType, modifier lexer.TokenType) bool {
+func hasModifier(mods []token.Type, modifier token.Type) bool {
 	for _, m := range mods {
 		if m == modifier {
 			return true

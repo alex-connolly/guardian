@@ -9,8 +9,8 @@ import (
 	"github.com/end-r/guardian/lexer"
 )
 
-func (p *Parser) parseKeywords(targets ...lexer.TokenType) []lexer.TokenType {
-	var mods []lexer.TokenType
+func (p *Parser) parseKeywords(targets ...token.Type) []token.Type {
+	var mods []token.Type
 	for p.hasTokens(1) {
 		for _, t := range targets {
 			if p.current().Type == t {

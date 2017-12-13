@@ -8,7 +8,6 @@ import (
 	"github.com/end-r/vmgen"
 
 	"github.com/end-r/guardian/ast"
-	"github.com/end-r/guardian/lexer"
 )
 
 func (e *GuardianEVM) traverseExpression(n ast.ExpressionNode) (code vmgen.Bytecode) {
@@ -85,7 +84,7 @@ func (e *GuardianEVM) traverseCompositeLiteral(n *ast.CompositeLiteralNode) (cod
 	return code
 }
 
-var binaryOps = map[lexer.TokenType]string{
+var binaryOps = map[token.Type]string{
 	token.Add: "ADD",
 	token.Sub: "SUB",
 	token.Mul: "MUL",
@@ -115,7 +114,7 @@ func (e *GuardianEVM) traverseBinaryExpr(n *ast.BinaryExpressionNode) (code vmge
 	return code
 }
 
-var unaryOps = map[lexer.TokenType]string{
+var unaryOps = map[token.Type]string{
 	token.Not: "NOT",
 }
 

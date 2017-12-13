@@ -86,7 +86,7 @@ func (p *Parser) isMapType() bool {
 	return immediate || variable
 }
 
-func (p *Parser) nextTokens(tokens ...lexer.TokenType) bool {
+func (p *Parser) nextTokens(tokens ...token.Type) bool {
 	if !p.hasTokens(len(tokens)) {
 		return false
 	}
@@ -98,7 +98,7 @@ func (p *Parser) nextTokens(tokens ...lexer.TokenType) bool {
 	return true
 }
 
-func (p *Parser) modifiersUntilToken(types ...lexer.TokenType) bool {
+func (p *Parser) modifiersUntilToken(types ...token.Type) bool {
 	saved := p.index
 	if p.hasTokens(1) {
 		for p.current().Type.IsModifier() {
@@ -139,7 +139,7 @@ func isFuncDeclaration(p *Parser) bool {
 	return p.modifiersUntilToken(token.Func)
 }
 
-func (p *Parser) isNextToken(types ...lexer.TokenType) bool {
+func (p *Parser) isNextToken(types ...token.Type) bool {
 	if p.hasTokens(1) {
 		for _, t := range types {
 			if p.current().Type == t {
