@@ -26,8 +26,9 @@ func current(b Byterable) byte {
 }
 
 func next(b Byterable) byte {
+	a := current(b)
 	b.SetOffset(b.Offset() + 1)
-	return current(b)
+	return a
 }
 
 // Type denotes the type of a token
