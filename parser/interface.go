@@ -3,6 +3,8 @@ package parser
 import (
 	"io/ioutil"
 
+	"github.com/end-r/guardian/token"
+
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/lexer"
 	"github.com/end-r/guardian/util"
@@ -12,7 +14,7 @@ import (
 func Parse(tokens []lexer.Token) (*ast.ScopeNode, util.Errors) {
 	p := new(Parser)
 	p.tokens = tokens
-	p.parseScope(lexer.TknCloseBrace, ast.ContractDeclaration)
+	p.parseScope(token.CloseBrace, ast.ContractDeclaration)
 	return p.scope, p.errs
 }
 

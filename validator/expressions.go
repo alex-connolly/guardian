@@ -1,8 +1,9 @@
 package validator
 
 import (
+	"github.com/end-r/guardian/token"
+
 	"github.com/end-r/guardian/ast"
-	"github.com/end-r/guardian/lexer"
 	"github.com/end-r/guardian/typing"
 )
 
@@ -27,7 +28,7 @@ func (v *Validator) validateCallExpression(call *ast.CallExpressionNode) {
 		break
 	case typing.StandardType:
 		if a, ok := fullType.(typing.Class); ok {
-			constructors := a.Lifecycles[lexer.TknConstructor]
+			constructors := a.Lifecycles[token.Constructor]
 			if typing.NewTuple().Compare(args) && len(constructors) == 0 {
 				return
 			}

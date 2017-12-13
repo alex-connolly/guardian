@@ -3,6 +3,8 @@ package parser
 import (
 	"fmt"
 
+	"github.com/end-r/guardian/token"
+
 	"github.com/blang/semver"
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/lexer"
@@ -10,25 +12,25 @@ import (
 
 func parseReturnStatement(p *Parser) {
 
-	p.parseRequired(lexer.TknReturn)
+	p.parseRequired(token.Return)
 	node := ast.ReturnStatementNode{
 		Results: p.parseExpressionList(),
 	}
 	p.scope.AddSequential(&node)
-	p.parseOptional(lexer.TknSemicolon)
+	p.parseOptional(token.Semicolon)
 }
 
 func parseAssignmentStatement(p *Parser) {
 	node := p.parseAssignment()
 	p.scope.AddSequential(&node)
-	p.parseOptional(lexer.TknSemicolon)
+	p.parseOptional(token.Semicolon)
 }
 
 func (p *Parser) parseOptionalAssignment() *ast.AssignmentStatementNode {
 	// all optional assignments must be simple
 	if isSimpleAssignmentStatement(p) {
 		assigned := p.parseSimpleAssignment()
-		p.parseOptional(lexer.TknSemicolon)
+		p.parseOptional(token.Semicolon)
 		return &assigned
 	}
 	return nil
@@ -36,16 +38,16 @@ func (p *Parser) parseOptionalAssignment() *ast.AssignmentStatementNode {
 
 func (p *Parser) parseSimpleAssignment() ast.AssignmentStatementNode {
 
-	modifiers := p.parseKeywords(lexer.TknIdentifier)
+	modifiers := p.parseKeywords(token.Identifier)
 
 	var assigned []ast.ExpressionNode
 	assigned = append(assigned, p.parseSimpleExpression())
-	for p.parseOptional(lexer.TknComma) {
+	for p.parseOptional(token.Comma) {
 		assigned = append(assigned, p.parseSimpleExpression())
 	}
 
 	if !p.parseOptional(lexer.GetAssignments()...) {
-		if p.parseOptional(lexer.TknIncrement, lexer.TknDecrement) {
+		if p.parseOptional(token.Increment, token.Decrement) {
 			return ast.AssignmentStatementNode{
 				Modifiers: modifiers,
 				Left:      assigned,
@@ -56,7 +58,7 @@ func (p *Parser) parseSimpleAssignment() ast.AssignmentStatementNode {
 
 	var to []ast.ExpressionNode
 	to = append(to, p.parseSimpleExpression())
-	for p.parseOptional(lexer.TknComma) {
+	for p.parseOptional(token.Comma) {
 		to = append(to, p.parseSimpleExpression())
 	}
 
@@ -69,16 +71,16 @@ func (p *Parser) parseSimpleAssignment() ast.AssignmentStatementNode {
 
 func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 
-	modifiers := p.parseKeywords(lexer.TknIdentifier)
+	modifiers := p.parseKeywords(token.Identifier)
 
 	var assigned []ast.ExpressionNode
 	assigned = append(assigned, p.parseExpression())
-	for p.parseOptional(lexer.TknComma) {
+	for p.parseOptional(token.Comma) {
 		assigned = append(assigned, p.parseExpression())
 	}
 
 	if !p.parseOptional(lexer.GetAssignments()...) {
-		if p.parseOptional(lexer.TknIncrement, lexer.TknDecrement) {
+		if p.parseOptional(token.Increment, token.Decrement) {
 			return ast.AssignmentStatementNode{
 				Modifiers: modifiers,
 				Left:      assigned,
@@ -89,11 +91,11 @@ func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 
 	var to []ast.ExpressionNode
 	to = append(to, p.parseExpression())
-	for p.parseOptional(lexer.TknComma) {
+	for p.parseOptional(token.Comma) {
 		to = append(to, p.parseExpression())
 	}
 
-	p.parseOptional(lexer.TknSemicolon)
+	p.parseOptional(token.Semicolon)
 
 	return ast.AssignmentStatementNode{
 		Modifiers: modifiers,
@@ -104,7 +106,7 @@ func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 
 func parseIfStatement(p *Parser) {
 
-	p.parseRequired(lexer.TknIf)
+	p.parseRequired(token.If)
 
 	// parse init expr, can be nil
 	init := p.parseOptionalAssignment()
@@ -122,7 +124,7 @@ func parseIfStatement(p *Parser) {
 	})
 
 	// parse elif cases
-	for p.parseOptional(lexer.TknElif) {
+	for p.parseOptional(token.Elif) {
 		condition := p.parseSimpleExpression()
 		body := p.parseBracesScope()
 		conditions = append(conditions, &ast.ConditionNode{
@@ -133,7 +135,7 @@ func parseIfStatement(p *Parser) {
 
 	var elseBlock *ast.ScopeNode
 	// parse else case
-	if p.parseOptional(lexer.TknElse) {
+	if p.parseOptional(token.Else) {
 		elseBlock = p.parseBracesScope()
 	}
 
@@ -153,7 +155,7 @@ func parseIfStatement(p *Parser) {
 
 func parseForStatement(p *Parser) {
 
-	p.parseRequired(lexer.TknFor)
+	p.parseRequired(token.For)
 
 	// parse init expr, can be nil
 	// TODO: should be able to be any statement
@@ -169,7 +171,7 @@ func parseForStatement(p *Parser) {
 
 	var post *ast.AssignmentStatementNode
 
-	if p.parseOptional(lexer.TknSemicolon) {
+	if p.parseOptional(token.Semicolon) {
 		post = p.parseOptionalAssignment()
 	}
 
@@ -193,11 +195,11 @@ func parseForStatement(p *Parser) {
 
 func parseForEachStatement(p *Parser) {
 
-	p.parseRequired(lexer.TknFor)
+	p.parseRequired(token.For)
 
 	vars := p.parseIdentifierList()
 
-	p.parseRequired(lexer.TknIn)
+	p.parseRequired(token.In)
 
 	producer := p.parseExpression()
 
@@ -222,11 +224,11 @@ func parseFlowStatement(p *Parser) {
 
 func parseCaseStatement(p *Parser) {
 
-	p.parseRequired(lexer.TknCase)
+	p.parseRequired(token.Case)
 
 	exprs := p.parseExpressionList()
 
-	p.parseRequired(lexer.TknColon)
+	p.parseRequired(token.Colon)
 
 	body := p.parseBracesScope()
 
@@ -239,9 +241,9 @@ func parseCaseStatement(p *Parser) {
 
 func parseSwitchStatement(p *Parser) {
 
-	exclusive := p.parseOptional(lexer.TknExclusive)
+	exclusive := p.parseOptional(token.Exclusive)
 
-	p.parseRequired(lexer.TknSwitch)
+	p.parseRequired(token.Switch)
 
 	// TODO: currently only works with identifier
 	target := p.parseIdentifierExpression()
@@ -259,11 +261,11 @@ func parseSwitchStatement(p *Parser) {
 }
 
 func parseImportStatement(p *Parser) {
-	p.parseRequired(lexer.TknImport)
+	p.parseRequired(token.Import)
 
 	var alias, path string
 
-	if p.isNextToken(lexer.TknIdentifier) {
+	if p.isNextToken(token.Identifier) {
 		alias = p.parseIdentifier()
 	}
 	path = p.current().TrimmedString()
@@ -277,11 +279,11 @@ func parseImportStatement(p *Parser) {
 }
 
 func parsePackageStatement(p *Parser) {
-	p.parseRequired(lexer.TknPackage)
+	p.parseRequired(token.Package)
 
 	name := p.parseIdentifier()
 
-	p.parseRequired(lexer.TknAt)
+	p.parseRequired(token.At)
 
 	version := p.parseSemver()
 
@@ -295,7 +297,7 @@ func parsePackageStatement(p *Parser) {
 
 func (p *Parser) parseSemver() semver.Version {
 	s := ""
-	for p.hasTokens(1) && p.current().Type != lexer.TknNewLine {
+	for p.hasTokens(1) && p.current().Type != token.NewLine {
 		s += p.current().String()
 		p.next()
 	}

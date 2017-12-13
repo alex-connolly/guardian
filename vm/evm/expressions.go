@@ -3,6 +3,8 @@ package evm
 import (
 	"fmt"
 
+	"github.com/end-r/guardian/token"
+
 	"github.com/end-r/vmgen"
 
 	"github.com/end-r/guardian/ast"
@@ -84,16 +86,16 @@ func (e *GuardianEVM) traverseCompositeLiteral(n *ast.CompositeLiteralNode) (cod
 }
 
 var binaryOps = map[lexer.TokenType]string{
-	lexer.TknAdd: "ADD",
-	lexer.TknSub: "SUB",
-	lexer.TknMul: "MUL",
-	lexer.TknDiv: "DIV",
-	lexer.TknMod: "MOD",
-	lexer.TknShl: "SHL",
-	lexer.TknShr: "SHR",
-	lexer.TknAnd: "AND",
-	lexer.TknOr:  "OR",
-	lexer.TknXor: "XOR",
+	token.Add: "ADD",
+	token.Sub: "SUB",
+	token.Mul: "MUL",
+	token.Div: "DIV",
+	token.Mod: "MOD",
+	token.Shl: "SHL",
+	token.Shr: "SHR",
+	token.And: "AND",
+	token.Or:  "OR",
+	token.Xor: "XOR",
 }
 
 func (e *GuardianEVM) traverseBinaryExpr(n *ast.BinaryExpressionNode) (code vmgen.Bytecode) {
@@ -114,7 +116,7 @@ func (e *GuardianEVM) traverseBinaryExpr(n *ast.BinaryExpressionNode) (code vmge
 }
 
 var unaryOps = map[lexer.TokenType]string{
-	lexer.TknNot: "NOT",
+	token.Not: "NOT",
 }
 
 func (e *GuardianEVM) traverseUnaryExpr(n *ast.UnaryExpressionNode) (code vmgen.Bytecode) {

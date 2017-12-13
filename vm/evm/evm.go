@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 	"strconv"
 
-	"github.com/end-r/guardian/lexer"
+	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/parser"
@@ -219,11 +219,11 @@ func (evm GuardianEVM) BooleanName() string {
 
 func (evm GuardianEVM) Literals() validator.LiteralMap {
 	return validator.LiteralMap{
-		lexer.TknString:  validator.SimpleLiteral("string"),
-		lexer.TknTrue:    validator.BooleanLiteral,
-		lexer.TknFalse:   validator.BooleanLiteral,
-		lexer.TknInteger: resolveIntegerLiteral,
-		lexer.TknFloat:   resolveFloatLiteral,
+		token.String:  validator.SimpleLiteral("string"),
+		token.True:    validator.BooleanLiteral,
+		token.False:   validator.BooleanLiteral,
+		token.Integer: resolveIntegerLiteral,
+		token.Float:   resolveFloatLiteral,
 	}
 }
 
@@ -240,20 +240,20 @@ func resolveFloatLiteral(v *validator.Validator, data string) typing.Type {
 func (evm GuardianEVM) Operators() (m validator.OperatorMap) {
 	m = validator.OperatorMap{}
 
-	m.Add(validator.BooleanOperator, lexer.TknGeq, lexer.TknLeq,
-		lexer.TknLss, lexer.TknNeq, lexer.TknEql, lexer.TknGtr)
+	m.Add(validator.BooleanOperator, token.Geq, token.Leq,
+		token.Lss, token.Neq, token.Eql, token.Gtr)
 
-	m.Add(operatorAdd, lexer.TknAdd)
-	m.Add(validator.BooleanOperator, lexer.TknLogicalAnd, lexer.TknLogicalOr)
+	m.Add(operatorAdd, token.Add)
+	m.Add(validator.BooleanOperator, token.LogicalAnd, token.LogicalOr)
 
 	// numericalOperator with floats/ints
-	m.Add(validator.BinaryNumericOperator, lexer.TknSub, lexer.TknMul, lexer.TknDiv,
-		lexer.TknMod)
+	m.Add(validator.BinaryNumericOperator, token.Sub, token.Mul, token.Div,
+		token.Mod)
 
 	// integers only
-	m.Add(validator.BinaryIntegerOperator, lexer.TknShl, lexer.TknShr)
+	m.Add(validator.BinaryIntegerOperator, token.Shl, token.Shr)
 
-	m.Add(validator.CastOperator, lexer.TknAs)
+	m.Add(validator.CastOperator, token.As)
 
 	return m
 }

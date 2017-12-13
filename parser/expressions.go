@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"github.com/end-r/guardian/token"
+
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/lexer"
 )
@@ -27,45 +29,45 @@ var (
 
 var operators = map[lexer.TokenType]Operator{
 	// exponentive operators
-	lexer.TknShl: exponentiveOperator,
-	lexer.TknShr: exponentiveOperator,
+	token.Shl: exponentiveOperator,
+	token.Shr: exponentiveOperator,
 	// multiplicative operators
-	lexer.TknMul: multiplicativeOperator,
-	lexer.TknDiv: multiplicativeOperator,
-	lexer.TknMod: multiplicativeOperator,
-	lexer.TknAnd: multiplicativeOperator,
+	token.Mul: multiplicativeOperator,
+	token.Div: multiplicativeOperator,
+	token.Mod: multiplicativeOperator,
+	token.And: multiplicativeOperator,
 	// additive operators
-	lexer.TknAdd: additiveOperator,
-	lexer.TknSub: additiveOperator,
-	lexer.TknOr:  additiveOperator,
-	lexer.TknXor: additiveOperator,
+	token.Add: additiveOperator,
+	token.Sub: additiveOperator,
+	token.Or:  additiveOperator,
+	token.Xor: additiveOperator,
 	// cast operators
-	lexer.TknIs: castOperator,
-	lexer.TknAs: castOperator,
+	token.Is: castOperator,
+	token.As: castOperator,
 	// comparative operators
-	lexer.TknLss: comparativeOperator,
-	lexer.TknGtr: comparativeOperator,
-	lexer.TknGeq: comparativeOperator,
-	lexer.TknLeq: comparativeOperator,
-	lexer.TknEql: comparativeOperator,
-	lexer.TknNeq: comparativeOperator,
+	token.Lss: comparativeOperator,
+	token.Gtr: comparativeOperator,
+	token.Geq: comparativeOperator,
+	token.Leq: comparativeOperator,
+	token.Eql: comparativeOperator,
+	token.Neq: comparativeOperator,
 	// logical operators
-	lexer.TknLogicalAnd: conjunctiveOperator,
-	lexer.TknLogicalOr:  disjunctiveOperator,
+	token.LogicalAnd: conjunctiveOperator,
+	token.LogicalOr:  disjunctiveOperator,
 	// ternary operators
-	lexer.TknTernary: ternaryOperator,
+	token.Ternary: ternaryOperator,
 	/* assignment operators
-	lexer.TknAssign:    assignmentOperator,
-	lexer.TknMulAssign: assignmentOperator,
-	lexer.TknDivAssign: assignmentOperator,
-	lexer.TknModAssign: assignmentOperator,
-	lexer.TknAddAssign: assignmentOperator,
-	lexer.TknSubAssign: assignmentOperator,
-	lexer.TknShlAssign: assignmentOperator,
-	lexer.TknShrAssign: assignmentOperator,
-	lexer.TknAndAssign: assignmentOperator,
-	lexer.TknOrAssign:  assignmentOperator,
-	lexer.TknXorAssign: assignmentOperator,*/
+	token.Assign:    assignmentOperator,
+	token.MulAssign: assignmentOperator,
+	token.DivAssign: assignmentOperator,
+	token.ModAssign: assignmentOperator,
+	token.AddAssign: assignmentOperator,
+	token.SubAssign: assignmentOperator,
+	token.ShlAssign: assignmentOperator,
+	token.ShrAssign: assignmentOperator,
+	token.AndAssign: assignmentOperator,
+	token.OrAssign:  assignmentOperator,
+	token.XorAssign: assignmentOperator,*/
 }
 
 func pushNode(stack []ast.ExpressionNode, op lexer.TokenType) []ast.ExpressionNode {
@@ -84,15 +86,15 @@ main:
 	for p.hasTokens(1) {
 		current = p.current().Type
 		switch current {
-		case lexer.TknOpenBracket:
+		case token.OpenBracket:
 			p.next()
 			opStack = append(opStack, current)
 			break
-		case lexer.TknCloseBracket:
+		case token.CloseBracket:
 			var op lexer.TokenType
 			for len(opStack) > 0 {
 				op, opStack = opStack[len(opStack)-1], opStack[:len(opStack)-1]
-				if op == lexer.TknOpenBracket {
+				if op == token.OpenBracket {
 					p.next()
 					continue main
 				} else {
@@ -172,18 +174,18 @@ func (p *Parser) parsePrimaryComponent() ast.ExpressionNode {
 		return p.parseCompositeLiteral()
 	}
 	switch p.current().Type {
-	case lexer.TknMap:
+	case token.Map:
 		return p.parseMapLiteral()
-	case lexer.TknOpenSquare:
+	case token.OpenSquare:
 		return p.parseArrayLiteral()
-	case lexer.TknString, lexer.TknCharacter, lexer.TknInteger, lexer.TknFloat,
-		lexer.TknTrue, lexer.TknFalse:
+	case token.String, token.Character, token.Integer, token.Float,
+		token.True, token.False:
 		return p.parseLiteral()
-	case lexer.TknIdentifier:
+	case token.Identifier:
 		return p.parseIdentifierExpression()
-	case lexer.TknNot, lexer.TknTypeOf:
+	case token.Not, token.TypeOf:
 		return p.parsePrefixUnaryExpression()
-	case lexer.TknFunc:
+	case token.Func:
 		return p.parseFuncLiteral()
 	}
 	return nil
@@ -191,11 +193,11 @@ func (p *Parser) parsePrimaryComponent() ast.ExpressionNode {
 
 func (p *Parser) parseSecondaryComponent(expr ast.ExpressionNode) (e ast.ExpressionNode, done bool) {
 	switch p.current().Type {
-	case lexer.TknOpenBracket:
+	case token.OpenBracket:
 		return p.parseCallExpression(expr), false
-	case lexer.TknOpenSquare:
+	case token.OpenSquare:
 		return p.parseIndexExpression(expr), false
-	case lexer.TknDot:
+	case token.Dot:
 		return p.parseReference(expr), false
 	}
 	return expr, true
@@ -220,7 +222,7 @@ func (p *Parser) isCompositeLiteral() bool {
 	if !p.hasTokens(2) {
 		return false
 	}
-	return p.current().Type == lexer.TknIdentifier && p.token(1).Type == lexer.TknOpenBrace
+	return p.current().Type == token.Identifier && p.token(1).Type == token.OpenBrace
 }
 
 func (p *Parser) parsePrefixUnaryExpression() *ast.UnaryExpressionNode {
@@ -233,7 +235,7 @@ func (p *Parser) parsePrefixUnaryExpression() *ast.UnaryExpressionNode {
 
 func (p *Parser) parseReference(expr ast.ExpressionNode) *ast.ReferenceNode {
 	n := new(ast.ReferenceNode)
-	p.parseRequired(lexer.TknDot)
+	p.parseRequired(token.Dot)
 	n.Parent = expr
 	n.Reference = p.parseExpressionComponent()
 	return n
@@ -241,11 +243,11 @@ func (p *Parser) parseReference(expr ast.ExpressionNode) *ast.ReferenceNode {
 
 func (p *Parser) parseIdentifierList() []string {
 	var ids []string
-	if p.current().Type != lexer.TknString {
+	if p.current().Type != token.String {
 		return nil
 	}
 	ids = append(ids, p.parseIdentifier())
-	for p.parseOptional(lexer.TknComma) {
+	for p.parseOptional(token.Comma) {
 		ids = append(ids, p.parseIdentifier())
 	}
 	return ids
@@ -254,10 +256,10 @@ func (p *Parser) parseIdentifierList() []string {
 func (p *Parser) parseCallExpression(expr ast.ExpressionNode) *ast.CallExpressionNode {
 	n := new(ast.CallExpressionNode)
 	n.Call = expr
-	p.parseRequired(lexer.TknOpenBracket)
-	if !p.parseOptional(lexer.TknCloseBracket) {
+	p.parseRequired(token.OpenBracket)
+	if !p.parseOptional(token.CloseBracket) {
 		n.Arguments = p.parseExpressionList()
-		p.parseRequired(lexer.TknCloseBracket)
+		p.parseRequired(token.CloseBracket)
 	}
 	return n
 }
@@ -269,11 +271,11 @@ func (p *Parser) parseArrayLiteral() *ast.ArrayLiteralNode {
 
 	n.Signature = p.parseArrayType()
 
-	p.parseRequired(lexer.TknOpenBrace)
-	if !p.parseOptional(lexer.TknCloseBrace) {
+	p.parseRequired(token.OpenBrace)
+	if !p.parseOptional(token.CloseBrace) {
 		// TODO: check this is right
 		n.Data = p.parseExpressionList()
-		p.parseRequired(lexer.TknCloseBrace)
+		p.parseRequired(token.CloseBrace)
 	}
 	return n
 }
@@ -292,27 +294,27 @@ func (p *Parser) parseMapLiteral() *ast.MapLiteralNode {
 	n := new(ast.MapLiteralNode)
 	n.Signature = p.parseMapType()
 
-	p.parseRequired(lexer.TknOpenBrace)
-	if !p.parseOptional(lexer.TknCloseBrace) {
+	p.parseRequired(token.OpenBrace)
+	if !p.parseOptional(token.CloseBrace) {
 		firstKey := p.parseExpression()
-		p.parseRequired(lexer.TknColon)
+		p.parseRequired(token.Colon)
 		firstValue := p.parseExpression()
 		n.Data = make(map[ast.ExpressionNode]ast.ExpressionNode)
 		n.Data[firstKey] = firstValue
-		for p.parseOptional(lexer.TknComma) {
+		for p.parseOptional(token.Comma) {
 			key := p.parseExpression()
-			p.parseRequired(lexer.TknColon)
+			p.parseRequired(token.Colon)
 			value := p.parseExpression()
 			n.Data[key] = value
 		}
-		p.parseRequired(lexer.TknCloseBrace)
+		p.parseRequired(token.CloseBrace)
 	}
 	return n
 }
 
 func (p *Parser) parseExpressionList() (list []ast.ExpressionNode) {
 	list = append(list, p.parseExpression())
-	for p.parseOptional(lexer.TknComma) {
+	for p.parseOptional(token.Comma) {
 		list = append(list, p.parseExpression())
 	}
 	return list
@@ -320,15 +322,15 @@ func (p *Parser) parseExpressionList() (list []ast.ExpressionNode) {
 
 func (p *Parser) parseIndexExpression(expr ast.ExpressionNode) ast.ExpressionNode {
 	n := ast.IndexExpressionNode{}
-	p.parseRequired(lexer.TknOpenSquare)
-	if p.parseOptional(lexer.TknColon) {
+	p.parseRequired(token.OpenSquare)
+	if p.parseOptional(token.Colon) {
 		return p.parseSliceExpression(expr, nil)
 	}
 	index := p.parseExpression()
-	if p.parseOptional(lexer.TknColon) {
+	if p.parseOptional(token.Colon) {
 		return p.parseSliceExpression(expr, index)
 	}
-	p.parseRequired(lexer.TknCloseSquare)
+	p.parseRequired(token.CloseSquare)
 	n.Expression = expr
 	n.Index = index
 	return &n
@@ -339,9 +341,9 @@ func (p *Parser) parseSliceExpression(expr ast.ExpressionNode,
 	n := ast.SliceExpressionNode{}
 	n.Expression = expr
 	n.Low = first
-	if !p.parseOptional(lexer.TknCloseSquare) {
+	if !p.parseOptional(token.CloseSquare) {
 		n.High = p.parseExpression()
-		p.parseRequired(lexer.TknCloseSquare)
+		p.parseRequired(token.CloseSquare)
 	}
 	return &n
 }
@@ -365,31 +367,31 @@ func (p *Parser) parseCompositeLiteral() *ast.CompositeLiteralNode {
 	// expr must be a reference or identifier node
 	n.TypeName = p.parseIdentifier()
 
-	p.parseRequired(lexer.TknOpenBrace)
-	for p.parseOptional(lexer.TknNewLine) {
+	p.parseRequired(token.OpenBrace)
+	for p.parseOptional(token.NewLine) {
 	}
-	if !p.parseOptional(lexer.TknCloseBrace) {
+	if !p.parseOptional(token.CloseBrace) {
 		firstKey := p.parseIdentifier()
-		p.parseRequired(lexer.TknColon)
+		p.parseRequired(token.Colon)
 		expr := p.parseExpression()
 		if n.Fields == nil {
 			n.Fields = make(map[string]ast.ExpressionNode)
 		}
 		n.Fields[firstKey] = expr
-		for p.parseOptional(lexer.TknComma) {
-			for p.parseOptional(lexer.TknNewLine) {
+		for p.parseOptional(token.Comma) {
+			for p.parseOptional(token.NewLine) {
 			}
-			if p.parseOptional(lexer.TknCloseBrace) {
+			if p.parseOptional(token.CloseBrace) {
 				return n
 			}
 			key := p.parseIdentifier()
-			p.parseRequired(lexer.TknColon)
+			p.parseRequired(token.Colon)
 			exp := p.parseExpression()
 			n.Fields[key] = exp
 		}
 		// TODO: allow more than one?
-		p.parseOptional(lexer.TknNewLine)
-		p.parseRequired(lexer.TknCloseBrace)
+		p.parseOptional(token.NewLine)
+		p.parseRequired(token.CloseBrace)
 	}
 	return n
 }

@@ -1,8 +1,9 @@
 package lexer
 
 import (
-	"go/token"
 	"io/ioutil"
+
+	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/util"
 )
@@ -19,7 +20,7 @@ type Lexer struct {
 }
 
 // Lex ...
-func Lex(bytes []byte) (tokens []Token, errs util.Errors) {
+func Lex(bytes []byte) (tokens []token.Token, errs util.Errors) {
 	l := new(Lexer)
 	l.byteOffset = 0
 	l.buffer = bytes
@@ -28,7 +29,7 @@ func Lex(bytes []byte) (tokens []Token, errs util.Errors) {
 }
 
 // LexFile ...
-func LexFile(path string) (tokens []Token, errs util.Errors) {
+func LexFile(path string) (tokens []token.Token, errs util.Errors) {
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, append(errs, util.Error{
@@ -39,6 +40,6 @@ func LexFile(path string) (tokens []Token, errs util.Errors) {
 }
 
 // LexString lexes a string
-func LexString(str string) (tokens []Token, errs util.Errors) {
+func LexString(str string) (tokens []token.Token, errs util.Errors) {
 	return Lex([]byte(str))
 }

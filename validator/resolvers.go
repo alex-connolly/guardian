@@ -305,31 +305,31 @@ func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	return t
 	/*
 		switch b.Operator {
-		case lexer.TknAdd:
+		case token.Add:
 			// can be numeric or a string
 			// string = type user has defined as string literal
-			getStrType, ok := v.literals[lexer.TknString]
+			getStrType, ok := v.literals[token.String]
 			if ok && v.resolveExpression(b.Left).Compare(getStrType(v)) {
 				return getStrType(v)
 			} else {
 				return v.resolveNumericType()
 			}
-		case lexer.TknSub, lexer.TknDiv, lexer.TknMul, lexer.TknMod:
+		case token.Sub, token.Div, token.Mul, token.Mod:
 			// must be numeric
 			return v.resolveNumericType()
-		case lexer.TknGeq, lexer.TknLeq, lexer.TknLss, lexer.TknGtr:
+		case token.Geq, token.Leq, token.Lss, token.Gtr:
 			// must be numeric
 			return standards[boolean]
-		case lexer.TknEql, lexer.TknNeq:
+		case token.Eql, token.Neq:
 			// don't have to be numeric
 			return standards[boolean]
-		case lexer.TknShl, lexer.TknShr, lexer.TknAnd, lexer.TknOr, lexer.TknXor:
+		case token.Shl, token.Shr, token.And, token.Or, token.Xor:
 			// must be numeric
 			return standards[Int]
-		case lexer.TknLogicalAnd, lexer.TknLogicalOr:
+		case token.LogicalAnd, token.LogicalOr:
 			// must be boolean
 			return standards[boolean]
-		case lexer.TknAs:
+		case token.As:
 			// make sure this is a type
 
 		}

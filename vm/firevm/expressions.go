@@ -18,16 +18,16 @@ func (a *Arsonist) traverseCompositeLiteral(n ast.CompositeLiteralNode) {
 }
 
 var binaryOps = map[lexer.TokenType]string{
-	lexer.TknAdd: "ADD",
-	lexer.TknSub: "SUB",
-	lexer.TknMul: "MUL",
-	lexer.TknDiv: "DIV",
-	lexer.TknMod: "MOD",
-	lexer.TknShl: "SHL",
-	lexer.TknShr: "SHR",
-	lexer.TknAnd: "AND",
-	lexer.TknOr:  "OR",
-	lexer.TknXor: "XOR",
+	token.Add: "ADD",
+	token.Sub: "SUB",
+	token.Mul: "MUL",
+	token.Div: "DIV",
+	token.Mod: "MOD",
+	token.Shl: "SHL",
+	token.Shr: "SHR",
+	token.And: "AND",
+	token.Or:  "OR",
+	token.Xor: "XOR",
 }
 
 func (a *Arsonist) traverseBinaryExpr(n ast.BinaryExpressionNode) {
@@ -38,7 +38,7 @@ func (a *Arsonist) traverseBinaryExpr(n ast.BinaryExpressionNode) {
 }
 
 var unaryOps = map[lexer.TokenType]string{
-	lexer.TknNot: "NOT",
+	token.Not: "NOT",
 }
 
 func (a *Arsonist) traverseUnaryExpr(n ast.UnaryExpressionNode) {

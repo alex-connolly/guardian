@@ -3,6 +3,8 @@ package parser
 import (
 	"strconv"
 
+	"github.com/end-r/guardian/token"
+
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/lexer"
 )
@@ -29,18 +31,18 @@ func (p *Parser) parseKeywords(targets ...lexer.TokenType) []lexer.TokenType {
 
 func parseInterfaceDeclaration(p *Parser) {
 
-	keywords := p.parseKeywords(lexer.TknInterface)
+	keywords := p.parseKeywords(token.Interface)
 
 	if p.keywords != nil {
 		keywords = append(keywords, p.keywords...)
 	}
 
-	p.parseRequired(lexer.TknInterface)
+	p.parseRequired(token.Interface)
 	identifier := p.parseIdentifier()
 
 	var inherits []*ast.PlainTypeNode
 
-	if p.parseOptional(lexer.TknInherits) {
+	if p.parseOptional(token.Inherits) {
 		inherits = p.parsePlainTypeList()
 	}
 
@@ -58,7 +60,7 @@ func parseInterfaceDeclaration(p *Parser) {
 
 func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
 
-	p.parseRequired(lexer.TknOpenBrace)
+	p.parseRequired(token.OpenBrace)
 
 	for isNewLine(p) {
 		parseNewLine(p)
@@ -73,7 +75,7 @@ func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
 		parseNewLine(p)
 	}
 
-	for !p.parseOptional(lexer.TknCloseBrace) {
+	for !p.parseOptional(token.CloseBrace) {
 
 		if !p.isFuncType() {
 			p.addError(errInvalidInterfaceProperty)
@@ -93,24 +95,24 @@ func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
 
 func (p *Parser) parseEnumBody() []string {
 
-	p.parseRequired(lexer.TknOpenBrace)
+	p.parseRequired(token.OpenBrace)
 	var enums []string
 	// remove all new lines before the fist identifier
 	for isNewLine(p) {
 		parseNewLine(p)
 	}
 
-	if !p.parseOptional(lexer.TknCloseBrace) {
+	if !p.parseOptional(token.CloseBrace) {
 		// can only contain identifiers split by commas and newlines
 		first := p.parseIdentifier()
 		enums = append(enums, first)
-		for p.parseOptional(lexer.TknComma) {
+		for p.parseOptional(token.Comma) {
 
 			for isNewLine(p) {
 				parseNewLine(p)
 			}
 
-			if p.current().Type == lexer.TknIdentifier {
+			if p.current().Type == token.Identifier {
 				enums = append(enums, p.parseIdentifier())
 			} else {
 				p.addError(errInvalidEnumProperty)
@@ -121,25 +123,25 @@ func (p *Parser) parseEnumBody() []string {
 			parseNewLine(p)
 		}
 
-		p.parseRequired(lexer.TknCloseBrace)
+		p.parseRequired(token.CloseBrace)
 	}
 	return enums
 }
 
 func parseEnumDeclaration(p *Parser) {
 
-	keywords := p.parseKeywords(lexer.TknEnum)
+	keywords := p.parseKeywords(token.Enum)
 
 	if p.keywords != nil {
 		keywords = append(keywords, p.keywords...)
 	}
 
-	p.parseRequired(lexer.TknEnum)
+	p.parseRequired(token.Enum)
 	identifier := p.parseIdentifier()
 
 	var inherits []*ast.PlainTypeNode
 
-	if p.parseOptional(lexer.TknInherits) {
+	if p.parseOptional(token.Inherits) {
 		inherits = p.parsePlainTypeList()
 	}
 
@@ -157,11 +159,11 @@ func parseEnumDeclaration(p *Parser) {
 
 func (p *Parser) parsePlainType() *ast.PlainTypeNode {
 
-	variable := p.parseOptional(lexer.TknEllipsis)
+	variable := p.parseOptional(token.Ellipsis)
 
 	var names []string
 	names = append(names, p.parseIdentifier())
-	for p.parseOptional(lexer.TknDot) {
+	for p.parseOptional(token.Dot) {
 		names = append(names, p.parseIdentifier())
 	}
 	return &ast.PlainTypeNode{
@@ -174,7 +176,7 @@ func (p *Parser) parsePlainType() *ast.PlainTypeNode {
 func (p *Parser) parsePlainTypeList() []*ast.PlainTypeNode {
 	var refs []*ast.PlainTypeNode
 	refs = append(refs, p.parsePlainType())
-	for p.parseOptional(lexer.TknComma) {
+	for p.parseOptional(token.Comma) {
 		refs = append(refs, p.parsePlainType())
 	}
 	return refs
@@ -182,13 +184,13 @@ func (p *Parser) parsePlainTypeList() []*ast.PlainTypeNode {
 
 func parseClassDeclaration(p *Parser) {
 
-	keywords := p.parseKeywords(lexer.TknClass)
+	keywords := p.parseKeywords(token.Class)
 
 	if p.keywords != nil {
 		keywords = append(keywords, p.keywords...)
 	}
 
-	p.parseRequired(lexer.TknClass)
+	p.parseRequired(token.Class)
 
 	identifier := p.parseIdentifier()
 
@@ -196,14 +198,14 @@ func parseClassDeclaration(p *Parser) {
 
 	var inherits, interfaces []*ast.PlainTypeNode
 
-	if p.parseOptional(lexer.TknInherits) {
+	if p.parseOptional(token.Inherits) {
 		inherits = p.parsePlainTypeList()
-		if p.parseOptional(lexer.TknIs) {
+		if p.parseOptional(token.Is) {
 			interfaces = p.parsePlainTypeList()
 		}
-	} else if p.parseOptional(lexer.TknIs) {
+	} else if p.parseOptional(token.Is) {
 		interfaces = p.parsePlainTypeList()
-		if p.parseOptional(lexer.TknInherits) {
+		if p.parseOptional(token.Inherits) {
 			inherits = p.parsePlainTypeList()
 		}
 	}
@@ -223,27 +225,27 @@ func parseClassDeclaration(p *Parser) {
 
 func parseContractDeclaration(p *Parser) {
 
-	keywords := p.parseKeywords(lexer.TknContract)
+	keywords := p.parseKeywords(token.Contract)
 
 	if p.keywords != nil {
 		keywords = append(keywords, p.keywords...)
 	}
 
-	p.parseRequired(lexer.TknContract)
+	p.parseRequired(token.Contract)
 	identifier := p.parseIdentifier()
 
 	// is and inherits can be in any order
 
 	var inherits, interfaces []*ast.PlainTypeNode
 
-	if p.parseOptional(lexer.TknInherits) {
+	if p.parseOptional(token.Inherits) {
 		inherits = p.parsePlainTypeList()
-		if p.parseOptional(lexer.TknIs) {
+		if p.parseOptional(token.Is) {
 			interfaces = p.parsePlainTypeList()
 		}
-	} else if p.parseOptional(lexer.TknIs) {
+	} else if p.parseOptional(token.Is) {
 		interfaces = p.parsePlainTypeList()
-		if p.parseOptional(lexer.TknInherits) {
+		if p.parseOptional(token.Inherits) {
 			inherits = p.parsePlainTypeList()
 		}
 	}
@@ -277,7 +279,7 @@ func (p *Parser) parseType() ast.Node {
 	case p.isFuncType():
 		return p.parseFuncType()
 		// TODO: should be able to do with isPlainType() but causes crashes
-	case p.isNextToken(lexer.TknIdentifier):
+	case p.isNextToken(token.Identifier):
 		return p.parsePlainType()
 	}
 	return nil
@@ -285,7 +287,7 @@ func (p *Parser) parseType() ast.Node {
 
 func (p *Parser) parseVarDeclaration() *ast.ExplicitVarDeclarationNode {
 
-	keywords := p.parseKeywords(lexer.TknIdentifier)
+	keywords := p.parseKeywords(token.Identifier)
 
 	if p.keywords != nil {
 		keywords = append(keywords, p.keywords...)
@@ -293,7 +295,7 @@ func (p *Parser) parseVarDeclaration() *ast.ExplicitVarDeclarationNode {
 
 	var names []string
 	names = append(names, p.parseIdentifier())
-	for p.parseOptional(lexer.TknComma) {
+	for p.parseOptional(token.Comma) {
 		names = append(names, p.parseIdentifier())
 	}
 
@@ -308,13 +310,13 @@ func (p *Parser) parseVarDeclaration() *ast.ExplicitVarDeclarationNode {
 
 func (p *Parser) parseParameters() []*ast.ExplicitVarDeclarationNode {
 	var params []*ast.ExplicitVarDeclarationNode
-	p.parseRequired(lexer.TknOpenBracket)
-	if !p.parseOptional(lexer.TknCloseBracket) {
+	p.parseRequired(token.OpenBracket)
+	if !p.parseOptional(token.CloseBracket) {
 		params = append(params, p.parseVarDeclaration())
-		for p.parseOptional(lexer.TknComma) {
+		for p.parseOptional(token.Comma) {
 			params = append(params, p.parseVarDeclaration())
 		}
-		p.parseRequired(lexer.TknCloseBracket)
+		p.parseRequired(token.CloseBracket)
 	}
 	return params
 }
@@ -323,7 +325,7 @@ func (p *Parser) parseTypeList() []ast.Node {
 	var types []ast.Node
 	first := p.parseType()
 	types = append(types, first)
-	for p.parseOptional(lexer.TknComma) {
+	for p.parseOptional(token.Comma) {
 		types = append(types, p.parseType())
 	}
 	return types
@@ -338,12 +340,12 @@ func (p *Parser) parseTypeList() []ast.Node {
 // or none
 // {
 func (p *Parser) parseResults() []ast.Node {
-	if p.parseOptional(lexer.TknOpenBracket) {
+	if p.parseOptional(token.OpenBracket) {
 		types := p.parseTypeList()
-		p.parseRequired(lexer.TknCloseBracket)
+		p.parseRequired(token.CloseBracket)
 		return types
 	}
-	if p.current().Type != lexer.TknOpenBrace {
+	if p.current().Type != token.OpenBrace {
 		return p.parseTypeList()
 	}
 	return nil
@@ -351,13 +353,13 @@ func (p *Parser) parseResults() []ast.Node {
 
 func parseFuncDeclaration(p *Parser) {
 
-	keywords := p.parseKeywords(lexer.TknFunc)
+	keywords := p.parseKeywords(token.Func)
 
 	if p.keywords != nil {
 		keywords = append(keywords, p.keywords...)
 	}
 
-	p.parseRequired(lexer.TknFunc)
+	p.parseRequired(token.Func)
 
 	identifier := p.parseIdentifier()
 
@@ -408,13 +410,13 @@ func parseLifecycleDeclaration(p *Parser) {
 
 func parseTypeDeclaration(p *Parser) {
 
-	keywords := p.parseKeywords(lexer.TknIdentifier)
+	keywords := p.parseKeywords(token.Identifier)
 
 	if p.keywords != nil {
 		keywords = append(keywords, p.keywords...)
 	}
 
-	p.parseRequired(lexer.TknType)
+	p.parseRequired(token.Type)
 	identifier := p.parseIdentifier()
 
 	value := p.parseType()
@@ -430,14 +432,14 @@ func parseTypeDeclaration(p *Parser) {
 
 func (p *Parser) parseMapType() *ast.MapTypeNode {
 
-	variable := p.parseOptional(lexer.TknEllipsis)
+	variable := p.parseOptional(token.Ellipsis)
 
-	p.parseRequired(lexer.TknMap)
-	p.parseRequired(lexer.TknOpenSquare)
+	p.parseRequired(token.Map)
+	p.parseRequired(token.OpenSquare)
 
 	key := p.parseType()
 
-	p.parseRequired(lexer.TknCloseSquare)
+	p.parseRequired(token.CloseSquare)
 
 	value := p.parseType()
 
@@ -454,21 +456,21 @@ func (p *Parser) parseFuncType() *ast.FuncTypeNode {
 
 	f := ast.FuncTypeNode{}
 
-	f.Variable = p.parseOptional(lexer.TknEllipsis)
+	f.Variable = p.parseOptional(token.Ellipsis)
 
-	p.parseRequired(lexer.TknFunc)
+	p.parseRequired(token.Func)
 
-	if p.current().Type == lexer.TknIdentifier {
+	if p.current().Type == token.Identifier {
 		f.Identifier = p.parseIdentifier()
 	}
-	p.parseRequired(lexer.TknOpenBracket)
+	p.parseRequired(token.OpenBracket)
 
 	f.Parameters = p.parseFuncTypeParameters()
-	p.parseRequired(lexer.TknCloseBracket)
+	p.parseRequired(token.CloseBracket)
 
-	if p.parseOptional(lexer.TknOpenBracket) {
+	if p.parseOptional(token.OpenBracket) {
 		f.Results = p.parseFuncTypeParameters()
-		p.parseRequired(lexer.TknCloseBracket)
+		p.parseRequired(token.CloseBracket)
 	} else {
 		f.Results = p.parseFuncTypeParameters()
 	}
@@ -481,7 +483,7 @@ func (p *Parser) parseFuncTypeParameters() []ast.Node {
 	var params []ast.Node
 	if isExplicitVarDeclaration(p) {
 		params = append(params, p.parseVarDeclaration())
-		for p.parseOptional(lexer.TknComma) {
+		for p.parseOptional(token.Comma) {
 			if isExplicitVarDeclaration(p) {
 				params = append(params, p.parseVarDeclaration())
 			} else if p.isNextAType() {
@@ -495,7 +497,7 @@ func (p *Parser) parseFuncTypeParameters() []ast.Node {
 	} else {
 		// must be types
 		params = append(params, p.parseType())
-		for p.parseOptional(lexer.TknComma) {
+		for p.parseOptional(token.Comma) {
 			t := p.parseType()
 			params = append(params, t)
 			// TODO: handle errors
@@ -506,13 +508,13 @@ func (p *Parser) parseFuncTypeParameters() []ast.Node {
 
 func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 
-	variable := p.parseOptional(lexer.TknEllipsis)
+	variable := p.parseOptional(token.Ellipsis)
 
-	p.parseRequired(lexer.TknOpenSquare)
+	p.parseRequired(token.OpenSquare)
 
 	var max int
 
-	if p.nextTokens(lexer.TknInteger) {
+	if p.nextTokens(token.Integer) {
 		i, err := strconv.ParseInt(p.current().String(), 10, 64)
 		if err != nil {
 			p.addError(errInvalidArraySize)
@@ -521,7 +523,7 @@ func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 		p.next()
 	}
 
-	p.parseRequired(lexer.TknCloseSquare)
+	p.parseRequired(token.CloseSquare)
 
 	typ := p.parseType()
 
@@ -551,7 +553,7 @@ func parseExplicitVarDeclaration(p *Parser) {
 }
 
 func parseEventDeclaration(p *Parser) {
-	p.parseRequired(lexer.TknEvent)
+	p.parseRequired(token.Event)
 
 	name := p.parseIdentifier()
 

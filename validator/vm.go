@@ -3,8 +3,9 @@ package validator
 import (
 	"strconv"
 
+	"github.com/end-r/guardian/token"
+
 	"github.com/end-r/guardian/ast"
-	"github.com/end-r/guardian/lexer"
 	"github.com/end-r/guardian/parser"
 	"github.com/end-r/guardian/typing"
 	"github.com/end-r/guardian/util"
@@ -51,11 +52,11 @@ func (v TestVM) Builtins() *ast.ScopeNode {
 
 func (v TestVM) Literals() LiteralMap {
 	return LiteralMap{
-		lexer.TknString:  SimpleLiteral("string"),
-		lexer.TknTrue:    BooleanLiteral,
-		lexer.TknFalse:   BooleanLiteral,
-		lexer.TknInteger: resolveIntegerLiteral,
-		lexer.TknFloat:   resolveFloatLiteral,
+		token.String:  SimpleLiteral("string"),
+		token.True:    BooleanLiteral,
+		token.False:   BooleanLiteral,
+		token.Integer: resolveIntegerLiteral,
+		token.Float:   resolveFloatLiteral,
 	}
 }
 
@@ -91,19 +92,19 @@ func (v TestVM) Primitives() map[string]typing.Type {
 func (v TestVM) Operators() (m OperatorMap) {
 	m = OperatorMap{}
 
-	m.Add(BooleanOperator, lexer.TknGeq, lexer.TknLeq,
-		lexer.TknLss, lexer.TknNeq, lexer.TknEql, lexer.TknGtr)
+	m.Add(BooleanOperator, token.Geq, token.Leq,
+		token.Lss, token.Neq, token.Eql, token.Gtr)
 
-	m.Add(operatorAdd, lexer.TknAdd)
-	m.Add(BooleanOperator, lexer.TknLogicalAnd, lexer.TknLogicalOr)
+	m.Add(operatorAdd, token.Add)
+	m.Add(BooleanOperator, token.LogicalAnd, token.LogicalOr)
 
 	// numericalOperator with floats/ints
-	m.Add(BinaryNumericOperator, lexer.TknSub, lexer.TknMul, lexer.TknDiv)
+	m.Add(BinaryNumericOperator, token.Sub, token.Mul, token.Div)
 
 	// integers only
-	m.Add(BinaryIntegerOperator, lexer.TknShl, lexer.TknShr)
+	m.Add(BinaryIntegerOperator, token.Shl, token.Shr)
 
-	m.Add(CastOperator, lexer.TknAs)
+	m.Add(CastOperator, token.As)
 
 	return m
 }

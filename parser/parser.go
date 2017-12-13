@@ -3,6 +3,8 @@ package parser
 import (
 	"fmt"
 
+	"github.com/end-r/guardian/token"
+
 	"github.com/end-r/guardian/util"
 
 	"github.com/end-r/guardian/ast"
@@ -71,7 +73,7 @@ func (p *Parser) parseRequired(types ...lexer.TokenType) lexer.TokenType {
 	if !p.hasTokens(1) {
 		p.addError(fmt.Sprintf("Required %s, found nothing", "x"))
 		// TODO: what should be returned here
-		return lexer.TknReturn
+		return token.Return
 	}
 	for _, t := range types {
 		if p.current().Type == t {
@@ -95,7 +97,7 @@ func (p *Parser) parseIdentifier() string {
 		p.addError("Required identifier, nothing found")
 		return ""
 	}
-	if p.current().Type != lexer.TknIdentifier {
+	if p.current().Type != token.Identifier {
 		p.addError(fmt.Sprintf("Required identifier, found %s", p.current().Name()))
 		return ""
 	}
@@ -118,25 +120,25 @@ func parseNewLine(p *Parser) {
 }
 
 func parseSingleLineComment(p *Parser) {
-	p.parseRequired(lexer.TknLineComment)
-	for p.hasTokens(1) && p.current().Type != lexer.TknNewLine {
+	p.parseRequired(token.LineComment)
+	for p.hasTokens(1) && p.current().Type != token.NewLine {
 		p.next()
 	}
-	p.parseOptional(lexer.TknNewLine)
+	p.parseOptional(token.NewLine)
 }
 
 func parseMultiLineComment(p *Parser) {
-	p.parseRequired(lexer.TknCommentOpen)
-	for p.hasTokens(1) && p.current().Type != lexer.TknCommentClose {
+	p.parseRequired(token.CommentOpen)
+	for p.hasTokens(1) && p.current().Type != token.CommentClose {
 		p.next()
 	}
-	p.parseOptional(lexer.TknCommentClose)
+	p.parseOptional(token.CommentClose)
 }
 
 func parseKeywordGroup(p *Parser) {
 	old := p.keywords
-	p.keywords = p.parseKeywords(lexer.TknOpenBracket)
-	p.parseEnclosedScope(lexer.TknOpenBracket, lexer.TknCloseBracket)
+	p.keywords = p.parseKeywords(token.OpenBracket)
+	p.parseEnclosedScope(token.OpenBracket, token.CloseBracket)
 	p.keywords = old
 }
 
@@ -149,7 +151,7 @@ func (p *Parser) addError(message string) {
 }
 
 func (p *Parser) parseBracesScope(valids ...ast.NodeType) *ast.ScopeNode {
-	return p.parseEnclosedScope(lexer.TknOpenBrace, lexer.TknCloseBrace, valids...)
+	return p.parseEnclosedScope(token.OpenBrace, token.CloseBrace, valids...)
 }
 
 func (p *Parser) parseEnclosedScope(opener, closer lexer.TokenType, valids ...ast.NodeType) *ast.ScopeNode {

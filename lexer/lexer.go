@@ -1,19 +1,21 @@
 package lexer
 
 import (
+	"github.com/end-r/guardian/token"
+
 	"github.com/end-r/guardian/util"
 )
 
 func (l *Lexer) next() {
-	if l.isEOF() {
+	if l.byteOffset == len(l.buffer) {
 		return
 	}
 	found := false
-	for _, pt := range getProtoTokens() {
-		if pt.identifier(l) {
-			t := pt.process(l)
+	for _, pt := range token.GetProtoTokens() {
+		if pt.Identifier(l) {
+			t := pt.Process(l)
 			t.proto = pt
-			if t.Type != TknNone {
+			if t.Type != token.None {
 				//log.Printf("Found tok type: %d", t.Type)
 				l.tokens = append(l.tokens, l.finalise(t))
 			} else {
@@ -24,34 +26,10 @@ func (l *Lexer) next() {
 		}
 	}
 	if !found {
-		l.error("Unrecognised Token.")
+		l.error("Unrecognised token.Token.")
 		l.byteOffset++
 	}
 	l.next()
-}
-
-func (l *Lexer) finalise(t Token) Token {
-	t.data = make([]byte, t.end-t.start)
-	copy(t.data, l.buffer[t.start:t.end])
-	return t
-}
-
-func (l *Lexer) isEOF() bool {
-	return l.byteOffset >= len(l.buffer)
-}
-
-func (l *Lexer) nextByte() byte {
-	b := l.buffer[l.byteOffset]
-	l.byteOffset++
-	return b
-}
-
-func (l *Lexer) current() byte {
-	return l.buffer[l.byteOffset]
-}
-
-func (l *Lexer) hasBytes(offset int) bool {
-	return l.byteOffset+offset <= len(l.buffer)
 }
 
 func (l *Lexer) error(msg string) {

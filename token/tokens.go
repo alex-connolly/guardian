@@ -1,7 +1,12 @@
 package token
 
-import "strings"
+import (
+	"strings"
+)
 
+// TODO: make the token parser faster using a map or something
+
+// Byterable ...
 type Byterable interface {
 	Bytes() []byte
 	Offset() int
@@ -217,11 +222,9 @@ const (
 	Fallback
 )
 
-// TODO: protoToken{"Operator", isOperator, processOperator}
-// TODO: benchmark recognising that a token is an op and then sorting from there
-
-func getProtoTokens() []protoToken {
-	return []protoToken{
+// GetProtoTokens ...
+func GetProtoTokens() []ProtoToken {
+	return []ProtoToken{
 		createDistinct("contract", Contract),
 		createDistinct("class", Class),
 		createDistinct("event", Event),
@@ -282,9 +285,9 @@ func getProtoTokens() []protoToken {
 		createDistinct("fallback", Fallback),
 		createDistinct("at", At),
 
-		protoToken{"Float", isFloat, processFloat},
+		ProtoToken{"Float", isFloat, processFloat},
 		// must check float first
-		protoToken{"Integer", isInteger, processInteger},
+		ProtoToken{"Integer", isInteger, processInteger},
 
 		createFixed("/*", CommentOpen),
 		createFixed("*/", CommentClose),
@@ -335,50 +338,56 @@ func getProtoTokens() []protoToken {
 		createFixed(",", Comma),
 		createFixed("=", Assign),
 
-		protoToken{"New Line", isNewLine, processNewLine},
-		protoToken{"Whitespace", isWhitespace, processIgnored},
-		protoToken{"String", isString, processString},
+		ProtoToken{"New Line", isNewLine, processNewLine},
+		ProtoToken{"Whitespace", isWhitespace, processIgnored},
+		ProtoToken{"String", isString, processString},
 
-		protoToken{"Identifier", isIdentifier, processIdentifier},
-		protoToken{"Character", isCharacter, processCharacter},
+		ProtoToken{"Identifier", isIdentifier, processIdentifier},
+		ProtoToken{"Character", isCharacter, processCharacter},
 	}
 }
 
-func createFixed(kw string, tkn Type) protoToken {
-	return protoToken{"KW: " + kw, is(kw), processFixed(len(kw), tkn)}
+func createFixed(kw string, tkn Type) ProtoToken {
+	return ProtoToken{"KW: " + kw, is(kw), processFixed(len(kw), tkn)}
 }
 
-func createDistinct(kw string, tkn Type) protoToken {
-	return protoToken{kw, isDistinct(kw), processFixed(len(kw), tkn)}
+func createDistinct(kw string, tkn Type) ProtoToken {
+	return ProtoToken{kw, isDistinct(kw), processFixed(len(kw), tkn)}
 }
 
 type isFunc func(Byterable) bool
 type processorFunc func(Byterable) Token
 
-type protoToken struct {
-	name       string // for debugging
-	identifier isFunc
-	process    processorFunc
+// ProtoToken ...
+type ProtoToken struct {
+	Name       string // for debugging
+	Identifier isFunc
+	Process    processorFunc
 }
 
 // Name returns the name of a token
 func (t Token) Name() string {
-	return t.proto.name
+	return t.Proto.Name
+}
+
+func (t *Token) finalise(b Byterable) {
+	t.Data = make([]byte, t.End-t.Start)
+	copy(t.Data, b.Bytes()[t.Start:t.End])
 }
 
 // Token ...
 type Token struct {
 	Type  Type
-	proto protoToken
-	start int
-	end   int
-	data  []byte
+	Proto ProtoToken
+	Start int
+	End   int
+	Data  []byte
 }
 
 // String creates a new string from the Token's value
 // TODO: escaped characters?
 func (t Token) String() string {
-	return string(t.data)
+	return string(t.Data)
 }
 
 // TrimmedString ...
