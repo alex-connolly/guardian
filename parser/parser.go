@@ -15,7 +15,7 @@ import (
 type Parser struct {
 	scope      *ast.ScopeNode
 	Expression ast.ExpressionNode
-	tokens     []lexer.Token
+	tokens     []token.Token
 	keywords   []token.Type
 	index      int
 	errs       util.Errors
@@ -35,7 +35,7 @@ func createParser(data string) *Parser {
 	return p
 }
 
-func (p *Parser) current() lexer.Token {
+func (p *Parser) current() token.Token {
 	return p.token(0)
 }
 
@@ -43,7 +43,7 @@ func (p *Parser) next() {
 	p.index++
 }
 
-func (p *Parser) token(offset int) lexer.Token {
+func (p *Parser) token(offset int) token.Token {
 	return p.tokens[p.index+offset]
 }
 

@@ -11,7 +11,7 @@ import (
 )
 
 // Parse ...
-func Parse(tokens []lexer.Token) (*ast.ScopeNode, util.Errors) {
+func Parse(tokens []token.Token) (*ast.ScopeNode, util.Errors) {
 	p := new(Parser)
 	p.tokens = tokens
 	p.parseScope(token.CloseBrace, ast.ContractDeclaration)

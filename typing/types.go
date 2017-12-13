@@ -1,8 +1,9 @@
 package typing
 
 import (
-	"axia/guardian/token"
 	"bytes"
+
+	"github.com/end-r/guardian/token"
 )
 
 // There are 5 first-class guardian types:

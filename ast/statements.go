@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"axia/guardian/token"
+	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/typing"
 

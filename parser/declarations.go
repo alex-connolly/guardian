@@ -6,7 +6,6 @@ import (
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/ast"
-	"github.com/end-r/guardian/lexer"
 )
 
 func (p *Parser) parseKeywords(targets ...token.Type) []token.Type {
@@ -382,13 +381,13 @@ func parseFuncDeclaration(p *Parser) {
 
 func parseLifecycleDeclaration(p *Parser) {
 
-	keywords := p.parseKeywords(lexer.GetLifecycles()...)
+	keywords := p.parseKeywords(token.GetModifiers()...)
 
 	if p.keywords != nil {
 		keywords = append(keywords, p.keywords...)
 	}
 
-	category := p.parseRequired(lexer.GetLifecycles()...)
+	category := p.parseRequired(token.GetLifecycles()...)
 
 	params := p.parseParameters()
 
@@ -416,7 +415,7 @@ func parseTypeDeclaration(p *Parser) {
 		keywords = append(keywords, p.keywords...)
 	}
 
-	p.parseRequired(token.Type)
+	p.parseRequired(token.KWType)
 	identifier := p.parseIdentifier()
 
 	value := p.parseType()

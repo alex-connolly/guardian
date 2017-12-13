@@ -1,7 +1,7 @@
 package validator
 
 import (
-	"axia/guardian/token"
+	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/typing"
