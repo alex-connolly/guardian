@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"github.com/end-r/guardian/typing"
+
 	"github.com/blang/semver"
 	"github.com/end-r/guardian/lexer"
 )
@@ -74,9 +76,10 @@ type ForStatementNode struct {
 func (n *ForStatementNode) Type() NodeType { return ForStatement }
 
 type ForEachStatementNode struct {
-	Variables []string
-	Producer  ExpressionNode
-	Block     *ScopeNode
+	Variables    []string
+	Producer     ExpressionNode
+	Block        *ScopeNode
+	ResolvedType typing.Type
 }
 
 func (n *ForEachStatementNode) Type() NodeType { return ForEachStatement }

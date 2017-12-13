@@ -79,8 +79,15 @@ func (p *Parser) parseRequired(types ...lexer.TokenType) lexer.TokenType {
 			return t
 		}
 	}
-	p.addError(fmt.Sprintf("Required %s, found %s", "x", p.current().Name()))
+	p.addError(fmt.Sprintf("Required one of {%s}, found %s", listTypes(types), p.current().Name()))
 	return p.current().Type
+}
+
+func listTypes(types []lexer.TokenType) string {
+	s := ""
+	for _, t := range types {
+		s += t.String()
+	}
 }
 
 func (p *Parser) parseIdentifier() string {

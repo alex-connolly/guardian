@@ -227,8 +227,8 @@ func (e *GuardianEVM) traverseMapLiteral(n *ast.MapLiteralNode) (code vmgen.Byte
 	// TODO: deterministic iteration
 	for k, v := range n.Data {
 		// each storage slot must be 32 bytes regardless of contents
-		slot := EncodeName(fakeKey + bytes32(key))
-		code.Add("PUSH", slot...)
+		slot := EncodeName(fakeKey + bytes32(k))
+		code.Concat(e.push(slot))
 		code.Add("SSTORE")
 		i++
 	}
@@ -243,7 +243,7 @@ func (e *GuardianEVM) traverseFuncLiteral(n *ast.FuncLiteralNode) (code vmgen.By
 	for _, p := range n.Parameters {
 		for _, i := range p.Identifiers {
 			e.allocateMemory(i, p.Resolved.Size())
-			code.Concat("MSTORE")
+			code.Add("MSTORE")
 		}
 	}
 
@@ -251,7 +251,7 @@ func (e *GuardianEVM) traverseFuncLiteral(n *ast.FuncLiteralNode) (code vmgen.By
 
 	for _, p := range n.Parameters {
 		for _, i := range p.Identifiers {
-			e.freeMemory(i, p.Resolved.Size())
+			e.freeMemory(i)
 		}
 	}
 
@@ -269,7 +269,7 @@ func isStorage(name string) bool {
 
 func (e *GuardianEVM) traverseIdentifier(n *ast.IdentifierNode) (code vmgen.Bytecode) {
 	if isStorage(n.Name) {
-		return e.lookupStorage(n.Name).retrive()
+		return e.lookupStorage(n.Name).retrieve()
 	} else {
 		return e.lookupMemory(n.Name).retrieve()
 	}
@@ -281,9 +281,8 @@ func (e *GuardianEVM) traverseReference(n *ast.ReferenceNode) (code vmgen.Byteco
 	if e.inStorage() {
 		code.Add("SLOAD")
 	} else {
-		// get the offset
-		code.Concat(e.traverse())
 		code.Add("MLOAD")
+
 	}
 
 	// reference e.g. dog.tail.wag()

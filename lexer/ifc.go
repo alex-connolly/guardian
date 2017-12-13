@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"go/token"
 	"io/ioutil"
 
 	"github.com/end-r/guardian/util"
@@ -12,7 +13,7 @@ type Lexer struct {
 	byteOffset  int
 	line        int
 	column      int
-	tokens      []Token
+	tokens      []token.Token
 	tokenOffset int
 	errors      util.Errors
 }

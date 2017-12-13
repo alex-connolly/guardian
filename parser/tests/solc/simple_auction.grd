@@ -22,8 +22,8 @@ contract SimpleAuction {
     external (
 
         func bid() {
-            enforce(now() <= auctionEnd)
-            enforce(msg.value > highestBid)
+            assert(now() <= auctionEnd)
+            assert(msg.value > highestBid)
             if highestBidder != 0 {
                 pendingReturns[highestBidder] += highestBid
             }
@@ -46,8 +46,8 @@ contract SimpleAuction {
         }
 
         func auctionEnd(){
-            enforce(now() >= auctionEnd)
-            enforce(!ended)
+            assert(now() >= auctionEnd)
+            assert(!ended)
 
             ended = true
             AuctionEnded(highestBidder, highestBid)

@@ -1,6 +1,8 @@
 package evm
 
 import (
+	"github.com/end-r/guardian/typing"
+
 	"github.com/end-r/vmgen"
 
 	"github.com/end-r/guardian/ast"
@@ -42,23 +44,29 @@ func (e *GuardianEVM) traverseForStatement(n *ast.ForStatementNode) (code vmgen.
 
 	code.Concat(init)
 	code.Add("JUMPDEST")
+	top := code.Length()
 	code.Concat(cond)
+	code.Concat(e.pushMarker(block.Length() + post.Length() + 1))
 	code.Add("JUMPI")
 	code.Concat(block)
 	code.Concat(post)
+	bottom := code.Length()
+	code.Concat(e.pushMarker(bottom - top))
 	code.Add("JUMP")
+	code.Add("JUMPDEST")
 
 	return code
 }
 
-func increment(varName string) (code vmgen.Bytecode) {
+func (evm *GuardianEVM) increment(varName string) (code vmgen.Bytecode) {
 
-	code.Concat(pusher([]byte(name)...)
+	code.Concat(evm.push([]byte(varName)))
 	code.Add("DUP1")
 	code.Add("MLOAD")
-	code.Concat(pusher(1))
+	code.Concat(evm.push(uintAsBytes(1)))
 	code.Add("ADD")
 	code.Add("MSTORE")
+	return code
 }
 
 func (e *GuardianEVM) traverseForEachStatement(n *ast.ForEachStatementNode) (code vmgen.Bytecode) {
@@ -72,7 +80,7 @@ func (e *GuardianEVM) traverseForEachStatement(n *ast.ForEachStatementNode) (cod
 	switch n.ResolvedType {
 	case typing.Array:
 		// TODO: index size must be large enough for any vars
-		name := n.Variables[0])
+		name := n.Variables[0]
 		e.allocateMemory(name, 10)
 		memloc := e.lookupMemory(name).offset
 		increment := increment(name)
@@ -87,7 +95,7 @@ func (e *GuardianEVM) traverseForEachStatement(n *ast.ForEachStatementNode) (cod
 		code.Add("LT")
 		code.AddMarked(pusher(1 + len(increment) + len(body)))
 		code.Add("JUMPI")
-		
+
 		code.Concat(block)
 		code.Concat(increment)
 
@@ -96,8 +104,7 @@ func (e *GuardianEVM) traverseForEachStatement(n *ast.ForEachStatementNode) (cod
 	case typing.Map:
 		break
 	}
-	if n.Variables
-
+	return code
 }
 
 func (e *GuardianEVM) traverseReturnStatement(n *ast.ReturnStatementNode) (code vmgen.Bytecode) {
@@ -112,11 +119,11 @@ func (e *GuardianEVM) traverseReturnStatement(n *ast.ReturnStatementNode) (code 
 func (e *GuardianEVM) traverseIfStatement(n *ast.IfStatementNode) (code vmgen.Bytecode) {
 	for _, c := range n.Conditions {
 		cond := e.traverse(c.Condition)
-		block = e.traverse(c.Body)
+		block := e.traverse(c.Body)
 		code.Concat(cond)
-		code.Concat("ISZERO")
-		code.AddMarked("PUSH", code.MarkOffset(len(block)+1))
-		code.Concat("JUMPI")
+		code.Add("ISZERO")
+		code.Concat(e.pushMarker(block.Length() + 1))
+		code.Add("JUMPI")
 		code.Concat(block)
 	}
 

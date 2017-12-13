@@ -21,18 +21,11 @@ type GuardianEVM struct {
 	callables          []callable
 	lastSlot           uint
 	lastOffset         uint
-	storage            map[string]storageBlock
+	storage            map[string]*storageBlock
+	freedMemory        []*memoryBlock
 	memoryCursor       uint
-	memory             map[string]memoryBlock
+	memory             map[string]*memoryBlock
 	currentlyAssigning string
-}
-
-func (e *GuardianEVM) pusher(data ...byte) (code vmgen.Bytecode) {
-	if len(data) > 32 {
-		// problemo
-	} else {
-		code.Add("PUSH"+strconv.Itoa(len(data)), data)
-	}
 }
 
 type storageBlock struct {
@@ -51,7 +44,7 @@ const (
 	wordSize = uint(256)
 )
 
-func (s storageBlock) retrive() (code vmgen.Bytecode) {
+func (s storageBlock) retrieve() (code vmgen.Bytecode) {
 	if s.size > wordSize {
 		// over at least 2 slots
 		first := wordSize - s.offset
@@ -124,24 +117,49 @@ func (m memoryBlock) store() (code vmgen.Bytecode) {
 	return code
 }
 
+func (evm *GuardianEVM) freeMemory(name string) {
+	m, ok := evm.memory[name]
+	if ok {
+		if evm.freedMemory == nil {
+			evm.freedMemory = make([]*memoryBlock, 0)
+		}
+		evm.freedMemory = append(evm.freedMemory, m)
+		evm.memory[name] = nil
+	}
+}
+
 func (evm *GuardianEVM) allocateMemory(name string, size uint) {
 	if evm.memory == nil {
-		evm.memory = make(map[string]memoryBlock)
+		evm.memory = make(map[string]*memoryBlock)
 	}
+	// try to use previously reclaimed memory
+	if evm.freedMemory != nil {
+		for i, m := range evm.freedMemory {
+			if m.size >= size {
+				// we can use this block
+				evm.memory[name] = m
+				// remove it from the freed list
+				// TODO: check remove function
+				evm.freedMemory = append(evm.freedMemory[i:], evm.freedMemory[:i]...)
+				return
+			}
+		}
+	}
+
 	block := memoryBlock{
 		size:   size,
 		offset: evm.memoryCursor,
 	}
 	evm.memoryCursor += size
-	evm.memory[name] = block
+	evm.memory[name] = &block
 }
 
 func (evm *GuardianEVM) allocateStorage(name string, size uint) {
-	// TODO: check whether there's a way to using some bin packing algo
+	// TODO: check whether there's a way to reduce storage using some weird bin packing algo
 	// with a modified heuristic to reduce the cost of extracting variables using bitshifts
 	// maybe?
 	if evm.storage == nil {
-		evm.storage = make(map[string]storageBlock)
+		evm.storage = make(map[string]*storageBlock)
 	}
 	block := storageBlock{
 		size:   size,
@@ -153,14 +171,38 @@ func (evm *GuardianEVM) allocateStorage(name string, size uint) {
 		evm.lastSlot += 1
 	}
 	evm.lastOffset += size
-	evm.storage[name] = block
+	evm.storage[name] = &block
 }
 
-func (evm *GuardianEVM) lookupStorage(name string) storageBlock {
+func (evm *GuardianEVM) lookupStorage(name string) *storageBlock {
 	if evm.storage == nil {
-
+		return nil
 	}
 	return evm.storage[name]
+}
+
+func (evm *GuardianEVM) lookupMemory(name string) *memoryBlock {
+	if evm.memory == nil {
+		return nil
+	}
+	return evm.memory[name]
+}
+
+func (evm *GuardianEVM) push(data []byte) (code vmgen.Bytecode) {
+	if len(data) > 32 {
+		// TODO: error
+	}
+	m := "PUSH" + strconv.Itoa(len(data))
+	code.Add(m, data...)
+	return code
+}
+
+// support all offsets which can be stored in a 64 bit integer
+// TODO: should this be 256?
+func (evm *GuardianEVM) pushMarker(offset int) (code vmgen.Bytecode) {
+	//TODO: fix
+	code.AddMarker("PUSH"+strconv.Itoa(8), offset)
+	return code
 }
 
 func (evm GuardianEVM) Builtins() *ast.ScopeNode {

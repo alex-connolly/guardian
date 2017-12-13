@@ -76,7 +76,7 @@ func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
 	for !p.parseOptional(lexer.TknCloseBrace) {
 
 		if !p.isFuncType() {
-			p.addError("Everything in an interface must be a func type")
+			p.addError(errInvalidInterfaceProperty)
 			//p.parseConstruct()
 			p.next()
 		} else {
@@ -113,7 +113,7 @@ func (p *Parser) parseEnumBody() []string {
 			if p.current().Type == lexer.TknIdentifier {
 				enums = append(enums, p.parseIdentifier())
 			} else {
-				p.addError("Everything in an enum must be an identifier")
+				p.addError(errInvalidEnumProperty)
 			}
 		}
 
@@ -485,7 +485,7 @@ func (p *Parser) parseFuncTypeParameters() []ast.Node {
 			if isExplicitVarDeclaration(p) {
 				params = append(params, p.parseVarDeclaration())
 			} else if p.isNextAType() {
-				p.addError("Mixed named and unnamed parameters")
+				p.addError(errMixedNamedParameters)
 				p.parseType()
 			} else {
 				// TODO: add error
@@ -515,7 +515,7 @@ func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 	if p.nextTokens(lexer.TknInteger) {
 		i, err := strconv.ParseInt(p.current().String(), 10, 64)
 		if err != nil {
-			p.addError("Invalid array size")
+			p.addError(errInvalidArraySize)
 		}
 		max = int(i)
 		p.next()

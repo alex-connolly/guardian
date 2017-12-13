@@ -31,15 +31,15 @@ contract Ballot {
     }
 
     external func giveRightToVote(voter address){
-        enforce(msg.sender == chairperson)
-        enforce(!voters[voter].voted)
-        enforce(voters[voter].weight == 0)
+        assert(msg.sender == chairperson)
+        assert(!voters[voter].voted)
+        assert(voters[voter].weight == 0)
         voters[voter].weight  = 1
     }
 
     external func vote(proposal uint) {
         storage sender := voters[msg.sender]
-        enforce(!sender.voted)
+        assert(!sender.voted)
 
         sender.voted = true
         sender.vote = proposal
@@ -62,12 +62,12 @@ contract Ballot {
     external func delegate(to address){
 
         storage sender := voters[msg.sender]
-        enforce(!sender.voted)
-        enforce(to != msg.sender)
+        assert(!sender.voted)
+        assert(to != msg.sender)
 
         for voters[to].delegate != 0 as address {
             to = voters[to].delegate
-            enforce(to != msg.sender)
+            assert(to != msg.sender)
         }
 
         sender.vote = true

@@ -11,7 +11,7 @@ contract Purchase {
     constructor(){
         seller = msg.sender
         value = msg.value / 2
-        enforce((2 * value) == msg.value)
+        assert((2 * value) == msg.value)
     }
 
     event Aborted()
@@ -19,16 +19,16 @@ contract Purchase {
     event ItemReceived()
 
     external func abort(){
-        enforce(msg.sender == seller)
-        enforce(state == State.Created)
+        assert(msg.sender == seller)
+        assert(state == State.Created)
         Aborted()
         state = State.Inactive
         transfer(seller, this.balance)
     }
 
     external func confirmPurchase(){
-        enforce(state == State.Created)
-        enforce(msg.value == (2 * value))
+        assert(state == State.Created)
+        assert(msg.value == (2 * value))
 
         PurchaseConfirmed()
         buyer = msg.sender
@@ -36,8 +36,8 @@ contract Purchase {
     }
 
     external func confirmReceived() {
-        enforce(msg.sender == buyer)
-        enforce(state == State.Locked)
+        assert(msg.sender == buyer)
+        assert(state == State.Locked)
         ItemReceived()
         state = State.Inactive
         transfer(buyer, value)

@@ -21,11 +21,11 @@ contract BlindAuction {
     event AuctionEnded(winner address, highestBid uint)
 
     internal func onlyBefore(time uint){
-        enforce(now() < time)
+        assert(now() < time)
     }
 
     internal func onlyAfter(time uint){
-        enforce(now() > time)
+        assert(now() > time)
     }
 
     constructor(biddingTime, revealTime uint, beneficiary address){
@@ -49,9 +49,9 @@ contract BlindAuction {
 
         length := bids[msg.sender].length
 
-        enforce(values.length == length)
-        enforce(fake.length == length)
-        enforce(secret.length == length)
+        assert(values.length == length)
+        assert(fake.length == length)
+        assert(secret.length == length)
 
         refund uint
         for i := 0; i < length; i++ {
@@ -95,7 +95,7 @@ contract BlindAuction {
 
     func auctionEnd(){
         onlyAfter(revealEnd)
-        enforce(!ended)
+        assert(!ended)
         AuctionEnded(highestBidder, highestBid)
         ended = true
         transfer(beneficiary, this.balance)
