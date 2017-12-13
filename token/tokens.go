@@ -14,11 +14,11 @@ type Byterable interface {
 }
 
 func isEnd(b Byterable) bool {
-	return !hasBytes(b, 1)
+	return b.Offset() >= len(b.Bytes())
 }
 
 func hasBytes(b Byterable, l int) bool {
-	return b.Offset()+l < len(b.Bytes())
+	return b.Offset()+l <= len(b.Bytes())
 }
 
 func current(b Byterable) byte {
@@ -370,6 +370,7 @@ func (t Token) Name() string {
 	return t.Proto.Name
 }
 
+// Finalise ...
 func (t *Token) Finalise(b Byterable) {
 	t.Data = make([]byte, t.End-t.Start)
 	copy(t.Data, b.Bytes()[t.Start:t.End])
