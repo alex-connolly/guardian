@@ -243,7 +243,11 @@ func isKeywordGroup(p *Parser) bool {
 
 	return p.preserveState(func(p *Parser) bool {
 
-		for p.parseOptional(append(token.GetModifiers(), token.GetDeclarations()...)...) {
+		possibles := token.GetModifiers()
+
+		possibles = append(possibles, token.Class, token.Interface, token.Enum, token.Contract)
+
+		for p.parseOptional(possibles...) {
 		}
 		return p.parseOptional(token.OpenBracket)
 	})

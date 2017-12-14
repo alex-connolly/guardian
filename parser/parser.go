@@ -141,6 +141,20 @@ func parseKeywordGroup(p *Parser) {
 	p.keywords = old
 }
 
+func parseModifier(p *Parser) {
+	for p.current().Type.IsModifier() {
+		p.keywords = append(p.keywords, p.current().Type)
+		p.next()
+	}
+	if p.current().Type == token.OpenBracket {
+		p.parseGroup()
+	}
+}
+
+func (p *Parser) parseGroup() {
+	p.parseEnclosedScope(token.OpenBracket, token.CloseBracket)
+}
+
 func (p *Parser) addError(message string) {
 	err := util.Error{
 		Message:    message,

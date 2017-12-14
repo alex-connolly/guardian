@@ -30,31 +30,28 @@ func (p *Parser) parseKeywords(targets ...token.Type) []token.Type {
 
 func parseInterfaceDeclaration(p *Parser) {
 
-	keywords := p.parseKeywords(token.Interface)
+	p.parseGroupable(token.Interface, func(p *Parser) {
+		p.parseRequired(token.Interface)
+		identifier := p.parseIdentifier()
 
-	if p.keywords != nil {
-		keywords = append(keywords, p.keywords...)
-	}
+		var inherits []*ast.PlainTypeNode
 
-	p.parseRequired(token.Interface)
-	identifier := p.parseIdentifier()
+		if p.parseOptional(token.Inherits) {
+			inherits = p.parsePlainTypeList()
+		}
 
-	var inherits []*ast.PlainTypeNode
+		signatures := p.parseInterfaceSignatures()
 
-	if p.parseOptional(token.Inherits) {
-		inherits = p.parsePlainTypeList()
-	}
+		node := ast.InterfaceDeclarationNode{
+			Identifier: identifier,
+			Supers:     inherits,
+			Modifiers:  p.keywords,
+			Signatures: signatures,
+		}
 
-	signatures := p.parseInterfaceSignatures()
+		p.scope.AddDeclaration(identifier, &node)
+	})
 
-	node := ast.InterfaceDeclarationNode{
-		Identifier: identifier,
-		Supers:     inherits,
-		Modifiers:  keywords,
-		Signatures: signatures,
-	}
-
-	p.scope.AddDeclaration(identifier, &node)
 }
 
 func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
@@ -129,31 +126,29 @@ func (p *Parser) parseEnumBody() []string {
 
 func parseEnumDeclaration(p *Parser) {
 
-	keywords := p.parseKeywords(token.Enum)
+	p.parseGroupable(token.Enum, func(p *Parser) {
 
-	if p.keywords != nil {
-		keywords = append(keywords, p.keywords...)
-	}
+		p.parseRequired(token.Enum)
+		identifier := p.parseIdentifier()
 
-	p.parseRequired(token.Enum)
-	identifier := p.parseIdentifier()
+		var inherits []*ast.PlainTypeNode
 
-	var inherits []*ast.PlainTypeNode
+		if p.parseOptional(token.Inherits) {
+			inherits = p.parsePlainTypeList()
+		}
 
-	if p.parseOptional(token.Inherits) {
-		inherits = p.parsePlainTypeList()
-	}
+		enums := p.parseEnumBody()
 
-	enums := p.parseEnumBody()
+		node := ast.EnumDeclarationNode{
+			Modifiers:  p.keywords,
+			Identifier: identifier,
+			Inherits:   inherits,
+			Enums:      enums,
+		}
 
-	node := ast.EnumDeclarationNode{
-		Modifiers:  keywords,
-		Identifier: identifier,
-		Inherits:   inherits,
-		Enums:      enums,
-	}
+		p.scope.AddDeclaration(identifier, &node)
+	})
 
-	p.scope.AddDeclaration(identifier, &node)
 }
 
 func (p *Parser) parsePlainType() *ast.PlainTypeNode {
@@ -181,16 +176,7 @@ func (p *Parser) parsePlainTypeList() []*ast.PlainTypeNode {
 	return refs
 }
 
-func parseClassDeclaration(p *Parser) {
-
-	keywords := p.parseKeywords(token.Class)
-
-	if p.keywords != nil {
-		keywords = append(keywords, p.keywords...)
-	}
-
-	p.parseRequired(token.Class)
-
+func parseClassBody(p *Parser) {
 	identifier := p.parseIdentifier()
 
 	// is and inherits can be in any order
@@ -215,22 +201,18 @@ func parseClassDeclaration(p *Parser) {
 		Identifier: identifier,
 		Supers:     inherits,
 		Interfaces: interfaces,
-		Modifiers:  keywords,
+		Modifiers:  p.keywords,
 		Body:       body,
 	}
 
 	p.scope.AddDeclaration(identifier, &node)
 }
 
-func parseContractDeclaration(p *Parser) {
+func parseClassDeclaration(p *Parser) {
+	p.parseGroupable(token.Class, parseClassBody)
+}
 
-	keywords := p.parseKeywords(token.Contract)
-
-	if p.keywords != nil {
-		keywords = append(keywords, p.keywords...)
-	}
-
-	p.parseRequired(token.Contract)
+func parseContractBody(p *Parser) {
 	identifier := p.parseIdentifier()
 
 	// is and inherits can be in any order
@@ -262,11 +244,26 @@ func parseContractDeclaration(p *Parser) {
 		Identifier: identifier,
 		Supers:     inherits,
 		Interfaces: interfaces,
-		Modifiers:  keywords,
+		Modifiers:  p.keywords,
 		Body:       body,
 	}
 
 	p.scope.AddDeclaration(identifier, &node)
+}
+
+func parseContractDeclaration(p *Parser) {
+	p.parseGroupable(token.Contract, parseContractBody)
+}
+
+func (p *Parser) parseGroupable(dec token.Type, f func(*Parser)) {
+	p.parseRequired(dec)
+	if p.parseOptional(token.OpenBracket) {
+		for !p.parseOptional(token.CloseBracket) {
+			f(p)
+		}
+	} else {
+		f(p)
+	}
 }
 
 func (p *Parser) parseType() ast.Node {
@@ -409,24 +406,19 @@ func parseLifecycleDeclaration(p *Parser) {
 
 func parseTypeDeclaration(p *Parser) {
 
-	keywords := p.parseKeywords(token.Identifier)
+	p.parseGroupable(token.KWType, func(p *Parser) {
+		identifier := p.parseIdentifier()
 
-	if p.keywords != nil {
-		keywords = append(keywords, p.keywords...)
-	}
+		value := p.parseType()
 
-	p.parseRequired(token.KWType)
-	identifier := p.parseIdentifier()
+		n := ast.TypeDeclarationNode{
+			Modifiers:  p.keywords,
+			Identifier: identifier,
+			Value:      value,
+		}
 
-	value := p.parseType()
-
-	n := ast.TypeDeclarationNode{
-		Modifiers:  keywords,
-		Identifier: identifier,
-		Value:      value,
-	}
-
-	p.scope.AddDeclaration(identifier, &n)
+		p.scope.AddDeclaration(identifier, &n)
+	})
 }
 
 func (p *Parser) parseMapType() *ast.MapTypeNode {

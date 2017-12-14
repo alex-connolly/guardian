@@ -273,3 +273,50 @@ func TestIsFuncType(t *testing.T) {
 	goutil.Assert(t, p.isFuncType(), "second func type not recognised")
 
 }
+
+func TestIsKeywordGroup(t *testing.T) {
+	p := createParser(`
+		public (
+
+		)
+	`)
+	goutil.Assert(t, isKeywordGroup(p), "keyword group not recognised")
+}
+
+func TestIsNotKeywordGroup(t *testing.T) {
+	p := createParser(`
+		constructor(){
+
+		}
+	`)
+	goutil.Assert(t, !isKeywordGroup(p), "constructor recognised")
+
+	p = createParser(`
+		constructor(name string){
+
+	    }
+	`)
+	goutil.Assert(t, !isKeywordGroup(p), "constructor recognised")
+
+	p = createParser(`
+		constructor(id uint64){
+
+	    }
+	`)
+	goutil.Assert(t, !isKeywordGroup(p), "constructor recognised")
+
+	p = createParser(`
+		constructor(name, name2 string){
+
+	    }
+	`)
+	goutil.Assert(t, !isKeywordGroup(p), "constructor recognised")
+
+	p = createParser(`
+		constructor(name int, name2 string){
+
+	    }
+	`)
+	goutil.Assert(t, !isKeywordGroup(p), "constructor recognised")
+
+}
