@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"axia/guardian/typing"
+	"github.com/end-r/guardian/typing"
 
 	"github.com/end-r/goutil"
 )
