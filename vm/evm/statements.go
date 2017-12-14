@@ -31,7 +31,7 @@ func (e *GuardianEVM) traverseForStatement(n *ast.ForStatementNode) (code vmgen.
 	// jump to end
 	// regular loop processes would occur here
 	// post statement
-	// jump back to them top of the loop
+	// jump back to the top of the loop
 	// jumpdest
 	// continue after the loop
 
@@ -111,21 +111,33 @@ func (e *GuardianEVM) traverseForEachStatement(n *ast.ForEachStatementNode) (cod
 func (e *GuardianEVM) traverseReturnStatement(n *ast.ReturnStatementNode) (code vmgen.Bytecode) {
 	for _, r := range n.Results {
 		// leave each of them on the stack in turn
-		e.traverse(r)
+		code.Concat(e.traverse(r))
 	}
 	// jump back to somewhere
+	// top of stack should now be return address
+	code.Add("JUMP")
 	return code
 }
 
 func (e *GuardianEVM) traverseIfStatement(n *ast.IfStatementNode) (code vmgen.Bytecode) {
+	conds := make([]vmgen.Bytecode, len(n.Conditions))
+	blocks := make([]vmgen.Bytecode, len(n.Conditions))
+	end := 0
 	for _, c := range n.Conditions {
-		cond := e.traverse(c.Condition)
-		block := e.traverse(c.Body)
-		code.Concat(cond)
+		cond := .traverse(c.Condition)
+		conds = append(conds, cond)
+		body := e.traverse(c.Body)
+		blocks = append(blocks, body)
+		end += cond.Length() + body.Length() + 3 + 1
+	}
+
+	for i := range n.Conditions {
+		code.Concat(conds[i])
 		code.Add("ISZERO")
-		code.Concat(e.pushMarker(block.Length() + 1))
+		code.Concat(e.pushMarker(blocks[i].Length() + 1))
 		code.Add("JUMPI")
-		code.Concat(block)
+		code.Concat(blocks[i])
+		code.Concat(e.pushMarker(end))
 	}
 
 	code.Concat(e.traverse(n.Else))

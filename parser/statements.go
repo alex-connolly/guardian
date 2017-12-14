@@ -7,7 +7,6 @@ import (
 
 	"github.com/blang/semver"
 	"github.com/end-r/guardian/ast"
-	"github.com/end-r/guardian/lexer"
 )
 
 func parseReturnStatement(p *Parser) {
@@ -46,7 +45,7 @@ func (p *Parser) parseSimpleAssignment() ast.AssignmentStatementNode {
 		assigned = append(assigned, p.parseSimpleExpression())
 	}
 
-	if !p.parseOptional(lexer.GetAssignments()...) {
+	if !p.parseOptional(token.GetAssignments()...) {
 		if p.parseOptional(token.Increment, token.Decrement) {
 			return ast.AssignmentStatementNode{
 				Modifiers: modifiers,
@@ -79,7 +78,7 @@ func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 		assigned = append(assigned, p.parseExpression())
 	}
 
-	if !p.parseOptional(lexer.GetAssignments()...) {
+	if !p.parseOptional(token.GetAssignments()...) {
 		if p.parseOptional(token.Increment, token.Decrement) {
 			return ast.AssignmentStatementNode{
 				Modifiers: modifiers,

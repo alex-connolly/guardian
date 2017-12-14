@@ -87,9 +87,8 @@ func (p *Parser) parseRequired(types ...token.Type) token.Type {
 
 func listTypes(types []token.Type) string {
 	s := ""
-	for _, t := range types {
-		s += t.String()
-	}
+
+	return s
 }
 
 func (p *Parser) parseIdentifier() string {

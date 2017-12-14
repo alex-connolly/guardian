@@ -16,6 +16,8 @@ type BinaryExpressionNode struct {
 // Type ...
 func (n *BinaryExpressionNode) Type() NodeType { return BinaryExpression }
 
+func (n *BinaryExpressionNode) ResolvedType() typing.Type { return n.Resolved }
+
 // UnaryExpressionNode ...
 type UnaryExpressionNode struct {
 	Operator token.Type
@@ -25,6 +27,8 @@ type UnaryExpressionNode struct {
 
 func (n *UnaryExpressionNode) Type() NodeType { return UnaryExpression }
 
+func (n *UnaryExpressionNode) ResolvedType() typing.Type { return n.Resolved }
+
 type LiteralNode struct {
 	Data        string
 	LiteralType token.Type
@@ -32,6 +36,8 @@ type LiteralNode struct {
 }
 
 func (n *LiteralNode) Type() NodeType { return Literal }
+
+func (n *LiteralNode) ResolvedType() typing.Type { return n.Resolved }
 
 func (n *LiteralNode) GetBytes() []byte {
 	return []byte(n.Data)
@@ -45,6 +51,8 @@ type CompositeLiteralNode struct {
 
 func (n *CompositeLiteralNode) Type() NodeType { return CompositeLiteral }
 
+func (n *CompositeLiteralNode) ResolvedType() typing.Type { return n.Resolved }
+
 type IndexExpressionNode struct {
 	Expression ExpressionNode
 	Index      ExpressionNode
@@ -52,6 +60,8 @@ type IndexExpressionNode struct {
 }
 
 func (n *IndexExpressionNode) Type() NodeType { return IndexExpression }
+
+func (n *IndexExpressionNode) ResolvedType() typing.Type { return n.Resolved }
 
 type SliceExpressionNode struct {
 	Expression ExpressionNode
@@ -62,6 +72,8 @@ type SliceExpressionNode struct {
 
 func (n *SliceExpressionNode) Type() NodeType { return SliceExpression }
 
+func (n *SliceExpressionNode) ResolvedType() typing.Type { return n.Resolved }
+
 type CallExpressionNode struct {
 	Call      ExpressionNode
 	Arguments []ExpressionNode
@@ -69,6 +81,8 @@ type CallExpressionNode struct {
 }
 
 func (n *CallExpressionNode) Type() NodeType { return CallExpression }
+
+func (n *CallExpressionNode) ResolvedType() typing.Type { return n.Resolved }
 
 type ArrayLiteralNode struct {
 	Signature *ArrayTypeNode
@@ -78,6 +92,8 @@ type ArrayLiteralNode struct {
 
 func (n *ArrayLiteralNode) Type() NodeType { return ArrayLiteral }
 
+func (n *ArrayLiteralNode) ResolvedType() typing.Type { return n.Resolved }
+
 type MapLiteralNode struct {
 	Signature *MapTypeNode
 	Data      map[ExpressionNode]ExpressionNode
@@ -85,6 +101,8 @@ type MapLiteralNode struct {
 }
 
 func (n *MapLiteralNode) Type() NodeType { return MapLiteral }
+
+func (n *MapLiteralNode) ResolvedType() typing.Type { return n.Resolved }
 
 type FuncLiteralNode struct {
 	Parameters []*ExplicitVarDeclarationNode
@@ -96,12 +114,16 @@ type FuncLiteralNode struct {
 // Type ...
 func (n *FuncLiteralNode) Type() NodeType { return FuncLiteral }
 
+func (n *FuncLiteralNode) ResolvedType() typing.Type { return n.Resolved }
+
 type IdentifierNode struct {
 	Name     string
 	Resolved typing.Type
 }
 
 func (n *IdentifierNode) Type() NodeType { return Identifier }
+
+func (n *IdentifierNode) ResolvedType() typing.Type { return n.Resolved }
 
 type ReferenceNode struct {
 	Parent    ExpressionNode
@@ -110,3 +132,5 @@ type ReferenceNode struct {
 }
 
 func (n *ReferenceNode) Type() NodeType { return Reference }
+
+func (n *ReferenceNode) ResolvedType() typing.Type { return n.Resolved }

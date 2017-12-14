@@ -279,6 +279,10 @@ func (e *GuardianEVM) traverseIdentifier(n *ast.IdentifierNode) (code vmgen.Byte
 func (e *GuardianEVM) traverseReference(n *ast.ReferenceNode) (code vmgen.Bytecode) {
 	code.Concat(e.traverse(n.Parent))
 
+	resolved := n.Parent.Resolved()
+
+	code.Concat(e.traverseContextual(resolved, n.Reference))
+
 	if e.inStorage() {
 		code.Add("SLOAD")
 	} else {

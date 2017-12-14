@@ -1,6 +1,10 @@
 package ast
 
-import "github.com/end-r/goutil"
+import (
+	"axia/guardian/typing"
+
+	"github.com/end-r/goutil"
+)
 
 // Node interface for storage in AST
 type Node interface {
@@ -9,6 +13,7 @@ type Node interface {
 
 type ExpressionNode interface {
 	Node
+	Resolved() typing.Type
 }
 
 type DeclarationNode interface {

@@ -4,7 +4,6 @@ import (
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/ast"
-	"github.com/end-r/guardian/lexer"
 )
 
 func isNewLine(p *Parser) bool {
@@ -17,7 +16,7 @@ func isExplicitVarDeclaration(p *Parser) bool {
 		return false
 	}
 	saved := *p
-	for p.parseOptional(lexer.GetModifiers()...) {
+	for p.parseOptional(token.GetModifiers()...) {
 	}
 	if !p.parseOptional(token.Identifier) {
 		*p = saved
@@ -124,7 +123,7 @@ func isInterfaceDeclaration(p *Parser) bool {
 }
 
 func isLifecycleDeclaration(p *Parser) bool {
-	return p.modifiersUntilToken(lexer.GetLifecycles()...)
+	return p.modifiersUntilToken(token.GetLifecycles()...)
 }
 
 func isEnumDeclaration(p *Parser) bool {
@@ -155,7 +154,7 @@ func isEventDeclaration(p *Parser) bool {
 }
 
 func isTypeDeclaration(p *Parser) bool {
-	return p.modifiersUntilToken(token.Type)
+	return p.modifiersUntilToken(token.KWType)
 }
 
 func isForStatement(p *Parser) bool {
@@ -168,7 +167,7 @@ func isIfStatement(p *Parser) bool {
 
 func isAssignmentStatement(p *Parser) bool {
 	return p.preserveState(func(p *Parser) bool {
-		for p.parseOptional(lexer.GetModifiers()...) {
+		for p.parseOptional(token.GetModifiers()...) {
 		}
 		expr := p.parseExpression()
 		if expr == nil {
@@ -193,7 +192,7 @@ func (p *Parser) preserveState(a func(p *Parser) bool) bool {
 func isSimpleAssignmentStatement(p *Parser) bool {
 
 	return p.preserveState(func(p *Parser) bool {
-		for p.parseOptional(lexer.GetModifiers()...) {
+		for p.parseOptional(token.GetModifiers()...) {
 		}
 		expr := p.parseSimpleExpression()
 		if expr == nil {
@@ -244,7 +243,7 @@ func isKeywordGroup(p *Parser) bool {
 
 	return p.preserveState(func(p *Parser) bool {
 
-		for p.parseOptional(append(lexer.GetModifiers(), lexer.GetDeclarations()...)...) {
+		for p.parseOptional(append(token.GetModifiers(), token.GetDeclarations()...)...) {
 		}
 		return p.parseOptional(token.OpenBracket)
 	})

@@ -1,9 +1,9 @@
 package evm
 
 import (
-	"github.com/end-r/vmgen"
+	"axia/guardian/token"
 
-	"github.com/end-r/guardian/lexer"
+	"github.com/end-r/vmgen"
 
 	"github.com/end-r/guardian/ast"
 )
@@ -18,6 +18,9 @@ func (e *GuardianEVM) traverseClass(n *ast.ClassDeclarationNode) (code vmgen.Byt
 	// create function hooks
 	for _, d := range n.Body.Declarations.Map() {
 		switch a := d.(type) {
+		case ast.ExplicitVarDeclarationNode:
+			e.traverseExplicitVarDecl(n)
+			break
 		case ast.LifecycleDeclarationNode:
 			e.addLifecycleHook(n.Identifier, a)
 			break
@@ -100,6 +103,7 @@ func (e *GuardianEVM) traverseEvent(n *ast.EventDeclarationNode) (code vmgen.Byt
 	e.addHook(hook)
 
 	code.Add("JUMPDEST")
+	code.Add("LOG")
 	return code
 }
 
@@ -110,7 +114,7 @@ func (e *GuardianEVM) traverseParameters(params []*ast.ExplicitVarDeclarationNod
 		// default: memory, can be overriden to be storage
 		// check if it's in storage
 		for _, m := range p.Modifiers {
-			if m == lexer.TknStorage {
+			if m == token.Storage {
 				storage = true
 			}
 		}
@@ -149,7 +153,7 @@ func (e *GuardianEVM) traverseFunc(n *ast.FuncDeclarationNode) (code vmgen.Bytec
 
 func (e *GuardianEVM) traverseExplicitVarDecl(n *ast.ExplicitVarDeclarationNode) (code vmgen.Bytecode) {
 	// variable declarations don't require storage (yet), just have to designate a slot
-	storage := e.inStorage() || hasModifier(n.Modifiers, lexer.TknStorage)
+	storage := e.inStorage() || hasModifier(n.Modifiers, token.Storage)
 	for _, id := range n.Identifiers {
 		if storage {
 			e.allocateStorage(id, n.Resolved.Size())
