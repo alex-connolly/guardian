@@ -13,7 +13,7 @@ type Node interface {
 
 type ExpressionNode interface {
 	Node
-	Resolved() typing.Type
+	ResolvedType() typing.Type
 }
 
 type DeclarationNode interface {
