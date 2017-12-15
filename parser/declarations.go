@@ -277,11 +277,14 @@ func (p *Parser) parseVarDeclaration() *ast.ExplicitVarDeclarationNode {
 func (p *Parser) parseParameters() []*ast.ExplicitVarDeclarationNode {
 	var params []*ast.ExplicitVarDeclarationNode
 	p.parseRequired(token.OpenBracket)
+	p.ignoreNewLines()
 	if !p.parseOptional(token.CloseBracket) {
 		params = append(params, p.parseVarDeclaration())
 		for p.parseOptional(token.Comma) {
+			p.ignoreNewLines()
 			params = append(params, p.parseVarDeclaration())
 		}
+		p.ignoreNewLines()
 		p.parseRequired(token.CloseBracket)
 	}
 	return params

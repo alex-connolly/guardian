@@ -95,7 +95,7 @@ func GetModifiers() []Type {
 
 // GetLifecycles ....
 func GetLifecycles() []Type {
-	return []Type{Constructor, Destructor}
+	return []Type{Constructor, Destructor, Fallback}
 }
 
 // GetAssignments ...

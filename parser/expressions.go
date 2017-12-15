@@ -257,7 +257,9 @@ func (p *Parser) parseCallExpression(expr ast.ExpressionNode) *ast.CallExpressio
 	n.Call = expr
 	p.parseRequired(token.OpenBracket)
 	if !p.parseOptional(token.CloseBracket) {
+		p.ignoreNewLines()
 		n.Arguments = p.parseExpressionList()
+		p.ignoreNewLines()
 		p.parseRequired(token.CloseBracket)
 	}
 	return n
@@ -317,6 +319,7 @@ func (p *Parser) parseMapLiteral() *ast.MapLiteralNode {
 func (p *Parser) parseExpressionList() (list []ast.ExpressionNode) {
 	list = append(list, p.parseExpression())
 	for p.parseOptional(token.Comma) {
+		p.ignoreNewLines()
 		list = append(list, p.parseExpression())
 	}
 	return list

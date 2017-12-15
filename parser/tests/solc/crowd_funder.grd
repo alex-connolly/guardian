@@ -1,0 +1,150 @@
+package solidity at 0.0.1
+
+contract CrowdFunder {
+
+    public (
+        creator address
+        fundRecipient address // creator may be different than recipient
+        minimum uint // required to reach at least this much, else everyone gets refund
+    )
+
+    url string
+    const (
+        version = 1 as byte
+    )
+
+    // Data structures
+    enum State {
+        Fundraising,
+        ExpiredRefund,
+        Successful,
+        Closed
+    }
+
+    class Contribution {
+        amount uint
+        contributor address
+    }
+
+    // State variables
+    public (
+        state = State.Fundraising  // initialize on create
+        totalRaised uint
+        currentBalance uint
+        raiseBy uint
+        completeAt uint
+    )
+
+    contributions []Contribution
+
+    event LogFundingReceived(addr address, amount uint, currentTotal uint)
+    event LogWinnerPaid(winnerAddress address)
+    event LogFunderInitialized(
+        creator address,
+        fundRecipient address,
+        url string,
+        minRaise uint,
+        raiseby uint
+    )
+
+    func inState(s State){
+        require(state == s)
+    }
+
+    func isCreator(){
+        require(msg.sender == creator)
+    }
+
+    // Wait 1 hour after final contract state before allowing contract destruction
+    func atEndOfLifecycle(){
+        require(state == State.ExpiredRefund or state == State.Successful)
+        require(completeAt + 60 < now)
+    }
+
+    constructor(timeInHoursForFundraising uint, campaignUrl string,
+        recipient address, minRaise uint) {
+
+        creator = msg.sender
+        fundRecipient = recipient
+        minimumToRaise = minRaise * 1000000000000000000 // convert to wei
+        raiseBy = now + timeInHoursForFundraising * 60
+        currentBalance = 0
+        LogFunderInitialized(
+            creator,
+            fundRecipient,
+            campaignUrl,
+            minimumToRaise,
+            raiseBy
+        )
+    }
+
+    public func contribute() uint {
+        inState(State.Fundraising)
+        contributions.push(
+            Contribution{
+                amount: msg.value,
+                contributor: msg.sender,
+            }
+        )
+        totalRaised += msg.value
+        currentBalance = totalRaised
+        LogFundingReceived(msg.sender, msg.value, totalRaised)
+
+        checkIfFundingCompleteOrExpired()
+        return contributions.length - 1 // return id
+    }
+
+    public func getRefund(id uint) bool {
+        inState(State.ExpiredRefund)
+        require(len(contributions) > id)
+        require(id >= 0)
+        require(contributions[id].amount != 0)
+
+
+        amountToRefund = contributions[id].amount
+        contributions[id].amount = 0
+
+        if !send(contributions[id].contributor, amountToRefund) {
+            contributions[id].amount = amountToRefund
+            return false
+        } else {
+            totalRaised -= amountToRefund
+            currentBalance = totalRaised
+        }
+        return true
+    }
+
+    func payOut(){
+        inState(State.Successful)
+        if !send(fundRecipient, this.balance) {
+            throw()
+        }
+        state = State.Closed
+        currentBalance = 0
+        LogWinnerPaid(fundRecipient)
+    }
+
+    func checkIfFundingCompleteOrExpired() {
+        if totalRaised > minimumToRaise {
+            state = State.Successful
+            payOut()
+            // could incentivize sender who initiated state change here
+        } elif now > raiseBy {
+            state = State.ExpiredRefund // backers can now collect refunds by calling getRefund(id)
+        }
+        completeAt = now
+    }
+
+    func removeContract(){
+        isCreator()
+        atEndOfLifecycle()
+        selfDestruct(msg.sender)
+    }
+
+    fallback(){
+        throw()
+        // creator gets all money that hasn't be claimed
+    }
+
+
+}

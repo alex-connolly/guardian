@@ -733,7 +733,7 @@ func TestParseReferenceExpressionIndexExpressionComparison(t *testing.T) {
 }
 
 func TestParseFuncLiteralSingleParameter(t *testing.T) {
-	expr := ParseExpression("func(a string) int { return 0 }")
+	expr := ParseExpression("func (a string) int { return 0 }")
 	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
 	goutil.AssertNow(t, expr.Type() == ast.FuncLiteral, "wrong expr type")
 	f := expr.(*ast.FuncLiteralNode)

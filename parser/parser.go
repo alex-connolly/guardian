@@ -164,7 +164,7 @@ func parseGroup(p *Parser) {
 }
 
 func (p *Parser) getModifiers() []token.Type {
-	mods := make([]token.Type, 0)
+	var mods []token.Type
 	for _, m := range p.lastModifiers {
 		mods = append(mods, m)
 	}

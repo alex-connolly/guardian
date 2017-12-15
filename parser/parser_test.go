@@ -56,11 +56,34 @@ func TestParseMultiLineComment(t *testing.T) {
 	p := createParser("/* this is a comment */")
 	goutil.AssertNow(t, p.index == 0, "should start at 0")
 	parseMultiLineComment(p)
-	goutil.AssertNow(t, p.index == 6, "should finish at 6")
+	goutil.AssertNow(t, p.index == len(p.tokens), "should finish at end")
 
 	p = createParser(`/* this is a comment
+
 		*/`)
 	goutil.AssertNow(t, p.index == 0, "should start at 0")
 	parseMultiLineComment(p)
-	goutil.AssertNow(t, p.index == 7, "should finish at 7")
+	goutil.AssertNow(t, p.index == len(p.tokens), "should finish at 7 end")
+
+	p = createParser(`/* this is a comment
+		fadnlkdlf a,s ds'
+
+
+		d'sad
+		sd
+		s
+
+		dsdd
+		a
+
+		dsd
+		s
+		d
+		class Dog {
+			name string
+		}
+		*/`)
+	goutil.AssertNow(t, p.index == 0, "should start at 0")
+	parseMultiLineComment(p)
+	goutil.AssertNow(t, p.index == len(p.tokens), "should finish at end")
 }

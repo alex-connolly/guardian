@@ -49,3 +49,9 @@ func TestParseCreatorGreeter(t *testing.T) {
 	goutil.Assert(t, p != nil, "parser should not be nil")
 	goutil.Assert(t, errs == nil, errs.Format())
 }
+
+func TestParseCrowdFunder(t *testing.T) {
+	p, errs := ParseFile("tests/solc/crowd_funder.grd")
+	goutil.Assert(t, p != nil, "parser should not be nil")
+	goutil.Assert(t, errs == nil, errs.Format())
+}
