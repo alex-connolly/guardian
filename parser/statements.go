@@ -37,7 +37,7 @@ func (p *Parser) parseOptionalAssignment() *ast.AssignmentStatementNode {
 
 func (p *Parser) parseSimpleAssignment() ast.AssignmentStatementNode {
 
-	modifiers := p.parseKeywords(token.Identifier)
+	modifiers := p.parseModifierList()
 
 	var assigned []ast.ExpressionNode
 	assigned = append(assigned, p.parseSimpleExpression())
@@ -70,7 +70,7 @@ func (p *Parser) parseSimpleAssignment() ast.AssignmentStatementNode {
 
 func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 
-	modifiers := p.parseKeywords(token.Identifier)
+	modifiers := p.parseModifierList()
 
 	var assigned []ast.ExpressionNode
 	assigned = append(assigned, p.parseExpression())
@@ -200,7 +200,7 @@ func parseForEachStatement(p *Parser) {
 
 	p.parseRequired(token.In)
 
-	producer := p.parseExpression()
+	producer := p.parseSimpleExpression()
 
 	body := p.parseBracesScope()
 

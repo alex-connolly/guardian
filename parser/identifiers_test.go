@@ -17,49 +17,25 @@ func TestIdentifierSafety(t *testing.T) {
 func TestIsClassDeclaration(t *testing.T) {
 	p := createParser("class Dog {")
 	goutil.Assert(t, isClassDeclaration(p), "class declaration not recognised")
-	p = createParser("abstract class Dog {")
-	goutil.Assert(t, isClassDeclaration(p), "abstract class declaration not recognised")
-	p = createParser("external class Box {")
-	goutil.Assert(t, isClassDeclaration(p), "modifier statement not recognised")
-	p = createParser("abstract external class Box {")
-	goutil.Assert(t, isClassDeclaration(p), "double modifier statement not recognised")
 }
 
 func TestIsInterfaceDeclaration(t *testing.T) {
 	p := createParser("interface Box {")
 	goutil.Assert(t, isInterfaceDeclaration(p), "interface declaration not recognised")
-	p = createParser("abstract interface Box {")
-	goutil.Assert(t, isInterfaceDeclaration(p), "abstract interface declaration not recognised")
-	p = createParser("external interface Box {")
-	goutil.Assert(t, isInterfaceDeclaration(p), "modifier statement not recognised")
-	p = createParser("abstract external interface Box {")
-	goutil.Assert(t, isInterfaceDeclaration(p), "double modifier statement not recognised")
 }
 
 func TestIsContractDeclaration(t *testing.T) {
 	p := createParser("contract Box {")
 	goutil.Assert(t, isContractDeclaration(p), "contract declaration not recognised")
-	p = createParser("abstract contract Box {")
-	goutil.Assert(t, isContractDeclaration(p), "abstract contract declaration not recognised")
-	p = createParser("external func main() (int, int) {")
-	goutil.Assert(t, isFuncDeclaration(p), "modifier statement not recognised")
-	p = createParser("abstract external func main() (int, int) {")
-	goutil.Assert(t, isFuncDeclaration(p), "double modifier statement not recognised")
 }
 
 func TestIsFuncDeclaration(t *testing.T) {
 	p := createParser("func main(){")
 	goutil.Assert(t, isFuncDeclaration(p), "function declaration not recognised")
-	p = createParser("abstract func main(){")
-	goutil.Assert(t, isFuncDeclaration(p), "abstract function declaration not recognised")
 	p = createParser("func main() int {")
 	goutil.Assert(t, isFuncDeclaration(p), "returning function declaration not recognised")
 	p = createParser("func main() (int, int) {")
 	goutil.Assert(t, isFuncDeclaration(p), "tuple returning function declaration not recognised")
-	p = createParser("external func main() (int, int) {")
-	goutil.Assert(t, isFuncDeclaration(p), "modifier statement not recognised")
-	p = createParser("abstract external func main() (int, int) {")
-	goutil.Assert(t, isFuncDeclaration(p), "double modifier statement not recognised")
 }
 
 func TestIsTypeDeclaration(t *testing.T) {
@@ -69,10 +45,6 @@ func TestIsTypeDeclaration(t *testing.T) {
 	goutil.Assert(t, isTypeDeclaration(p), "array type declaration not recognised")
 	p = createParser("type Large map[int]string")
 	goutil.Assert(t, isTypeDeclaration(p), "map type declaration not recognised")
-	p = createParser("external type Large int")
-	goutil.Assert(t, isTypeDeclaration(p), "modifier statement not recognised")
-	p = createParser("abstract external type Large int")
-	goutil.Assert(t, isTypeDeclaration(p), "double modifier statement not recognised")
 }
 
 func TestIsReturnStatement(t *testing.T) {
@@ -109,10 +81,6 @@ func TestIsExplicitVarDeclaration(t *testing.T) {
 	goutil.Assert(t, isExplicitVarDeclaration(p), "map expvar statement not recognised")
 	p = createParser("x []string")
 	goutil.Assert(t, isExplicitVarDeclaration(p), "array expvar statement not recognised")
-	p = createParser("external x string")
-	goutil.Assert(t, isExplicitVarDeclaration(p), "modifier statement not recognised")
-	p = createParser("abstract external x string")
-	goutil.Assert(t, isExplicitVarDeclaration(p), "double modifier statement not recognised")
 	p = createParser("transfer func(a address, amount uint256) uint")
 	goutil.Assert(t, isExplicitVarDeclaration(p), "func type statement not recognised")
 	p = createParser("x = 5")
@@ -247,7 +215,7 @@ func TestIsPlainType(t *testing.T) {
 	p = createParser("[string]")
 	goutil.Assert(t, !p.isPlainType(), "index array type should not be recognised")
 	p = createParser("a[b]")
-	goutil.Assert(t, !p.isPlainType(), "index array type should not be recognised")
+	goutil.Assert(t, !p.isPlainType(), "index expr type should not be recognised")
 	p = createParser("call()")
 	goutil.Assert(t, !p.isPlainType(), "empty call type should not be recognised")
 	p = createParser(`full("hi", "bye")`)
@@ -271,52 +239,5 @@ func TestIsFuncType(t *testing.T) {
 	goutil.Assert(t, p.isFuncType(), "func type not recognised")
 	p = createParser("func(blockNumber uint) [32]byte")
 	goutil.Assert(t, p.isFuncType(), "second func type not recognised")
-
-}
-
-func TestIsKeywordGroup(t *testing.T) {
-	p := createParser(`
-		public (
-
-		)
-	`)
-	goutil.Assert(t, isKeywordGroup(p), "keyword group not recognised")
-}
-
-func TestIsNotKeywordGroup(t *testing.T) {
-	p := createParser(`
-		constructor(){
-
-		}
-	`)
-	goutil.Assert(t, !isKeywordGroup(p), "constructor recognised")
-
-	p = createParser(`
-		constructor(name string){
-
-	    }
-	`)
-	goutil.Assert(t, !isKeywordGroup(p), "constructor recognised")
-
-	p = createParser(`
-		constructor(id uint64){
-
-	    }
-	`)
-	goutil.Assert(t, !isKeywordGroup(p), "constructor recognised")
-
-	p = createParser(`
-		constructor(name, name2 string){
-
-	    }
-	`)
-	goutil.Assert(t, !isKeywordGroup(p), "constructor recognised")
-
-	p = createParser(`
-		constructor(name int, name2 string){
-
-	    }
-	`)
-	goutil.Assert(t, !isKeywordGroup(p), "constructor recognised")
 
 }

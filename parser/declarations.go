@@ -8,30 +8,10 @@ import (
 	"github.com/end-r/guardian/ast"
 )
 
-func (p *Parser) parseKeywords(targets ...token.Type) []token.Type {
-	var mods []token.Type
-	for p.hasTokens(1) {
-		for _, t := range targets {
-			if p.current().Type == t {
-				return mods
-			}
-		}
-		if p.current().Type.IsModifier() || p.current().Type.IsDeclaration() {
-			mods = append(mods, p.current().Type)
-			p.next()
-		} else {
-			p.next()
-			return mods
-		}
-	}
-
-	return mods
-}
-
 func parseInterfaceDeclaration(p *Parser) {
 
 	p.parseGroupable(token.Interface, func(p *Parser) {
-		p.parseRequired(token.Interface)
+
 		identifier := p.parseIdentifier()
 
 		var inherits []*ast.PlainTypeNode
@@ -45,7 +25,7 @@ func parseInterfaceDeclaration(p *Parser) {
 		node := ast.InterfaceDeclarationNode{
 			Identifier: identifier,
 			Supers:     inherits,
-			Modifiers:  p.keywords,
+			Modifiers:  p.getModifiers(),
 			Signatures: signatures,
 		}
 
@@ -58,18 +38,14 @@ func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
 
 	p.parseRequired(token.OpenBrace)
 
-	for isNewLine(p) {
-		parseNewLine(p)
-	}
+	p.ignoreNewLines()
 
 	var sigs []*ast.FuncTypeNode
 
 	first := p.parseFuncType()
 	sigs = append(sigs, first)
 
-	for isNewLine(p) {
-		parseNewLine(p)
-	}
+	p.ignoreNewLines()
 
 	for !p.parseOptional(token.CloseBrace) {
 
@@ -81,9 +57,7 @@ func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
 			sigs = append(sigs, p.parseFuncType())
 		}
 
-		for isNewLine(p) {
-			parseNewLine(p)
-		}
+		p.ignoreNewLines()
 
 	}
 	return sigs
@@ -92,11 +66,10 @@ func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
 func (p *Parser) parseEnumBody() []string {
 
 	p.parseRequired(token.OpenBrace)
+
 	var enums []string
 	// remove all new lines before the fist identifier
-	for isNewLine(p) {
-		parseNewLine(p)
-	}
+	p.ignoreNewLines()
 
 	if !p.parseOptional(token.CloseBrace) {
 		// can only contain identifiers split by commas and newlines
@@ -104,9 +77,7 @@ func (p *Parser) parseEnumBody() []string {
 		enums = append(enums, first)
 		for p.parseOptional(token.Comma) {
 
-			for isNewLine(p) {
-				parseNewLine(p)
-			}
+			p.ignoreNewLines()
 
 			if p.current().Type == token.Identifier {
 				enums = append(enums, p.parseIdentifier())
@@ -115,9 +86,7 @@ func (p *Parser) parseEnumBody() []string {
 			}
 		}
 
-		for isNewLine(p) {
-			parseNewLine(p)
-		}
+		p.ignoreNewLines()
 
 		p.parseRequired(token.CloseBrace)
 	}
@@ -128,7 +97,6 @@ func parseEnumDeclaration(p *Parser) {
 
 	p.parseGroupable(token.Enum, func(p *Parser) {
 
-		p.parseRequired(token.Enum)
 		identifier := p.parseIdentifier()
 
 		var inherits []*ast.PlainTypeNode
@@ -140,7 +108,7 @@ func parseEnumDeclaration(p *Parser) {
 		enums := p.parseEnumBody()
 
 		node := ast.EnumDeclarationNode{
-			Modifiers:  p.keywords,
+			Modifiers:  p.getModifiers(),
 			Identifier: identifier,
 			Inherits:   inherits,
 			Enums:      enums,
@@ -201,7 +169,7 @@ func parseClassBody(p *Parser) {
 		Identifier: identifier,
 		Supers:     inherits,
 		Interfaces: interfaces,
-		Modifiers:  p.keywords,
+		Modifiers:  p.getModifiers(),
 		Body:       body,
 	}
 
@@ -244,7 +212,7 @@ func parseContractBody(p *Parser) {
 		Identifier: identifier,
 		Supers:     inherits,
 		Interfaces: interfaces,
-		Modifiers:  p.keywords,
+		Modifiers:  p.getModifiers(),
 		Body:       body,
 	}
 
@@ -255,14 +223,22 @@ func parseContractDeclaration(p *Parser) {
 	p.parseGroupable(token.Contract, parseContractBody)
 }
 
-func (p *Parser) parseGroupable(dec token.Type, f func(*Parser)) {
-	p.parseRequired(dec)
+func (p *Parser) parseGroupable(id token.Type, declarator func(*Parser)) {
+	p.parseRequired(id)
 	if p.parseOptional(token.OpenBracket) {
 		for !p.parseOptional(token.CloseBracket) {
-			f(p)
+			p.ignoreNewLines()
+			declarator(p)
+			p.ignoreNewLines()
 		}
 	} else {
-		f(p)
+		declarator(p)
+	}
+}
+
+func (p *Parser) ignoreNewLines() {
+	for isNewLine(p) {
+		parseNewLine(p)
 	}
 }
 
@@ -283,12 +259,6 @@ func (p *Parser) parseType() ast.Node {
 
 func (p *Parser) parseVarDeclaration() *ast.ExplicitVarDeclarationNode {
 
-	keywords := p.parseKeywords(token.Identifier)
-
-	if p.keywords != nil {
-		keywords = append(keywords, p.keywords...)
-	}
-
 	var names []string
 	names = append(names, p.parseIdentifier())
 	for p.parseOptional(token.Comma) {
@@ -298,7 +268,7 @@ func (p *Parser) parseVarDeclaration() *ast.ExplicitVarDeclarationNode {
 	dType := p.parseType()
 
 	return &ast.ExplicitVarDeclarationNode{
-		Modifiers:    keywords,
+		Modifiers:    p.getModifiers(),
 		DeclaredType: dType,
 		Identifiers:  names,
 	}
@@ -341,19 +311,15 @@ func (p *Parser) parseResults() []ast.Node {
 		p.parseRequired(token.CloseBracket)
 		return types
 	}
-	if p.current().Type != token.OpenBrace {
-		return p.parseTypeList()
+	if p.hasTokens(1) {
+		if p.current().Type != token.OpenBrace {
+			return p.parseTypeList()
+		}
 	}
 	return nil
 }
 
 func parseFuncDeclaration(p *Parser) {
-
-	keywords := p.parseKeywords(token.Func)
-
-	if p.keywords != nil {
-		keywords = append(keywords, p.keywords...)
-	}
 
 	p.parseRequired(token.Func)
 
@@ -369,7 +335,7 @@ func parseFuncDeclaration(p *Parser) {
 		Identifier: identifier,
 		Parameters: params,
 		Results:    results,
-		Modifiers:  keywords,
+		Modifiers:  p.getModifiers(),
 		Body:       body,
 	}
 
@@ -378,12 +344,6 @@ func parseFuncDeclaration(p *Parser) {
 
 func parseLifecycleDeclaration(p *Parser) {
 
-	keywords := p.parseKeywords(token.GetModifiers()...)
-
-	if p.keywords != nil {
-		keywords = append(keywords, p.keywords...)
-	}
-
 	category := p.parseRequired(token.GetLifecycles()...)
 
 	params := p.parseParameters()
@@ -391,7 +351,7 @@ func parseLifecycleDeclaration(p *Parser) {
 	body := p.parseBracesScope(ast.ExplicitVarDeclaration, ast.FuncDeclaration)
 
 	node := ast.LifecycleDeclarationNode{
-		Modifiers:  keywords,
+		Modifiers:  p.getModifiers(),
 		Category:   category,
 		Parameters: params,
 		Body:       body,
@@ -412,7 +372,7 @@ func parseTypeDeclaration(p *Parser) {
 		value := p.parseType()
 
 		n := ast.TypeDeclarationNode{
-			Modifiers:  p.keywords,
+			Modifiers:  p.getModifiers(),
 			Identifier: identifier,
 			Value:      value,
 		}

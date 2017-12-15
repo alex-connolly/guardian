@@ -12,7 +12,9 @@ func getPrimaryConstructs() []construct {
 		construct{"single line comment", isSingleLineComment, parseSingleLineComment},
 		construct{"multi line comment", isMultiLineComment, parseMultiLineComment},
 
-		construct{"keyword group", isKeywordGroup, parseKeywordGroup},
+		construct{"modifiers", isModifier, parseModifiers},
+
+		construct{"group", isGroup, parseGroup},
 
 		construct{"explict var declaration", isExplicitVarDeclaration, parseExplicitVarDeclaration},
 		construct{"class declaration", isClassDeclaration, parseClassDeclaration},

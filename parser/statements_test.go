@@ -647,8 +647,9 @@ func TestForEachStatement(t *testing.T) {
 	`)
 	goutil.Assert(t, isForEachStatement(p), "should detect for statement")
 	parseForEachStatement(p)
-
+	goutil.Assert(t, p.errs == nil, p.errs.Format())
 	n := p.scope.Next()
+	goutil.AssertNow(t, len(p.scope.Sequence) == 1, fmt.Sprintf("wrong sequence len: %d", len(p.scope.Sequence)))
 	goutil.AssertNow(t, n.Type() == ast.ForEachStatement, "wrong node type")
 	a := n.(*ast.ForEachStatementNode)
 	goutil.AssertNow(t, len(a.Variables) == 2, "wrong var length")

@@ -242,7 +242,7 @@ func (p *Parser) parseReference(expr ast.ExpressionNode) *ast.ReferenceNode {
 
 func (p *Parser) parseIdentifierList() []string {
 	var ids []string
-	if p.current().Type != token.String {
+	if p.current().Type != token.Identifier {
 		return nil
 	}
 	ids = append(ids, p.parseIdentifier())
@@ -281,6 +281,9 @@ func (p *Parser) parseArrayLiteral() *ast.ArrayLiteralNode {
 
 func (p *Parser) parseFuncLiteral() *ast.FuncLiteralNode {
 	n := new(ast.FuncLiteralNode)
+
+	p.parseRequired(token.Func)
+
 	n.Parameters = p.parseParameters()
 
 	n.Results = p.parseResults()

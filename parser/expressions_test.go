@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/end-r/guardian/token"
@@ -737,5 +738,5 @@ func TestParseFuncLiteralSingleParameter(t *testing.T) {
 	goutil.AssertNow(t, expr.Type() == ast.FuncLiteral, "wrong expr type")
 	f := expr.(*ast.FuncLiteralNode)
 	goutil.AssertNow(t, len(f.Parameters) == 1, "wrong parameter length")
-	goutil.AssertNow(t, len(f.Results) == 1, "wrong result length")
+	goutil.AssertNow(t, len(f.Results) == 1, fmt.Sprintf("wrong result length: %d", len(f.Results)))
 }

@@ -13,14 +13,15 @@ import (
 
 // Parser ...
 type Parser struct {
-	scope      *ast.ScopeNode
-	Expression ast.ExpressionNode
-	tokens     []token.Token
-	keywords   []token.Type
-	index      int
-	errs       util.Errors
-	line       int
-	simple     bool
+	scope         *ast.ScopeNode
+	Expression    ast.ExpressionNode
+	tokens        []token.Token
+	modifiers     [][]token.Type
+	lastModifiers []token.Type
+	index         int
+	errs          util.Errors
+	line          int
+	simple        bool
 }
 
 func createParser(data string) *Parser {
@@ -134,25 +135,45 @@ func parseMultiLineComment(p *Parser) {
 	p.parseOptional(token.CommentClose)
 }
 
-func parseKeywordGroup(p *Parser) {
-	old := p.keywords
-	p.keywords = p.parseKeywords(token.OpenBracket)
-	p.parseEnclosedScope(token.OpenBracket, token.CloseBracket)
-	p.keywords = old
+func (p *Parser) parseModifierList() []token.Type {
+	var mods []token.Type
+	for p.hasTokens(1) {
+		if p.current().Type.IsModifier() {
+			mods = append(mods, p.current().Type)
+			p.next()
+		} else {
+			return mods
+		}
+	}
+	return mods
 }
 
-func parseModifier(p *Parser) {
-	for p.current().Type.IsModifier() {
-		p.keywords = append(p.keywords, p.current().Type)
-		p.next()
-	}
-	if p.current().Type == token.OpenBracket {
-		p.parseGroup()
+func parseModifiers(p *Parser) {
+	p.lastModifiers = p.parseModifierList()
+}
+
+func parseGroup(p *Parser) {
+	if p.lastModifiers == nil {
+		p.addError(errEmptyGroup)
+	} else {
+		p.modifiers = append(p.modifiers, p.lastModifiers)
+		p.lastModifiers = nil
+		p.parseEnclosedScope(token.OpenBracket, token.CloseBracket)
+		p.modifiers = p.modifiers[:len(p.modifiers)-1]
 	}
 }
 
-func (p *Parser) parseGroup() {
-	p.parseEnclosedScope(token.OpenBracket, token.CloseBracket)
+func (p *Parser) getModifiers() []token.Type {
+	mods := make([]token.Type, 0)
+	for _, m := range p.lastModifiers {
+		mods = append(mods, m)
+	}
+	for _, ml := range p.modifiers {
+		for _, m := range ml {
+			mods = append(mods, m)
+		}
+	}
+	return mods
 }
 
 func (p *Parser) addError(message string) {

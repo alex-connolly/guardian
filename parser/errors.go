@@ -5,4 +5,5 @@ const (
 	errInvalidEnumProperty      = "Everything in an enum must be an identifier"
 	errMixedNamedParameters     = "Mixed named and unnamed parameters"
 	errInvalidArraySize         = "Invalid array size"
+	errEmptyGroup               = "Group declaration must apply modifiers"
 )

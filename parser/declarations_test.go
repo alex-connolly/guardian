@@ -46,6 +46,8 @@ func TestParseInterfaceDeclarationMultipleInheritance(t *testing.T) {
 
 func TestParseInterfaceDeclarationAbstract(t *testing.T) {
 	p := createParser(`abstract interface Wagable {}`)
+	goutil.Assert(t, isModifier(p), "should detect modifier")
+	parseModifiers(p)
 	goutil.Assert(t, isInterfaceDeclaration(p), "should detect interface decl")
 	parseInterfaceDeclaration(p)
 	n := p.scope.NextDeclaration()
@@ -181,6 +183,8 @@ func TestParseContractDeclarationMultipleInheritanceMultipleInterface(t *testing
 
 func TestParseContractDeclarationAbstract(t *testing.T) {
 	p := createParser(`abstract contract Wagable {}`)
+	goutil.Assert(t, isModifier(p), "should detect modifier")
+	parseModifiers(p)
 	goutil.Assert(t, isContractDeclaration(p), "should detect contract decl")
 	parseContractDeclaration(p)
 	n := p.scope.NextDeclaration()
@@ -302,6 +306,8 @@ func TestParseClassDeclarationMultipleInheritanceMultipleInterface(t *testing.T)
 
 func TestParseClassDeclarationAbstract(t *testing.T) {
 	p := createParser(`abstract class Wagable {}`)
+	goutil.Assert(t, isModifier(p), "should detect modifier")
+	parseModifiers(p)
 	goutil.Assert(t, isClassDeclaration(p), "should detect class decl")
 	parseClassDeclaration(p)
 	n := p.scope.NextDeclaration()

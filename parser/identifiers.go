@@ -1,9 +1,9 @@
 package parser
 
 import (
-	"github.com/end-r/guardian/token"
-
 	"github.com/end-r/guardian/ast"
+
+	"github.com/end-r/guardian/token"
 )
 
 func isNewLine(p *Parser) bool {
@@ -16,8 +16,6 @@ func isExplicitVarDeclaration(p *Parser) bool {
 		return false
 	}
 	saved := *p
-	for p.parseOptional(token.GetModifiers()...) {
-	}
 	if !p.parseOptional(token.Identifier) {
 		*p = saved
 		return false
@@ -97,45 +95,32 @@ func (p *Parser) nextTokens(tokens ...token.Type) bool {
 	return true
 }
 
-func (p *Parser) modifiersUntilToken(types ...token.Type) bool {
-	saved := p.index
-	if p.hasTokens(1) {
-		for p.current().Type.IsModifier() {
-			p.next()
-		}
-		for _, t := range types {
-			if p.current().Type == t {
-				p.index = saved
-				return true
-			}
-		}
-	}
-	p.index = saved
-	return false
-}
-
 func isClassDeclaration(p *Parser) bool {
-	return p.modifiersUntilToken(token.Class)
+	return p.isNextToken(token.Class)
 }
 
 func isInterfaceDeclaration(p *Parser) bool {
-	return p.modifiersUntilToken(token.Interface)
+	return p.isNextToken(token.Interface)
 }
 
 func isLifecycleDeclaration(p *Parser) bool {
-	return p.modifiersUntilToken(token.GetLifecycles()...)
+	return p.isNextToken(token.GetLifecycles()...)
 }
 
 func isEnumDeclaration(p *Parser) bool {
-	return p.modifiersUntilToken(token.Enum)
+	return p.isNextToken(token.Enum)
 }
 
 func isContractDeclaration(p *Parser) bool {
-	return p.modifiersUntilToken(token.Contract)
+	return p.isNextToken(token.Contract)
 }
 
 func isFuncDeclaration(p *Parser) bool {
-	return p.modifiersUntilToken(token.Func)
+	return p.isNextToken(token.Func)
+}
+
+func isGroup(p *Parser) bool {
+	return p.isNextToken(token.OpenBracket)
 }
 
 func (p *Parser) isNextToken(types ...token.Type) bool {
@@ -150,11 +135,11 @@ func (p *Parser) isNextToken(types ...token.Type) bool {
 }
 
 func isEventDeclaration(p *Parser) bool {
-	return p.modifiersUntilToken(token.Event)
+	return p.isNextToken(token.Event)
 }
 
 func isTypeDeclaration(p *Parser) bool {
-	return p.modifiersUntilToken(token.KWType)
+	return p.isNextToken(token.KWType)
 }
 
 func isForStatement(p *Parser) bool {
@@ -239,18 +224,8 @@ func isCaseStatement(p *Parser) bool {
 	return p.isNextToken(token.Case)
 }
 
-func isKeywordGroup(p *Parser) bool {
-
-	return p.preserveState(func(p *Parser) bool {
-
-		possibles := token.GetModifiers()
-
-		possibles = append(possibles, token.Class, token.Interface, token.Enum, token.Contract)
-
-		for p.parseOptional(possibles...) {
-		}
-		return p.parseOptional(token.OpenBracket)
-	})
+func isModifier(p *Parser) bool {
+	return p.hasTokens(1) && p.current().Type.IsModifier()
 }
 
 func isPackageStatement(p *Parser) bool {
