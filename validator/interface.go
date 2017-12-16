@@ -52,6 +52,7 @@ func (v *Validator) validateScope(scope *ast.ScopeNode) (types map[string]typing
 
 func (v *Validator) validateDeclarations(scope *ast.ScopeNode) {
 	if scope.Declarations != nil {
+
 		// order doesn't matter here
 		for _, i := range scope.Declarations.Map() {
 			// add in placeholders for all declarations

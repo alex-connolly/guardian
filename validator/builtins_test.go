@@ -44,7 +44,7 @@ func TestParseBuiltinsVariables(t *testing.T) {
 		ether = 1000 * milliether
 	`)
 	tvm := NewTestVM()
-	v.primitives = tvm.Primitives()
+	v.importVM(tvm)
 	v.builtinScope = ast
 	v.parseBuiltins()
 	goutil.AssertNow(t, v.builtinVariables != nil, "vars should not be nil")

@@ -186,3 +186,41 @@ func TestResolveBinaryExpressionCast(t *testing.T) {
 	goutil.AssertNow(t, p.Type() == ast.BinaryExpression, "wrong expression type")
 
 }
+
+func TestResolution(t *testing.T) {
+	v := NewValidator(NewTestVM())
+	expr := parser.ParseExpression("hi")
+	v.resolveExpression(expr)
+	goutil.Assert(t, expr.ResolvedType() != nil, "nil resolved")
+	expr = parser.ParseExpression("a+b")
+	v.resolveExpression(expr)
+	goutil.Assert(t, expr.ResolvedType() != nil, "nil resolved")
+	expr = parser.ParseExpression("a[b]")
+	v.resolveExpression(expr)
+	goutil.Assert(t, expr.ResolvedType() != nil, "nil resolved")
+	expr = parser.ParseExpression("a()")
+	v.resolveExpression(expr)
+	goutil.Assert(t, expr.ResolvedType() != nil, "nil resolved")
+	expr = parser.ParseExpression("a{}")
+	v.resolveExpression(expr)
+	goutil.Assert(t, expr.ResolvedType() != nil, "nil resolved")
+	expr = parser.ParseExpression("a[:]")
+	v.resolveExpression(expr)
+	goutil.Assert(t, expr.ResolvedType() != nil, "nil resolved")
+	expr = parser.ParseExpression("a.b")
+	v.resolveExpression(expr)
+	goutil.Assert(t, expr.ResolvedType() != nil, "nil resolved")
+	expr = parser.ParseExpression("!a")
+	v.resolveExpression(expr)
+	goutil.Assert(t, expr.ResolvedType() != nil, "nil resolved")
+}
+
+func TestStatementResolution(t *testing.T) {
+	v := NewValidator(NewTestVM())
+	a, _ := parser.ParseString("hi = 5")
+	stat := a.Sequence[0]
+	v.validate(stat)
+	ass := stat.(*ast.AssignmentStatementNode)
+	goutil.Assert(t, ass.Left[0].ResolvedType() != nil, "still nil")
+	goutil.Assert(t, ass.Right[0].ResolvedType() != nil, "still nil")
+}

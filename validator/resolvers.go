@@ -94,13 +94,14 @@ func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	l := e.(*ast.LiteralNode)
 	literalResolver, ok := v.literals[l.LiteralType]
 	if ok {
+
 		t := literalResolver(v, l.Data)
 		l.Resolved = t
-		return t
+		return l.Resolved
 	} else {
 		v.addError(errStringLiteralUnsupported)
 		l.Resolved = typing.Invalid()
-		return typing.Invalid()
+		return l.Resolved
 	}
 
 }
@@ -155,7 +156,7 @@ func resolveMapLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Type
 	valueType := v.resolveType(m.Signature.Value)
 	mapType := typing.Map{Key: keyType, Value: valueType}
 	m.Resolved = mapType
-	return mapType
+	return m.Resolved
 }
 
 func resolveIndexExpression(v *Validator, e ast.ExpressionNode) typing.Type {
@@ -209,7 +210,7 @@ func (v *Validator) attemptToFindType(e ast.ExpressionNode) typing.Type {
 	}
 	return v.getNamedType(names...)
 }*/
-
+/*
 func (v *Validator) resolveInContext(t typing.Type, property string) typing.Type {
 	switch r := t.(type) {
 	case typing.Class:
@@ -247,7 +248,7 @@ func (v *Validator) resolveInContext(t typing.Type, property string) typing.Type
 		break
 	}
 	return typing.Unknown()
-}
+}*/
 
 func resolveCallExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	// must be call expression
@@ -288,10 +289,10 @@ func resolveSliceExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	switch t := exprType.(type) {
 	case typing.Array:
 		s.Resolved = t
-		return t
+		return s.Resolved
 	}
 	s.Resolved = typing.Invalid()
-	return typing.Invalid()
+	return s.Resolved
 }
 
 func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
@@ -303,11 +304,11 @@ func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	operatorFunc, ok := v.operators[b.Operator]
 	if !ok {
 		b.Resolved = typing.Invalid()
-		return typing.Invalid()
+		return b.Resolved
 	}
 	t := operatorFunc(v, leftType, rightType)
 	b.Resolved = t
-	return t
+	return b.Resolved
 	/*
 		switch b.Operator {
 		case token.Add:
@@ -378,7 +379,9 @@ func resolveReference(v *Validator, e ast.ExpressionNode) typing.Type {
 	// must be reference
 	m := e.(*ast.ReferenceNode)
 	context := v.resolveExpression(m.Parent)
-	return v.resolveContextualReference(context, m.Reference)
+	t := v.resolveContextualReference(context, m.Reference)
+	m.Resolved = t
+	return m.Resolved
 }
 
 func getIdentifier(exp ast.ExpressionNode) (string, bool) {

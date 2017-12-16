@@ -12,7 +12,6 @@ func (v *Validator) validateExpression(node ast.ExpressionNode) {
 	case *ast.CallExpressionNode:
 		v.validateCallExpression(n)
 		break
-
 	}
 }
 

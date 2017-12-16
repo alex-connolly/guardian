@@ -606,6 +606,18 @@ func TestAssignmentStatementSingleAdd(t *testing.T) {
 	goutil.AssertNow(t, len(a.Left) == 1, "should be one left value")
 }
 
+func TestAssignmentStatementArrayLiteral(t *testing.T) {
+	p := createParser(`x = []string{"a"}`)
+	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
+	parseAssignmentStatement(p)
+
+	n := p.scope.Next()
+	goutil.AssertNow(t, n.Type() == ast.AssignmentStatement, "wrong assignment type")
+	a := n.(*ast.AssignmentStatementNode)
+	goutil.AssertNow(t, len(a.Left) == 1, "should be one left value")
+	goutil.AssertNow(t, p.errs == nil, "should be one left value")
+}
+
 func TestImportStatementPath(t *testing.T) {
 	p := createParser(`import "dog"`)
 	goutil.Assert(t, isImportStatement(p), "should detect import statement")
@@ -641,9 +653,7 @@ func TestPackageStatement(t *testing.T) {
 }
 
 func TestForEachStatement(t *testing.T) {
-	p := createParser(`for x, y in a {
-
-		}
+	p := createParser(`for x, y in a {}
 	`)
 	goutil.Assert(t, isForEachStatement(p), "should detect for statement")
 	parseForEachStatement(p)
@@ -653,4 +663,22 @@ func TestForEachStatement(t *testing.T) {
 	goutil.AssertNow(t, n.Type() == ast.ForEachStatement, "wrong node type")
 	a := n.(*ast.ForEachStatementNode)
 	goutil.AssertNow(t, len(a.Variables) == 2, "wrong var length")
+}
+
+func TestDeclaredForEachStatement(t *testing.T) {
+	a, errs := ParseString(`
+		a = []string{"a", "b"}
+
+		for x, y in a {}
+	`)
+
+	goutil.Assert(t, errs == nil, errs.Format())
+	goutil.AssertNow(t, len(a.Sequence) == 2, fmt.Sprintf("wrong sequence len: %d", len(a.Sequence)))
+	a.Next()
+	n := a.Next()
+
+	goutil.AssertNow(t, n.Type() == ast.ForEachStatement, "wrong node type")
+	p := n.(*ast.ForEachStatementNode)
+	goutil.AssertNow(t, len(p.Variables) == 2, "wrong var length")
+	goutil.AssertNow(t, p.Producer.Type() == ast.Identifier, "wrong producer")
 }

@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/typing"
 
 	"github.com/end-r/guardian/ast"
@@ -23,7 +25,9 @@ func (v *Validator) validateStatement(node ast.Node) {
 	case ast.SwitchStatement:
 		v.validateSwitchStatement(node.(*ast.SwitchStatementNode))
 		break
-		// TODO: handle call statement
+	case ast.ForEachStatement:
+		v.validateForEachStatement(node.(*ast.ForEachStatementNode))
+		break
 	}
 }
 
@@ -79,7 +83,7 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 				if leftTuple.Types[i] == typing.Unknown() {
 					if id, ok := left.(*ast.IdentifierNode); ok {
 						id.Resolved = rightTuple.Types[i]
-						//fmt.Printf("Declaring %s as %s\n", id.Name,typing.WriteType(rightTuple.Types[i]))
+						//fmt.Printf("Declaring %s as %s\n", id.Name, typing.WriteType(rightTuple.Types[i]))
 						v.declareContextualVar(id.Name, rightTuple.Types[i])
 					}
 				}
@@ -133,7 +137,9 @@ func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
 
 func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
 	// get type of
+	fmt.Println("A")
 	gen := v.resolveExpression(node.Producer)
+	fmt.Println("B")
 	var req int
 	switch a := gen.(type) {
 	case typing.Map:
@@ -158,8 +164,6 @@ func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
 		break
 	default:
 		v.addError(errInvalidForEachType, typing.WriteType(gen))
-		// prevent double errors
-		req = len(node.Variables)
 	}
 
 }

@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/end-r/guardian/parser"
@@ -238,10 +239,15 @@ func TestValidateClassAssignmentStatementInvalid(t *testing.T) {
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
 
-func TestValidateMultipleAssignment(t *testing.T) {
-	scope, _ := parser.ParseString(`a, b = 0`)
+func TestValidateForEachStatementValid(t *testing.T) {
+	scope, _ := parser.ParseString(`
+		a [5]int
+		for x, y in a {
+
+		}
+	`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	goutil.AssertNow(t, len(scope.Sequence) == 1, "wrong sequence length")
+	goutil.AssertNow(t, len(scope.Sequence) == 2, fmt.Sprintf("wrong sequence length: %d", len(scope.Sequence)))
 	errs := Validate(scope, NewTestVM())
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }

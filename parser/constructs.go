@@ -29,8 +29,8 @@ func getPrimaryConstructs() []construct {
 		construct{"new line", isNewLine, parseNewLine},
 
 		construct{"if statement", isIfStatement, parseIfStatement},
-		construct{"for statement", isForStatement, parseForStatement},
 		construct{"for each statement", isForEachStatement, parseForEachStatement},
+		construct{"for statement", isForStatement, parseForStatement},
 		construct{"assignment statement", isAssignmentStatement, parseAssignmentStatement},
 		construct{"return statment", isReturnStatement, parseReturnStatement},
 		construct{"switch statement", isSwitchStatement, parseSwitchStatement},

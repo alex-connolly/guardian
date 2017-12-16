@@ -300,7 +300,6 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
 	node.Resolved = funcType
 	v.declareContextualVar(node.Identifier, funcType)
-
 	v.validateScope(node.Body)
 
 }

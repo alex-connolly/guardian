@@ -116,6 +116,7 @@ func (v *Validator) LargestNumericType(allowFloat bool) typing.Type {
 	return largestType
 }
 
+// SmallestNumericType ...
 func (v *Validator) SmallestNumericType(bits int, allowFloat bool) typing.Type {
 	smallest := -1
 	smallestType := typing.Type(typing.Unknown())

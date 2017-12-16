@@ -3,6 +3,8 @@ package evm
 import (
 	"fmt"
 
+	"github.com/end-r/guardian/typing"
+
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/vmgen"
@@ -11,7 +13,6 @@ import (
 )
 
 func (e *GuardianEVM) traverseExpression(n ast.ExpressionNode) (code vmgen.Bytecode) {
-	fmt.Println("expr")
 	switch node := n.(type) {
 	case *ast.ArrayLiteralNode:
 		return e.traverseArrayLiteral(node)
@@ -275,19 +276,32 @@ func (e *GuardianEVM) traverseFuncLiteral(n *ast.FuncLiteralNode) (code vmgen.By
 func (e *GuardianEVM) traverseIdentifier(n *ast.IdentifierNode) (code vmgen.Bytecode) {
 	if e.inStorage() {
 		s := e.lookupStorage(n.Name)
-		if s != nil {
-			return s.retrieve()
+		if n.Resolved == nil {
+			fmt.Println("RESOLVED IS NIL")
+		} else {
+			fmt.Println(typing.WriteType(n.Resolved))
+			e.allocateStorage(n.Name, n.Resolved.Size())
+			if s != nil {
+				return s.retrieve()
+			}
 		}
+
 	} else {
 		m := e.lookupMemory(n.Name)
 		if m != nil {
 			return m.retrieve()
 		}
-		e.allocateMemory(n.Name, n.ResolvedType().Size())
-		m = e.lookupMemory(n.Name)
-		if m != nil {
-			return m.retrieve()
+		if n.Resolved == nil {
+			fmt.Println("RESOLVED IS NIL")
+		} else {
+			fmt.Println(typing.WriteType(n.Resolved))
+			e.allocateMemory(n.Name, n.Resolved.Size())
+			m = e.lookupMemory(n.Name)
+			if m != nil {
+				return m.retrieve()
+			}
 		}
+
 	}
 	return code
 }

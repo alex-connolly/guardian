@@ -740,3 +740,56 @@ func TestParseFuncLiteralSingleParameter(t *testing.T) {
 	goutil.AssertNow(t, len(f.Parameters) == 1, "wrong parameter length")
 	goutil.AssertNow(t, len(f.Results) == 1, fmt.Sprintf("wrong result length: %d", len(f.Results)))
 }
+
+func TestParseArrayLiteralEmpty(t *testing.T) {
+	expr := ParseExpression("[]string{}")
+	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
+	goutil.AssertNow(t, expr.Type() == ast.ArrayLiteral, "wrong expr type")
+	f := expr.(*ast.ArrayLiteralNode)
+	goutil.AssertNow(t, f.Signature != nil, "non-null sig")
+}
+
+func TestParseArrayLiteralSingle(t *testing.T) {
+	expr := ParseExpression(`[]string{"a"}`)
+	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
+	goutil.AssertNow(t, expr.Type() == ast.ArrayLiteral, "wrong expr type")
+	f := expr.(*ast.ArrayLiteralNode)
+	goutil.AssertNow(t, f.Signature != nil, "non-null sig")
+}
+
+func TestParseArrayLiteralMultiple(t *testing.T) {
+	expr := ParseExpression(`[]string{"a", "b"}`)
+	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
+	goutil.AssertNow(t, expr.Type() == ast.ArrayLiteral, "wrong expr type")
+	f := expr.(*ast.ArrayLiteralNode)
+	goutil.AssertNow(t, f.Signature != nil, "non-null sig")
+}
+
+func TestParseArrayLiteralMultipleSpaced(t *testing.T) {
+	expr := ParseExpression(`[]string{
+		"a,
+		"b"
+		}`)
+	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
+	goutil.AssertNow(t, expr.Type() == ast.ArrayLiteral, "wrong expr type")
+	f := expr.(*ast.ArrayLiteralNode)
+	goutil.AssertNow(t, f.Signature != nil, "non-null sig")
+}
+
+func TestParseArrayLiteralSingleSpaced(t *testing.T) {
+	expr := ParseExpression(`[]string{
+		"a"
+		}`)
+	goutil.AssertNow(t, expr != nil, "expr shouldn't be nil")
+	goutil.AssertNow(t, expr.Type() == ast.ArrayLiteral, "wrong expr type")
+	f := expr.(*ast.ArrayLiteralNode)
+	goutil.AssertNow(t, f.Signature != nil, "non-null sig")
+}
+
+func TestParseSimpleExpression(t *testing.T) {
+	p := createParser("a {}")
+	expr := p.parseSimpleExpression()
+	goutil.AssertNow(t, expr.Type() == ast.Identifier, "wrong type")
+	i := expr.(*ast.IdentifierNode)
+	goutil.AssertNow(t, i.Name == "a", "wrong name")
+}
