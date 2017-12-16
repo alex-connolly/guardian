@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/end-r/guardian/token"
 
@@ -72,7 +73,7 @@ func (p *Parser) parseOptional(types ...token.Type) bool {
 // TODO: clarify what this actually returns
 func (p *Parser) parseRequired(types ...token.Type) token.Type {
 	if !p.hasTokens(1) {
-		p.addError(fmt.Sprintf("Required %s, found nothing", "x"))
+		p.addError(fmt.Sprintf("Required one of {%s}, found %s", listTypes(types), "nothing"))
 		// TODO: what should be returned here
 		return token.Return
 	}
@@ -88,7 +89,9 @@ func (p *Parser) parseRequired(types ...token.Type) token.Type {
 
 func listTypes(types []token.Type) string {
 	s := ""
-
+	for _, t := range types {
+		s += strconv.Itoa(int(t))
+	}
 	return s
 }
 
@@ -121,10 +124,16 @@ func parseNewLine(p *Parser) {
 
 func parseSingleLineComment(p *Parser) {
 	p.parseRequired(token.LineComment)
-	for p.hasTokens(1) && p.current().Type != token.NewLine {
-		p.next()
+	for p.hasTokens(1) {
+		if p.current().Type != token.NewLine {
+			p.next()
+		} else {
+			parseNewLine(p)
+			return
+		}
+
 	}
-	p.parseOptional(token.NewLine)
+
 }
 
 func parseMultiLineComment(p *Parser) {
@@ -215,17 +224,23 @@ func (p *Parser) parseScope(terminator token.Type, valids ...ast.NodeType) *ast.
 		}
 		if !found {
 			// try interpreting it as an expression
-			saved := p.index
+			saved := *p
 			expr := p.parseExpression()
 			if expr == nil {
-				p.index = saved
+				*p = saved
 				//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.current().TokenString())
 				p.addError(fmt.Sprintf("Unrecognised construct: %s", p.current().String()))
 				p.next()
 			} else {
-				// ?
+				switch expr.Type() {
+				case ast.CallExpression:
+					p.scope.AddSequential(expr)
+					break
+				default:
+					p.addError(errDanglingExpression)
+					break
+				}
 
-				p.scope.AddSequential(expr)
 			}
 		}
 	}

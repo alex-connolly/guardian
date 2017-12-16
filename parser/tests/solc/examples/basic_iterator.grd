@@ -2,11 +2,11 @@
 contract BasicIterator {
 
     creator address
-    integers []uint8 //uint8[10]
+    integers [10]uint8
 
     constructor(){
         creator = msg.sender
-        x := 0 as uint8
+        x = 0 as uint8
         for x < len(integers) {
         	integers[x] = x
         	x++
@@ -14,8 +14,8 @@ contract BasicIterator {
     }
 
     func getSum() uint {
-        sum := 0 as uint
-        x := 0 as uint
+        sum = 0 as uint
+        x = 0 as uint
         for x < len(integers) {
             sum += integers[x]
             x++

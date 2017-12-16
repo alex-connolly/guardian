@@ -2,7 +2,7 @@ package solidity at 0.0.1
 
 contract CrowdFunder {
 
-    public (
+    /*public (
         creator address
         fundRecipient address // creator may be different than recipient
         minimum uint // required to reach at least this much, else everyone gets refund
@@ -139,11 +139,13 @@ contract CrowdFunder {
         isCreator()
         atEndOfLifecycle()
         selfDestruct(msg.sender)
-    }
+    }*/
 
     fallback(){
         throw()
-        // creator gets all money that hasn't be claimed
+        // creator gets all money that hasnt be claimed
+
+
     }
 
 

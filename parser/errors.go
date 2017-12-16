@@ -6,4 +6,5 @@ const (
 	errMixedNamedParameters     = "Mixed named and unnamed parameters"
 	errInvalidArraySize         = "Invalid array size"
 	errEmptyGroup               = "Group declaration must apply modifiers"
+	errDanglingExpression       = "Dangling expression"
 )

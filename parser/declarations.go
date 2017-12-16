@@ -364,7 +364,7 @@ func parseLifecycleDeclaration(p *Parser) {
 		node.Parameters = params
 	}
 
-	p.scope.AddDeclaration("constructor", &node)
+	p.scope.AddDeclaration("lifecycle", &node)
 }
 
 func parseTypeDeclaration(p *Parser) {
