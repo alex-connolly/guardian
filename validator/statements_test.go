@@ -237,3 +237,11 @@ func TestValidateClassAssignmentStatementInvalid(t *testing.T) {
 	errs := Validate(scope, NewTestVM())
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
+
+func TestValidateMultipleAssignment(t *testing.T) {
+	scope, _ := parser.ParseString(`a, b = 0`)
+	goutil.AssertNow(t, scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, len(scope.Sequence) == 1, "wrong sequence length")
+	errs := Validate(scope, NewTestVM())
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}

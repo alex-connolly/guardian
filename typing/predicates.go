@@ -15,5 +15,9 @@ func AssignableTo(left, right Type) bool {
 		return true
 	}
 
+	if left == Unknown() {
+		return true
+	}
+
 	return false
 }
