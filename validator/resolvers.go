@@ -84,7 +84,9 @@ type resolver func(v *Validator, e ast.ExpressionNode) typing.Type
 func resolveIdentifier(v *Validator, e ast.ExpressionNode) typing.Type {
 	i := e.(*ast.IdentifierNode)
 	// look up the identifier in scope
-	return v.findVariable(i.Name)
+	t := v.findVariable(i.Name)
+	i.Resolved = t
+	return t
 }
 
 func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Type {

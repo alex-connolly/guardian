@@ -1,8 +1,6 @@
 package evm
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/typing"
@@ -49,12 +47,12 @@ func (e *GuardianEVM) traverseForStatement(n *ast.ForStatementNode) (code vmgen.
 	code.Add("JUMPDEST")
 	top := code.Length()
 	code.Concat(cond)
-	code.Concat(e.pushMarker(block.Length() + post.Length() + 1))
+	code.Concat(pushMarker(block.Length() + post.Length() + 1))
 	code.Add("JUMPI")
 	code.Concat(block)
 	code.Concat(post)
 	bottom := code.Length()
-	code.Concat(e.pushMarker(bottom - top))
+	code.Concat(pushMarker(bottom - top))
 	code.Add("JUMP")
 	code.Add("JUMPDEST")
 
@@ -63,10 +61,10 @@ func (e *GuardianEVM) traverseForStatement(n *ast.ForStatementNode) (code vmgen.
 
 func (evm *GuardianEVM) increment(varName string) (code vmgen.Bytecode) {
 
-	code.Concat(evm.push([]byte(varName)))
+	code.Concat(push([]byte(varName)))
 	code.Add("DUP1")
 	code.Add("MLOAD")
-	code.Concat(evm.push(uintAsBytes(1)))
+	code.Concat(push(uintAsBytes(1)))
 	code.Add("ADD")
 	code.Add("MSTORE")
 	return code
@@ -88,15 +86,15 @@ func (e *GuardianEVM) traverseForEachStatement(n *ast.ForEachStatementNode) (cod
 		memloc := e.lookupMemory(name).offset
 		increment := e.increment(name)
 		block := e.traverse(n.Block)
-		code.Concat(e.push(encodeUint(0)))
+		code.Concat(push(encodeUint(0)))
 
-		code.Concat(e.push(encodeUint(memloc)))
+		code.Concat(push(encodeUint(memloc)))
 		code.Add("MSTORE")
 		code.Add("JUMPDEST")
-		code.Concat(e.push(encodeUint(memloc)))
+		code.Concat(push(encodeUint(memloc)))
 		code.Add("MLOAD")
 		code.Add("LT")
-		code.Concat(e.pushMarker(1 + increment.Length() + block.Length()))
+		code.Concat(pushMarker(1 + increment.Length() + block.Length()))
 		code.Add("JUMPI")
 
 		code.Concat(block)
@@ -136,10 +134,10 @@ func (e *GuardianEVM) traverseIfStatement(n *ast.IfStatementNode) (code vmgen.By
 	for i := range n.Conditions {
 		code.Concat(conds[i])
 		code.Add("ISZERO")
-		code.Concat(e.pushMarker(blocks[i].Length() + 1))
+		code.Concat(pushMarker(blocks[i].Length() + 1))
 		code.Add("JUMPI")
 		code.Concat(blocks[i])
-		code.Concat(e.pushMarker(end))
+		code.Concat(pushMarker(end))
 	}
 
 	code.Concat(e.traverse(n.Else))
@@ -164,29 +162,12 @@ func (e *GuardianEVM) traverseAssignmentStatement(n *ast.AssignmentStatementNode
 }
 
 func (e *GuardianEVM) assign(l, r ast.ExpressionNode, inStorage bool) (code vmgen.Bytecode) {
-	code.Concat(e.traverse(l))
-	code.Concat(e.traverse(r))
-
-	// assignments are either in memory or storage depending on the context
-	fmt.Println("HELLO")
-	name := ""
+	code.Concat(e.traverseExpression(l))
+	code.Concat(e.traverseExpression(r))
 	if inStorage {
-
-		if e.lookupStorage(name) == nil {
-			e.allocateStorage(name, l.ResolvedType().Size())
-		}
 		code.Add("SSTORE")
 	} else {
-
-		fmt.Println("TO")
-		m := e.lookupMemory(name)
-		if m == nil {
-			fmt.Println("YOU")
-			e.allocateMemory(name, r.ResolvedType().Size())
-		}
-		m = e.lookupMemory(name)
-		fmt.Println("ME")
-		code.Concat(m.retrieve())
+		code.Add("MSTORE")
 	}
 	return code
 }

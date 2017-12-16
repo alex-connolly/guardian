@@ -33,7 +33,6 @@ func (e *GuardianEVM) traverseClass(n *ast.ClassDeclarationNode) (code vmgen.Byt
 			}
 		}
 	}
-
 	return code
 }
 

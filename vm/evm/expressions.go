@@ -11,6 +11,7 @@ import (
 )
 
 func (e *GuardianEVM) traverseExpression(n ast.ExpressionNode) (code vmgen.Bytecode) {
+	fmt.Println("expr")
 	switch node := n.(type) {
 	case *ast.ArrayLiteralNode:
 		return e.traverseArrayLiteral(node)
@@ -192,6 +193,8 @@ func simpleInstruction(mnemonic string) Builtin {
 }
 
 func (e *GuardianEVM) traverseLiteral(n *ast.LiteralNode) (code vmgen.Bytecode) {
+
+	fmt.Println("Literal")
 	// Literal Nodes are directly converted to push instructions
 	// these nodes must be divided into blocks of 16 bytes
 	// in order to maintain
@@ -239,7 +242,7 @@ func (e *GuardianEVM) traverseMapLiteral(n *ast.MapLiteralNode) (code vmgen.Byte
 	for _, v := range n.Data {
 		// each storage slot must be 32 bytes regardless of contents
 		slot := EncodeName(fakeKey + "key")
-		code.Concat(e.push(slot))
+		code.Concat(push(slot))
 		code.Add("SSTORE")
 		i++
 	}*/
@@ -269,24 +272,19 @@ func (e *GuardianEVM) traverseFuncLiteral(n *ast.FuncLiteralNode) (code vmgen.By
 	return code
 }
 
-func isStorage(name string) bool {
-	// when will a variable be in storage:
-	// all variables declared in classes/contracts are in storage
-	// all other variables will be in memory unless explicitly declared
-	// but wait, don't maps require storage?
-	// yep, so no maps allowed inside functions
-	return false
-}
-
 func (e *GuardianEVM) traverseIdentifier(n *ast.IdentifierNode) (code vmgen.Bytecode) {
-	if isStorage(n.Name) {
+	if e.inStorage() {
 		s := e.lookupStorage(n.Name)
 		if s != nil {
 			return s.retrieve()
 		}
-
 	} else {
 		m := e.lookupMemory(n.Name)
+		if m != nil {
+			return m.retrieve()
+		}
+		e.allocateMemory(n.Name, n.ResolvedType().Size())
+		m = e.lookupMemory(n.Name)
 		if m != nil {
 			return m.retrieve()
 		}
