@@ -1,6 +1,8 @@
 package evm
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/typing"
@@ -78,23 +80,23 @@ func (e *GuardianEVM) traverseForEachStatement(n *ast.ForEachStatementNode) (cod
 	// can potentially support dmaps by encoding a backing array as well
 	// would be more expensive - add a keyword?
 
-	switch n.ResolvedType {
+	switch n.ResolvedType.(type) {
 	case typing.Array:
 		// TODO: index size must be large enough for any vars
 		name := n.Variables[0]
 		e.allocateMemory(name, 10)
 		memloc := e.lookupMemory(name).offset
-		increment := increment(name)
+		increment := e.increment(name)
 		block := e.traverse(n.Block)
-		code.Add(pusher(0))
+		code.Concat(e.push(encodeUint(0)))
 
-		code.Add(pusher(memloc))
+		code.Concat(e.push(encodeUint(memloc)))
 		code.Add("MSTORE")
 		code.Add("JUMPDEST")
-		code.Add(pusher(memloc))
+		code.Concat(e.push(encodeUint(memloc)))
 		code.Add("MLOAD")
 		code.Add("LT")
-		code.AddMarked(pusher(1 + len(increment) + len(body)))
+		code.Concat(e.pushMarker(1 + increment.Length() + block.Length()))
 		code.Add("JUMPI")
 
 		code.Concat(block)
@@ -124,7 +126,7 @@ func (e *GuardianEVM) traverseIfStatement(n *ast.IfStatementNode) (code vmgen.By
 	blocks := make([]vmgen.Bytecode, len(n.Conditions))
 	end := 0
 	for _, c := range n.Conditions {
-		cond := .traverse(c.Condition)
+		cond := e.traverse(c.Condition)
 		conds = append(conds, cond)
 		body := e.traverse(c.Body)
 		blocks = append(blocks, body)
@@ -150,29 +152,41 @@ func (e *GuardianEVM) traverseAssignmentStatement(n *ast.AssignmentStatementNode
 	if len(n.Left) > 1 && len(n.Right) == 1 {
 		for _, l := range n.Left {
 			r := n.Right[0]
-			code.Concat(e.assign(l, r, true))
+			code.Concat(e.assign(l, r, e.inStorage()))
 		}
 	} else {
 		for i, l := range n.Left {
 			r := n.Right[i]
-			code.Concat(e.assign(l, r, true))
+			code.Concat(e.assign(l, r, e.inStorage()))
 		}
 	}
 	return code
 }
 
 func (e *GuardianEVM) assign(l, r ast.ExpressionNode, inStorage bool) (code vmgen.Bytecode) {
-	e.currentlyAssigning = l
-	e.traverse(l)
-	e.traverse(r)
+	code.Concat(e.traverse(l))
+	code.Concat(e.traverse(r))
 
 	// assignments are either in memory or storage depending on the context
+	fmt.Println("HELLO")
+	name := ""
 	if inStorage {
-		e.allocateStorage(name, size)
+
+		if e.lookupStorage(name) == nil {
+			e.allocateStorage(name, l.ResolvedType().Size())
+		}
 		code.Add("SSTORE")
 	} else {
-		e.allocateMemory(name, size)
-		code.Add("MSTORE")
+
+		fmt.Println("TO")
+		m := e.lookupMemory(name)
+		if m == nil {
+			fmt.Println("YOU")
+			e.allocateMemory(name, r.ResolvedType().Size())
+		}
+		m = e.lookupMemory(name)
+		fmt.Println("ME")
+		code.Concat(m.retrieve())
 	}
 	return code
 }

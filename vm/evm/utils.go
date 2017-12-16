@@ -1,5 +1,9 @@
 package evm
 
+func encodeUint(i uint) []byte {
+	return nil
+}
+
 // EncodeName ...
 func EncodeName(name string) []byte {
 	/*

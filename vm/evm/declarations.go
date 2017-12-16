@@ -1,7 +1,7 @@
 package evm
 
 import (
-	"axia/guardian/token"
+	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/vmgen"
 
@@ -16,21 +16,24 @@ func (e *GuardianEVM) traverseType(n *ast.TypeDeclarationNode) (code vmgen.Bytec
 func (e *GuardianEVM) traverseClass(n *ast.ClassDeclarationNode) (code vmgen.Bytecode) {
 	// create constructor hooks
 	// create function hooks
-	for _, d := range n.Body.Declarations.Map() {
-		switch a := d.(type) {
-		case ast.ExplicitVarDeclarationNode:
-			e.traverseExplicitVarDecl(n)
-			break
-		case ast.LifecycleDeclarationNode:
-			e.addLifecycleHook(n.Identifier, a)
-			break
-		case ast.FuncDeclarationNode:
-			e.addFunctionHook(n.Identifier, a)
-			break
-		default:
-			e.traverse(a.(ast.Node))
+	if n.Body.Declarations != nil {
+		for _, d := range n.Body.Declarations.Map() {
+			switch a := d.(type) {
+			case *ast.ExplicitVarDeclarationNode:
+				e.traverseExplicitVarDecl(a)
+				break
+			case *ast.LifecycleDeclarationNode:
+				e.addLifecycleHook(n.Identifier, a)
+				break
+			case *ast.FuncDeclarationNode:
+				e.addFunctionHook(n.Identifier, a)
+				break
+			default:
+				e.traverse(a.(ast.Node))
+			}
 		}
 	}
+
 	return code
 }
 
@@ -52,13 +55,13 @@ func (e *GuardianEVM) traverseContract(n *ast.ContractDeclarationNode) (code vmg
 	// traverse everything else?
 	for _, d := range n.Body.Declarations.Map() {
 		switch a := d.(type) {
-		case ast.LifecycleDeclarationNode:
+		case *ast.LifecycleDeclarationNode:
 			e.addLifecycleHook(n.Identifier, a)
 			break
-		case ast.FuncDeclarationNode:
+		case *ast.FuncDeclarationNode:
 			e.addFunctionHook(n.Identifier, a)
 			break
-		case ast.EventDeclarationNode:
+		case *ast.EventDeclarationNode:
 			e.addEventHook(n.Identifier, a)
 			break
 		default:
@@ -69,18 +72,18 @@ func (e *GuardianEVM) traverseContract(n *ast.ContractDeclarationNode) (code vmg
 	return code
 }
 
-func (e *GuardianEVM) addLifecycleHook(parent string, node ast.LifecycleDeclarationNode) {
+func (e *GuardianEVM) addLifecycleHook(parent string, node *ast.LifecycleDeclarationNode) {
 	//e.hooks[parent].hook[]
 }
 
-func (e *GuardianEVM) addFunctionHook(parent string, node ast.FuncDeclarationNode) {
+func (e *GuardianEVM) addFunctionHook(parent string, node *ast.FuncDeclarationNode) {
 	/*e.hooks[parent][node.Identifier] = hook {
 		name: node.Identifier,
 	}*/
 
 }
 
-func (e *GuardianEVM) addEventHook(parent string, node ast.EventDeclarationNode) {
+func (e *GuardianEVM) addEventHook(parent string, node *ast.EventDeclarationNode) {
 	/*e.hooks[parent][node.Identifier] = hook{
 		name: node.Identifier,
 	}*/

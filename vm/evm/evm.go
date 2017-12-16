@@ -2,6 +2,7 @@ package evm
 
 import (
 	"encoding/binary"
+	"fmt"
 	"strconv"
 
 	"github.com/end-r/guardian/token"
@@ -129,9 +130,11 @@ func (evm *GuardianEVM) freeMemory(name string) {
 }
 
 func (evm *GuardianEVM) allocateMemory(name string, size uint) {
+	fmt.Println("111")
 	if evm.memory == nil {
 		evm.memory = make(map[string]*memoryBlock)
 	}
+	fmt.Println("222")
 	// try to use previously reclaimed memory
 	if evm.freedMemory != nil {
 		for i, m := range evm.freedMemory {
@@ -145,6 +148,7 @@ func (evm *GuardianEVM) allocateMemory(name string, size uint) {
 			}
 		}
 	}
+	fmt.Println("333")
 
 	block := memoryBlock{
 		size:   size,
@@ -286,6 +290,18 @@ func (evm GuardianEVM) Primitives() map[string]typing.Type {
 	return m
 }
 
+func (evm GuardianEVM) ValidDeclarations() []ast.NodeType {
+	return ast.AllDeclarations
+}
+
+func (evm GuardianEVM) ValidExpressions() []ast.NodeType {
+	return ast.AllExpressions
+}
+
+func (evm GuardianEVM) ValidStatements() []ast.NodeType {
+	return ast.AllStatements
+}
+
 func (evm GuardianEVM) Traverse(node ast.Node) (vmgen.Bytecode, util.Errors) {
 	// do pre-processing/hooks etc
 	code := evm.traverse(node)
@@ -372,12 +388,15 @@ func (e GuardianEVM) traverse(n ast.Node) (code vmgen.Bytecode) {
 }
 
 func (e *GuardianEVM) traverseScope(s *ast.ScopeNode) (code vmgen.Bytecode) {
-	for _, d := range s.Declarations.Array() {
-		code.Concat(e.traverse(d.(ast.Node)))
+	if s.Declarations != nil {
+		for _, d := range s.Declarations.Array() {
+			code.Concat(e.traverse(d.(ast.Node)))
+		}
 	}
+
 	return code
 }
 
 func (e *GuardianEVM) inStorage() bool {
-	return true
+	return false
 }

@@ -136,3 +136,28 @@ func TestTraverseReferenceCallArgs(t *testing.T) {
 	// should be two commands for each id
 	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
 }
+
+func TestTraverseLiteral(t *testing.T) {
+	e := new(GuardianEVM)
+	expr := parser.ParseExpression("0")
+	bytecode := e.traverseExpression(expr)
+	expected := []string{"PUSH1"}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func TestTraverseLiteralTwoBytes(t *testing.T) {
+	e := new(GuardianEVM)
+	expr := parser.ParseExpression("256")
+	bytecode := e.traverseExpression(expr)
+	expected := []string{"PUSH2"}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func TestTraverseLiteralThirtyTwoBytes(t *testing.T) {
+	e := new(GuardianEVM)
+	// 2^256
+	expr := parser.ParseExpression("115792089237316195423570985008687907853269984665640564039457584007913129639936")
+	bytecode := e.traverseExpression(expr)
+	expected := []string{"PUSH32"}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}

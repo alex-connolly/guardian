@@ -3,20 +3,43 @@ package evm
 import (
 	"testing"
 
+	"github.com/end-r/guardian/ast"
+	"github.com/end-r/guardian/parser"
+
 	"github.com/end-r/goutil"
-	"github.com/end-r/guardian"
 )
 
 func TestIncrement(t *testing.T) {
 
 }
 
+func TestAssignmentStatement(t *testing.T) {
+	scope, _ := parser.ParseString(`
+        i = 0
+    `)
+	f := scope.Sequence[0].(*ast.AssignmentStatementNode)
+	e := NewVM()
+	bytecode := e.traverseAssignmentStatement(f)
+	expected := []string{
+		// push left
+		"PUSH",
+		// push right
+		"PUSH",
+		// store (default is memory)
+		"MSTORE",
+	}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
 func TestForStatement(t *testing.T) {
-	bytecode, errs := guardian.CompileString(NewVM(), `
-        for i := 0; i < 5; i++ {
+	scope, _ := parser.ParseString(`
+        for i = 0; i < 5; i++ {
 
         }
     `)
+	f := scope.Sequence[0].(*ast.ForStatementNode)
+	e := NewVM()
+	bytecode := e.traverseForStatement(f)
 	expected := []string{
 		// init
 		"PUSH", "PUSH", "MSTORE",
@@ -31,7 +54,7 @@ func TestForStatement(t *testing.T) {
 		"JUMP",
 		"JUMPDEST",
 	}
-	goutil.Assert(t, bytecode.CompareMnemonics(expected), "wrong mnemonics")
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
 func TestReturnStatement(t *testing.T) {

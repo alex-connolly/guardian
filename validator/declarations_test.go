@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/end-r/guardian/parser"
@@ -115,15 +116,17 @@ func TestValidateFuncDeclMixed(t *testing.T) {
 }
 
 func TestValidateConstructorDeclEmpty(t *testing.T) {
-	scope, _ := parser.ParseString("constructor Dog() {}")
+	fmt.Println("hi")
+	scope, _ := parser.ParseString("constructor() {}")
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, scope.Declarations != nil, "declarations shouldn't be nil")
+	fmt.Println("here")
 	errs := Validate(scope, NewTestVM())
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
 func TestValidateConstructorDeclValidSingle(t *testing.T) {
-	scope, _ := parser.ParseString("constructor Dog(a int) {}")
+	scope, _ := parser.ParseString("constructor(a int) {}")
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, scope.Declarations != nil, "declarations shouldn't be nil")
 	errs := Validate(scope, NewTestVM())
@@ -131,7 +134,7 @@ func TestValidateConstructorDeclValidSingle(t *testing.T) {
 }
 
 func TestValidateConstructorDeclValidMultiple(t *testing.T) {
-	scope, _ := parser.ParseString("constructor Dog(a int, b string) {}")
+	scope, _ := parser.ParseString("constructor(a int, b string) {}")
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, scope.Declarations != nil, "declarations shouldn't be nil")
 	errs := Validate(scope, NewTestVM())

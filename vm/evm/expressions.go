@@ -197,15 +197,25 @@ func (e *GuardianEVM) traverseLiteral(n *ast.LiteralNode) (code vmgen.Bytecode) 
 	// in order to maintain
 
 	// maximum number size is 256 bits (32 bytes)
-
-	bytes := []byte(n.Data)
-	max := 32
-	size := 0
-	for size = len(bytes); size > max; size -= max {
-		code.Add("PUSH32", bytes[len(bytes)-size:len(bytes)-size+max]...)
+	switch n.LiteralType {
+	case token.Integer, token.Float:
+		if len(n.Data) > 32 {
+			// error
+		} else {
+			code.Add(fmt.Sprintf("PUSH%d", len(n.Data)), []byte(n.Data)...)
+		}
+		break
+	case token.String:
+		bytes := []byte(n.Data)
+		max := 32
+		size := 0
+		for size = len(bytes); size > max; size -= max {
+			code.Add("PUSH32", bytes[len(bytes)-size:len(bytes)-size+max]...)
+		}
+		op := fmt.Sprintf("PUSH%d", size)
+		code.Add(op, bytes[size:len(bytes)]...)
+		break
 	}
-	op := fmt.Sprintf("PUSH%d", size)
-	code.Add(op, bytes[size:len(bytes)]...)
 	return code
 }
 
@@ -222,17 +232,17 @@ func (e *GuardianEVM) traverseIndex(n *ast.IndexExpressionNode) (code vmgen.Byte
 
 func (e *GuardianEVM) traverseMapLiteral(n *ast.MapLiteralNode) (code vmgen.Bytecode) {
 
-	fakeKey := e.currentlyAssigning
+	/*fakeKey := e.currentlyAssigning
 
 	i := 0
-	// TODO: deterministic iteration
-	for k, v := range n.Data {
+	 TODO: deterministic iteration
+	for _, v := range n.Data {
 		// each storage slot must be 32 bytes regardless of contents
-		slot := EncodeName(fakeKey + bytes32(k))
+		slot := EncodeName(fakeKey + "key")
 		code.Concat(e.push(slot))
 		code.Add("SSTORE")
 		i++
-	}
+	}*/
 	return code
 }
 
@@ -270,18 +280,26 @@ func isStorage(name string) bool {
 
 func (e *GuardianEVM) traverseIdentifier(n *ast.IdentifierNode) (code vmgen.Bytecode) {
 	if isStorage(n.Name) {
-		return e.lookupStorage(n.Name).retrieve()
+		s := e.lookupStorage(n.Name)
+		if s != nil {
+			return s.retrieve()
+		}
+
 	} else {
-		return e.lookupMemory(n.Name).retrieve()
+		m := e.lookupMemory(n.Name)
+		if m != nil {
+			return m.retrieve()
+		}
 	}
+	return code
 }
 
 func (e *GuardianEVM) traverseReference(n *ast.ReferenceNode) (code vmgen.Bytecode) {
 	code.Concat(e.traverse(n.Parent))
 
-	resolved := n.Parent.Resolved()
+	//resolved := n.Parent.ResolvedType()
 
-	code.Concat(e.traverseContextual(resolved, n.Reference))
+	//code.Concat(e.traverseContextual(resolved, n.Reference))
 
 	if e.inStorage() {
 		code.Add("SLOAD")
