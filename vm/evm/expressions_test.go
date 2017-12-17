@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/end-r/guardian/validator"
+
 	"github.com/end-r/guardian/parser"
 
 	"github.com/end-r/goutil"
@@ -48,93 +50,161 @@ func TestTraverseCallBinaryExpression(t *testing.T) {
 }
 
 func TestTraverseIndexExpressionIdentifierLiteral(t *testing.T) {
-	e := new(GuardianEVM)
-	expr := parser.ParseExpression("a[1]")
-	bytes := e.traverseExpression(expr)
-	//goutil.Assert(t, bytes.Compare(expected), invalidBytecodeMessage(bytes, expected))
-	fmt.Println(bytes.Format())
-	// should be two commands for each id
-	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+	a, _ := parser.ParseString(`
+		a [5]int
+		x = a[1]
+	`)
+	e := NewVM()
+	validator.Validate(a, NewVM())
+	bytecode, _ := e.Traverse(a)
+	expected := []string{
+		// push x
+		"PUSH",
+		// push a
+		"PUSH",
+		// push index
+		"PUSH",
+		// push size of int
+		"PUSH",
+		// calculate offset
+		"MUL",
+		// create final position
+		"ADD",
+		"SLOAD",
+	}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func TestTraverseTwoDimensionalArray(t *testing.T) {
+	a, _ := validator.ValidateString(vm, `
+		b [5][5]int
+		x = b[2][3]
+	`)
+	bytecode, _ := NewVM().Traverse(a)
+	expected := []string{
+		// push x
+		"PUSH",
+		// push b
+		"PUSH",
+		// push index (2)
+		"PUSH",
+		// push size of type
+		"PUSH",
+	}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
 func TestTraverseIndexExpressionIdentifierIdentifier(t *testing.T) {
-	e := new(GuardianEVM)
-	expr := parser.ParseExpression("a[b]")
-	bytes := e.traverseExpression(expr)
-	//goutil.Assert(t, bytes.Compare(expected), invalidBytecodeMessage(bytes, expected))
-	fmt.Println(bytes.Format())
-	// should be two commands for each id
-	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+	a, _ := validator.ValidateString(vm, `
+		b [5]int
+		x = b[a]
+	`)
+	bytecode, _ := NewVM().Traverse(a)
+	expected := []string{
+		// push x
+		"PUSH",
+		// push b
+		"PUSH",
+		// push index (2)
+		"PUSH",
+		// push size of type
+		"PUSH",
+	}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
 func TestTraverseIndexExpressionIdentifierCall(t *testing.T) {
-	e := new(GuardianEVM)
-	expr := parser.ParseExpression("a[b()]")
-	bytes := e.traverseExpression(expr)
-	//goutil.Assert(t, bytes.Compare(expected), invalidBytecodeMessage(bytes, expected))
-	fmt.Println(bytes.Format())
-	// should be two commands for each id
-	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+	a, _ := validator.ValidateString(vm, `
+		b [5]int
+		x = b[a()]
+	`)
+	bytecode, _ := NewVM().Traverse(a)
+	expected := []string{
+		// push x
+		"PUSH",
+		// push b
+		"PUSH",
+		// push index (2)
+		"PUSH",
+		// push size of type
+		"PUSH",
+	}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
 func TestTraverseIndexExpressionIdentifierIndex(t *testing.T) {
-	e := new(GuardianEVM)
-	expr := parser.ParseExpression("a[b[c]]")
-	bytes := e.traverseExpression(expr)
-	//goutil.Assert(t, bytes.Compare(expected), invalidBytecodeMessage(bytes, expected))
-	fmt.Println(bytes.Format())
-	// should be two commands for each id
-	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+	a, _ := validator.ValidateString(vm, `
+		b [5]int
+		a [4]int
+		c = 3
+		x = b[a[c]]
+	`)
+	bytecode, _ := NewVM().Traverse(a)
+	expected := []string{
+		// push x
+		"PUSH",
+		// push b
+		"PUSH",
+		// push index (2)
+		"PUSH",
+		// push size of type
+		"PUSH",
+	}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
 func TestTraverseIndexExpressionCallIdentifier(t *testing.T) {
-	e := new(GuardianEVM)
-	expr := parser.ParseExpression("a()[b]")
-	bytes := e.traverseExpression(expr)
-	//goutil.Assert(t, bytes.Compare(expected), invalidBytecodeMessage(bytes, expected))
-	fmt.Println(bytes.Format())
-	// should be two commands for each id
-	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+	a, _ := validator.ValidateString(vm, `
+		x = a()[b]
+	`)
+	bytecode, _ := NewVM().Traverse(a)
+	expected := []string{
+		// push x
+		"PUSH",
+		// push b
+		"PUSH",
+		// push index (2)
+		"PUSH",
+		// push size of type
+		"PUSH",
+	}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
 func TestTraverseIndexExpressionCallLiteral(t *testing.T) {
-	e := new(GuardianEVM)
-	expr := parser.ParseExpression("a()[1]")
-	bytes := e.traverseExpression(expr)
-	//goutil.Assert(t, bytes.Compare(expected), invalidBytecodeMessage(bytes, expected))
-	fmt.Println(bytes.Format())
-	// should be two commands for each id
-	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+	a, _ := validator.ValidateString(vm, `
+		x = a()[1]
+	`)
+	bytecode, _ := NewVM().Traverse(a)
+	expected := []string{
+		// push x
+		"PUSH",
+		// push b
+		"PUSH",
+		// push index (2)
+		"PUSH",
+		// push size of type
+		"PUSH",
+	}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
 func TestTraverseIndexExpressionCallCall(t *testing.T) {
-	e := new(GuardianEVM)
-	expr := parser.ParseExpression("a()[b()]")
-	bytes := e.traverseExpression(expr)
-	//goutil.Assert(t, bytes.Compare(expected), invalidBytecodeMessage(bytes, expected))
-	fmt.Println(bytes.Format())
-	// should be two commands for each id
-	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
-}
-
-func TestTraverseReferenceCallEmpty(t *testing.T) {
-	e := new(GuardianEVM)
-	expr := parser.ParseExpression("math.Pow()")
-	bytes := e.traverseExpression(expr)
-	//goutil.Assert(t, bytes.Compare(expected), invalidBytecodeMessage(bytes, expected))
-	fmt.Println(bytes.Format())
-	// should be two commands for each id
-	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
-}
-
-func TestTraverseReferenceCallArgs(t *testing.T) {
-	e := new(GuardianEVM)
-	expr := parser.ParseExpression("math.Pow(2, 2)")
-	bytes := e.traverseExpression(expr)
-	//goutil.Assert(t, bytes.Compare(expected), invalidBytecodeMessage(bytes, expected))
-	fmt.Println(bytes.Format())
-	// should be two commands for each id
-	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+	a, _ := validator.ValidateString(vm, `
+		x = a()[b()]
+	`)
+	bytecode, _ := NewVM().Traverse(a)
+	expected := []string{
+		// push x
+		"PUSH",
+		// push b
+		"PUSH",
+		// push index (2)
+		"PUSH",
+		// push size of type
+		"PUSH",
+	}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
 func TestTraverseLiteral(t *testing.T) {

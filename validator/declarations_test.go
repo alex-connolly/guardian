@@ -1,7 +1,6 @@
 package validator
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/end-r/guardian/parser"
@@ -116,11 +115,9 @@ func TestValidateFuncDeclMixed(t *testing.T) {
 }
 
 func TestValidateConstructorDeclEmpty(t *testing.T) {
-	fmt.Println("hi")
 	scope, _ := parser.ParseString("constructor() {}")
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, scope.Declarations != nil, "declarations shouldn't be nil")
-	fmt.Println("here")
 	errs := Validate(scope, NewTestVM())
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }

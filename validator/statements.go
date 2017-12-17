@@ -1,8 +1,6 @@
 package validator
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/typing"
 
 	"github.com/end-r/guardian/ast"
@@ -137,9 +135,7 @@ func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
 
 func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
 	// get type of
-	fmt.Println("A")
 	gen := v.resolveExpression(node.Producer)
-	fmt.Println("B")
 	var req int
 	switch a := gen.(type) {
 	case typing.Map:

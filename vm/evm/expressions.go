@@ -225,11 +225,22 @@ func (e *GuardianEVM) traverseLiteral(n *ast.LiteralNode) (code vmgen.Bytecode) 
 
 func (e *GuardianEVM) traverseIndex(n *ast.IndexExpressionNode) (code vmgen.Bytecode) {
 
+	// TODO: bounds checking?
+
 	// load the data
 	code.Concat(e.traverseExpression(n.Expression))
 
-	// calculate offset, get bytes
+	typ := n.Expression.ResolvedType()
+
+	// calculate offset
+	// evaluate index
 	code.Concat(e.traverseExpression(n.Index))
+	// get size of type
+	code.Concat(push(encodeUint(typ.Size())))
+	// offset = size of type * index
+	code.Add("MUL")
+
+	code.Add("ADD")
 
 	return code
 }
@@ -306,12 +317,31 @@ func (e *GuardianEVM) traverseIdentifier(n *ast.IdentifierNode) (code vmgen.Byte
 	return code
 }
 
+func (e *GuardianEVM) traverseContextual(t typing.Type, expr ast.ExpressionNode) (code vmgen.Bytecode) {
+	switch expr.(type) {
+	case *ast.IdentifierNode:
+		switch t.(type) {
+		case typing.Class:
+
+			break
+		case typing.Interface:
+			break
+		}
+		break
+	case *ast.CallExpressionNode:
+		break
+	}
+	return code
+}
+
 func (e *GuardianEVM) traverseReference(n *ast.ReferenceNode) (code vmgen.Bytecode) {
 	code.Concat(e.traverse(n.Parent))
 
-	//resolved := n.Parent.ResolvedType()
+	resolved := n.Parent.ResolvedType()
 
-	//code.Concat(e.traverseContextual(resolved, n.Reference))
+	ctx := e.traverseContextual(resolved, n.Reference)
+
+	code.Concat(ctx)
 
 	if e.inStorage() {
 		code.Add("SLOAD")

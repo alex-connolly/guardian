@@ -214,13 +214,3 @@ func TestResolution(t *testing.T) {
 	v.resolveExpression(expr)
 	goutil.Assert(t, expr.ResolvedType() != nil, "nil resolved")
 }
-
-func TestStatementResolution(t *testing.T) {
-	v := NewValidator(NewTestVM())
-	a, _ := parser.ParseString("hi = 5")
-	stat := a.Sequence[0]
-	v.validate(stat)
-	ass := stat.(*ast.AssignmentStatementNode)
-	goutil.Assert(t, ass.Left[0].ResolvedType() != nil, "still nil")
-	goutil.Assert(t, ass.Right[0].ResolvedType() != nil, "still nil")
-}

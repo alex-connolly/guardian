@@ -3,6 +3,8 @@ package evm
 import (
 	"testing"
 
+	"github.com/end-r/guardian/validator"
+
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/parser"
 
@@ -17,8 +19,10 @@ func TestSimpleAssignmentStatement(t *testing.T) {
 	scope, _ := parser.ParseString(`
         i = 0
     `)
-	f := scope.Sequence[0].(*ast.AssignmentStatementNode)
 	e := NewVM()
+	validator.Validate(scope, e)
+	f := scope.Sequence[0].(*ast.AssignmentStatementNode)
+
 	bytecode := e.traverseAssignmentStatement(f)
 	expected := []string{
 		// push left
@@ -37,7 +41,7 @@ func TestIndexAssignmentStatement(t *testing.T) {
         nums[3] = 0
     `)
 	e := NewVM()
-
+	validator.Validate(scope, e)
 	bytecode := e.traverse(scope)
 	expected := []string{
 		// push left

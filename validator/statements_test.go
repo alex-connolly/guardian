@@ -241,7 +241,7 @@ func TestValidateClassAssignmentStatementInvalid(t *testing.T) {
 
 func TestValidateForEachStatementValid(t *testing.T) {
 	scope, _ := parser.ParseString(`
-		a [5]int
+		a = []string{"a", "b"}
 		for x, y in a {
 
 		}

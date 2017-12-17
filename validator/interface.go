@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"axia/guardian/parser"
 	"fmt"
 
 	"github.com/end-r/guardian/typing"
@@ -9,6 +10,12 @@ import (
 
 	"github.com/end-r/guardian/ast"
 )
+
+func ValidateString(vm VM, text string) (*ast.ScopeNode, util.Errors) {
+	a, _ := parser.ParseString(text)
+	es := Validate(a, vm)
+	return a, es
+}
 
 // Validate...
 func Validate(scope *ast.ScopeNode, vm VM) util.Errors {
