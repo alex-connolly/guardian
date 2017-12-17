@@ -11,13 +11,23 @@ import (
 	"github.com/end-r/guardian/ast"
 )
 
+// ValidateExpression ...
+func ValidateExpression(vm VM, text string) (ast.ExpressionNode, util.Errors) {
+	expr := parser.ParseExpression(text)
+	v := NewValidator(vm)
+	v.validateExpression(expr)
+	return expr, v.errs
+}
+
+// ValidateString ...
 func ValidateString(vm VM, text string) (*ast.ScopeNode, util.Errors) {
-	a, _ := parser.ParseString(text)
+	a, errs := parser.ParseString(text)
 	es := Validate(a, vm)
+	es = append(es, errs...)
 	return a, es
 }
 
-// Validate...
+// Validate ...
 func Validate(scope *ast.ScopeNode, vm VM) util.Errors {
 	v := new(Validator)
 	v.scope = &TypeScope{

@@ -2,7 +2,6 @@ package evm
 
 import (
 	"encoding/binary"
-	"fmt"
 
 	"github.com/end-r/vmgen"
 )
@@ -106,11 +105,9 @@ func (evm *GuardianEVM) freeMemory(name string) {
 }
 
 func (evm *GuardianEVM) allocateMemory(name string, size uint) {
-	fmt.Println("111")
 	if evm.memory == nil {
 		evm.memory = make(map[string]*memoryBlock)
 	}
-	fmt.Println("222")
 	// try to use previously reclaimed memory
 	if evm.freedMemory != nil {
 		for i, m := range evm.freedMemory {
@@ -124,7 +121,6 @@ func (evm *GuardianEVM) allocateMemory(name string, size uint) {
 			}
 		}
 	}
-	fmt.Println("333")
 
 	block := memoryBlock{
 		size:   size,

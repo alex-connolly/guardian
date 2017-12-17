@@ -43,12 +43,81 @@ func pushMarker(offset int) (code vmgen.Bytecode) {
 	return code
 }
 
-func (evm GuardianEVM) Builtins() *ast.ScopeNode {
-	ast, errs := parser.ParseFile(`builtins.grd`)
-	if errs != nil {
+var (
+	builtinScope *ast.ScopeNode
+	litMap       validator.LiteralMap
+	opMap        validator.OperatorMap
+)
 
+func (evm GuardianEVM) Builtins() *ast.ScopeNode {
+	if builtinScope == nil {
+		builtinScope, _ = parser.ParseString(`
+
+			type string []byte
+			type address [20]byte
+
+			wei = 1
+			kwei = 1000 * wei
+			babbage = kwei
+			mwei = 1000 * kwei
+			lovelace = mwei
+			gwei = 1000 * mwei
+			shannon = gwei
+			microether = 1000 * gwei
+			szabo = microether
+			milliether = 1000 * microether
+			finney = milliether
+			ether = 1000 * milliether
+
+			// account functions
+			balance func(a address) uint256
+			transfer func(a address, amount uint256) uint
+			send func(a address, amount uint256) bool
+			call func(a address) bool
+			delegateCall func(a address)
+
+			// cryptographic functions
+			addmod func(x, y, k uint) uint
+			mulmod func(x, y, k uint) uint
+			keccak256 func()
+			sha256 func()
+			sha3 func()
+			ripemd160 func()
+			ecrecover func (v uint8, h, r, s bytes32) address
+
+			// contract functions
+			// NO THIS KEYWORD: confusing for most programmers, unintentional bugs etc
+
+			selfDestruct func(recipient address) uint256
+
+
+			class BuiltinMessage {
+				data []byte
+				gas uint
+				sender address
+				sig [4]byte
+			}
+
+			class BuiltinBlock {
+				timestamp uint
+				number uint
+				coinbase address
+				gaslimit uint
+				blockhash func(blockNumber uint) [32]byte
+			}
+
+			class BuiltinTransaction {
+				gasprice uint
+				origin address
+			}
+
+			block BuiltinBlock
+			msg BuiltinMessage
+			tx BuiltinTransaction
+
+		`)
 	}
-	return ast
+	return builtinScope
 }
 
 func (evm GuardianEVM) BooleanName() string {
@@ -56,13 +125,16 @@ func (evm GuardianEVM) BooleanName() string {
 }
 
 func (evm GuardianEVM) Literals() validator.LiteralMap {
-	return validator.LiteralMap{
-		token.String:  validator.SimpleLiteral("string"),
-		token.True:    validator.BooleanLiteral,
-		token.False:   validator.BooleanLiteral,
-		token.Integer: resolveIntegerLiteral,
-		token.Float:   resolveFloatLiteral,
+	if litMap == nil {
+		litMap = validator.LiteralMap{
+			token.String:  validator.SimpleLiteral("string"),
+			token.True:    validator.BooleanLiteral,
+			token.False:   validator.BooleanLiteral,
+			token.Integer: resolveIntegerLiteral,
+			token.Float:   resolveFloatLiteral,
+		}
 	}
+	return litMap
 }
 
 func resolveIntegerLiteral(v *validator.Validator, data string) typing.Type {
@@ -76,6 +148,10 @@ func resolveFloatLiteral(v *validator.Validator, data string) typing.Type {
 }
 
 func (evm GuardianEVM) Operators() (m validator.OperatorMap) {
+
+	if opMap != nil {
+		return opMap
+	}
 	m = validator.OperatorMap{}
 
 	m.Add(validator.BooleanOperator, token.Geq, token.Leq,
@@ -92,6 +168,8 @@ func (evm GuardianEVM) Operators() (m validator.OperatorMap) {
 	m.Add(validator.BinaryIntegerOperator, token.Shl, token.Shr)
 
 	m.Add(validator.CastOperator, token.As)
+
+	opMap = m
 
 	return m
 }
@@ -222,6 +300,9 @@ func (e GuardianEVM) traverse(n ast.Node) (code vmgen.Bytecode) {
 }
 
 func (e *GuardianEVM) traverseScope(s *ast.ScopeNode) (code vmgen.Bytecode) {
+	if s == nil {
+		return code
+	}
 	if s.Declarations != nil {
 		for _, d := range s.Declarations.Array() {
 			code.Concat(e.traverse(d.(ast.Node)))

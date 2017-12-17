@@ -1,7 +1,6 @@
 package evm
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/end-r/guardian/validator"
@@ -12,50 +11,120 @@ import (
 )
 
 func TestTraverseSimpleIdentifierExpression(t *testing.T) {
-	e := new(GuardianEVM)
-	expr := parser.ParseExpression("hello")
-	bytes := e.traverseExpression(expr)
-	//goutil.Assert(t, bytes.Compare(expected), invalidBytecodeMessage(bytes, expected))
-	fmt.Println(bytes.Format())
-	goutil.Assert(t, bytes.Length() == 2, "wrong bc length")
+	e := NewVM()
+	a, _ := validator.ValidateString(e, `
+
+		hello = 5
+		x = hello
+	`)
+	bytecode, _ := e.Traverse(a)
+	expected := []string{
+		// push x
+		"PUSH",
+		// push a
+		"PUSH",
+		// push index
+		"PUSH",
+		// push size of int
+		"PUSH",
+		// calculate offset
+		"MUL",
+		// create final position
+		"ADD",
+		"SLOAD",
+	}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
 func TestTraverseLiteralsBinaryExpression(t *testing.T) {
-	e := new(GuardianEVM)
-	expr := parser.ParseExpression("1 + 2")
-	bytes := e.traverseExpression(expr)
-	//goutil.Assert(t, bytes.Compare(expected), invalidBytecodeMessage(bytes, expected))
-	fmt.Println(bytes.Format())
-	goutil.Assert(t, bytes.Length() == 3, "wrong bc length")
+	e := NewVM()
+	a, _ := validator.ValidateString(e, `
+		x = 1 + 2
+	`)
+	bytecode, _ := e.Traverse(a)
+	expected := []string{
+		// push x
+		"PUSH",
+		// push a
+		"PUSH",
+		// push index
+		"PUSH",
+		// push size of int
+		"PUSH",
+		// calculate offset
+		"MUL",
+		// create final position
+		"ADD",
+		"SLOAD",
+	}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
 func TestTraverseIdentifierBinaryExpression(t *testing.T) {
-	e := new(GuardianEVM)
-	expr := parser.ParseExpression("a + b")
-	bytes := e.traverseExpression(expr)
-	//goutil.Assert(t, bytes.Compare(expected), invalidBytecodeMessage(bytes, expected))
-	fmt.Println(bytes.Format())
-	// should be two commands for each id
-	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+	e := NewVM()
+	a, _ := validator.ValidateString(e, `
+		a = 1
+		b = 2
+		x = a + b
+	`)
+	bytecode, _ := e.Traverse(a)
+	expected := []string{
+		// push x
+		"PUSH",
+		// push a
+		"PUSH",
+		// push index
+		"PUSH",
+		// push size of int
+		"PUSH",
+		// calculate offset
+		"MUL",
+		// create final position
+		"ADD",
+		"SLOAD",
+	}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
 func TestTraverseCallBinaryExpression(t *testing.T) {
-	e := new(GuardianEVM)
-	expr := parser.ParseExpression("a() + b()")
-	bytes := e.traverseExpression(expr)
-	//goutil.Assert(t, bytes.Compare(expected), invalidBytecodeMessage(bytes, expected))
-	fmt.Println(bytes.Format())
-	// should be two commands for each id
-	goutil.Assert(t, bytes.Length() == 5, "wrong bc length")
+	e := NewVM()
+	a, _ := validator.ValidateString(e, `
+
+		func a() int {
+			return 1
+		}
+
+		func b() int {
+			return 2
+		}
+
+		x = a() + b()
+	`)
+	bytecode, _ := e.Traverse(a)
+	expected := []string{
+		// push x
+		"PUSH",
+		// push a
+		"PUSH",
+		// push index
+		"PUSH",
+		// push size of int
+		"PUSH",
+		// calculate offset
+		"MUL",
+		// create final position
+		"ADD",
+		"SLOAD",
+	}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
 func TestTraverseIndexExpressionIdentifierLiteral(t *testing.T) {
-	a, _ := parser.ParseString(`
-		a [5]int
-		x = a[1]
-	`)
 	e := NewVM()
-	validator.Validate(a, NewVM())
+	a, _ := validator.ValidateString(e, `
+		b [5]int
+		x = b[1]
+	`)
 	bytecode, _ := e.Traverse(a)
 	expected := []string{
 		// push x
@@ -76,11 +145,12 @@ func TestTraverseIndexExpressionIdentifierLiteral(t *testing.T) {
 }
 
 func TestTraverseTwoDimensionalArray(t *testing.T) {
-	a, _ := validator.ValidateString(vm, `
+	e := NewVM()
+	a, _ := validator.ValidateString(e, `
 		b [5][5]int
 		x = b[2][3]
 	`)
-	bytecode, _ := NewVM().Traverse(a)
+	bytecode, _ := e.Traverse(a)
 	expected := []string{
 		// push x
 		"PUSH",
@@ -95,11 +165,12 @@ func TestTraverseTwoDimensionalArray(t *testing.T) {
 }
 
 func TestTraverseIndexExpressionIdentifierIdentifier(t *testing.T) {
-	a, _ := validator.ValidateString(vm, `
+	e := NewVM()
+	a, _ := validator.ValidateString(e, `
 		b [5]int
 		x = b[a]
 	`)
-	bytecode, _ := NewVM().Traverse(a)
+	bytecode, _ := e.Traverse(a)
 	expected := []string{
 		// push x
 		"PUSH",
@@ -114,11 +185,12 @@ func TestTraverseIndexExpressionIdentifierIdentifier(t *testing.T) {
 }
 
 func TestTraverseIndexExpressionIdentifierCall(t *testing.T) {
-	a, _ := validator.ValidateString(vm, `
+	e := NewVM()
+	a, _ := validator.ValidateString(e, `
 		b [5]int
 		x = b[a()]
 	`)
-	bytecode, _ := NewVM().Traverse(a)
+	bytecode, _ := e.Traverse(a)
 	expected := []string{
 		// push x
 		"PUSH",
@@ -133,13 +205,14 @@ func TestTraverseIndexExpressionIdentifierCall(t *testing.T) {
 }
 
 func TestTraverseIndexExpressionIdentifierIndex(t *testing.T) {
-	a, _ := validator.ValidateString(vm, `
+	e := NewVM()
+	a, _ := validator.ValidateString(e, `
 		b [5]int
 		a [4]int
 		c = 3
 		x = b[a[c]]
 	`)
-	bytecode, _ := NewVM().Traverse(a)
+	bytecode, _ := e.Traverse(a)
 	expected := []string{
 		// push x
 		"PUSH",
@@ -154,10 +227,11 @@ func TestTraverseIndexExpressionIdentifierIndex(t *testing.T) {
 }
 
 func TestTraverseIndexExpressionCallIdentifier(t *testing.T) {
-	a, _ := validator.ValidateString(vm, `
+	e := NewVM()
+	a, _ := validator.ValidateString(e, `
 		x = a()[b]
 	`)
-	bytecode, _ := NewVM().Traverse(a)
+	bytecode, _ := e.Traverse(a)
 	expected := []string{
 		// push x
 		"PUSH",
@@ -172,10 +246,11 @@ func TestTraverseIndexExpressionCallIdentifier(t *testing.T) {
 }
 
 func TestTraverseIndexExpressionCallLiteral(t *testing.T) {
-	a, _ := validator.ValidateString(vm, `
+	e := NewVM()
+	a, _ := validator.ValidateString(e, `
 		x = a()[1]
 	`)
-	bytecode, _ := NewVM().Traverse(a)
+	bytecode, _ := e.Traverse(a)
 	expected := []string{
 		// push x
 		"PUSH",
@@ -190,10 +265,11 @@ func TestTraverseIndexExpressionCallLiteral(t *testing.T) {
 }
 
 func TestTraverseIndexExpressionCallCall(t *testing.T) {
-	a, _ := validator.ValidateString(vm, `
+	e := NewVM()
+	a, _ := validator.ValidateString(e, `
 		x = a()[b()]
 	`)
-	bytecode, _ := NewVM().Traverse(a)
+	bytecode, _ := e.Traverse(a)
 	expected := []string{
 		// push x
 		"PUSH",

@@ -123,6 +123,7 @@ func (e *GuardianEVM) traverseIfStatement(n *ast.IfStatementNode) (code vmgen.By
 	conds := make([]vmgen.Bytecode, len(n.Conditions))
 	blocks := make([]vmgen.Bytecode, len(n.Conditions))
 	end := 0
+
 	for _, c := range n.Conditions {
 		cond := e.traverse(c.Condition)
 		conds = append(conds, cond)
@@ -146,17 +147,9 @@ func (e *GuardianEVM) traverseIfStatement(n *ast.IfStatementNode) (code vmgen.By
 }
 
 func (e *GuardianEVM) traverseAssignmentStatement(n *ast.AssignmentStatementNode) (code vmgen.Bytecode) {
-	// consider mismatched lengths
-	if len(n.Left) > 1 && len(n.Right) == 1 {
-		for _, l := range n.Left {
-			r := n.Right[0]
-			code.Concat(e.assign(l, r, e.inStorage()))
-		}
-	} else {
-		for i, l := range n.Left {
-			r := n.Right[i]
-			code.Concat(e.assign(l, r, e.inStorage()))
-		}
+	for i, l := range n.Left {
+		r := n.Right[i]
+		code.Concat(e.assign(l, r, e.inStorage()))
 	}
 	return code
 }

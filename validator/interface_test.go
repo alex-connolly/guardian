@@ -29,3 +29,15 @@ func TestRequireTypeUnmatched(t *testing.T) {
 	v.DeclareType("a", typing.Unknown())
 	goutil.Assert(t, !v.requireType(typing.Boolean(), v.getNamedType("a")), "indirect should not be equal")
 }
+
+func TestValidateString(t *testing.T) {
+	scope, errs := ValidateString(NewTestVM(), `
+		if x = 0; x > 5 {
+
+		} else {
+
+		}
+	`)
+	goutil.AssertNow(t, errs == nil, errs.Format())
+	goutil.AssertNow(t, scope != nil, "scope should not be nil")
+}
