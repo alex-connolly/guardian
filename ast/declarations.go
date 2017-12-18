@@ -18,9 +18,7 @@ type TypeDeclarationNode struct {
 func (n *TypeDeclarationNode) Type() NodeType { return TypeDeclaration }
 
 type FuncDeclarationNode struct {
-	Identifier   string
-	Parameters   []*ExplicitVarDeclarationNode
-	Results      []Node
+	Signature    *FuncTypeNode
 	Body         *ScopeNode
 	Modifiers    []token.Type
 	ResolvedSize uint
@@ -100,3 +98,9 @@ type EnumDeclarationNode struct {
 }
 
 func (n *EnumDeclarationNode) Type() NodeType { return EnumDeclaration }
+
+type GenericDeclarationNode struct {
+	Identifier string
+	Inherits   []*PlainTypeNode
+	Implements []*PlainTypeNode
+}

@@ -98,6 +98,8 @@ func (evm GuardianEVM) Builtins() *ast.ScopeNode {
 				sig [4]byte
 			}
 
+			msg BuiltinMessage
+
 			class BuiltinBlock {
 				timestamp uint
 				number uint
@@ -106,13 +108,13 @@ func (evm GuardianEVM) Builtins() *ast.ScopeNode {
 				blockhash func(blockNumber uint) [32]byte
 			}
 
+			block BuiltinBlock
+
 			class BuiltinTransaction {
 				gasprice uint
 				origin address
 			}
 
-			block BuiltinBlock
-			msg BuiltinMessage
 			tx BuiltinTransaction
 
 		`)

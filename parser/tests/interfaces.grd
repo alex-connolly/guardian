@@ -21,4 +21,9 @@ contract C {
         func iCantBelieveIveDoneThis(c []string) map[string]int
     }
 
+    interface NamedReturn {
+        func doEvenMoreStuff(string) (a string)
+        func wowALotOfStuff(map[string]int) map[string]int
+    }
+
 }

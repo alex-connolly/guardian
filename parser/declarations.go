@@ -42,7 +42,7 @@ func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
 
 	var sigs []*ast.FuncTypeNode
 
-	first := p.parseFuncType()
+	first := p.parseFuncSignature()
 	sigs = append(sigs, first)
 
 	p.ignoreNewLines()
@@ -54,7 +54,7 @@ func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
 			//p.parseConstruct()
 			p.next()
 		} else {
-			sigs = append(sigs, p.parseFuncType())
+			sigs = append(sigs, p.parseFuncSignature())
 		}
 
 		p.ignoreNewLines()
@@ -322,27 +322,41 @@ func (p *Parser) parseResults() []ast.Node {
 	return nil
 }
 
+func (p *Parser) parseFuncSignature() *ast.FuncTypeNode {
+
+	f := new(ast.FuncTypeNode)
+
+	f.Identifier = p.parseIdentifier()
+
+	p.parseRequired(token.OpenBracket)
+	f.Parameters = p.parseFuncTypeParameters()
+	p.parseRequired(token.CloseBracket)
+
+	if p.parseOptional(token.OpenBracket) {
+		f.Results = p.parseFuncTypeParameters()
+		p.parseRequired(token.CloseBracket)
+	} else {
+		f.Results = p.parseFuncTypeParameters()
+	}
+
+	return f
+}
+
 func parseFuncDeclaration(p *Parser) {
 
 	p.parseRequired(token.Func)
 
-	identifier := p.parseIdentifier()
-
-	params := p.parseParameters()
-
-	results := p.parseResults()
+	signature := p.parseFuncSignature()
 
 	body := p.parseBracesScope(ast.ExplicitVarDeclaration, ast.FuncDeclaration)
 
 	node := ast.FuncDeclarationNode{
-		Identifier: identifier,
-		Parameters: params,
-		Results:    results,
-		Modifiers:  p.getModifiers(),
-		Body:       body,
+		Signature: signature,
+		Modifiers: p.getModifiers(),
+		Body:      body,
 	}
 
-	p.scope.AddDeclaration(identifier, &node)
+	p.scope.AddDeclaration(signature.Identifier, &node)
 }
 
 func parseLifecycleDeclaration(p *Parser) {
@@ -414,9 +428,6 @@ func (p *Parser) parseFuncType() *ast.FuncTypeNode {
 
 	p.parseRequired(token.Func)
 
-	if p.current().Type == token.Identifier {
-		f.Identifier = p.parseIdentifier()
-	}
 	p.parseRequired(token.OpenBracket)
 
 	f.Parameters = p.parseFuncTypeParameters()
