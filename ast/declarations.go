@@ -21,6 +21,7 @@ type FuncDeclarationNode struct {
 	Signature    *FuncTypeNode
 	Body         *ScopeNode
 	Modifiers    []token.Type
+	Generics     []*GenericDeclarationNode
 	ResolvedSize uint
 	Resolved     typing.Type
 }
@@ -34,6 +35,7 @@ type ClassDeclarationNode struct {
 	Interfaces   []*PlainTypeNode
 	Body         *ScopeNode
 	declarations map[string][]Node
+	Generics     []*GenericDeclarationNode
 	Resolved     typing.Type
 }
 
@@ -44,6 +46,7 @@ type InterfaceDeclarationNode struct {
 	Modifiers  []token.Type
 	Signatures []*FuncTypeNode
 	Supers     []*PlainTypeNode
+	Generics   []*GenericDeclarationNode
 	Resolved   typing.Type
 }
 
@@ -54,6 +57,7 @@ type ContractDeclarationNode struct {
 	Modifiers  []token.Type
 	Supers     []*PlainTypeNode
 	Interfaces []*PlainTypeNode
+	Generics   []*GenericDeclarationNode
 	Body       *ScopeNode
 	Resolved   typing.Type
 }

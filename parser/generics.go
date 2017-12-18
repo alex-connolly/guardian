@@ -5,13 +5,22 @@ import (
 	"github.com/end-r/guardian/token"
 )
 
-func (p *Parser) parseGenericsDeclaration() {
-	p.parseRequired(token.Lss)
-	if p.parseOptional(token.Gtr) {
-		p.addError("")
-		return
+func (p *Parser) parsePossibleGenerics() []*ast.GenericDeclarationNode {
+	if p.parseOptional(token.Lss) {
+		gens := p.parseGenerics()
+		p.parseRequired(token.Gtr)
+		return gens
 	}
+	return nil
+}
 
+func (p *Parser) parseGenerics() []*ast.GenericDeclarationNode {
+	var generics []*ast.GenericDeclarationNode
+	generics = append(generics, p.parseGeneric())
+	for p.parseOptional(token.Comma) {
+		generics = append(generics, p.parseGeneric())
+	}
+	return generics
 }
 
 // TODO: java ? wildcards
@@ -33,7 +42,7 @@ func (p *Parser) parseGeneric() *ast.GenericDeclarationNode {
 	}
 	return &ast.GenericDeclarationNode{
 		Identifier: identifier,
-		Interfaces: interfaces,
+		Implements: interfaces,
 		Inherits:   inherits,
 	}
 }

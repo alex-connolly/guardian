@@ -458,8 +458,8 @@ func TestParseFuncNoParameters(t *testing.T) {
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
 	f := n.(*ast.FuncDeclarationNode)
-	goutil.AssertNow(t, len(f.Parameters) == 0,
-		fmt.Sprintf("wrong param length: %d", len(f.Parameters)))
+	goutil.AssertNow(t, len(f.Signature.Parameters) == 0,
+		fmt.Sprintf("wrong param length: %d", len(f.Signature.Parameters)))
 }
 
 func TestParseFuncOneParameter(t *testing.T) {
@@ -470,7 +470,7 @@ func TestParseFuncOneParameter(t *testing.T) {
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
 	f := n.(*ast.FuncDeclarationNode)
-	goutil.AssertNow(t, len(f.Parameters) == 1, "wrong param length")
+	goutil.AssertNow(t, len(f.Signature.Parameters) == 1, "wrong param length")
 }
 
 func TestParseFuncParameters(t *testing.T) {
@@ -481,7 +481,7 @@ func TestParseFuncParameters(t *testing.T) {
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
 	f := n.(*ast.FuncDeclarationNode)
-	goutil.AssertNow(t, len(f.Parameters) == 2, "wrong param length")
+	goutil.AssertNow(t, len(f.Signature.Parameters) == 2, "wrong param length")
 }
 
 func TestParseFuncMultiplePerType(t *testing.T) {
@@ -491,7 +491,7 @@ func TestParseFuncMultiplePerType(t *testing.T) {
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
 	f := n.(*ast.FuncDeclarationNode)
-	goutil.AssertNow(t, len(f.Parameters) == 1, "wrong param length")
+	goutil.AssertNow(t, len(f.Signature.Parameters) == 1, "wrong param length")
 }
 
 func TestParseFuncMultiplePerTypeExtra(t *testing.T) {
@@ -502,7 +502,7 @@ func TestParseFuncMultiplePerTypeExtra(t *testing.T) {
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
 	f := n.(*ast.FuncDeclarationNode)
-	goutil.AssertNow(t, len(f.Parameters) == 2, "wrong param length")
+	goutil.AssertNow(t, len(f.Signature.Parameters) == 2, "wrong param length")
 }
 
 func TestParseConstructorNoParameters(t *testing.T) {
