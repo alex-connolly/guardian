@@ -60,8 +60,7 @@ contract Ballot {
 
 
     external func delegate(to address){
-
-        storage sender := voters[msg.sender]
+        storage sender = voters[msg.sender]
         assert(!sender.voted)
         assert(to != msg.sender)
 

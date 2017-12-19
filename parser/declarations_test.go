@@ -454,12 +454,10 @@ func TestParseFuncNoParameters(t *testing.T) {
 	p := createParser(`func foo(){}`)
 	goutil.Assert(t, isFuncDeclaration(p), "should detect func decl")
 	parseFuncDeclaration(p)
-
 	n := p.scope.NextDeclaration()
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
 	f := n.(*ast.FuncDeclarationNode)
-	goutil.AssertNow(t, len(f.Signature.Parameters) == 0,
-		fmt.Sprintf("wrong param length: %d", len(f.Signature.Parameters)))
+	goutil.AssertLength(t, len(f.Signature.Parameters), 0)
 }
 
 func TestParseFuncOneParameter(t *testing.T) {
@@ -592,4 +590,12 @@ func TestParseParametersSingleVarMultipleType(t *testing.T) {
 	goutil.AssertNow(t, exps[1].DeclaredType.Type() == ast.PlainType, "wrong declared type")
 	goutil.AssertNow(t, len(exps[0].Identifiers) == 1, "wrong parameter length")
 	goutil.AssertNow(t, len(exps[1].Identifiers) == 1, "wrong parameter length")
+}
+
+func TestParseFuncSignatureNoParamOneResult(t *testing.T) {
+	p := createParser("hi() string")
+	sig := p.parseFuncSignature()
+	goutil.AssertNow(t, sig != nil, "nil signature")
+	goutil.AssertLength(t, len(sig.Parameters), 0)
+	goutil.AssertLength(t, len(sig.Results), 1)
 }

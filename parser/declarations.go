@@ -14,6 +14,8 @@ func parseInterfaceDeclaration(p *Parser) {
 
 		identifier := p.parseIdentifier()
 
+		generics := p.parsePossibleGenerics()
+
 		var inherits []*ast.PlainTypeNode
 
 		if p.parseOptional(token.Inherits) {
@@ -24,6 +26,7 @@ func parseInterfaceDeclaration(p *Parser) {
 
 		node := ast.InterfaceDeclarationNode{
 			Identifier: identifier,
+			Generics:   generics,
 			Supers:     inherits,
 			Modifiers:  p.getModifiers(),
 			Signatures: signatures,
@@ -42,21 +45,18 @@ func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
 
 	var sigs []*ast.FuncTypeNode
 
-	first := p.parseFuncSignature()
-	sigs = append(sigs, first)
-
+	sigs = append(sigs, p.parseFuncSignature())
 	p.ignoreNewLines()
 
 	for !p.parseOptional(token.CloseBrace) {
-
-		if !p.isFuncType() {
+		sig := p.parseFuncSignature()
+		if sig != nil {
+			sigs = append(sigs, sig)
+		} else {
 			p.addError(errInvalidInterfaceProperty)
 			//p.parseConstruct()
 			p.next()
-		} else {
-			sigs = append(sigs, p.parseFuncSignature())
 		}
-
 		p.ignoreNewLines()
 
 	}
@@ -105,6 +105,8 @@ func parseEnumDeclaration(p *Parser) {
 			inherits = p.parsePlainTypeList()
 		}
 
+		p.errorUnless(token.OpenBrace)
+
 		enums := p.parseEnumBody()
 
 		node := ast.EnumDeclarationNode{
@@ -145,8 +147,10 @@ func (p *Parser) parsePlainTypeList() []*ast.PlainTypeNode {
 }
 
 func parseClassBody(p *Parser) {
+
 	identifier := p.parseIdentifier()
 
+	generics := p.parsePossibleGenerics()
 	// is and inherits can be in any order
 
 	var inherits, interfaces []*ast.PlainTypeNode
@@ -163,10 +167,13 @@ func parseClassBody(p *Parser) {
 		}
 	}
 
+	p.errorUnless(token.OpenBrace)
+
 	body := p.parseBracesScope()
 
 	node := ast.ClassDeclarationNode{
 		Identifier: identifier,
+		Generics:   generics,
 		Supers:     inherits,
 		Interfaces: interfaces,
 		Modifiers:  p.getModifiers(),
@@ -176,12 +183,21 @@ func parseClassBody(p *Parser) {
 	p.scope.AddDeclaration(identifier, &node)
 }
 
+func (p *Parser) errorUnless(t token.Type) {
+	for !p.isNextToken(t) {
+		p.addError("yoyo")
+		p.next()
+	}
+}
+
 func parseClassDeclaration(p *Parser) {
 	p.parseGroupable(token.Class, parseClassBody)
 }
 
 func parseContractBody(p *Parser) {
 	identifier := p.parseIdentifier()
+
+	generics := p.parsePossibleGenerics()
 
 	// is and inherits can be in any order
 
@@ -198,6 +214,8 @@ func parseContractBody(p *Parser) {
 			inherits = p.parsePlainTypeList()
 		}
 	}
+
+	p.errorUnless(token.OpenBrace)
 
 	valids := []ast.NodeType{
 		ast.ClassDeclaration, ast.InterfaceDeclaration,
@@ -210,6 +228,7 @@ func parseContractBody(p *Parser) {
 
 	node := ast.ContractDeclarationNode{
 		Identifier: identifier,
+		Generics:   generics,
 		Supers:     inherits,
 		Interfaces: interfaces,
 		Modifiers:  p.getModifiers(),
@@ -324,13 +343,26 @@ func (p *Parser) parseResults() []ast.Node {
 
 func (p *Parser) parseFuncSignature() *ast.FuncTypeNode {
 
+	// return nil for any errors
+	// TODO: maybe do this better
 	f := new(ast.FuncTypeNode)
+
+	if p.isNextToken(token.Func) {
+		p.addError("can't")
+		p.next()
+	}
+
+	if !p.isNextToken(token.Identifier) {
+		return nil
+	}
 
 	f.Identifier = p.parseIdentifier()
 
 	p.parseRequired(token.OpenBracket)
-	f.Parameters = p.parseFuncTypeParameters()
-	p.parseRequired(token.CloseBracket)
+	if !p.parseOptional(token.CloseBracket) {
+		f.Parameters = p.parseFuncTypeParameters()
+		p.parseRequired(token.CloseBracket)
+	}
 
 	if p.parseOptional(token.OpenBracket) {
 		f.Results = p.parseFuncTypeParameters()
@@ -346,12 +378,17 @@ func parseFuncDeclaration(p *Parser) {
 
 	p.parseRequired(token.Func)
 
+	generics := p.parsePossibleGenerics()
+
 	signature := p.parseFuncSignature()
+
+	p.errorUnless(token.OpenBrace)
 
 	body := p.parseBracesScope(ast.ExplicitVarDeclaration, ast.FuncDeclaration)
 
 	node := ast.FuncDeclarationNode{
 		Signature: signature,
+		Generics:  generics,
 		Modifiers: p.getModifiers(),
 		Body:      body,
 	}
@@ -429,9 +466,10 @@ func (p *Parser) parseFuncType() *ast.FuncTypeNode {
 	p.parseRequired(token.Func)
 
 	p.parseRequired(token.OpenBracket)
-
-	f.Parameters = p.parseFuncTypeParameters()
-	p.parseRequired(token.CloseBracket)
+	if !p.parseOptional(token.CloseBracket) {
+		f.Parameters = p.parseFuncTypeParameters()
+		p.parseRequired(token.CloseBracket)
+	}
 
 	if p.parseOptional(token.OpenBracket) {
 		f.Results = p.parseFuncTypeParameters()

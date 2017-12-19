@@ -1,29 +1,29 @@
 contract C {
 
     interface A {
-        func doStuff()
-        func doOtherStuff()
+        doStuff()
+        doOtherStuff()
     }
 
     interface B inherits A {
-        func doMoreStuff()
+        doMoreStuff()
     }
 
     interface Full {
-        func doEvenMoreStuff(string) string
-        func wowALotOfStuff(map[string]int) map[string]int
-        func iCantBelieveIveDoneThis([]string) map[string]int
+        doEvenMoreStuff(string) string
+        wowALotOfStuff(map[string]int) map[string]int
+        iCantBelieveIveDoneThis([]string) map[string]int
     }
 
     interface Named {
-        func doEvenMoreStuff(a string) string
-        func wowALotOfStuff(b map[string]int) map[string]int
-        func iCantBelieveIveDoneThis(c []string) map[string]int
+        doEvenMoreStuff(a string) string
+        wowALotOfStuff(b map[string]int) map[string]int
+        iCantBelieveIveDoneThis(c []string) map[string]int
     }
 
     interface NamedReturn {
-        func doEvenMoreStuff(string) (a string)
-        func wowALotOfStuff(map[string]int) map[string]int
+        doEvenMoreStuff(string) (a string)
+        wowALotOfStuff(map[string]int) map[string]int
     }
 
 }

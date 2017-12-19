@@ -158,3 +158,14 @@ func TestLexerFloats(t *testing.T) {
 	tokens, _ = LexString("x = .55")
 	checkTokens(t, tokens, []token.Type{token.Identifier, token.Assign, token.Float})
 }
+
+func TextLexerGeneric(t *testing.T) {
+	tokens, _ := LexString("<T|S|R>")
+	checkTokens(t, tokens, []token.Type{
+		token.Lss,
+		token.Identifier, token.Or,
+		token.Identifier, token.Or,
+		token.Identifier,
+		token.Gtr,
+	})
+}

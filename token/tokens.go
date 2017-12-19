@@ -125,8 +125,6 @@ const (
 	CloseSquare  // ]
 	OpenBracket  // (
 	CloseBracket // )
-	OpenCorner   // <
-	CloseCorner  // >
 	Colon        // :
 	And          // &
 	Or           // |
