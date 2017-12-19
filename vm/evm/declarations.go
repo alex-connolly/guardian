@@ -142,7 +142,12 @@ func (e *GuardianEVM) traverseFunc(n *ast.FuncDeclarationNode) (code vmgen.Bytec
 
 	code.Add("JUMPDEST")
 
-	params := e.traverseParameters(n.Parameters)
+	var ps []*ast.ExplicitVarDeclarationNode
+	for _, n := range n.Signature.Parameters {
+		ps = append(ps, n.(*ast.ExplicitVarDeclarationNode))
+	}
+
+	params := e.traverseParameters(ps)
 
 	code.Concat(params)
 

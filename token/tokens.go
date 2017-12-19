@@ -249,7 +249,7 @@ func GetProtoTokens() []ProtoToken {
 		createDistinct("destructor", Destructor),
 
 		createDistinct("if", If),
-		createDistinct("elif", Elif),
+		createDistinct("else if", Elif),
 		createDistinct("else", Else),
 
 		createDistinct("for", For),
