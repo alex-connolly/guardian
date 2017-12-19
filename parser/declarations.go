@@ -45,6 +45,9 @@ func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
 
 	var sigs []*ast.FuncTypeNode
 
+	if p.parseOptional(token.CloseBrace) {
+		return sigs
+	}
 	sigs = append(sigs, p.parseFuncSignature())
 	p.ignoreNewLines()
 

@@ -20,6 +20,7 @@ func TestParseInterfaceDeclarationEmpty(t *testing.T) {
 	i := n.(*ast.InterfaceDeclarationNode)
 	goutil.AssertNow(t, i.Identifier == "Wagable", "wrong identifier")
 	goutil.AssertNow(t, i.Supers == nil, "wrong supers")
+	goutil.AssertLength(t, len(i.Signatures), 0)
 }
 
 func TestParseInterfaceDeclarationSingleInheritance(t *testing.T) {

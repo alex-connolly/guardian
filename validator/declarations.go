@@ -42,14 +42,21 @@ func (v *Validator) validateMapType(node *ast.MapTypeNode) typing.Map {
 	return typing.Map{Key: key, Value: value}
 }
 
-func (v *Validator) validateFuncType(node *ast.FuncTypeNode) typing.Func {
+func (v *Validator) validateFuncType(node *ast.FuncTypeNode) typing.Type {
 	var params []typing.Type
-	for _, p := range node.Parameters {
-		params = append(params, v.validateType(p))
+	if node == nil {
+		return typing.Invalid()
+	}
+	if node.Parameters != nil {
+		for _, p := range node.Parameters {
+			params = append(params, v.validateType(p))
+		}
 	}
 	var results []typing.Type
-	for _, r := range node.Results {
-		results = append(results, v.validateType(r))
+	if node.Results != nil {
+		for _, r := range node.Results {
+			results = append(results, v.validateType(r))
+		}
 	}
 	return typing.Func{Params: typing.NewTuple(params...), Results: typing.NewTuple(results...)}
 }
@@ -235,6 +242,10 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 
 func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationNode) {
 	var supers []*typing.Interface
+	if node == nil {
+		v.addError("")
+		return
+	}
 	for _, super := range node.Supers {
 		t := v.validatePlainType(super)
 		if t != typing.Unknown() {
@@ -248,8 +259,13 @@ func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationN
 
 	funcs := map[string]typing.Func{}
 	for _, function := range node.Signatures {
-		f := v.validateContextualType(function).(typing.Func)
-		funcs[function.Identifier] = f
+		f, ok := v.validateContextualType(function).(typing.Func)
+		if ok {
+			funcs[function.Identifier] = f
+		} else {
+			v.addError("Invalid func type")
+		}
+
 	}
 
 	interfaceType := typing.Interface{
@@ -279,7 +295,9 @@ func (v *Validator) declareContextualVar(name string, typ typing.Type) {
 func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
 	var params []typing.Type
-	for _, p := range node.Parameters {
+	for _, node := range node.Signature.Parameters {
+		// todo: check here?
+		p := node.(*ast.ExplicitVarDeclarationNode)
 		for _ = range p.Identifiers {
 			typ := v.validateContextualType(p.DeclaredType)
 			//TODO: declare this later
@@ -289,7 +307,7 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 	}
 
 	var results []typing.Type
-	for _, r := range node.Results {
+	for _, r := range node.Signature.Results {
 		results = append(results, v.validateType(r))
 	}
 
@@ -299,7 +317,7 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 	}
 
 	node.Resolved = funcType
-	v.declareContextualVar(node.Identifier, funcType)
+	v.declareContextualVar(node.Signature.Identifier, funcType)
 	v.validateScope(node.Body)
 
 }
