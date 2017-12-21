@@ -155,7 +155,7 @@ Consider the following example:
 ```go
 if x = 0; x > 5 {
 
-} elif x == 3 {
+} else if x == 3 {
 
 } else {
 
@@ -236,9 +236,10 @@ case 5, 6:
 7 | PUSH 5
 8 | EQ
 // condition failed, jump to end
+9 | JUMPI 12
 // 2.2
-9 | PUSH 6
-10 | EQ
+10 | PUSH 6
+11 | EQ
 // conditional jump to t
 ```
 

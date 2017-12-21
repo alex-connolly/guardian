@@ -61,7 +61,7 @@ contract Strings {
     func validate(self string) {
         addr, len uint
         // no assembly
-        addr = self + 0x20
+        addr = self + 20
         len = len(self)
         if len == 0 {
             return
@@ -84,26 +84,26 @@ contract Strings {
         v0 = (val >> 24) as uint
         if v0 <= B11H {
             len = 1
-        } elif B21L <= v0 && v0 <= B21H) { // Check a 2 byte character.
+        } else if B21L <= v0 and v0 <= B21H { // Check a 2 byte character.
             v1 = (val & 0x00FF0000) >> 16
-            require(DL <= v1 && v1 <= DH)
+            require(DL <= v1 and v1 <= DH)
             len = 2
-        } elif v0 == B31 { // Check a 3 byte character in the following three.
+        } else if v0 == B31 { // Check a 3 byte character in the following three.
             validateWithNextDefault((val & 0x00FFFF00) >> 8, B32L, B32H)
             len = 3
-        } elif v0 == B51 {
+        } else if v0 == B51 {
             validateWithNextDefault((val & 0x00FFFF00) >> 8, B52L, B52H)
             len = 3
-        } elif (B41L <= v0 && v0 <= B41H) || v0 == B61L || v0 == B61H {
+        } else if (B41L <= v0 and v0 <= B41H) or v0 == B61L or v0 == B61H {
             validateWithNextDefault((val & 0x00FFFF00) >> 8, DL, DH)
             len = 3
-        } elif v0 == B71 { // Check a 4 byte character in the following three.
+        } else if v0 == B71 { // Check a 4 byte character in the following three.
             validateWithNextTwoDefault(val & 0x00FFFFFF, B72L, B72H)
             len = 4
-        } elif B81L <= v0 && v0 <= B81H {
+        } else if B81L <= v0 and v0 <= B81H {
             validateWithNextTwoDefault(val & 0x00FFFFFF, DL, DH)
             len = 4
-        } elif v0 == B91 {
+        } else if v0 == B91 {
             validateWithNextTwoDefault(val & 0x00FFFFFF, B92L, B92H)
             len = 4
         } else { // If we reach this point, the character is not valid UTF-8
@@ -111,20 +111,20 @@ contract Strings {
         }
     }
 
-    private func validateWithNextDefault(val, low, high uint) private pure {
+    private func validateWithNextDefault(val, low, high uint) {
         b = (val & 0xFF00) >> 8
-        require(low <= b && b <= high)
+        require(low <= b and b <= high)
         b = val & 0x00FF
-        require(DL <= b && b <= DH)
+        require(DL <= b and b <= DH)
     }
 
     private func validateWithNextTwoDefault(val, low, high uint) {
         b = (val & 0xFF0000) >> 16
-        require(low <= b && b <= high)
+        require(low <= b and b <= high)
         b = (val & 0x00FF00) >> 8
-        require(DL <= b && b <= DH)
+        require(DL <= b and b <= DH)
         b = val & 0x0000FF
-        require(DL <= b && b <= DH)
+        require(DL <= b and b <= DH)
     }
 
 }

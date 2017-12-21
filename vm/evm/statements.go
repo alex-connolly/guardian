@@ -12,7 +12,12 @@ import (
 
 func (e *GuardianEVM) traverseSwitchStatement(n *ast.SwitchStatementNode) (code vmgen.Bytecode) {
 	// always traverse the target
-	e.traverse(n.Target)
+	if n.Target != nil {
+		e.traverse(n.Target)
+
+	} else {
+	}
+
 	// switch statements are implicitly converted to if statements
 	// may be a better way to do this
 	// Solidity doesn't have a switch so shrug

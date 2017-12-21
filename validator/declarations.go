@@ -351,7 +351,7 @@ func (v *Validator) validateTypeDeclaration(node *ast.TypeDeclarationNode) {
 
 func (v *Validator) validateLifecycleDeclaration(node *ast.LifecycleDeclarationNode) {
 	// TODO: enforce location
-	types := make([]typing.Type, 0)
+	var types []typing.Type
 	for _, p := range node.Parameters {
 		typ := v.validateType(p.DeclaredType)
 		for _, i := range p.Identifiers {

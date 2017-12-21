@@ -241,3 +241,15 @@ func TestIsFuncType(t *testing.T) {
 	goutil.Assert(t, p.isFuncType(), "second func type not recognised")
 
 }
+
+func TestIsNextAType(t *testing.T) {
+	p := createParser(")")
+	goutil.Assert(t, !p.isNextAType(), "should not be a type")
+	p = createParser(") (int, int), d int) (int, float, int)")
+	goutil.Assert(t, !p.isNextAType(), "should not be a type")
+}
+
+func TestNotExpVar(t *testing.T) {
+	p := createParser("string, string)")
+	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not be an expvar")
+}

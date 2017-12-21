@@ -12,38 +12,33 @@ func isNewLine(p *Parser) bool {
 
 // e.g. name string
 func isExplicitVarDeclaration(p *Parser) bool {
-	if !p.hasTokens(2) {
-		return false
-	}
-	saved := *p
-	if !p.parseOptional(token.Identifier) {
-		*p = saved
-		return false
-	}
-	for p.parseOptional(token.Comma) {
-		if !p.parseOptional(token.Identifier) {
-			*p = saved
+	return p.preserveState(func(p *Parser) bool {
+		if !p.hasTokens(2) {
 			return false
 		}
-	}
-	if !p.hasTokens(1) {
-		*p = saved
-		return false
-	}
-	if !p.isNextAType() {
-		*p = saved
-		return false
-	}
-	p.parseType()
-	if p.hasTokens(1) {
-		if !p.isNextTerminating() {
-			*p = saved
+		if !p.parseOptional(token.Identifier) {
+			return false
+		}
+		for p.parseOptional(token.Comma) {
+			if !p.parseOptional(token.Identifier) {
+				return false
+			}
+		}
+		if !p.hasTokens(1) {
+			return false
+		}
+		if !p.isNextAType() {
 
 			return false
 		}
-	}
-	*p = saved
-	return true
+		p.parseType()
+		if p.hasTokens(1) {
+			if !p.isNextTerminating() {
+				return false
+			}
+		}
+		return true
+	})
 }
 
 func (p *Parser) isNextTerminating() bool {
@@ -51,7 +46,7 @@ func (p *Parser) isNextTerminating() bool {
 }
 
 func (p *Parser) isNextAType() bool {
-	return p.isPlainType() || p.isArrayType() || p.isMapType() || p.isFuncType()
+	return p.isFuncType() || p.isPlainType() || p.isArrayType() || p.isMapType()
 }
 
 func (p *Parser) isPlainType() bool {

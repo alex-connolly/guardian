@@ -600,3 +600,37 @@ func TestParseFuncSignatureNoParamOneResult(t *testing.T) {
 	goutil.AssertLength(t, len(sig.Parameters), 0)
 	goutil.AssertLength(t, len(sig.Results), 1)
 }
+
+func TestParseComponentFuncType(t *testing.T) {
+	p := createParser("func(string, string) (int, int)")
+	sig := p.parseFuncType()
+	goutil.AssertNow(t, sig != nil, "nil signature")
+	goutil.AssertLength(t, len(sig.Parameters), 2)
+	goutil.AssertLength(t, len(sig.Results), 2)
+}
+
+func TestParseComplexFuncParams(t *testing.T) {
+	p := createParser("c int, b func(string, string) (int, int), d int")
+	params := p.parseFuncTypeParameters()
+	goutil.AssertLength(t, len(params), 3)
+	names := []string{"c", "b", "d"}
+	for i, p := range params {
+		goutil.Assert(t, p.Type() == ast.ExplicitVarDeclaration, fmt.Sprintf("param %d of wrong type"))
+		e := p.(*ast.ExplicitVarDeclarationNode)
+		goutil.AssertLength(t, len(e.Identifiers), 1)
+		goutil.AssertNow(t, e.Identifiers[0] == names[i], "wrong name")
+	}
+}
+
+func TestParseComplexFuncType(t *testing.T) {
+	p := createParser("func(c int, b func(string, string) (int, int), d int) (int, float, int)")
+	sig := p.parseFuncType()
+	goutil.AssertNow(t, sig != nil, "nil signature")
+	goutil.AssertLength(t, len(sig.Parameters), 3)
+	goutil.AssertLength(t, len(sig.Results), 3)
+	p = createParser("func(int, func(string, string) (int, int), int) (a int, b float, c int)")
+	sig = p.parseFuncType()
+	goutil.AssertNow(t, sig != nil, "nil signature")
+	goutil.AssertLength(t, len(sig.Parameters), 3)
+	goutil.AssertLength(t, len(sig.Results), 3)
+}

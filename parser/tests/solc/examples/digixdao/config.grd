@@ -1,0 +1,45 @@
+contract Config is ConfigInterface {
+
+  event ConfigChange(indexed configKey []byte, indexed user address);
+
+  func isAdmin(){
+      require(admins[msg.sender])
+  }
+
+  func isOwner(){
+      require(msg.sender == owner)
+  }
+
+  constructor(){
+      owner = msg.sender
+      admins[owner] = true
+  }
+
+  func setConfigAddress(key []byte, val address) (success bool){
+      ifAdmin()
+      addressMap[key] = val
+      return true
+  }
+
+  func setConfigBool(key []byte, val bool) (success bool){
+      boolMap[key] = val
+      return true
+  }
+
+  func setConfigBool(key, val []byte) (success bool){
+      bytesMap[key] = val
+      return true
+  }
+
+  func setConfigUint(key []byte, val uint) (success bool) {
+      uintMap[key] = val
+      return true
+  }
+
+
+ func getConfigAddress(key []byte) (val address){
+     return addressMap[key]
+ }
+
+ // rest are all the same
+}

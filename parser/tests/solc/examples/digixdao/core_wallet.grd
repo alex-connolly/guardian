@@ -1,0 +1,121 @@
+contract CoreWallet {
+
+    // indexed modifier on event makes all params indexed
+    indexed event Withdraw(indexed amount uint, recipient, sender address)
+    indexed event PaymentRequest(requestID uint)
+    indexed event Approve(requestID uint)
+    indexed event Decline(requestID uint)
+
+    enum RequestStatus { Pending, Declined, Approved }
+
+    class Request {
+        status RequestStatus
+        amount uint
+        recipient address
+    }
+
+    approved map[address]bool
+    managers map[address]bool
+
+    public owner address
+    requests map[uint]Request
+    requestCount = 0 as uint
+
+    isOwner(){
+        require(owner == msg.sender)
+    }
+
+    ifApproved(){
+        require(approved[msg.sender])
+    }
+
+    ifManager(){
+        require(managers[msg.sender])
+    }
+
+    ifStatus(status RequestStatus, requestID uint){
+        require(status == requests[requestID].status)
+    }
+
+    constructor(){
+        approved[msg.sender] = true
+        managers[msg.sender] = true
+        owner = msg.sender
+    }
+
+    public func balance() uint {
+        return this.balance
+    }
+
+    func authorizeUser(user address) bool {
+        ifManager()
+        approved[user] = true
+        return true
+    }
+
+    func unauthorizeUser(user address) bool {
+        ifManager()
+        approved[user] = false
+        return true
+    }
+
+    func authorizeManager(user address) bool {
+        ifOwner()
+        manager[user] = true
+        return true
+    }
+
+    func unauthorizeUser(user address) bool {
+        ifOnwer()
+        manager[user] = false
+        return true
+    }
+
+    func withdraw(recipient address, amount uint) bool {
+        ifManager()
+        if send(recipient, amount) {
+            Withdraw(recipient, amount, msg.sender)
+            success = true
+        } else {
+            success = false
+        }
+        return success
+    }
+
+    func request(recipient address, amount uint) bool {
+        ifApproved()
+        if amount < balance() {
+            success = false
+        } else {
+            requestCount++
+            requests[requestCount].status = RequestStatus.Pending
+            requests[requestCount].amount = amount
+            requests[requestCount].recipient = recipient
+            success = true
+            PaymentRequest(requestCount)
+        }
+        return success
+    }
+
+    func approve(requestID uint) bool {
+        ifManager()
+        ifStatus(RequestStatus.Pending, requestID)
+        r = requests[requestID]
+        if send(r.recipient, r.amount) {
+            success = true
+            Approve(requestID)
+        } else {
+            success = false
+        }
+        return success
+    }
+
+    func decline(requestID uint) bool {
+        ifManager()
+        ifStatus(RequestStatus.Pending, requestID)
+        requests[requestID].status = RequestStatus.Declined
+        Decline(requestID)
+        return true
+    }
+
+}

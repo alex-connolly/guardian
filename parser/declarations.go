@@ -280,20 +280,19 @@ func (p *Parser) parseType() ast.Node {
 }
 
 func (p *Parser) parseVarDeclaration() *ast.ExplicitVarDeclarationNode {
-
 	var names []string
 	names = append(names, p.parseIdentifier())
 	for p.parseOptional(token.Comma) {
 		names = append(names, p.parseIdentifier())
 	}
-
 	dType := p.parseType()
-
-	return &ast.ExplicitVarDeclarationNode{
+	e := &ast.ExplicitVarDeclarationNode{
 		Modifiers:    p.getModifiers(),
 		DeclaredType: dType,
 		Identifiers:  names,
 	}
+
+	return e
 }
 
 func (p *Parser) parseParameters() []*ast.ExplicitVarDeclarationNode {
@@ -502,7 +501,8 @@ func (p *Parser) parseFuncTypeParameters() []ast.Node {
 		}
 	} else {
 		// must be types
-		params = append(params, p.parseType())
+		t := p.parseType()
+		params = append(params, t)
 		for p.parseOptional(token.Comma) {
 			t := p.parseType()
 			params = append(params, t)

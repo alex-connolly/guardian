@@ -98,7 +98,7 @@ func TestParseIfStatementInitElse(t *testing.T) {
 func TestParseIfStatementElifElse(t *testing.T) {
 	p := createParser(`if x > 4 {
 
-	} elif x < 4 {
+	} else if x < 4 {
 
 	} else {
 
