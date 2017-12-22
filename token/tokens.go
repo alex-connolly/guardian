@@ -90,7 +90,7 @@ func GetDeclarations() []Type {
 // GetModifiers ....
 func GetModifiers() []Type {
 	return []Type{Const, Internal, External, Public, Private,
-		Protected, Static, Abstract, Storage, Test}
+		Protected, Static, Abstract, Storage, Test, Indexed}
 }
 
 // GetLifecycles ....
