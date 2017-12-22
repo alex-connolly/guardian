@@ -133,6 +133,42 @@ func (v *Validator) validateVarDeclaration(node *ast.ExplicitVarDeclarationNode)
 	node.Resolved = typ
 }
 
+func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []typing.Generic {
+	genericTypes := make(map[string]*typing.Generic)
+	for _, g := range generics {
+		// use the first type to set the
+		if g.Inherits != nil {
+			t := v.validatePlainType(g.Inherits[0])
+			switch t.(type) {
+			case *typing.Class:
+				break
+			case *typing.Interface:
+				break
+			}
+		}
+		var interfaces []*typing.Interface
+		for _, ifc := range node.Interfaces {
+			t := v.validatePlainType(ifc)
+			if t != typing.Unknown() {
+				if c, ok := t.(typing.Interface); ok {
+					interfaces = append(interfaces, &c)
+				} else {
+					v.addError(errTypeRequired, makeName(ifc.Names), "interface")
+				}
+			}
+		}
+
+		var inherits []typing.Type
+
+		genericTypes[g.Identifier] = &typing.Generic{
+			Identifier: g.Identifier,
+			Interfaces: interfaces,
+			Inherits:   inherits,
+		}
+	}
+	return genericTypes
+}
+
 func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 	var supers []*typing.Class
 	for _, super := range node.Supers {
@@ -158,12 +194,15 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 		}
 	}
 
+	generics := v.validateGenerics(node.Generics)
+
 	types, properties, lifecycles := v.validateScope(node.Body)
 
 	classType := typing.Class{
 		Name:       node.Identifier,
 		Supers:     supers,
 		Interfaces: interfaces,
+		Generics:   generics,
 		Types:      types,
 		Properties: properties,
 		Lifecycles: lifecycles,

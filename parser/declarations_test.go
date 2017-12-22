@@ -668,7 +668,7 @@ func TestParseReferenceGenericPlainType(t *testing.T) {
 }
 
 func TestParseReferenceMultipleGenericPlainType(t *testing.T) {
-	p := createParser("int.a<string, int>")
+	p := createParser("int.a<string|int>")
 	pt := p.parsePlainType()
 	goutil.Assert(t, !pt.Variable, "should be variable")
 	goutil.AssertLength(t, len(pt.Names), 2)

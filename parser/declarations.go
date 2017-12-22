@@ -136,6 +136,7 @@ func (p *Parser) parsePlainType() *ast.PlainTypeNode {
 
 	var params []string
 	if p.parseOptional(token.Lss) {
+		params = append(params, p.parseIdentifier())
 		for p.parseOptional(token.Or) {
 			params = append(params, p.parseIdentifier())
 		}
