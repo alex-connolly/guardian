@@ -30,7 +30,7 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 		// validate parameters if necessary
 		switch a := t.(type) {
 		case typing.Class:
-			if len(node.Parameters) != len(a.Parameters){
+			if len(node.Parameters) != len(a.Parameters) {
 				v.addError(errWrongParameterLength)
 			}
 			for i, p := range node.Parameters {
@@ -40,7 +40,7 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 			}
 			break
 		case typing.Interface:
-			if len(node.Parameters) != len(a.Parameters){
+			if len(node.Parameters) != len(a.Parameters) {
 				v.addError(errWrongParameterLength)
 			}
 			for i, p := range node.Parameters {
@@ -50,7 +50,7 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 			}
 			break
 		case typing.Contract:
-			if len(node.Parameters) != len(a.Parameters){
+			if len(node.Parameters) != len(a.Parameters) {
 				v.addError(errWrongParameterLength)
 			}
 			for i, p := range node.Parameters {
@@ -59,12 +59,13 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 				}
 			}
 			break
-		}
 		default:
 			if len(node.Parameters) > 0 {
 				v.addError(errCannotParametrizeType)
 			}
 			break
+		}
+
 	}
 	return typ
 }
@@ -171,8 +172,8 @@ func (v *Validator) validateVarDeclaration(node *ast.ExplicitVarDeclarationNode)
 	node.Resolved = typ
 }
 
-func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) map[string]*typing.Generic {
-	genericTypes := make(map[string]*typing.Generic)
+func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*typing.Generic {
+	genericTypes := make([]*typing.Generic, 0)
 	for _, node := range generics {
 		// use the first type to set the
 		if node.Inherits != nil {
@@ -198,11 +199,13 @@ func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) map
 
 		var inherits []typing.Type
 
-		genericTypes[node.Identifier] = &typing.Generic{
+		g := &typing.Generic{
 			Identifier: node.Identifier,
 			Interfaces: interfaces,
 			Inherits:   inherits,
 		}
+
+		genericTypes = append(genericTypes, g)
 	}
 	return genericTypes
 }

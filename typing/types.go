@@ -68,9 +68,10 @@ type Map struct {
 }
 
 type Func struct {
-	Name    string
-	Params  Tuple
-	Results Tuple
+	Name     string
+	Generics []*Generic
+	Params   Tuple
+	Results  Tuple
 }
 
 type Tuple struct {
@@ -103,7 +104,7 @@ type Lifecycle struct {
 // A Class is a collection of properties
 type Class struct {
 	Name       string
-	Parameters []Generic
+	Generics   []*Generic
 	Lifecycles LifecycleMap
 	Supers     []*Class
 	Properties map[string]Type
@@ -118,16 +119,16 @@ type Enum struct {
 }
 
 type Interface struct {
-	Name       string
-	Parameters []Generic
-	Supers     []*Interface
-	Funcs      map[string]Func
+	Name     string
+	Generics []*Generic
+	Supers   []*Interface
+	Funcs    map[string]Func
 }
 
 // Contract ...
 type Contract struct {
 	Name       string
-	Parameters []Generic
+	Generics   []*Generic
 	Supers     []*Contract
 	Interfaces []*Interface
 	Lifecycles map[token.Type][]Lifecycle
@@ -138,5 +139,6 @@ type Contract struct {
 // Event ...
 type Event struct {
 	Name       string
+	Generics   []*Generic
 	Parameters Tuple
 }
