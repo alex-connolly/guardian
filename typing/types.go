@@ -103,7 +103,7 @@ type Lifecycle struct {
 // A Class is a collection of properties
 type Class struct {
 	Name       string
-	Parameters map[string]Generic
+	Parameters []Generic
 	Lifecycles LifecycleMap
 	Supers     []*Class
 	Properties map[string]Type
@@ -112,15 +112,14 @@ type Class struct {
 }
 
 type Enum struct {
-	Name       string
-	Parameters map[string]Generic
-	Supers     []*Enum
-	Items      []string
+	Name   string
+	Supers []*Enum
+	Items  []string
 }
 
 type Interface struct {
 	Name       string
-	Parameters map[string]Generic
+	Parameters []Generic
 	Supers     []*Interface
 	Funcs      map[string]Func
 }
@@ -128,7 +127,7 @@ type Interface struct {
 // Contract ...
 type Contract struct {
 	Name       string
-	Parameters map[string]Generic
+	Parameters []Generic
 	Supers     []*Contract
 	Interfaces []*Interface
 	Lifecycles map[token.Type][]Lifecycle
