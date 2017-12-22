@@ -30,31 +30,31 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 		// validate parameters if necessary
 		switch a := t.(type) {
 		case typing.Class:
-			if len(node.Parameters) != len(a.Parameters) {
+			if len(node.Parameters) != len(a.Generics) {
 				v.addError(errWrongParameterLength)
 			}
 			for i, p := range node.Parameters {
-				if !a.Parameters[i].Accepts(v.validateType(p)) {
+				if !a.Generics[i].Accepts(v.validateType(p)) {
 					v.addError(errInvalidParameter)
 				}
 			}
 			break
 		case typing.Interface:
-			if len(node.Parameters) != len(a.Parameters) {
+			if len(node.Parameters) != len(a.Generics) {
 				v.addError(errWrongParameterLength)
 			}
 			for i, p := range node.Parameters {
-				if !a.Parameters[i].Accepts(v.validateType(p)) {
+				if !a.Generics[i].Accepts(v.validateType(p)) {
 					v.addError(errInvalidParameter)
 				}
 			}
 			break
 		case typing.Contract:
-			if len(node.Parameters) != len(a.Parameters) {
+			if len(node.Parameters) != len(a.Generics) {
 				v.addError(errWrongParameterLength)
 			}
 			for i, p := range node.Parameters {
-				if !a.Parameters[i].Accepts(v.validateType(p)) {
+				if !a.Generics[i].Accepts(v.validateType(p)) {
 					v.addError(errInvalidParameter)
 				}
 			}
@@ -198,6 +198,23 @@ func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*
 		}
 
 		var inherits []typing.Type
+		for _, super := range node.Inherits {
+			t := v.validatePlainType(super)
+			switch t.(type) {
+			case typing.Class:
+
+				break
+			case typing.Interface:
+				if node.Implements != nil {
+
+				}
+				break
+			case typing.Contract:
+
+				break
+			}
+		}
+		// enforce that all inheritors are the same type
 
 		g := &typing.Generic{
 			Identifier: node.Identifier,
@@ -243,7 +260,7 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 		Name:       node.Identifier,
 		Supers:     supers,
 		Interfaces: interfaces,
-		Parameters: generics,
+		Generics:   generics,
 		Types:      types,
 		Properties: properties,
 		Lifecycles: lifecycles,
@@ -310,7 +327,7 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 
 	contractType := typing.Contract{
 		Name:       node.Identifier,
-		Parameters: generics,
+		Generics:   generics,
 		Supers:     supers,
 		Interfaces: interfaces,
 		Types:      types,
@@ -354,9 +371,10 @@ func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationN
 	generics := v.validateGenerics(node.Generics)
 
 	interfaceType := typing.Interface{
-		Name:   node.Identifier,
-		Supers: supers,
-		Funcs:  funcs,
+		Name:     node.Identifier,
+		Generics: generics,
+		Supers:   supers,
+		Funcs:    funcs,
 	}
 
 	node.Resolved = interfaceType
@@ -396,9 +414,12 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 		results = append(results, v.validateType(r))
 	}
 
+	generics := v.validateGenerics(node.Generics)
+
 	funcType := typing.Func{
-		Params:  typing.NewTuple(params...),
-		Results: typing.NewTuple(results...),
+		Generics: generics,
+		Params:   typing.NewTuple(params...),
+		Results:  typing.NewTuple(results...),
 	}
 
 	node.Resolved = funcType
@@ -412,8 +433,12 @@ func (v *Validator) validateEventDeclaration(node *ast.EventDeclarationNode) {
 	for _, n := range node.Parameters {
 		params = append(params, v.validateType(n.DeclaredType))
 	}
+
+	generics := v.validateGenerics(node.Generics)
+
 	eventType := typing.Event{
 		Name:       node.Identifier,
+		Generics:   generics,
 		Parameters: typing.NewTuple(params...),
 	}
 	node.Resolved = eventType

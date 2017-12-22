@@ -76,6 +76,7 @@ func (n *ExplicitVarDeclarationNode) Type() NodeType { return ExplicitVarDeclara
 type EventDeclarationNode struct {
 	Modifiers  []token.Type
 	Identifier string
+	Generics   []*GenericDeclarationNode
 	Parameters []*ExplicitVarDeclarationNode
 	Resolved   typing.Type
 }

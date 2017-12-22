@@ -201,3 +201,21 @@ func TestParseGenericComplex(t *testing.T) {
 	goutil.AssertLength(t, len(gens), 3)
 	goutil.AssertNow(t, p.index == len(p.tokens), "wrong ending index")
 }
+
+func TestParseEventGenericSimpleMultiple(t *testing.T) {
+	a, errs := ParseString(`event <T|S|R> hello(a T, b S, c R){}`)
+	goutil.AssertNow(t, errs == nil, "errs should be nil")
+	goutil.AssertNow(t, a.Declarations.Length() == 1, "wrong length")
+	c := a.Declarations.Next().(*ast.EventDeclarationNode)
+	goutil.AssertNow(t, c.Generics != nil, "nil generics")
+	goutil.AssertLength(t, len(c.Generics), 3)
+}
+
+func TestParseEventGenericSimpleSingle(t *testing.T) {
+	a, errs := ParseString(`event <T> hello(a T){}`)
+	goutil.AssertNow(t, errs == nil, "errs should be nil")
+	goutil.AssertNow(t, a.Declarations.Length() == 1, "wrong length")
+	c := a.Declarations.Next().(*ast.EventDeclarationNode)
+	goutil.AssertNow(t, c.Generics != nil, "nil generics")
+	goutil.AssertLength(t, len(c.Generics), 1)
+}
