@@ -134,11 +134,11 @@ func (p *Parser) parsePlainType() *ast.PlainTypeNode {
 		names = append(names, p.parseIdentifier())
 	}
 
-	var params []string
+	var params []ast.Node
 	if p.parseOptional(token.Lss) {
-		params = append(params, p.parseIdentifier())
+		params = append(params, p.parseType())
 		for p.parseOptional(token.Or) {
-			params = append(params, p.parseIdentifier())
+			params = append(params, p.parseType())
 		}
 		p.parseRequired(token.Gtr)
 	}

@@ -1,7 +1,5 @@
 package ast
 
-import "go/ast"
-
 // NodeType denotes the type of node
 type NodeType int
 
@@ -90,7 +88,7 @@ func (n *ArrayTypeNode) Type() NodeType { return ArrayType }
 
 type PlainTypeNode struct {
 	Variable   bool
-	Parameters []ast.Node
+	Parameters []Node
 	Names      []string
 }
 

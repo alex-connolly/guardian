@@ -30,6 +30,9 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 		// validate parameters if necessary
 		switch a := t.(type) {
 		case typing.Class:
+			if len(node.Parameters) != len(a.Parameters){
+				v.addError(errWrongParameterLength)
+			}
 			for i, p := range node.Parameters {
 				if !a.Parameters[i].Accepts(v.validateType(p)) {
 					v.addError(errInvalidParameter)
@@ -37,6 +40,19 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 			}
 			break
 		case typing.Interface:
+			if len(node.Parameters) != len(a.Parameters){
+				v.addError(errWrongParameterLength)
+			}
+			for i, p := range node.Parameters {
+				if !a.Parameters[i].Accepts(v.validateType(p)) {
+					v.addError(errInvalidParameter)
+				}
+			}
+			break
+		case typing.Contract:
+			if len(node.Parameters) != len(a.Parameters){
+				v.addError(errWrongParameterLength)
+			}
 			for i, p := range node.Parameters {
 				if !a.Parameters[i].Accepts(v.validateType(p)) {
 					v.addError(errInvalidParameter)
@@ -44,6 +60,11 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 			}
 			break
 		}
+		default:
+			if len(node.Parameters) > 0 {
+				v.addError(errCannotParametrizeType)
+			}
+			break
 	}
 	return typ
 }

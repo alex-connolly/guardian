@@ -18,5 +18,7 @@ const (
 	errImpossibleCast           = "Type %s cannot be cast to type %s"
 	errInvalidForEachType       = "Cannot iterate over type %s"
 	errInvalidForEachVariables  = "Cannot assign %d variables to iterator producing %d variables"
-	errInvalidParameter         = "Invalid parameter type %s "
+	errInvalidParameter         = "Invalid parameter type %s"
+	errCannotParametrizeType    = "Cannot parametrize type %s"
+	errWrongParameterLength     = "Type %s requires %d parameters"
 )
