@@ -1,0 +1,73 @@
+contract Dao {
+
+    class ProposalData {
+        budget uint256
+        document []byte
+    }
+
+    
+    enum Status { Pledging, Voting, Completed }
+
+    indexed event NewProposal(proposal address, document []byte, budget uint256)
+
+    constructor(config address) {
+          this.config = config
+          this.owner = msg.sender
+          this.tokenLedger = ConfigInterface(config).getConfigAddress("ledger")
+          this.environment = ConfigInterface(config).getConfigBytes("environment")
+          this.badgeLedger = Token(tokenLedger).badgeLedger()
+          this.proposalsCount = 0
+     }
+
+  internal func iPropose(document []byte, weibudget uint256, dissolve bool) (success bool, proposal address){
+
+      require(Badge(this.badgeLedger).balanceOf(ms.sender) > 0)
+      require(funds() >= weibudget)
+      proposal = new Proposal(config, badgeLedger, tokenLedger, environment, dissolve)
+      proposals[proposal].budget = weibudget
+      proposals[proposal].document = document
+      proposalsCount++
+      proposalIndex[proposalsCount] = proposal
+      NewProposal(proposal, document, weibudget)
+      return true, proposal
+  }
+
+  func propose(document []byte, weibudget uint256) (success bool, proposal address){
+      if Badge(this.badgeLedger).balanceOf(msg.sender) <= 0 {
+          return false, burn
+      }
+      success, proposal = iPropose(document, weibudget, false)
+      if success {
+          send(proposal, weibudget)
+          return success, proposal
+      } else {
+          success = false
+          return success, burn
+      }
+  }
+
+  func proposeDissolve(document []byte) (success bool, proposal address){
+      if Badge(this.badgeLedger).balanceOf(msg.sender) <= 0{
+          return false, burn
+      }
+      weibudget = funds()
+      if success {
+          if send(proposal, weibudget) {
+              return success, proposal
+          }
+      } else {
+          return success, burn
+      }
+  }
+
+  public (
+      func getProposal(index uint256) (proposal address) {
+          return proposalIndex[index]
+      }
+
+      func funds() (weifunds uint256){
+          return this.balance
+      }
+  )
+
+}

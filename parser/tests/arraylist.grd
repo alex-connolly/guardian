@@ -1,0 +1,25 @@
+package tests at 0.0.1
+
+class ArrayList<T> is List<T> {
+
+    backing []T
+
+    func add(item T) bool {
+        // do a power of two doubling
+
+    }
+
+    func get(index int) T {
+        return backing[index]
+    }
+
+    func set(index int, item T) bool {
+
+    }
+}
+
+interface List<T> {
+    add(T) bool
+    get(int) T
+    set(int, T) bool
+}

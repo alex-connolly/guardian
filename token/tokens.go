@@ -213,6 +213,7 @@ const (
 	Protected
 	Static
 	Storage
+	Indexed
 	NewLine
 	LineComment
 	CommentOpen
@@ -269,6 +270,7 @@ func GetProtoTokens() []ProtoToken {
 		createDistinct("abstract", Abstract),
 		createDistinct("static", Static),
 		createDistinct("storage", Storage),
+		createDistinct("indexed", Indexed),
 
 		createDistinct("in", In),
 		createDistinct("map", Map),

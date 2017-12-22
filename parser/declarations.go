@@ -133,9 +133,19 @@ func (p *Parser) parsePlainType() *ast.PlainTypeNode {
 	for p.parseOptional(token.Dot) {
 		names = append(names, p.parseIdentifier())
 	}
+
+	var params []string
+	if p.parseOptional(token.Lss) {
+		for p.parseOptional(token.Or) {
+			params = append(params, p.parseIdentifier())
+		}
+		p.parseRequired(token.Gtr)
+	}
+
 	return &ast.PlainTypeNode{
-		Names:    names,
-		Variable: variable,
+		Names:      names,
+		Parameters: params,
+		Variable:   variable,
 	}
 }
 
@@ -566,6 +576,7 @@ func parseEventDeclaration(p *Parser) {
 	var types = p.parseParameters()
 
 	node := ast.EventDeclarationNode{
+		Modifiers:  p.getModifiers(),
 		Identifier: name,
 		Parameters: types,
 	}

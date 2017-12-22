@@ -61,3 +61,21 @@ func TestParseStrings(t *testing.T) {
 	goutil.Assert(t, p != nil, "parser should not be nil")
 	goutil.Assert(t, errs == nil, errs.Format())
 }
+
+func TestParseDao(t *testing.T) {
+	p, errs := ParseFile("tests/solc/examples/digixdao/dao.grd")
+	goutil.Assert(t, p != nil, "parser should not be nil")
+	goutil.Assert(t, errs == nil, errs.Format())
+}
+
+func TestParseCoreWallet(t *testing.T) {
+	p, errs := ParseFile("tests/solc/examples/digixdao/core_wallet.grd")
+	goutil.Assert(t, p != nil, "parser should not be nil")
+	goutil.Assert(t, errs == nil, errs.Format())
+}
+
+func TestParseGoldTxFeePool(t *testing.T) {
+	p, errs := ParseFile("tests/solc/examples/digixdao/gold_tx_fee_pool.grd")
+	goutil.Assert(t, p != nil, "parser should not be nil")
+	goutil.Assert(t, errs == nil, errs.Format())
+}

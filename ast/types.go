@@ -87,8 +87,9 @@ type ArrayTypeNode struct {
 func (n *ArrayTypeNode) Type() NodeType { return ArrayType }
 
 type PlainTypeNode struct {
-	Variable bool
-	Names    []string
+	Variable   bool
+	Parameters []string
+	Names      []string
 }
 
 func (n *PlainTypeNode) Type() NodeType { return PlainType }

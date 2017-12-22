@@ -634,3 +634,43 @@ func TestParseComplexFuncType(t *testing.T) {
 	goutil.AssertLength(t, len(sig.Parameters), 3)
 	goutil.AssertLength(t, len(sig.Results), 3)
 }
+
+func TestParseSimplePlainType(t *testing.T) {
+	p := createParser("int")
+	pt := p.parsePlainType()
+	goutil.Assert(t, !pt.Variable, "should be variable")
+	goutil.AssertLength(t, len(pt.Names), 1)
+	goutil.AssertLength(t, len(pt.Parameters), 0)
+}
+
+func TestParseReferencePlainType(t *testing.T) {
+	p := createParser("int.a")
+	pt := p.parsePlainType()
+	goutil.Assert(t, !pt.Variable, "should be variable")
+	goutil.AssertLength(t, len(pt.Names), 2)
+	goutil.AssertLength(t, len(pt.Parameters), 0)
+}
+
+func TestParseSimpleGenericPlainType(t *testing.T) {
+	p := createParser("int<string>")
+	pt := p.parsePlainType()
+	goutil.Assert(t, !pt.Variable, "should be variable")
+	goutil.AssertLength(t, len(pt.Names), 1)
+	goutil.AssertLength(t, len(pt.Parameters), 1)
+}
+
+func TestParseReferenceGenericPlainType(t *testing.T) {
+	p := createParser("int.a<string>")
+	pt := p.parsePlainType()
+	goutil.Assert(t, !pt.Variable, "should be variable")
+	goutil.AssertLength(t, len(pt.Names), 2)
+	goutil.AssertLength(t, len(pt.Parameters), 1)
+}
+
+func TestParseReferenceMultipleGenericPlainType(t *testing.T) {
+	p := createParser("int.a<string, int>")
+	pt := p.parsePlainType()
+	goutil.Assert(t, !pt.Variable, "should be variable")
+	goutil.AssertLength(t, len(pt.Names), 2)
+	goutil.AssertLength(t, len(pt.Parameters), 2)
+}
