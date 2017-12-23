@@ -53,6 +53,14 @@ func (t Type) IsModifier() bool {
 	return t.isToken(GetModifiers())
 }
 
+func (t Type) IsAccessModifier() bool {
+	return t.isToken([]Type{Internal, External, Public, Private, Protected})
+}
+
+func (t Type) IsStorageModifier() bool {
+	return t.isToken([]Type{Storage, Memory})
+}
+
 // IsDeclaration reports whether a token is a modifier
 func (t Type) IsDeclaration() bool {
 	return t.isToken(GetDeclarations())
@@ -90,7 +98,7 @@ func GetDeclarations() []Type {
 // GetModifiers ....
 func GetModifiers() []Type {
 	return []Type{Const, Internal, External, Public, Private,
-		Protected, Static, Abstract, Storage, Test, Indexed}
+		Protected, Static, Abstract, Storage, Test, Indexed, Memory}
 }
 
 // GetLifecycles ....
@@ -213,6 +221,7 @@ const (
 	Protected
 	Static
 	Storage
+	Memory
 	Indexed
 	NewLine
 	LineComment
@@ -271,6 +280,7 @@ func GetProtoTokens() []ProtoToken {
 		createDistinct("static", Static),
 		createDistinct("storage", Storage),
 		createDistinct("indexed", Indexed),
+		createDistinct("memory", Memory),
 
 		createDistinct("in", In),
 		createDistinct("map", Map),

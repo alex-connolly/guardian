@@ -203,8 +203,8 @@ func TestParseGenericComplex(t *testing.T) {
 }
 
 func TestParseEventGenericSimpleMultiple(t *testing.T) {
-	a, errs := ParseString(`event <T|S|R> hello(a T, b S, c R){}`)
-	goutil.AssertNow(t, errs == nil, "errs should be nil")
+	a, errs := ParseString(`event <T|S|R> hello(a T, b S, c R)`)
+	goutil.AssertNow(t, errs == nil, errs.Format())
 	goutil.AssertNow(t, a.Declarations.Length() == 1, "wrong length")
 	c := a.Declarations.Next().(*ast.EventDeclarationNode)
 	goutil.AssertNow(t, c.Generics != nil, "nil generics")
@@ -212,10 +212,46 @@ func TestParseEventGenericSimpleMultiple(t *testing.T) {
 }
 
 func TestParseEventGenericSimpleSingle(t *testing.T) {
-	a, errs := ParseString(`event <T> hello(a T){}`)
-	goutil.AssertNow(t, errs == nil, "errs should be nil")
+	a, errs := ParseString(`event <T> hello(a T)`)
+	goutil.AssertNow(t, errs == nil, errs.Format())
 	goutil.AssertNow(t, a.Declarations.Length() == 1, "wrong length")
 	c := a.Declarations.Next().(*ast.EventDeclarationNode)
+	goutil.AssertNow(t, c.Generics != nil, "nil generics")
+	goutil.AssertLength(t, len(c.Generics), 1)
+}
+
+func TestParseEventGenericComplexSingle(t *testing.T) {
+	a, errs := ParseString(`event <T> hello(a T)`)
+	goutil.AssertNow(t, errs == nil, errs.Format())
+	goutil.AssertNow(t, a.Declarations.Length() == 1, "wrong length")
+	c := a.Declarations.Next().(*ast.EventDeclarationNode)
+	goutil.AssertNow(t, c.Generics != nil, "nil generics")
+	goutil.AssertLength(t, len(c.Generics), 1)
+}
+
+func TestParseInterfaceGenericsSimpleSingle(t *testing.T) {
+	a, errs := ParseString(`interface Dog<T>{}`)
+	goutil.AssertNow(t, errs == nil, errs.Format())
+	goutil.AssertNow(t, a.Declarations.Length() == 1, "wrong length")
+	c := a.Declarations.Next().(*ast.InterfaceDeclarationNode)
+	goutil.AssertNow(t, c.Generics != nil, "nil generics")
+	goutil.AssertLength(t, len(c.Generics), 1)
+}
+
+func TestParseInterfaceGenericsSimpleMultiple(t *testing.T) {
+	a, errs := ParseString(`interface Dog<T|S|R>{}`)
+	goutil.AssertNow(t, errs == nil, errs.Format())
+	goutil.AssertNow(t, a.Declarations.Length() == 1, "wrong length")
+	c := a.Declarations.Next().(*ast.InterfaceDeclarationNode)
+	goutil.AssertNow(t, c.Generics != nil, "nil generics")
+	goutil.AssertLength(t, len(c.Generics), 3)
+}
+
+func TestParseInterfaceGenericsComplexSingle(t *testing.T) {
+	a, errs := ParseString(`interface Dog<T inherits Cat>{}`)
+	goutil.AssertNow(t, errs == nil, errs.Format())
+	goutil.AssertNow(t, a.Declarations.Length() == 1, "wrong length")
+	c := a.Declarations.Next().(*ast.InterfaceDeclarationNode)
 	goutil.AssertNow(t, c.Generics != nil, "nil generics")
 	goutil.AssertLength(t, len(c.Generics), 1)
 }

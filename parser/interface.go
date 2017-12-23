@@ -14,6 +14,7 @@ import (
 func Parse(tokens []token.Token) (*ast.ScopeNode, util.Errors) {
 	p := new(Parser)
 	p.tokens = tokens
+	p.line = 1
 	p.parseScope(token.CloseBrace, ast.ContractDeclaration)
 	return p.scope, p.errs
 }

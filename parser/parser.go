@@ -27,6 +27,7 @@ type Parser struct {
 
 func createParser(data string) *Parser {
 	p := new(Parser)
+	p.line = 1
 	p.tokens, _ = lexer.LexString(data)
 	p.scope = &ast.ScopeNode{
 		ValidTypes: []ast.NodeType{
@@ -228,7 +229,7 @@ func (p *Parser) parseScope(terminator token.Type, valids ...ast.NodeType) *ast.
 			expr := p.parseExpression()
 			if expr == nil {
 				*p = saved
-				//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.current().TokenString())
+				fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.current().String())
 				p.addError(fmt.Sprintf("Unrecognised construct: %s", p.current().String()))
 				p.next()
 			} else {

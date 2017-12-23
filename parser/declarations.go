@@ -572,6 +572,8 @@ func parseExplicitVarDeclaration(p *Parser) {
 func parseEventDeclaration(p *Parser) {
 	p.parseRequired(token.Event)
 
+	generics := p.parsePossibleGenerics()
+
 	name := p.parseIdentifier()
 
 	var types = p.parseParameters()
@@ -579,6 +581,7 @@ func parseEventDeclaration(p *Parser) {
 	node := ast.EventDeclarationNode{
 		Modifiers:  p.getModifiers(),
 		Identifier: name,
+		Generics:   generics,
 		Parameters: types,
 	}
 	p.scope.AddDeclaration(name, &node)

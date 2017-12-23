@@ -1,6 +1,7 @@
 package validator
 
 import (
+	"axia/guardian/validator"
 	"testing"
 
 	"github.com/end-r/guardian/parser"
@@ -217,5 +218,10 @@ func TestValidateExplicitVarDecl(t *testing.T) {
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, scope.Declarations != nil, "declarations shouldn't be nil")
 	errs := Validate(scope, NewTestVM())
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestValidateModifiers(t *testing.T) {
+	_, errs := validator.ValidateString("public name string")
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }

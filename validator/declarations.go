@@ -3,6 +3,8 @@ package validator
 import (
 	"fmt"
 
+	"github.com/end-r/guardian/token"
+
 	"github.com/end-r/guardian/typing"
 
 	"github.com/end-r/guardian/ast"
@@ -426,6 +428,50 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 	v.declareContextualVar(node.Signature.Identifier, funcType)
 	v.validateScope(node.Body)
 
+}
+
+func (v *Validator) validateModifiers(modifiers []token.Type, allowed []token.Type) {
+	var access, test, indexed, static, abstract token.Type = -1, -1, -1, -1, -1
+	for _, t := range modifiers {
+		valid := false
+		for _, a := range allowed {
+			if t == a {
+				valid = true
+			}
+		}
+		if !valid {
+			v.addError(errInvalidModifier)
+		}
+
+		if t.IsAccessModifier() {
+			access = v.processModifier(t, access)
+		}
+		switch t {
+		case token.Test:
+			test = v.processModifier(t, test)
+			break
+		case token.Indexed:
+			indexed = v.processModifier(t, indexed)
+			break
+		case token.Static:
+			static = v.processModifier(t, indexed)
+			break
+		case token.Abstract:
+			abstract = v.processModifier(t, abstract)
+			break
+		}
+	}
+}
+
+func (v *Validator) processModifier(n, c token.Type) token.Type {
+	if c == -1 {
+		return n
+	} else if n == c {
+		v.addError(errDuplicateModifier)
+	} else {
+		v.addError(errMutuallyExclusiveModifier)
+	}
+	return c
 }
 
 func (v *Validator) validateEventDeclaration(node *ast.EventDeclarationNode) {
