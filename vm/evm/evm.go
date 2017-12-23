@@ -157,7 +157,7 @@ func (evm GuardianEVM) Operators() (m validator.OperatorMap) {
 	m = validator.OperatorMap{}
 
 	m.Add(validator.BooleanOperator, token.Geq, token.Leq,
-		token.Lss, token.Neq, token.Eql, token.Gtr)
+		token.Lss, token.Neq, token.Eql, token.Gtr, token.Or, token.And)
 
 	m.Add(operatorAdd, token.Add)
 	m.Add(validator.BooleanOperator, token.LogicalAnd, token.LogicalOr)
@@ -225,18 +225,6 @@ func (evm GuardianEVM) Traverse(node ast.Node) (vmgen.Bytecode, util.Errors) {
 	return code, nil
 }
 
-type hook struct {
-	name     string
-	position int
-	bytecode []byte
-}
-
-type callable struct {
-	name     string
-	position int
-	bytecode []byte
-}
-
 // NewGuardianEVM ...
 func NewVM() GuardianEVM {
 	return GuardianEVM{}
@@ -245,7 +233,20 @@ func NewVM() GuardianEVM {
 // A hook conditionally jumps the code to a particular point
 //
 
-func (e GuardianEVM) finalise() {
+func (e *GuardianEVM) finalise() {
+
+	// add public functions
+	for _, hook := range e.publicFuncs {
+		e.hookPublicFunc()
+	}
+	// add private functions
+	// add external functions
+	// add internal functions
+	// add events
+
+	for _, hook := range e.hooks {
+
+	}
 	// number of instructions =
 	/*
 		for _, hook := range e.hooks {
@@ -259,6 +260,18 @@ func (e GuardianEVM) finalise() {
 		for _, callable := range e.callables {
 			// add function bytecode
 		}*/
+}
+
+//
+
+// can be called from outside or inside the contract
+func (e *GuardianEVM) hookPublicFunc(h *hook) {
+
+}
+
+// can be
+func (e *GuardianEVM) hookPrivateFunc(h *hook) {
+
 }
 
 func (e GuardianEVM) traverse(n ast.Node) (code vmgen.Bytecode) {

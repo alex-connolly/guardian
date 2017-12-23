@@ -3,11 +3,38 @@
 
 Experimental implementation of a compiler from a Guardian AST to EVM bytecode.
 
-### Encoding
+### Encoding/ABI
 
 Solidity uses the left-most 4 bytes of the SHA3 hash of the function signature (including parameters).
 
 Guardian currently uses the left-most 4 bytes of the SHA3 hash of the function/variable name.
+
+TODO: does this necessitate some kind of ABI
+
+Solidity's way is (in my opinion) very restrictive because it enforces a more complex standard of.
+
+## Access Modifiers
+
+Solidity uses four function access modifiers, which have the following meanings.
+
+| Name | Restriction |
+|:-----------:|:----:|
+| external | Can only be called from outside the contract |
+| internal | Can only be called by this contract and derived contracts |
+| public   | Can be called from anywhere |
+| private  | Can only be called by this contract |
+
+In Guardian, the ```public``` and ```private``` keywords derive their regular OOP meanings, and so function restrictions must be defined at a VM-level using different keywords.
+
+| Name | Restriction |
+|:-----------:|:----:|
+| external | Can only be called from outside the contract |
+| internal | Can only be called inside this contract |
+| global   | Can be called anywhere |
+
+Note that this means that contracts can be both ```internal``` and ```private``` or ```public```.
+
+Further, there is no default access level for functions. It must be specified by the writer of the contract. This is a deliberate design choice to encourage secure and gas-efficient practices (as reading calldata is cheaper than reading memory) and therefore ```external``` functions are generally preferable to ```global``` functions where available.
 
 ## Builtin Functions/Variables
 
@@ -96,7 +123,7 @@ MLOAD
 PUSH "hash of b"
 MLOAD
 ADD
-
+JUMP
 // always include a stop so that there can be no bleed between functions
 STOP
 

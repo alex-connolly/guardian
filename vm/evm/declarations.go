@@ -104,8 +104,6 @@ func (e *GuardianEVM) traverseEvent(n *ast.EventDeclarationNode) (code vmgen.Byt
 
 	e.addHook(hook)
 
-	code.Add("JUMPDEST")
-	code.Add("LOG")
 	return code
 }
 

@@ -22,7 +22,7 @@ const (
 	errCannotParametrizeType    = "Cannot parametrize type %s"
 	errWrongParameterLength     = "Type %s requires %d parameters"
 
-	errInvalidModifier           = "Invalid modifier %s"
-	errMutuallyExclusiveModifier = "Cannot have modifier %s with modifier %s"
-	errDuplicateModifier         = "Duplicate modifier %s"
+	errInvalidModifier            = "Invalid modifier %s"
+	errMutuallyExclusiveModifiers = "Mutually exclusive modifiers: %s and %s"
+	errDuplicateModifiers         = "Duplicate modifier %s"
 )

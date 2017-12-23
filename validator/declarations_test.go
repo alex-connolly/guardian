@@ -1,7 +1,6 @@
 package validator
 
 import (
-	"axia/guardian/validator"
 	"testing"
 
 	"github.com/end-r/guardian/parser"
@@ -221,7 +220,22 @@ func TestValidateExplicitVarDecl(t *testing.T) {
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
-func TestValidateModifiers(t *testing.T) {
-	_, errs := validator.ValidateString("public name string")
+func TestValidateModifiersValidAccess(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), "public name string")
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestValidateModifiersDuplicateAccess(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), "public public name string")
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestValidateModifiersMEAccess(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), "public private name string")
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestValidateModifiersInvalid(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), "test name string")
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
