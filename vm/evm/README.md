@@ -18,7 +18,7 @@ Solidity's way is (in my opinion) very restrictive because it enforces a more co
 Solidity uses four function access modifiers, which have the following meanings.
 
 | Name | Restriction |
-|:-----------:|:----:|
+|:-----------:|:----|
 | external | Can only be called from outside the contract |
 | internal | Can only be called by this contract and derived contracts |
 | public   | Can be called from anywhere |
@@ -27,10 +27,10 @@ Solidity uses four function access modifiers, which have the following meanings.
 In Guardian, the ```public``` and ```private``` keywords derive their regular OOP meanings, and so function restrictions must be defined at a VM-level using different keywords.
 
 | Name | Restriction |
-|:-----------:|:----:|
+|:-----------:|:----|
 | external | Can only be called from outside the contract |
-| internal | Can only be called inside this contract |
-| global   | Can be called anywhere |
+| internal | Can only be called from inside this contract |
+| global   | Can be called from anywhere |
 
 Note that this means that contracts can be both ```internal``` and ```private``` or ```public```.
 
@@ -98,6 +98,7 @@ The general structure of a file is as follows:
 All functions must be able to be called by reference to a pa. This includes:
 
 - ```external``` functions
+- ```global``` functions
 - ```internal``` functions
 - function literals
 
