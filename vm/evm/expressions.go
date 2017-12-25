@@ -142,6 +142,14 @@ func (e *GuardianEVM) traverseCallExpr(n *ast.CallExpressionNode) (code vmgen.By
 	// traverse the call expression
 	// should leave the function address on top of the stack
 
+	if n.Call.Type() == ast.Identifier {
+		i := n.Call.(*ast.IdentifierNode)
+		if b, ok := builtins[i.Name]; ok {
+			code.Concat(b())
+			return code
+		}
+	}
+
 	call := e.traverse(n.Call)
 
 	// check to see whether we need to replace the callhash
@@ -164,33 +172,6 @@ func checkBuiltin(code vmgen.Bytecode) (res vmgen.Bytecode, isBuiltin bool) {
 		}
 	}*/
 	return code, false
-}
-
-var builtins = map[string]Builtin{
-	// arithmetic
-	"addmod":  simpleInstruction("ADDMOD"),
-	"mulmod":  simpleInstruction("MULMOD"),
-	"balance": simpleInstruction("BALANCE"),
-	// transactional
-	"transfer":     nil,
-	"send":         nil,
-	"delegateCall": simpleInstruction("DELEGATECALL"),
-	// cryptographic
-	"sha3":      simpleInstruction("SHA3"),
-	"keccak256": nil,
-	"sha356":    nil,
-	"ecrecover": nil,
-	"ripemd160": nil,
-}
-
-type Builtin func() vmgen.Bytecode
-
-// returns an anon func to handle simplest cases
-func simpleInstruction(mnemonic string) Builtin {
-	return func() (code vmgen.Bytecode) {
-		code.Add(mnemonic)
-		return code
-	}
 }
 
 func (e *GuardianEVM) traverseLiteral(n *ast.LiteralNode) (code vmgen.Bytecode) {

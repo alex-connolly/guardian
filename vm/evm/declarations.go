@@ -122,7 +122,12 @@ func (e *GuardianEVM) traverseEvent(n *ast.EventDeclarationNode) (code vmgen.Byt
 		// TODO: add error
 	}
 
+	code.Add("JUMPDEST")
+	code.Add("CALLER")
+	// other parameters should be on the stack already
 	code.Add(fmt.Sprintf("LOG%d", indexed))
+
+	//e.addEventHook(n.Identifier, )
 
 	return code
 }
