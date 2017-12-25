@@ -1,8 +1,6 @@
 package evm
 
 import (
-	"github.com/end-r/guardian/token"
-
 	"github.com/end-r/guardian/typing"
 
 	"github.com/end-r/vmgen"
@@ -16,6 +14,7 @@ func (e *GuardianEVM) traverseSwitchStatement(n *ast.SwitchStatementNode) (code 
 		e.traverse(n.Target)
 
 	} else {
+
 	}
 
 	// switch statements are implicitly converted to if statements
@@ -154,7 +153,7 @@ func (e *GuardianEVM) traverseIfStatement(n *ast.IfStatementNode) (code vmgen.By
 func (e *GuardianEVM) traverseAssignmentStatement(n *ast.AssignmentStatementNode) (code vmgen.Bytecode) {
 	for i, l := range n.Left {
 		r := n.Right[i]
-		code.Concat(e.assign(l, r, e.inStorage()))
+		code.Concat(e.assign(l, r, e.inStorage))
 	}
 	return code
 }
@@ -168,13 +167,4 @@ func (e *GuardianEVM) assign(l, r ast.ExpressionNode, inStorage bool) (code vmge
 		code.Add("MSTORE")
 	}
 	return code
-}
-
-func hasModifier(mods []token.Type, modifier token.Type) bool {
-	for _, m := range mods {
-		if m == modifier {
-			return true
-		}
-	}
-	return false
 }

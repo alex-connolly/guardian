@@ -1,5 +1,7 @@
 package evm
 
+import "github.com/end-r/guardian/token"
+
 func encodeUint(i uint) []byte {
 	return nil
 }
@@ -20,4 +22,8 @@ func EncodeName(name string) []byte {
 		return limited
 	*/
 	return []byte(name)
+}
+
+func hasModifier(mods []token.Type, modifier string) bool {
+	return false
 }

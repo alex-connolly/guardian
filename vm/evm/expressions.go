@@ -285,7 +285,7 @@ func (e *GuardianEVM) traverseFuncLiteral(n *ast.FuncLiteralNode) (code vmgen.By
 }
 
 func (e *GuardianEVM) traverseIdentifier(n *ast.IdentifierNode) (code vmgen.Bytecode) {
-	if e.inStorage() {
+	if e.inStorage {
 		s := e.lookupStorage(n.Name)
 		if n.Resolved == nil {
 			fmt.Println("RESOLVED IS NIL")
@@ -343,7 +343,7 @@ func (e *GuardianEVM) traverseReference(n *ast.ReferenceNode) (code vmgen.Byteco
 
 	code.Concat(ctx)
 
-	if e.inStorage() {
+	if e.inStorage {
 		code.Add("SLOAD")
 	} else {
 		code.Add("MLOAD")

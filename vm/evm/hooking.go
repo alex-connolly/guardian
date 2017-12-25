@@ -2,61 +2,77 @@ package evm
 
 import (
 	"github.com/end-r/guardian/ast"
-	"github.com/end-r/guardian/typing"
 	"github.com/end-r/vmgen"
 )
 
 type hook struct {
 	name     string
 	position int
-	bytecode []byte
+	bytecode vmgen.Bytecode
 }
 
-type callable struct {
-	name     string
-	position int
-	bytecode []byte
-}
-
-func (e *GuardianEVM) addExternalHook(node *ast.FuncDeclarationNode) {
-	// as external functions can only be called from outside the contract
-	// all parameters will be in calldata
-	var code vmgen.Bytecode
-	f := node.Resolved.(typing.Func)
-	offset := 0
-	for _, p := range f.Params.Types {
-		// get next 'size' bytes of calldata
-		size := p.Size()
-
-	}
-}
-
-func (e *GuardianEVM) createFunctionBody(node *ast.FuncDeclarationNode) (body vmgen.Bytecode){
-    // all function bodies look the same
-    // traverse the scope
-	body.Concat(node.Body)
+func (e *GuardianEVM) createFunctionBody(node *ast.FuncDeclarationNode) (body vmgen.Bytecode) {
+	// all function bodies look the same
+	// traverse the scope
+	body.Concat(e.traverse(node.Body))
 
 	// return address should be on top of the stack
 	body.Add("JUMP")
+	return body
 }
 
-func (e *GuardianEVM) createExternalFunctionComponents(node *ast.FuncDeclarationNode) (params, body vmgen.Bytecode){
+func (e *GuardianEVM) createExternalFunctionComponents(node *ast.FuncDeclarationNode) (params, body vmgen.Bytecode) {
+	// move params from calldata to memory
 
-
+	return params, e.createFunctionBody(node)
 }
+
+func (e *GuardianEVM) createExternalParameters(node *ast.FuncDeclarationNode) (code vmgen.Bytecode) {
+	offset := uint(0)
+	for _, param := range node.Signature.Parameters {
+		exp := param.(*ast.ExplicitVarDeclarationNode)
+		for _ = range exp.Identifiers {
+			offset += exp.Resolved.Size()
+
+		}
+	}
+	return code
+}
+
+func (e *GuardianEVM) traverseExternalFunction(node *ast.FuncDeclarationNode) (code vmgen.Bytecode) {
+
+	params := e.createExternalParameters(node)
+
+	body := e.createFunctionBody(node)
+
+	code.Concat(params)
+	code.Concat(body)
+
+	e.addExternalHook(node.Signature.Identifier, code)
+
+	return code
+}
+
 /*
 | return location |
 | param 1 |
 | param 2 |
 */
-func (e *GuardianEVM) createInternalFunction(node *ast.FuncDeclarationNode) (code vmgen.Bytecode){
-    p, b := e.createInternalFunctionComponents(node)
-	code.Concat(p)
-    code.Concat(b)
-    return code
+func (e *GuardianEVM) traverseInternalFunction(node *ast.FuncDeclarationNode) (code vmgen.Bytecode) {
+
+	params := e.createInternalParameters(node)
+
+	body := e.createFunctionBody(node)
+
+	code.Concat(params)
+	code.Concat(body)
+
+	e.addInternalHook(node.Signature.Identifier, code)
+
+	return code
 }
 
-func (e *GuardianEVM) createInternalFunctionComponents(node *ast.FuncDeclarationNode) (params, body vmgen.Bytecode){
+func (e *GuardianEVM) createInternalParameters(node *ast.FuncDeclarationNode) (params vmgen.Bytecode) {
 	// as internal functions can only be called from inside the contract
 	// no need to have a hook
 	// can just jump to the location
@@ -72,29 +88,70 @@ func (e *GuardianEVM) createInternalFunctionComponents(node *ast.FuncDeclaration
 		}
 	}
 
-    return code, e.createFunctionBody(node)
+	return params
 }
 
-func (e *GuardianEVM) createGlobalFunction(node *ast.FuncDeclarationNode) (code vmgen.Bytecode) {
-    // hook here
-    // get all parameters out of calldata and into memory
-    // then jump over the parameter init in the internal declaration
-    for _,
+func (e *GuardianEVM) traverseGlobalFunction(node *ast.FuncDeclarationNode) (code vmgen.Bytecode) {
+	// hook here
+	// get all parameters out of calldata and into memory
+	// then jump over the parameter init in the internal declaration
+	// leave the hook for later
+	external := e.createExternalParameters(node)
 
-    // add normal function
-    params, body := e.createInternalFunctionComponents(node)
+	internal := e.createInternalParameters(node)
 
-    code.Concat(pushMarker(len(params)))
+	body := e.createFunctionBody(node)
 
-    code.Concat(params)
+	code.Concat(pushMarker(external.Length()))
 
-    code.Add("JUMPDEST")
+	code.Concat(external)
 
-    code.Concat(body)
+	code.Add("JUMPDEST")
 
-    e.addGlobalHook(node.Signature.Identifier, code)
+	code.Concat(internal)
+
+	code.Concat(body)
+
+	e.addGlobalHook(node.Signature.Identifier, code)
+	return code
 }
 
-func (e *GuardianEVM) addGlobalHook(id string, code vmgen.Bytecode){
+func (e *GuardianEVM) addGlobalHook(id string, code vmgen.Bytecode) {
+	if e.globalHooks == nil {
+		e.globalHooks = make(map[string]hook)
+	}
+	e.globalHooks[id] = hook{
+		name:     id,
+		bytecode: code,
+	}
+}
 
+func (e *GuardianEVM) addInternalHook(id string, code vmgen.Bytecode) {
+	if e.internalHooks == nil {
+		e.internalHooks = make(map[string]hook)
+	}
+	e.internalHooks[id] = hook{
+		name:     id,
+		bytecode: code,
+	}
+}
+
+func (e *GuardianEVM) addExternalHook(id string, code vmgen.Bytecode) {
+	if e.externalHooks == nil {
+		e.externalHooks = make(map[string]hook)
+	}
+	e.externalHooks[id] = hook{
+		name:     id,
+		bytecode: code,
+	}
+}
+
+func (e *GuardianEVM) addLifecycleHook(id string, code vmgen.Bytecode) {
+	if e.lifecycleHooks == nil {
+		e.lifecycleHooks = make(map[string]hook)
+	}
+	e.lifecycleHooks[id] = hook{
+		name:     id,
+		bytecode: code,
+	}
 }

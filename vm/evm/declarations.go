@@ -1,6 +1,8 @@
 package evm
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/vmgen"
@@ -23,10 +25,10 @@ func (e *GuardianEVM) traverseClass(n *ast.ClassDeclarationNode) (code vmgen.Byt
 				e.traverseExplicitVarDecl(a)
 				break
 			case *ast.LifecycleDeclarationNode:
-				e.addLifecycleHook(n.Identifier, a)
+				//e.addLifecycleHook(n.Identifier, a)
 				break
 			case *ast.FuncDeclarationNode:
-				e.addFunctionHook(n.Identifier, a)
+				e.traverseFunc(a)
 				break
 			default:
 				e.traverse(a.(ast.Node))
@@ -48,6 +50,9 @@ func (e *GuardianEVM) traverseEnum(n *ast.EnumDeclarationNode) (code vmgen.Bytec
 }
 
 func (e *GuardianEVM) traverseContract(n *ast.ContractDeclarationNode) (code vmgen.Bytecode) {
+
+	e.inStorage = false
+
 	// create hooks for functions
 	// create hooks for constructors
 	// create hooks for events
@@ -55,7 +60,7 @@ func (e *GuardianEVM) traverseContract(n *ast.ContractDeclarationNode) (code vmg
 	for _, d := range n.Body.Declarations.Map() {
 		switch a := d.(type) {
 		case *ast.LifecycleDeclarationNode:
-			e.addLifecycleHook(n.Identifier, a)
+			//	e.addLifecycleHook(n.Identifier, a)
 			break
 		case *ast.FuncDeclarationNode:
 			e.addFunctionHook(n.Identifier, a)
@@ -69,10 +74,6 @@ func (e *GuardianEVM) traverseContract(n *ast.ContractDeclarationNode) (code vmg
 	}
 
 	return code
-}
-
-func (e *GuardianEVM) addLifecycleHook(parent string, node *ast.LifecycleDeclarationNode) {
-	//e.hooks[parent].hook[]
 }
 
 func (e *GuardianEVM) addFunctionHook(parent string, node *ast.FuncDeclarationNode) {
@@ -99,10 +100,29 @@ func (e *GuardianEVM) addHook(name string) {
 }
 
 func (e *GuardianEVM) traverseEvent(n *ast.EventDeclarationNode) (code vmgen.Bytecode) {
+	indexed := 0
 
-	hook := string(EncodeName(n.Identifier))
+	if hasModifier(n.Modifiers, "indexed") {
+		// all parameters will be indexed
+	} else {
+		size := uint(0)
+		for _, param := range n.Parameters {
+			for _ = range n.Identifier {
+				size += param.Resolved.Size()
+				if hasModifier(param.Modifiers, "indexed") {
+					indexed++
 
-	e.addHook(hook)
+				}
+			}
+		}
+	}
+
+	topicLimit := 4
+	if indexed > topicLimit {
+		// TODO: add error
+	}
+
+	code.Add(fmt.Sprintf("LOG%d", indexed))
 
 	return code
 }
@@ -134,23 +154,17 @@ func (e *GuardianEVM) traverseParameters(params []*ast.ExplicitVarDeclarationNod
 	return code
 }
 
-func (e *GuardianEVM) traverseFunc(n *ast.FuncDeclarationNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseFunc(node *ast.FuncDeclarationNode) (code vmgen.Bytecode) {
+
+	e.inStorage = true
 
 	// don't worry about hooking
-
-	code.Add("JUMPDEST")
-
-	var ps []*ast.ExplicitVarDeclarationNode
-	for _, n := range n.Signature.Parameters {
-		ps = append(ps, n.(*ast.ExplicitVarDeclarationNode))
-	}
-
-	params := e.traverseParameters(ps)
-
-	code.Concat(params)
-
-	for _, n := range n.Body.Sequence {
-		code.Concat(e.traverse(n))
+	if hasModifier(node.Modifiers, "external") {
+		code.Concat(e.traverseExternalFunction(node))
+	} else if hasModifier(node.Modifiers, "internal") {
+		code.Concat(e.traverseInternalFunction(node))
+	} else if hasModifier(node.Modifiers, "global") {
+		code.Concat(e.traverseGlobalFunction(node))
 	}
 
 	return code
@@ -158,9 +172,8 @@ func (e *GuardianEVM) traverseFunc(n *ast.FuncDeclarationNode) (code vmgen.Bytec
 
 func (e *GuardianEVM) traverseExplicitVarDecl(n *ast.ExplicitVarDeclarationNode) (code vmgen.Bytecode) {
 	// variable declarations don't require storage (yet), just have to designate a slot
-	storage := e.inStorage() || hasModifier(n.Modifiers, token.Storage)
 	for _, id := range n.Identifiers {
-		if storage {
+		if e.inStorage {
 			e.allocateStorage(id, n.Resolved.Size())
 		} else {
 			e.allocateMemory(id, n.Resolved.Size())
