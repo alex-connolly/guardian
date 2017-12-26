@@ -104,11 +104,14 @@ func (e *GuardianEVM) traverseEvent(n *ast.EventDeclarationNode) (code vmgen.Byt
 
 	if hasModifier(n.Modifiers, "indexed") {
 		// all parameters will be indexed
+		for _ = range n.Parameters {
+			for _ = range n.Identifier {
+				indexed++
+			}
+		}
 	} else {
-		size := uint(0)
 		for _, param := range n.Parameters {
 			for _ = range n.Identifier {
-				size += param.Resolved.Size()
 				if hasModifier(param.Modifiers, "indexed") {
 					indexed++
 

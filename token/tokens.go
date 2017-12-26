@@ -48,19 +48,6 @@ func (t Type) IsUnaryOperator() bool {
 	return false
 }
 
-// IsModifier reports whether a token is a modifier
-func (t Type) IsModifier() bool {
-	return t.isToken(GetModifiers())
-}
-
-func (t Type) IsAccessModifier() bool {
-	return t.isToken([]Type{Internal, External, Public, Private, Protected})
-}
-
-func (t Type) IsStorageModifier() bool {
-	return t.isToken([]Type{Storage, Memory})
-}
-
 // IsDeclaration reports whether a token is a modifier
 func (t Type) IsDeclaration() bool {
 	return t.isToken(GetDeclarations())
@@ -84,7 +71,7 @@ func (t Type) isToken(list []Type) bool {
 func GetBinaryOperators() []Type {
 	return []Type{
 		Add, Sub, Mul, Div, Gtr, Lss, Geq, Leq,
-		As, And, Or, Eql, Xor, Is, Shl, Shr,
+		As, And, Or, Eql, Xor, Is, Shl, Shr, LogicalAnd, LogicalOr,
 	}
 }
 
@@ -93,12 +80,6 @@ func GetDeclarations() []Type {
 	return []Type{
 		Class, Interface, Enum, KWType, Contract, Func,
 	}
-}
-
-// GetModifiers ....
-func GetModifiers() []Type {
-	return []Type{Const, Internal, External, Public, Private,
-		Protected, Static, Abstract, Storage, Test, Indexed, Memory}
 }
 
 // GetLifecycles ....
@@ -113,9 +94,209 @@ func GetAssignments() []Type {
 		OrAssign, XorAssign, Define}
 }
 
+type ModifierGroup struct {
+	Name      string
+	Modifiers []string
+}
+
+var groups = []ModifierGroup{
+	ModifierGroup{
+		Name:      "Access",
+		Modifiers: []string{"public", "private", "protected"},
+	},
+	ModifierGroup{
+		Name:      "Concreteness",
+		Modifiers: []string{"abstract"},
+	},
+	ModifierGroup{
+		Name:      "Instantiability",
+		Modifiers: []string{"static"},
+	},
+	ModifierGroup{
+		Name:      "Testing",
+		Modifiers: []string{"test"},
+	},
+	ModifierGroup{
+		Name:      "Mutability",
+		Modifiers: []string{"var", "const"},
+	},
+}
+
+func NewModifierGroup(mods ...string) ModifierGroup {
+	return ModifierGroup{
+		Modifiers: mods,
+	}
+}
+
+func Distinct(name string, typ Type) ProtoToken {
+	return ProtoToken{
+		Name:    name,
+		Type:    typ,
+		Process: processFixed(len(name), typ),
+	}
+}
+
+func Fixed(name string, typ Type) ProtoToken {
+	return ProtoToken{
+		Name:    name,
+		Type:    typ,
+		Process: processFixed(len(name), typ),
+	}
+}
+
+func getNextString(b Byterable, len int) string {
+	return string(b.Bytes()[b.Offset() : b.Offset()+len])
+}
+
+func getNextProtoToken(b Byterable) *ProtoToken {
+	longest := 3 // longest fixed token
+	available := longest
+	if available > len(b.Bytes())-b.Offset() {
+		available = len(b.Bytes()) - b.Offset()
+	}
+	for i := available; i >= 0; i-- {
+		f, ok := fixed[getNextString(b, i)]
+		if ok {
+			return &f
+		}
+	}
+	count := 0
+	for hasBytes(b, 0) {
+		count++
+		if isWhitespace(b) {
+			break
+		}
+	}
+	r, ok := distinct[getNextString(b, count)]
+	if ok {
+		return &r
+	}
+	// special cases
+	if isFloat(b) {
+		return &ProtoToken{Name: "float", Type: Float, Process: processFloat}
+	} else if isInteger(b) {
+		return &ProtoToken{Name: "integer", Type: Integer, Process: processInteger}
+	} else if isString(b) {
+		return &ProtoToken{Name: "string", Type: String, Process: processString}
+	} else if isCharacter(b) {
+		return &ProtoToken{Name: "character", Type: Character, Process: processCharacter}
+	} else if isWhitespace(b) {
+		return &ProtoToken{Name: "ignored", Type: None, Process: processIgnored}
+	} else if isNewLine(b) {
+		return &ProtoToken{Name: "new line", Type: NewLine, Process: processNewLine}
+	}
+	return nil
+}
+
+var distinct = map[string]ProtoToken{
+	"contract":  Distinct("contract", Contract),
+	"class":     Distinct("class", Class),
+	"event":     Distinct("event", Event),
+	"enum":      Distinct("enum", Enum),
+	"interface": Distinct("interface", Interface),
+	"inherits":  Distinct("inherits", Inherits),
+
+	"const": Distinct("const", Const),
+	"var":   Distinct("var", Var),
+
+	"run":   Distinct("run", Run),
+	"defer": Distinct("defer", Defer),
+
+	"switch":      Distinct("switch", Switch),
+	"case":        Distinct("case", Case),
+	"exclusive":   Distinct("exclusive", Exclusive),
+	"default":     Distinct("default", Default),
+	"fallthrough": Distinct("fallthrough", Fallthrough),
+	"break":       Distinct("break", Break),
+	"continue":    Distinct("continue", Continue),
+
+	"constructor": Distinct("constructor", Constructor),
+	"destructor":  Distinct("destructor", Destructor),
+
+	"if":      Distinct("if", If),
+	"else if": Distinct("else if", ElseIf),
+	"else":    Distinct("else", Else),
+
+	"for":    Distinct("for", For),
+	"func":   Distinct("func", Func),
+	"goto":   Distinct("goto", Goto),
+	"import": Distinct("import", Import),
+	"is":     Distinct("is", Is),
+	"as":     Distinct("as", As),
+	"typeof": Distinct("typeof", TypeOf),
+	"type":   Distinct("type", KWType),
+
+	"in":    Distinct("in", In),
+	"map":   Distinct("map", Map),
+	"macro": Distinct("macro", Macro),
+
+	"package": Distinct("package", Package),
+	"return":  Distinct("return", Return),
+
+	"true":  Distinct("true", True),
+	"false": Distinct("false", False),
+
+	"test":     Distinct("test", Test),
+	"fallback": Distinct("fallback", Fallback),
+	"versopm":  Distinct("version", Version),
+}
+
+var fixed = map[string]ProtoToken{
+	":":  Fixed(":", Colon),
+	"/*": Fixed("/*", CommentOpen),
+	"*/": Fixed("*/", CommentClose),
+	"//": Fixed("//", LineComment),
+
+	"+=":  Fixed("+=", AddAssign),
+	"++":  Fixed("++", Increment),
+	"+":   Fixed("+", Add),
+	"-=":  Fixed("-=", SubAssign),
+	"--":  Fixed("--", Decrement),
+	"-":   Fixed("-", Sub),
+	"/=":  Fixed("/=", DivAssign),
+	"/":   Fixed("/", Div),
+	"**=": Fixed("**=", ExpAssign),
+	"**":  Fixed("**", Exp),
+	"*=":  Fixed("*=", MulAssign),
+	"*":   Fixed("*", Mul),
+	"%=":  Fixed("%=", ModAssign),
+	"%":   Fixed("%", Mod),
+	"<<=": Fixed("<<=", ShlAssign),
+	"<<":  Fixed("<<", Shl),
+	">>=": Fixed(">>=", ShrAssign),
+	">>":  Fixed(">>", Shr),
+
+	"&":   Fixed("", And),
+	"|":   Fixed("|", Or),
+	"==":  Fixed("==", Eql),
+	"!=":  Fixed("!=", Neq),
+	"!":   Fixed("!", Not),
+	">=":  Fixed(">=", Geq),
+	"<=":  Fixed("<=", Leq),
+	":=":  Fixed(":=", Define),
+	"...": Fixed("...", Ellipsis),
+
+	"{": Fixed("}", OpenBrace),
+	"}": Fixed("}", CloseBrace),
+	"<": Fixed("<", Lss),
+	">": Fixed(">", Gtr),
+	"[": Fixed("[", OpenSquare),
+	"]": Fixed("]", CloseSquare),
+	"(": Fixed("(", OpenBracket),
+	")": Fixed(")", CloseBracket),
+
+	"?": Fixed("?", Ternary),
+	";": Fixed(";", Semicolon),
+	".": Fixed(".", Dot),
+	",": Fixed(",", Comma),
+	"=": Fixed("=", Assign),
+	"@": Fixed("@", At),
+}
+
 // Type
 const (
 	Invalid Type = iota
+	Custom
 	Identifier
 	Integer
 	Float
@@ -142,6 +323,7 @@ const (
 	Add          // +
 	Sub          // -
 	Mul          // *
+	Exp          // **
 	Div          // /
 	Mod          // %
 
@@ -150,6 +332,7 @@ const (
 	AddAssign  // +=
 	SubAssign  // -=
 	MulAssign  // *=
+	ExpAssign  // **=
 	DivAssign  // /=
 	ModAssign  // %=
 	AndAssign  // &=
@@ -190,7 +373,7 @@ const (
 	Run
 	Defer
 	If
-	Elif
+	ElseIf
 	Else
 	Switch
 	Case
@@ -214,157 +397,18 @@ const (
 	None
 	True
 	False
-	External
-	Internal
 	Public
 	Private
 	Protected
 	Static
-	Storage
-	Memory
-	Indexed
 	NewLine
 	LineComment
 	CommentOpen
 	CommentClose
 	Test
 	Fallback
+	Version
 )
-
-// GetProtoTokens ...
-func GetProtoTokens() []ProtoToken {
-	return []ProtoToken{
-		createDistinct("contract", Contract),
-		createDistinct("class", Class),
-		createDistinct("event", Event),
-		createDistinct("enum", Enum),
-		createDistinct("interface", Interface),
-		createDistinct("inherits", Inherits),
-
-		createDistinct("const", Const),
-		createDistinct("var", Var),
-
-		createDistinct("run", Run),
-		createDistinct("defer", Defer),
-
-		createDistinct("switch", Switch),
-		createDistinct("case", Case),
-		createDistinct("exclusive", Exclusive),
-		createDistinct("default", Default),
-		createDistinct("fallthrough", Fallthrough),
-		createDistinct("break", Break),
-		createDistinct("continue", Continue),
-
-		createDistinct("constructor", Constructor),
-		createDistinct("destructor", Destructor),
-
-		createDistinct("if", If),
-		createDistinct("else if", Elif),
-		createDistinct("else", Else),
-
-		createDistinct("for", For),
-		createDistinct("func", Func),
-		createDistinct("goto", Goto),
-		createDistinct("import", Import),
-		createDistinct("is", Is),
-		createDistinct("as", As),
-		createDistinct("typeof", TypeOf),
-		createDistinct("type", KWType),
-
-		createDistinct("external", External),
-		createDistinct("internal", Internal),
-		createDistinct("public", Public),
-		createDistinct("private", Private),
-		createDistinct("protected", Protected),
-		createDistinct("abstract", Abstract),
-		createDistinct("static", Static),
-		createDistinct("storage", Storage),
-		createDistinct("indexed", Indexed),
-		createDistinct("memory", Memory),
-
-		createDistinct("in", In),
-		createDistinct("map", Map),
-		createDistinct("macro", Macro),
-
-		createDistinct("package", Package),
-		createDistinct("return", Return),
-
-		createDistinct("true", True),
-		createDistinct("false", False),
-
-		createDistinct("test", Test),
-		createDistinct("fallback", Fallback),
-		createDistinct("at", At),
-
-		ProtoToken{"Float", isFloat, processFloat},
-		// must check float first
-		ProtoToken{"Integer", isInteger, processInteger},
-
-		createFixed("/*", CommentOpen),
-		createFixed("*/", CommentClose),
-		createFixed("//", LineComment),
-
-		createFixed("+=", AddAssign),
-		createFixed("++", Increment),
-		createFixed("+", Add),
-		createFixed("-=", SubAssign),
-		createFixed("--", Decrement),
-		createFixed("-", Sub),
-		createFixed("/=", DivAssign),
-		createFixed("/", Div),
-		createFixed("*=", MulAssign),
-		createFixed("*", Mul),
-		createFixed("%=", ModAssign),
-		createFixed("%", Mod),
-		createFixed("<<=", ShlAssign),
-		createFixed("<<", Shl),
-		createFixed(">>=", ShrAssign),
-		createFixed(">>", Shr),
-
-		createDistinct("and", LogicalAnd),
-		createFixed("&", And),
-		createDistinct("or", LogicalOr),
-		createFixed("|", Or),
-		createFixed("==", Eql),
-		createFixed("!=", Neq),
-		createFixed("!", Not),
-		createFixed(">=", Geq),
-		createFixed("<=", Leq),
-		createFixed(":=", Define),
-		createFixed("...", Ellipsis),
-
-		createFixed("{", OpenBrace),
-		createFixed("}", CloseBrace),
-		createFixed("<", Lss),
-		createFixed(">", Gtr),
-		createFixed("[", OpenSquare),
-		createFixed("]", CloseSquare),
-		createFixed("(", OpenBracket),
-		createFixed(")", CloseBracket),
-
-		createFixed(":", Colon),
-		createFixed("?", Ternary),
-		createFixed(";", Semicolon),
-		createFixed(".", Dot),
-		createFixed(",", Comma),
-		createFixed("=", Assign),
-
-		ProtoToken{"New Line", isNewLine, processNewLine},
-		ProtoToken{"Whitespace", isWhitespace, processIgnored},
-		ProtoToken{"String", isString, processString},
-
-		ProtoToken{"Identifier", isIdentifier, processIdentifier},
-		ProtoToken{"Character", isCharacter, processCharacter},
-	}
-}
-
-func createFixed(kw string, tkn Type) ProtoToken {
-	return ProtoToken{"KW: " + kw, is(kw), processFixed(len(kw), tkn)}
-}
-
-func createDistinct(kw string, tkn Type) ProtoToken {
-	return ProtoToken{kw, isDistinct(kw), processFixed(len(kw), tkn)}
-}
 
 type isFunc func(Byterable) bool
 type processorFunc func(Byterable) Token
@@ -372,6 +416,7 @@ type processorFunc func(Byterable) Token
 // ProtoToken ...
 type ProtoToken struct {
 	Name       string // for debugging
+	Type       Type
 	Identifier isFunc
 	Process    processorFunc
 }

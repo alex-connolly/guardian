@@ -20,7 +20,7 @@ func (n *TypeDeclarationNode) Type() NodeType { return TypeDeclaration }
 type FuncDeclarationNode struct {
 	Signature    *FuncTypeNode
 	Body         *ScopeNode
-	Modifiers    []token.Type
+	Modifiers    Modifiers
 	Generics     []*GenericDeclarationNode
 	ResolvedSize uint
 	Resolved     typing.Type
@@ -30,7 +30,7 @@ func (n *FuncDeclarationNode) Type() NodeType { return FuncDeclaration }
 
 type ClassDeclarationNode struct {
 	Identifier   string
-	Modifiers    []token.Type
+	Modifiers    Modifiers
 	Supers       []*PlainTypeNode
 	Interfaces   []*PlainTypeNode
 	Body         *ScopeNode
@@ -43,7 +43,7 @@ func (n *ClassDeclarationNode) Type() NodeType { return ClassDeclaration }
 
 type InterfaceDeclarationNode struct {
 	Identifier string
-	Modifiers  []token.Type
+	Modifiers  Modifiers
 	Signatures []*FuncTypeNode
 	Supers     []*PlainTypeNode
 	Generics   []*GenericDeclarationNode
@@ -54,7 +54,7 @@ func (n *InterfaceDeclarationNode) Type() NodeType { return InterfaceDeclaration
 
 type ContractDeclarationNode struct {
 	Identifier string
-	Modifiers  []token.Type
+	Modifiers  Modifiers
 	Supers     []*PlainTypeNode
 	Interfaces []*PlainTypeNode
 	Generics   []*GenericDeclarationNode
@@ -64,8 +64,18 @@ type ContractDeclarationNode struct {
 
 func (n *ContractDeclarationNode) Type() NodeType { return ContractDeclaration }
 
+type Annotation struct {
+	Name       string
+	Parameters []string
+}
+
+type Modifiers struct {
+	Annotations []*Annotation
+	Modifiers   []token.Type
+}
+
 type ExplicitVarDeclarationNode struct {
-	Modifiers    []token.Type
+	Modifiers    Modifiers
 	Identifiers  []string
 	DeclaredType Node
 	Resolved     typing.Type
@@ -74,7 +84,7 @@ type ExplicitVarDeclarationNode struct {
 func (n *ExplicitVarDeclarationNode) Type() NodeType { return ExplicitVarDeclaration }
 
 type EventDeclarationNode struct {
-	Modifiers  []token.Type
+	Modifiers  Modifiers
 	Identifier string
 	Generics   []*GenericDeclarationNode
 	Parameters []*ExplicitVarDeclarationNode
@@ -85,7 +95,7 @@ func (n *EventDeclarationNode) Type() NodeType { return EventDeclaration }
 
 // LifecycleDeclarationNode ...
 type LifecycleDeclarationNode struct {
-	Modifiers  []token.Type
+	Modifiers  Modifiers
 	Category   token.Type
 	Parameters []*ExplicitVarDeclarationNode
 	Body       *ScopeNode
@@ -95,7 +105,7 @@ func (n *LifecycleDeclarationNode) Type() NodeType { return LifecycleDeclaration
 
 type EnumDeclarationNode struct {
 	Identifier string
-	Modifiers  []token.Type
+	Modifiers  Modifiers
 	Inherits   []*PlainTypeNode
 	// consider whether to change this
 	Enums    []string
