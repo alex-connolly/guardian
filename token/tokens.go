@@ -155,22 +155,27 @@ func getNextProtoToken(b Byterable) *ProtoToken {
 		available = len(b.Bytes()) - b.Offset()
 	}
 	for i := available; i >= 0; i-- {
-		f, ok := fixed[getNextString(b, i)]
+		key := getNextString(b, i)
+		f, ok := fixed[key]
 		if ok {
 			return &f
 		}
 	}
-	count := 0
-	for hasBytes(b, 0) {
-		count++
-		if isWhitespace(b) {
+	start := b.Offset()
+	for hasBytes(b, 1) {
+		if isWhitespace(b) || isNewLine(b) {
 			break
 		}
+		next(b)
 	}
-	r, ok := distinct[getNextString(b, count)]
+	end := b.Offset()
+	b.SetOffset(start)
+	key := getNextString(b, end-start)
+	r, ok := distinct[key]
 	if ok {
 		return &r
 	}
+	b.SetOffset(start)
 	// special cases
 	if isFloat(b) {
 		return &ProtoToken{Name: "float", Type: Float, Process: processFloat}
@@ -238,7 +243,7 @@ var distinct = map[string]ProtoToken{
 
 	"test":     Distinct("test", Test),
 	"fallback": Distinct("fallback", Fallback),
-	"versopm":  Distinct("version", Version),
+	"version":  Distinct("version", Version),
 }
 
 var fixed = map[string]ProtoToken{
@@ -410,15 +415,13 @@ const (
 	Version
 )
 
-type isFunc func(Byterable) bool
 type processorFunc func(Byterable) Token
 
 // ProtoToken ...
 type ProtoToken struct {
-	Name       string // for debugging
-	Type       Type
-	Identifier isFunc
-	Process    processorFunc
+	Name    string // for debugging
+	Type    Type
+	Process processorFunc
 }
 
 // Name returns the name of a token
