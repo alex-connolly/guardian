@@ -94,12 +94,6 @@ func GetAssignments() []Type {
 		OrAssign, XorAssign, Define}
 }
 
-func NewModifierGroup(mods ...string) ModifierGroup {
-	return ModifierGroup{
-		Modifiers: mods,
-	}
-}
-
 func Distinct(name string, typ Type) ProtoToken {
 	return ProtoToken{
 		Name:    name,

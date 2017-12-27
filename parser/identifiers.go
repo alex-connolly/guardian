@@ -224,7 +224,7 @@ func isCaseStatement(p *Parser) bool {
 }
 
 func isModifier(p *Parser) bool {
-	return p.hasTokens(1) && p.current().Type.IsModifier()
+	return p.isNextToken(token.Identifier)
 }
 
 func isPackageStatement(p *Parser) bool {
