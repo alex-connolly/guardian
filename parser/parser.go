@@ -264,6 +264,8 @@ func parseAnnotation(p *Parser) {
 		a.Parameters = p.parseExpressionList()
 		p.parseRequired(token.CloseBracket)
 	}
-
+	if p.annotations == nil {
+		p.annotations = make([]*ast.Annotation, 0)
+	}
 	p.annotations = append(p.annotations, a)
 }

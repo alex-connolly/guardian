@@ -61,6 +61,7 @@ type VM interface {
 	ValidStatements() []ast.NodeType
 	ValidDeclarations() []ast.NodeType
 	Modifiers() []ModifierGroup
+	Annotations() []*ast.Annotation
 }
 
 type TestVM struct {
@@ -68,6 +69,10 @@ type TestVM struct {
 
 func NewTestVM() TestVM {
 	return TestVM{}
+}
+
+func (v TestVM) Annotations() []*ast.Annotation {
+
 }
 
 func (v TestVM) BooleanName() string {

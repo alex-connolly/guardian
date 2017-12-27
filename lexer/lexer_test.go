@@ -166,7 +166,7 @@ func TextLexerGeneric(t *testing.T) {
 }
 
 func TestConditionals(t *testing.T) {
-	tokens, _ := LexString("if else if else")
+	tokens, _ := LexString("if elif else")
 	checkTokens(t, tokens, []token.Type{
 		token.If,
 		token.ElseIf,

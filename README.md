@@ -4,6 +4,12 @@ Guardian is a statically typed, object-oriented programming language for decentr
 
 Significantly, Guardian is virtual machine agnostic - the same syntax can be compiled into radically different bytecode for different virtual machines.
 
+Guardian currently supports the generation of bytecode for the following VMs:
+
+- Ethereum Virtual Machine
+- NEO Virtual Machine
+- FireVM
+
 ## Aims
 
 In no particular order, Guardian strives to:
@@ -27,7 +33,7 @@ Guardian uses go-style packaging and importing, so that related constructs can b
 In order for future versions of Guardian to include potentially backwards-incompatible changes, each Guardian file must include a version declaration appended to the package declaration:
 
 ```go
-package calculator @ 0.0.1
+package calculator version 0.0.1
 ```
 
 ## Importing packages
@@ -42,7 +48,7 @@ contract Watcher {
 
     doThing(){
         // this is a function from the guard package
-        guard.Guard()
+        guard.watch()
     }
 }
 
@@ -79,7 +85,7 @@ Guardian uses java-style interface syntax.
 
 ```go
 interface Walkable inherits Moveable {
-    walk(int distance)
+    walk(distance int)
 }
 
 class Liger inherits Lion, Tiger is Walkable {
@@ -98,7 +104,7 @@ Guardian uses ```constructor``` and ```destructor``` keywords. Each class may co
 ```go
 contract Test {
 
-    constructor(string name){
+    constructor(name string){
 
     }
 
@@ -120,10 +126,10 @@ Generics can be specified using Java syntax:
 // this will be checked at compile time
 contract Purchase<T is Sellable> {
 
-    T item
-    int quantity
+    item T
+    quantity int
 
-    constructor(T item, int quantity){
+    constructor(item T, quantity int){
         this.item = item
         this.quantity = quantity
     }
