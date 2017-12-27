@@ -137,7 +137,7 @@ func NextProtoToken(b Byterable) *ProtoToken {
 	}
 	start := b.Offset()
 	for hasBytes(b, 1) {
-		if isWhitespace(b) || isNewLine(b) {
+		if !isIdentifierByte(current(b)) {
 			break
 		}
 		next(b)
@@ -341,7 +341,6 @@ const (
 	Event
 	Enum
 	Interface
-	Abstract
 	Constructor
 	Destructor
 	Const
@@ -373,10 +372,6 @@ const (
 	None
 	True
 	False
-	Public
-	Private
-	Protected
-	Static
 	NewLine
 	LineComment
 	CommentOpen
