@@ -71,7 +71,7 @@ func TestParseMultiLineComment(t *testing.T) {
 
 		d'sad
 		sd
-		s
+		ss
 
 		dsdd
 		a

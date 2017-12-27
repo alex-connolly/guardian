@@ -7,7 +7,7 @@ import (
 )
 
 type TypeDeclarationNode struct {
-	Modifiers    []token.Type
+	Modifiers    Modifiers
 	Identifier   string
 	Value        Node
 	ResolvedSize uint
@@ -71,7 +71,7 @@ type Annotation struct {
 
 type Modifiers struct {
 	Annotations []*Annotation
-	Modifiers   []token.Type
+	Modifiers   []string
 }
 
 type ExplicitVarDeclarationNode struct {

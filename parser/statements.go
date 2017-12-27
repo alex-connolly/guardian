@@ -123,7 +123,7 @@ func parseIfStatement(p *Parser) {
 	})
 
 	// parse elif cases
-	for p.parseOptional(token.Elif) {
+	for p.parseOptional(token.ElseIf) {
 		condition := p.parseSimpleExpression()
 		body := p.parseBracesScope()
 		conditions = append(conditions, &ast.ConditionNode{

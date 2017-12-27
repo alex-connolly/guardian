@@ -25,6 +25,7 @@ func (l *Lexer) next() {
 	pt := token.NextProtoToken(l)
 	if pt != nil {
 		t := pt.Process(l)
+		t.Proto = *pt
 		if pt.Type == token.None {
 			l.byteOffset++
 		} else {

@@ -17,8 +17,9 @@ type Parser struct {
 	scope         *ast.ScopeNode
 	Expression    ast.ExpressionNode
 	tokens        []token.Token
-	modifiers     [][]token.Type
-	lastModifiers []token.Type
+	modifiers     [][]string
+	lastModifiers []string
+	annotations   []*ast.Annotation
 	index         int
 	errs          util.Errors
 	line          int
@@ -173,8 +174,8 @@ func parseGroup(p *Parser) {
 	}
 }
 
-func (p *Parser) getModifiers() []token.Type {
-	var mods []token.Type
+func (p *Parser) getModifiers() ast.Modifiers {
+	var mods []string
 	for _, m := range p.lastModifiers {
 		mods = append(mods, m)
 	}
@@ -183,7 +184,10 @@ func (p *Parser) getModifiers() []token.Type {
 			mods = append(mods, m)
 		}
 	}
-	return mods
+	return ast.Modifiers{
+		Modifiers:   mods,
+		Annotations: p.annotations,
+	}
 }
 
 func (p *Parser) addError(message string) {
@@ -250,7 +254,7 @@ func (p *Parser) parseScope(terminator token.Type, valids ...ast.NodeType) *ast.
 
 func parseAnnotation(p *Parser) {
 
-	var a Annotation
+	var a *ast.Annotation
 	p.parseRequired(token.At)
 
 	a.Name = p.parseIdentifier()

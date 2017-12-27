@@ -1,8 +1,9 @@
 package validator
 
 import (
-	"axia/guardian/parser"
 	"fmt"
+
+	"github.com/end-r/guardian/parser"
 
 	"github.com/end-r/guardian/typing"
 
@@ -102,6 +103,7 @@ type Validator struct {
 	operators         OperatorMap
 	primitives        map[string]typing.Type
 	builtinVariables  map[string]typing.Type
+	modifierGroups    []ModifierGroup
 }
 
 // TypeScope ...

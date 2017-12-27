@@ -167,10 +167,7 @@ func (v *Validator) requireValidType(names []string) typing.Type {
 
 func (v *Validator) validateVarDeclaration(node *ast.ExplicitVarDeclarationNode) {
 
-	v.validateModifiers(node.Modifiers, []token.Type{
-		token.Public, token.Private, token.Protected, token.Internal, token.External,
-		token.Abstract, token.Indexed,
-	})
+	v.validateModifiers(ast.ExplicitVarDeclaration, node.Modifiers)
 
 	typ := v.validateType(node.DeclaredType)
 	for _, id := range node.Identifiers {
@@ -237,10 +234,7 @@ func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*
 
 func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 
-	v.validateModifiers(node.Modifiers, []token.Type{
-		token.Public, token.Private, token.Protected, token.Internal, token.External,
-		token.Static, token.Abstract,
-	})
+	v.validateModifiers(ast.ClassDeclaration, node.Modifiers)
 
 	var supers []*typing.Class
 	for _, super := range node.Supers {
@@ -287,10 +281,7 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 
 func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
 
-	v.validateModifiers(node.Modifiers, []token.Type{
-		token.Public, token.Private, token.Protected, token.Internal, token.External,
-		token.Abstract,
-	})
+	v.validateModifiers(ast.EnumDeclaration, node.Modifiers)
 
 	var supers []*typing.Enum
 	for _, super := range node.Inherits {
@@ -318,10 +309,7 @@ func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
 
 func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNode) {
 
-	v.validateModifiers(node.Modifiers, []token.Type{
-		token.Public, token.Private, token.Protected, token.Internal, token.External,
-		token.Abstract,
-	})
+	v.validateModifiers(ast.ContractDeclaration, node.Modifiers)
 
 	var supers []*typing.Contract
 	for _, super := range node.Supers {
@@ -368,10 +356,7 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 
 func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationNode) {
 
-	v.validateModifiers(node.Modifiers, []token.Type{
-		token.Public, token.Private, token.Protected, token.Internal, token.External,
-		token.Abstract,
-	})
+	v.validateModifiers(ast.InterfaceDeclaration, node.Modifiers)
 
 	var supers []*typing.Interface
 	if node == nil {
@@ -429,10 +414,7 @@ func (v *Validator) declareContextualVar(name string, typ typing.Type) {
 
 func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
-	v.validateModifiers(node.Modifiers, []token.Type{
-		token.Public, token.Private, token.Protected, token.Internal, token.External,
-		token.Abstract, token.Test, token.Static,
-	})
+	v.validateModifiers(ast.FuncDeclaration, node.Modifiers)
 
 	var params []typing.Type
 	for _, node := range node.Signature.Parameters {
@@ -465,34 +447,25 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
 }
 
-func (v *Validator) validateModifiers(modifiers []token.Type, allowed []token.Type) {
-	var access, test, indexed, static, abstract token.Type = -1, -1, -1, -1, -1
-	for _, t := range modifiers {
-		valid := false
-		for _, a := range allowed {
-			if t == a {
-				valid = true
+func (v *Validator) validateModifiers(typ ast.NodeType, modifiers []string) {
+	for _, mg := range v.modifierGroups {
+		mg.reset()
+	}
+	for _, mod := range modifiers {
+		for _, mg := range v.modifierGroups {
+			if mg.has(mod) {
+				if mg.found && mg.isMututallyExclusive {
+					v.addError(errMutuallyExclusiveModifiers, mg.current, mod)
+				}
+				mg.found = true
 			}
 		}
-		if !valid {
-			v.addError(errInvalidModifier)
-		}
-		if t.IsAccessModifier() {
-			access = v.processModifier(t, access)
-		}
-		switch t {
-		case token.Test:
-			test = v.processModifier(t, test)
-			break
-		case token.Indexed:
-			indexed = v.processModifier(t, indexed)
-			break
-		case token.Static:
-			static = v.processModifier(t, static)
-			break
-		case token.Abstract:
-			abstract = v.processModifier(t, abstract)
-			break
+	}
+	for _, mg := range v.modifierGroups {
+		if mg.requiredOn(typ) {
+			if !mg.found {
+				v.addError(errRequiredModifier, mg.name)
+			}
 		}
 	}
 }
@@ -541,9 +514,7 @@ func (v *Validator) declareContextualType(name string, typ typing.Type) {
 
 func (v *Validator) validateTypeDeclaration(node *ast.TypeDeclarationNode) {
 
-	v.validateModifiers(node.Modifiers, []token.Type{
-		token.Public, token.Private, token.Protected, token.Internal, token.External,
-	})
+	v.validateModifiers(node.Modifiers)
 
 	typ := v.validateType(node.Value)
 	node.Resolved = typ

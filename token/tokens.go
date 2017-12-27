@@ -189,9 +189,9 @@ var distinct = map[string]ProtoToken{
 	"constructor": distinctToken("constructor", Constructor),
 	"destructor":  distinctToken("destructor", Destructor),
 
-	"if":      distinctToken("if", If),
-	"else if": distinctToken("else if", ElseIf),
-	"else":    distinctToken("else", Else),
+	"if":   distinctToken("if", If),
+	"elif": distinctToken("else if", ElseIf),
+	"else": distinctToken("else", Else),
 
 	"for":    distinctToken("for", For),
 	"func":   distinctToken("func", Func),
@@ -404,7 +404,7 @@ func (t *Token) Finalise(b Byterable) {
 // Token ...
 type Token struct {
 	Type  Type
-	Proto ProtoToken
+	Proto *ProtoToken
 	Start int
 	End   int
 	Data  []byte
