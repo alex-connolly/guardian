@@ -34,7 +34,7 @@ func isFloat(b Byterable) bool {
 }
 
 func isString(b Byterable) bool {
-	return (current(b) == '"')
+	return (current(b) == '"') || (current(b) == '`')
 }
 
 func isWhitespace(b Byterable) bool {

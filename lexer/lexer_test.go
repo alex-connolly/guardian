@@ -63,7 +63,7 @@ func TestLexerFileConstants(t *testing.T) {
 	checkTokens(t, tokens, []token.Type{
 		token.Contract, token.Identifier, token.OpenBrace, token.NewLine,
 		token.NewLine,
-		token.Const, token.OpenBracket, token.NewLine,
+		token.Identifier, token.OpenBracket, token.NewLine,
 		token.Identifier, token.Assign, token.Integer, token.NewLine,
 		token.Identifier, token.Assign, token.String, token.NewLine,
 		token.Identifier, token.Assign, token.Character, token.NewLine,
@@ -135,11 +135,6 @@ func TestHasByte(t *testing.T) {
 	l := new(Lexer)
 	l.buffer = []byte(text)
 	l.byteOffset = len(text)
-}
-
-func TestLexerModifiers(t *testing.T) {
-	tokens, _ := LexString("protected abstract external internal")
-	checkTokens(t, tokens, []token.Type{token.Protected, token.Abstract, token.External, token.Internal})
 }
 
 func TestLexerExpVar(t *testing.T) {

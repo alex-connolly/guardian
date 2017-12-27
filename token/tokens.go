@@ -94,7 +94,7 @@ func GetAssignments() []Type {
 		OrAssign, XorAssign, Define}
 }
 
-func Distinct(name string, typ Type) ProtoToken {
+func distinctToken(name string, typ Type) ProtoToken {
 	return ProtoToken{
 		Name:    name,
 		Type:    typ,
@@ -102,7 +102,7 @@ func Distinct(name string, typ Type) ProtoToken {
 	}
 }
 
-func Fixed(name string, typ Type) ProtoToken {
+func fixedToken(name string, typ Type) ProtoToken {
 	return ProtoToken{
 		Name:    name,
 		Type:    typ,
@@ -116,6 +116,13 @@ func getNextString(b Byterable, len int) string {
 
 // NextProtoToken ...
 func NextProtoToken(b Byterable) *ProtoToken {
+
+	if isFloat(b) {
+		return &ProtoToken{Name: "float", Type: Float, Process: processFloat}
+	} else if isInteger(b) {
+		return &ProtoToken{Name: "integer", Type: Integer, Process: processInteger}
+	}
+
 	longest := 3 // longest fixed token
 	available := longest
 	if available > len(b.Bytes())-b.Offset() {
@@ -144,11 +151,7 @@ func NextProtoToken(b Byterable) *ProtoToken {
 	}
 	b.SetOffset(start)
 	// special cases
-	if isFloat(b) {
-		return &ProtoToken{Name: "float", Type: Float, Process: processFloat}
-	} else if isInteger(b) {
-		return &ProtoToken{Name: "integer", Type: Integer, Process: processInteger}
-	} else if isString(b) {
+	if isString(b) {
 		return &ProtoToken{Name: "string", Type: String, Process: processString}
 	} else if isCharacter(b) {
 		return &ProtoToken{Name: "character", Type: Character, Process: processCharacter}
@@ -156,112 +159,114 @@ func NextProtoToken(b Byterable) *ProtoToken {
 		return &ProtoToken{Name: "ignored", Type: None, Process: processIgnored}
 	} else if isNewLine(b) {
 		return &ProtoToken{Name: "new line", Type: NewLine, Process: processNewLine}
-	} else if isIdentifier(b) {
+	}
+
+	if isIdentifier(b) {
 		return &ProtoToken{Name: "identifier", Type: Identifier, Process: processIdentifier}
 	}
 	return nil
 }
 
 var distinct = map[string]ProtoToken{
-	"contract":  Distinct("contract", Contract),
-	"class":     Distinct("class", Class),
-	"event":     Distinct("event", Event),
-	"enum":      Distinct("enum", Enum),
-	"interface": Distinct("interface", Interface),
-	"inherits":  Distinct("inherits", Inherits),
+	"contract":  distinctToken("contract", Contract),
+	"class":     distinctToken("class", Class),
+	"event":     distinctToken("event", Event),
+	"enum":      distinctToken("enum", Enum),
+	"interface": distinctToken("interface", Interface),
+	"inherits":  distinctToken("inherits", Inherits),
 
-	"run":   Distinct("run", Run),
-	"defer": Distinct("defer", Defer),
+	"run":   distinctToken("run", Run),
+	"defer": distinctToken("defer", Defer),
 
-	"switch":      Distinct("switch", Switch),
-	"case":        Distinct("case", Case),
-	"exclusive":   Distinct("exclusive", Exclusive),
-	"default":     Distinct("default", Default),
-	"fallthrough": Distinct("fallthrough", Fallthrough),
-	"break":       Distinct("break", Break),
-	"continue":    Distinct("continue", Continue),
+	"switch":      distinctToken("switch", Switch),
+	"case":        distinctToken("case", Case),
+	"exclusive":   distinctToken("exclusive", Exclusive),
+	"default":     distinctToken("default", Default),
+	"fallthrough": distinctToken("fallthrough", Fallthrough),
+	"break":       distinctToken("break", Break),
+	"continue":    distinctToken("continue", Continue),
 
-	"constructor": Distinct("constructor", Constructor),
-	"destructor":  Distinct("destructor", Destructor),
+	"constructor": distinctToken("constructor", Constructor),
+	"destructor":  distinctToken("destructor", Destructor),
 
-	"if":      Distinct("if", If),
-	"else if": Distinct("else if", ElseIf),
-	"else":    Distinct("else", Else),
+	"if":      distinctToken("if", If),
+	"else if": distinctToken("else if", ElseIf),
+	"else":    distinctToken("else", Else),
 
-	"for":    Distinct("for", For),
-	"func":   Distinct("func", Func),
-	"goto":   Distinct("goto", Goto),
-	"import": Distinct("import", Import),
-	"is":     Distinct("is", Is),
-	"as":     Distinct("as", As),
-	"typeof": Distinct("typeof", TypeOf),
-	"type":   Distinct("type", KWType),
+	"for":    distinctToken("for", For),
+	"func":   distinctToken("func", Func),
+	"goto":   distinctToken("goto", Goto),
+	"import": distinctToken("import", Import),
+	"is":     distinctToken("is", Is),
+	"as":     distinctToken("as", As),
+	"typeof": distinctToken("typeof", TypeOf),
+	"type":   distinctToken("type", KWType),
 
-	"in":    Distinct("in", In),
-	"map":   Distinct("map", Map),
-	"macro": Distinct("macro", Macro),
+	"in":    distinctToken("in", In),
+	"map":   distinctToken("map", Map),
+	"macro": distinctToken("macro", Macro),
 
-	"package": Distinct("package", Package),
-	"return":  Distinct("return", Return),
+	"package": distinctToken("package", Package),
+	"return":  distinctToken("return", Return),
 
-	"true":  Distinct("true", True),
-	"false": Distinct("false", False),
+	"true":  distinctToken("true", True),
+	"false": distinctToken("false", False),
 
-	"test":     Distinct("test", Test),
-	"fallback": Distinct("fallback", Fallback),
-	"version":  Distinct("version", Version),
+	"test":     distinctToken("test", Test),
+	"fallback": distinctToken("fallback", Fallback),
+	"version":  distinctToken("version", Version),
 }
 
 var fixed = map[string]ProtoToken{
-	":":  Fixed(":", Colon),
-	"/*": Fixed("/*", CommentOpen),
-	"*/": Fixed("*/", CommentClose),
-	"//": Fixed("//", LineComment),
+	":":  fixedToken(":", Colon),
+	"/*": fixedToken("/*", CommentOpen),
+	"*/": fixedToken("*/", CommentClose),
+	"//": fixedToken("//", LineComment),
 
-	"+=":  Fixed("+=", AddAssign),
-	"++":  Fixed("++", Increment),
-	"+":   Fixed("+", Add),
-	"-=":  Fixed("-=", SubAssign),
-	"--":  Fixed("--", Decrement),
-	"-":   Fixed("-", Sub),
-	"/=":  Fixed("/=", DivAssign),
-	"/":   Fixed("/", Div),
-	"**=": Fixed("**=", ExpAssign),
-	"**":  Fixed("**", Exp),
-	"*=":  Fixed("*=", MulAssign),
-	"*":   Fixed("*", Mul),
-	"%=":  Fixed("%=", ModAssign),
-	"%":   Fixed("%", Mod),
-	"<<=": Fixed("<<=", ShlAssign),
-	"<<":  Fixed("<<", Shl),
-	">>=": Fixed(">>=", ShrAssign),
-	">>":  Fixed(">>", Shr),
+	"+=":  fixedToken("+=", AddAssign),
+	"++":  fixedToken("++", Increment),
+	"+":   fixedToken("+", Add),
+	"-=":  fixedToken("-=", SubAssign),
+	"--":  fixedToken("--", Decrement),
+	"-":   fixedToken("-", Sub),
+	"/=":  fixedToken("/=", DivAssign),
+	"/":   fixedToken("/", Div),
+	"**=": fixedToken("**=", ExpAssign),
+	"**":  fixedToken("**", Exp),
+	"*=":  fixedToken("*=", MulAssign),
+	"*":   fixedToken("*", Mul),
+	"%=":  fixedToken("%=", ModAssign),
+	"%":   fixedToken("%", Mod),
+	"<<=": fixedToken("<<=", ShlAssign),
+	"<<":  fixedToken("<<", Shl),
+	">>=": fixedToken(">>=", ShrAssign),
+	">>":  fixedToken(">>", Shr),
 
-	"&":   Fixed("", And),
-	"|":   Fixed("|", Or),
-	"==":  Fixed("==", Eql),
-	"!=":  Fixed("!=", Neq),
-	"!":   Fixed("!", Not),
-	">=":  Fixed(">=", Geq),
-	"<=":  Fixed("<=", Leq),
-	":=":  Fixed(":=", Define),
-	"...": Fixed("...", Ellipsis),
+	"&":   fixedToken("", And),
+	"|":   fixedToken("|", Or),
+	"==":  fixedToken("==", Eql),
+	"!=":  fixedToken("!=", Neq),
+	"!":   fixedToken("!", Not),
+	">=":  fixedToken(">=", Geq),
+	"<=":  fixedToken("<=", Leq),
+	":=":  fixedToken(":=", Define),
+	"...": fixedToken("...", Ellipsis),
 
-	"{": Fixed("}", OpenBrace),
-	"}": Fixed("}", CloseBrace),
-	"<": Fixed("<", Lss),
-	">": Fixed(">", Gtr),
-	"[": Fixed("[", OpenSquare),
-	"]": Fixed("]", CloseSquare),
-	"(": Fixed("(", OpenBracket),
-	")": Fixed(")", CloseBracket),
+	"{": fixedToken("}", OpenBrace),
+	"}": fixedToken("}", CloseBrace),
+	"<": fixedToken("<", Lss),
+	">": fixedToken(">", Gtr),
+	"[": fixedToken("[", OpenSquare),
+	"]": fixedToken("]", CloseSquare),
+	"(": fixedToken("(", OpenBracket),
+	")": fixedToken(")", CloseBracket),
 
-	"?": Fixed("?", Ternary),
-	";": Fixed(";", Semicolon),
-	".": Fixed(".", Dot),
-	",": Fixed(",", Comma),
-	"=": Fixed("=", Assign),
-	"@": Fixed("@", At),
+	"?": fixedToken("?", Ternary),
+	";": fixedToken(";", Semicolon),
+	".": fixedToken(".", Dot),
+	",": fixedToken(",", Comma),
+	"=": fixedToken("=", Assign),
+	"@": fixedToken("@", At),
 }
 
 // Type
