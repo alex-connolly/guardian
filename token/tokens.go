@@ -94,34 +94,6 @@ func GetAssignments() []Type {
 		OrAssign, XorAssign, Define}
 }
 
-type ModifierGroup struct {
-	Name      string
-	Modifiers []string
-}
-
-var groups = []ModifierGroup{
-	ModifierGroup{
-		Name:      "Access",
-		Modifiers: []string{"public", "private", "protected"},
-	},
-	ModifierGroup{
-		Name:      "Concreteness",
-		Modifiers: []string{"abstract"},
-	},
-	ModifierGroup{
-		Name:      "Instantiability",
-		Modifiers: []string{"static"},
-	},
-	ModifierGroup{
-		Name:      "Testing",
-		Modifiers: []string{"test"},
-	},
-	ModifierGroup{
-		Name:      "Mutability",
-		Modifiers: []string{"var", "const"},
-	},
-}
-
 func NewModifierGroup(mods ...string) ModifierGroup {
 	return ModifierGroup{
 		Modifiers: mods,
@@ -148,7 +120,8 @@ func getNextString(b Byterable, len int) string {
 	return string(b.Bytes()[b.Offset() : b.Offset()+len])
 }
 
-func getNextProtoToken(b Byterable) *ProtoToken {
+// NextProtoToken ...
+func NextProtoToken(b Byterable) *ProtoToken {
 	longest := 3 // longest fixed token
 	available := longest
 	if available > len(b.Bytes())-b.Offset() {
@@ -189,6 +162,8 @@ func getNextProtoToken(b Byterable) *ProtoToken {
 		return &ProtoToken{Name: "ignored", Type: None, Process: processIgnored}
 	} else if isNewLine(b) {
 		return &ProtoToken{Name: "new line", Type: NewLine, Process: processNewLine}
+	} else if isIdentifier(b) {
+		return &ProtoToken{Name: "identifier", Type: Identifier, Process: processIdentifier}
 	}
 	return nil
 }
@@ -200,9 +175,6 @@ var distinct = map[string]ProtoToken{
 	"enum":      Distinct("enum", Enum),
 	"interface": Distinct("interface", Interface),
 	"inherits":  Distinct("inherits", Inherits),
-
-	"const": Distinct("const", Const),
-	"var":   Distinct("var", Var),
 
 	"run":   Distinct("run", Run),
 	"defer": Distinct("defer", Defer),

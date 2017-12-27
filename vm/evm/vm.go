@@ -60,18 +60,18 @@ func (evm GuardianEVM) Builtins() *ast.ScopeNode {
 			msg BuiltinMessage
 
 			class BuiltinBlock {
-				timestamp uint
-				number uint
-				coinbase address
-				gaslimit uint
+				@Builtin("timestamp") timestamp uint
+				@Builtin("number") number uint
+				@Builtin("coinbase") coinbase address
+				@Builtin("gasLimit") gasLimit uint
 				blockhash func(blockNumber uint) [32]byte
 			}
 
 			block BuiltinBlock
 
 			class BuiltinTransaction {
-				gasprice uint
-				origin address
+				@Builtin("gasPrice") gasPrice uint
+				@Builtin("origin") origin address
 			}
 
 			tx BuiltinTransaction

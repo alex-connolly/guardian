@@ -23,22 +23,16 @@ func (l *Lexer) next() {
 		return
 	}
 	found := false
-	for _, pt := range token.GetProtoTokens() {
-		if pt.Identifier(l) {
-			t := pt.Process(l)
-			t.Proto = pt
-			if t.Type != token.None {
-				//log.Printf("Found tok type: %d", t.Type)
-				t.Finalise(l)
-				l.tokens = append(l.tokens, t)
-			} else {
-				l.byteOffset++
-			}
-			found = true
-			break
+	pt := token.NextProtoToken()
+	if pt != nil {
+		t := pt.Process(l)
+		if pt.Type == token.None {
+			l.byteOffset++
+		} else {
+			t.Finalise(l)
+			l.tokens = append(l.tokens, t)
 		}
-	}
-	if !found {
+	} else {
 		l.error("Unrecognised token.Token.")
 		l.byteOffset++
 	}

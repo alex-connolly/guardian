@@ -23,9 +23,6 @@ func (v *Validator) validateBuiltinSequence(scope *ast.ScopeNode) {
 	}
 }
 
-type LiteralFunc func(*Validator, string) typing.Type
-type LiteralMap map[token.Type]LiteralFunc
-
 func SimpleLiteral(typeName string) LiteralFunc {
 	return func(v *Validator, data string) typing.Type {
 		return v.getNamedType(typeName)
@@ -35,9 +32,6 @@ func SimpleLiteral(typeName string) LiteralFunc {
 func BooleanLiteral(v *Validator, data string) typing.Type {
 	return typing.Boolean()
 }
-
-type OperatorFunc func(*Validator, ...typing.Type) typing.Type
-type OperatorMap map[token.Type]OperatorFunc
 
 func (m OperatorMap) Add(function OperatorFunc, types ...token.Type) {
 	for _, t := range types {

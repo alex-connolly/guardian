@@ -174,7 +174,7 @@ func TestConditionals(t *testing.T) {
 	tokens, _ := LexString("if else if else")
 	checkTokens(t, tokens, []token.Type{
 		token.If,
-		token.Elif,
+		token.ElseIf,
 		token.Else,
 	})
 }

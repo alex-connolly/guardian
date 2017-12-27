@@ -26,21 +26,21 @@ func (b *bytecode) Bytes() []byte {
 
 func TestNextTokenSingleFixed(t *testing.T) {
 	b := &bytecode{bytes: []byte(":")}
-	p := getNextProtoToken(b)
+	p := NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == ":", "wrong name")
 }
 
 func TestNextTokenDoubleFixed(t *testing.T) {
 	b := &bytecode{bytes: []byte("+=")}
-	p := getNextProtoToken(b)
+	p := NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "+=", "wrong name")
 }
 
 func TestNextTokenTripleFixed(t *testing.T) {
 	b := &bytecode{bytes: []byte("<<=")}
-	p := getNextProtoToken(b)
+	p := NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "<<=", "wrong name")
 }
@@ -48,49 +48,49 @@ func TestNextTokenTripleFixed(t *testing.T) {
 func TestNextTokenDistinctNewLine(t *testing.T) {
 	b := &bytecode{bytes: []byte(`in
         `)}
-	p := getNextProtoToken(b)
+	p := NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "in", fmt.Sprintf("wrong name: %s", p.Name))
 }
 
 func TestNextTokenDistinctWhitespace(t *testing.T) {
 	b := &bytecode{bytes: []byte("in ")}
-	p := getNextProtoToken(b)
+	p := NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "in", "wrong name")
 }
 
 func TestNextTokenDistinctEnding(t *testing.T) {
 	b := &bytecode{bytes: []byte("in")}
-	p := getNextProtoToken(b)
+	p := NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "in", "wrong name")
 }
 
 func TestNextTokenInt(t *testing.T) {
 	b := &bytecode{bytes: []byte("6")}
-	p := getNextProtoToken(b)
+	p := NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "integer", "wrong name")
 }
 
 func TestNextTokenFloat(t *testing.T) {
 	b := &bytecode{bytes: []byte("6.5")}
-	p := getNextProtoToken(b)
+	p := NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "float", "wrong name")
 }
 
 func TestNextTokenString(t *testing.T) {
 	b := &bytecode{bytes: []byte(`"hi"`)}
-	p := getNextProtoToken(b)
+	p := NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "string", "wrong name")
 }
 
 func TestNextTokenCharacter(t *testing.T) {
 	b := &bytecode{bytes: []byte(`'hi'`)}
-	p := getNextProtoToken(b)
+	p := NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "character", "wrong name")
 }

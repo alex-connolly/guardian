@@ -247,3 +247,19 @@ func (p *Parser) parseScope(terminator token.Type, valids ...ast.NodeType) *ast.
 	}
 	return scope
 }
+
+func parseAnnotation(p *Parser) {
+
+	var a Annotation
+	p.parseRequired(token.At)
+
+	a.Name = p.parseIdentifier()
+
+	p.parseRequired(token.OpenBracket)
+	if !p.parseOptional(token.CloseBracket) {
+		a.Parameters = p.parseExpressionList()
+		p.parseRequired(token.CloseBracket)
+	}
+
+	p.annotations = append(p.annotations, a)
+}

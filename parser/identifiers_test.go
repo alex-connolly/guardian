@@ -253,3 +253,8 @@ func TestNotExpVar(t *testing.T) {
 	p := createParser("string, string)")
 	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not be an expvar")
 }
+
+func TestAnnotation(t *testing.T) {
+	p := createParser("@Builtin()")
+	goutil.Assert(t, isAnnotation(p), "annotation not detected")
+}

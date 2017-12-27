@@ -137,6 +137,10 @@ func isTypeDeclaration(p *Parser) bool {
 	return p.isNextToken(token.KWType)
 }
 
+func isAnnotation(p *Parser) bool {
+	return p.isNextToken(token.At)
+}
+
 func isForStatement(p *Parser) bool {
 	return p.isNextToken(token.For)
 }

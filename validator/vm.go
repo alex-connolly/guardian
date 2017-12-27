@@ -12,6 +12,42 @@ import (
 	"github.com/end-r/vmgen"
 )
 
+type ModifierGroup struct {
+	Name      string
+	Modifiers []string
+}
+
+var defaultGroups = []ModifierGroup{
+	ModifierGroup{
+		Name:      "Access",
+		Modifiers: []string{"public", "private", "protected"},
+	},
+	ModifierGroup{
+		Name:      "Concreteness",
+		Modifiers: []string{"abstract"},
+	},
+	ModifierGroup{
+		Name:      "Instantiability",
+		Modifiers: []string{"static"},
+	},
+	ModifierGroup{
+		Name:      "Testing",
+		Modifiers: []string{"test"},
+	},
+	ModifierGroup{
+		Name:      "Mutability",
+		Modifiers: []string{"var", "const"},
+	},
+}
+
+// A VM is the mechanism through which all vm-specific features are applied
+// to the Guardian AST: bytecode generation, type enforcement etc
+type OperatorFunc func(*Validator, ...typing.Type) typing.Type
+type OperatorMap map[token.Type]OperatorFunc
+
+type LiteralFunc func(*Validator, string) typing.Type
+type LiteralMap map[token.Type]LiteralFunc
+
 // A VM is the mechanism through which all vm-specific features are applied
 // to the Guardian AST: bytecode generation, type enforcement etc
 type VM interface {
@@ -24,6 +60,7 @@ type VM interface {
 	ValidExpressions() []ast.NodeType
 	ValidStatements() []ast.NodeType
 	ValidDeclarations() []ast.NodeType
+	Modifiers() []ModifierGroup
 }
 
 type TestVM struct {
