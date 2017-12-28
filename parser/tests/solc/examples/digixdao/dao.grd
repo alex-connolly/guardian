@@ -1,11 +1,22 @@
 contract Dao {
 
     class ProposalData {
-        budget uint256
-        document []byte
+        var budget uint256
+        var document []byte
     }
 
-    
+    public var (
+        config address
+        owner address
+        tokenLedger address
+        badgeLedger address
+        tokenSales map[uint256]address
+        proposals map[address]ProposalData
+        proposalIndex map[uint256]address
+        proposalsCount uint256
+        environment []byte
+    )
+
     enum Status { Pledging, Voting, Completed }
 
     indexed event NewProposal(proposal address, document []byte, budget uint256)

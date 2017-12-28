@@ -1,11 +1,11 @@
 contract BlindAuction {
 
     class Bid {
-        blindedBid bytes32
-        deposit uint
+        var blindedBid bytes32
+        var deposit uint
     }
 
-    external (
+    external var (
         beneficiary address
         biddingEnd uint
         revealEnd uint

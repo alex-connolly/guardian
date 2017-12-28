@@ -80,6 +80,7 @@ type ExplicitVarDeclarationNode struct {
 	Identifiers  []string
 	DeclaredType Node
 	Resolved     typing.Type
+	isConstant   bool
 }
 
 func (n *ExplicitVarDeclarationNode) Type() NodeType { return ExplicitVarDeclaration }

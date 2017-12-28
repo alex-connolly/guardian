@@ -1,12 +1,13 @@
 contract Purchase {
 
-    external value uint
-    external seller address
-    external buyer address
-
     enum State { Created, Locked, Inactive }
 
-    external state State
+    external var (
+        value uint
+        seller address
+        buyer address
+        state State
+    )
 
     constructor(){
         seller = msg.sender

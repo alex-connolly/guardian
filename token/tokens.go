@@ -212,8 +212,8 @@ var distinct = map[string]ProtoToken{
 	"true":  distinctToken("true", True),
 	"false": distinctToken("false", False),
 
-	"var":   distinctToken("var", True),
-	"const": distinctToken("const", False),
+	"var":   distinctToken("var", Var),
+	"const": distinctToken("const", Const),
 
 	"test":     distinctToken("test", Test),
 	"fallback": distinctToken("fallback", Fallback),
@@ -246,7 +246,11 @@ var fixed = map[string]ProtoToken{
 	">>":  fixedToken(">>", Shr),
 
 	"&":   fixedToken("", And),
+	"&=":  fixedToken("&=", AndAssign),
 	"|":   fixedToken("|", Or),
+	"|=":  fixedToken("|=", OrAssign),
+	"^":   fixedToken("^", Xor),
+	"^=":  fixedToken("^=", XorAssign),
 	"==":  fixedToken("==", Eql),
 	"!=":  fixedToken("!=", Neq),
 	"!":   fixedToken("!", Not),

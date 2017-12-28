@@ -1,20 +1,22 @@
 contract Ballot {
 
     class Voter {
-        weight uint
-        voted bool
-        delegate address
-        vote uint
+        var weight uint
+        var voted bool
+        var delegate address
+        var vote uint
     }
 
     class Proposal {
-        name bytes32
-        voteCount uint
+        var name bytes32
+        var voteCount uint
     }
 
-    external chairperson address
-    external voters map[address]Voter
-    external proposals []Proposal
+    external var (
+        chairperson address
+        voters map[address]Voter
+        proposals []Proposal
+    )
 
     constructor(proposalNames []bytes32){
 
@@ -71,7 +73,7 @@ contract Ballot {
 
         sender.vote = true
         sender.delegate = to
-        storage delegate := voters[to]
+        storage delegate = voters[to]
         if delegate.voted {
             proposals[delegate.vote].voteCount += sender.weight
         } else {

@@ -12,15 +12,15 @@ If this keyword cannot be applied to a top
 contract (
 
     Dog {
-        public (
+        public var (
             name string
             age int
         )
     }
 
     Cat {
-        name string
-        age int
+        var name string
+        var age int
     }
 
 )

@@ -2,13 +2,13 @@ package solidity at 0.0.1
 
 contract CrowdFunder {
 
-    /*public (
+    public var (
         creator address
         fundRecipient address // creator may be different than recipient
         minimum uint // required to reach at least this much, else everyone gets refund
     )
 
-    url string
+    var url string
     const (
         version = 1 as byte
     )
@@ -22,12 +22,12 @@ contract CrowdFunder {
     }
 
     class Contribution {
-        amount uint
-        contributor address
+        var amount uint
+        var contributor address
     }
 
     // State variables
-    public (
+    public var (
         state = State.Fundraising  // initialize on create
         totalRaised uint
         currentBalance uint
@@ -35,7 +35,7 @@ contract CrowdFunder {
         completeAt uint
     )
 
-    contributions []Contribution
+    var contributions []Contribution
 
     event LogFundingReceived(addr address, amount uint, currentTotal uint)
     event LogWinnerPaid(winnerAddress address)
@@ -129,7 +129,7 @@ contract CrowdFunder {
             state = State.Successful
             payOut()
             // could incentivize sender who initiated state change here
-        } elif now > raiseBy {
+        } else if now > raiseBy {
             state = State.ExpiredRefund // backers can now collect refunds by calling getRefund(id)
         }
         completeAt = now

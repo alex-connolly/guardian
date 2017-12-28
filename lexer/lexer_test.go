@@ -63,7 +63,7 @@ func TestLexerFileConstants(t *testing.T) {
 	checkTokens(t, tokens, []token.Type{
 		token.Contract, token.Identifier, token.OpenBrace, token.NewLine,
 		token.NewLine,
-		token.Identifier, token.OpenBracket, token.NewLine,
+		token.Const, token.OpenBracket, token.NewLine,
 		token.Identifier, token.Assign, token.Integer, token.NewLine,
 		token.Identifier, token.Assign, token.String, token.NewLine,
 		token.Identifier, token.Assign, token.Character, token.NewLine,

@@ -282,7 +282,7 @@ func parsePackageStatement(p *Parser) {
 
 	name := p.parseIdentifier()
 
-	p.parseRequired(token.At)
+	p.parseRequired(token.Version)
 
 	version := p.parseSemver()
 

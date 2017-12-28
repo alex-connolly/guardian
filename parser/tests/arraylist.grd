@@ -1,8 +1,8 @@
-package tests at 0.0.1
+package tests version 0.0.1
 
 class ArrayList<T> is List<T> {
 
-    backing []T
+    var backing []T
 
     func add(item T) bool {
         // do a power of two doubling

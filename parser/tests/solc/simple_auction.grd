@@ -1,15 +1,15 @@
 contract SimpleAuction {
 
-    external (
+    external var (
         beneficiary address
         auctionEnd uint
         highestBidder address
         highestBid uint
     )
 
-    pendingReturns map[address]uint
+    var pendingReturns map[address]uint
 
-    ended bool
+    var ended bool
 
     event HighestBidIncreased(bidder address, amount uint)
     event AuctionEnded(winner address, amount uint)

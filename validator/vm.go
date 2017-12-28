@@ -13,16 +13,33 @@ import (
 )
 
 type ModifierGroup struct {
-	Name      string
-	Modifiers []string
+	Name       string
+	Modifiers  []string
+	RequiredOn []ast.NodeType
+	AllowedOn  []ast.NodeType
+	selected   []string
+	Maximum    int
 }
 
-var defaultAnnotations = []ast.Annotation {
-	ParseAnnotation("Builtin", handleBuiltin, )
+func (mg *ModifierGroup) reset() {
+	mg.selected = nil
 }
 
-func ParseAnnotation(name string, f func({}interface, *Annotation), types ...string) ast.Annotation {
-	var a ast.Annotation
+func (mg *ModifierGroup) has(mod string) bool {
+	for _, m := range mg.Modifiers {
+		if m == mod {
+			return true
+		}
+	}
+	return false
+}
+
+var defaultAnnotations = []*ast.Annotation{
+	ParseAnnotation("Bytecode", handleBytecode, "string"),
+}
+
+func ParseAnnotation(name string, f func(a interface{}, b *ast.Annotation), types ...string) *ast.Annotation {
+	a := new(ast.Annotation)
 	a.Name = name
 	for _, t := range types {
 		a.Required = append(a.Required, parser.ParseType(t))
@@ -30,34 +47,41 @@ func ParseAnnotation(name string, f func({}interface, *Annotation), types ...str
 	return a
 }
 
-func handleBuiltin(i {}interface, a *Annotation) {
+type BytecodeGenerator func(vm VM) vmgen.Bytecode
+
+func handleBytecode(v *Validator, i interface{}, a *ast.Annotation) {
+	f := i.(*BytecodeGenerator)
 
 }
 
 var defaultGroups = []ModifierGroup{
 	ModifierGroup{
-		Name:      "Access",
-		Modifiers: []string{"public", "private", "protected"},
+		Name:       "Access",
+		Modifiers:  []string{"public", "private", "protected"},
 		RequiredOn: nil,
-		AllowedOn: ast.AllDeclarations,
+		AllowedOn:  ast.AllDeclarations,
+		Maximum:    1,
 	},
 	ModifierGroup{
-		Name:      "Concreteness",
-		Modifiers: []string{"abstract"},
+		Name:       "Concreteness",
+		Modifiers:  []string{"abstract"},
 		RequiredOn: nil,
-		AllowedOn: ast.AllDeclarations,
+		AllowedOn:  ast.AllDeclarations,
+		Maximum:    1,
 	},
 	ModifierGroup{
-		Name:      "Instantiability",
-		Modifiers: []string{"static"},
+		Name:       "Instantiability",
+		Modifiers:  []string{"static"},
 		RequiredOn: nil,
-		AllowedOn: []ast.NoteType{ast.FuncDeclaration, ast.ClassDeclaration},
+		AllowedOn:  []ast.NodeType{ast.FuncDeclaration, ast.ClassDeclaration},
+		Maximum:    1,
 	},
 	ModifierGroup{
-		Name:      "Testing",
-		Modifiers: []string{"test"},
+		Name:       "Testing",
+		Modifiers:  []string{"test"},
 		RequiredOn: nil,
-		AllowedOn: []ast.NoteType{ast.FuncDeclaration},
+		AllowedOn:  []ast.NodeType{ast.FuncDeclaration},
+		Maximum:    1,
 	},
 }
 
@@ -83,6 +107,7 @@ type VM interface {
 	ValidDeclarations() []ast.NodeType
 	Modifiers() []ModifierGroup
 	Annotations() []*ast.Annotation
+	BytecodeGenerators() []BytecodeGenerator
 }
 
 type TestVM struct {

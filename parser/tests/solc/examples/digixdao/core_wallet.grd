@@ -9,16 +9,19 @@ contract CoreWallet {
     enum RequestStatus { Pending, Declined, Approved }
 
     class Request {
-        status RequestStatus
-        amount uint
-        recipient address
+        var status RequestStatus
+        var amount uint
+        var recipient address
     }
 
-    approved map[address]bool
-    managers map[address]bool
+    var (
+        approved map[address]bool
+        managers map[address]bool
 
-    public owner address
-    requests map[uint]Request
+        public owner address
+        requests map[uint]Request
+    )
+    
     requestCount = 0 as uint
 
     isOwner(){

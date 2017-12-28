@@ -3,7 +3,7 @@ import "interfaces.grd"
 
 contract Collector {
 
-    public (
+    public var (
         owner address
         dgdTokens address
         txFeePool address
@@ -36,9 +36,9 @@ contract Collector {
 contract GoldTxFeePool {
 
     class Period {
-        collectionStart uint
-        collectionEnd uint
-        collectors map[address]address
+        var collectionStart uint
+        var collectionEnd uint
+        var collectors map[address]address
     }
 
     public (

@@ -1,8 +1,8 @@
 
 contract BasicIterator {
 
-    creator address
-    integers [10]uint8
+    var creator address
+    var integers [10]uint8
 
     constructor(){
         creator = msg.sender
