@@ -218,7 +218,7 @@ func (p *Parser) parseScope(terminator token.Type, valids ...ast.NodeType) *ast.
 		found := false
 		for _, c := range getPrimaryConstructs() {
 			if c.is(p) {
-				//fmt.Printf("FOUND: %s at index %d on line %d\n", c.name, p.index, p.line)
+				fmt.Printf("FOUND: %s at index %d on line %d\n", c.name, p.index, p.line)
 				c.parse(p)
 				found = true
 				break
@@ -230,7 +230,7 @@ func (p *Parser) parseScope(terminator token.Type, valids ...ast.NodeType) *ast.
 			expr := p.parseExpression()
 			if expr == nil {
 				*p = saved
-				//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.current().String())
+				fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.current().String())
 				p.addError(fmt.Sprintf("Unrecognised construct: %s", p.current().String()))
 				p.next()
 			} else {

@@ -70,7 +70,7 @@ func (p *Parser) parseSimpleAssignment() ast.AssignmentStatementNode {
 
 func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 
-	modifiers := p.parseModifierList()
+	//modifiers := p.parseModifierList()
 
 	var assigned []ast.ExpressionNode
 	assigned = append(assigned, p.parseExpression())
@@ -81,7 +81,7 @@ func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 	if !p.parseOptional(token.GetAssignments()...) {
 		if p.parseOptional(token.Increment, token.Decrement) {
 			return ast.AssignmentStatementNode{
-				Modifiers: ast.Modifiers{Modifiers: modifiers},
+				Modifiers: ast.Modifiers{},
 				Left:      assigned,
 				Right:     nil,
 			}
@@ -97,7 +97,7 @@ func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 	p.parseOptional(token.Semicolon)
 
 	return ast.AssignmentStatementNode{
-		Modifiers: ast.Modifiers{Modifiers: modifiers},
+		Modifiers: ast.Modifiers{},
 		Left:      assigned,
 		Right:     to,
 	}

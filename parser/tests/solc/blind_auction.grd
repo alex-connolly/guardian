@@ -16,7 +16,7 @@ contract BlindAuction {
         highestBid uint
     )
 
-    pendingReturns map[address]uint
+    var pendingReturns map[address]uint
 
     event AuctionEnded(winner address, highestBid uint)
 
@@ -47,16 +47,16 @@ contract BlindAuction {
         onlyAfter(biddingEnd)
         onlyBefore(revealEnd)
 
-        length := bids[msg.sender].length
+        length = bids[msg.sender].length
 
         assert(values.length == length)
         assert(fake.length == length)
         assert(secret.length == length)
 
-        refund uint
-        for i := 0; i < length; i++ {
+        var refund uint
+        for i = 0; i < length; i++ {
 
-            v, f, s := values[i], fake[i], secret[i]
+            v, f, s = values[i], fake[i], secret[i]
             if bid.blindedBid != keccak256(v, f, s) {
                 continue
             }
@@ -86,7 +86,7 @@ contract BlindAuction {
     }
 
     func withdraw() {
-        amount := pendingReturns[msg.sender]
+        amount = pendingReturns[msg.sender]
         if amount > 0 {
             pendingReturns[msg.sender] = 0
             transfer(msg.sender, amount)

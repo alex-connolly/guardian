@@ -7,4 +7,5 @@ const (
 	errInvalidArraySize         = "Invalid array size"
 	errEmptyGroup               = "Group declaration must apply modifiers"
 	errDanglingExpression       = "Dangling expression"
+	errConstantWithoutValue     = "Constants must have a value"
 )

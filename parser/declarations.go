@@ -555,7 +555,14 @@ func processVarDeclaration(constant bool) func(p *Parser) {
 	return func(p *Parser) {
 		e := p.parseVarDeclaration()
 
-		//e.IsConstant = constant
+		e.IsConstant = constant
+
+		if p.parseOptional(token.Assign) {
+			e.Value = p.parseExpression()
+		}
+		if e.IsConstant && e.Value != nil {
+			p.addError(errConstantWithoutValue)
+		}
 
 		switch p.scope.Type() {
 		case ast.FuncDeclaration, ast.LifecycleDeclaration:
