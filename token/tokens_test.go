@@ -74,6 +74,13 @@ func TestNextTokenDistinctFixed(t *testing.T) {
 	goutil.AssertNow(t, p.Name == "in", fmt.Sprintf("wrong name: %s", p.Name))
 }
 
+func TestNextTokenDistinctElif(t *testing.T) {
+	b := &bytecode{bytes: []byte("elif")}
+	p := NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "elif", fmt.Sprintf("wrong name: %s", p.Name))
+}
+
 func TestNextTokenInt(t *testing.T) {
 	b := &bytecode{bytes: []byte("6")}
 	p := NextProtoToken(b)

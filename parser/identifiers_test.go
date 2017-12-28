@@ -73,15 +73,15 @@ func TestIsIfStatement(t *testing.T) {
 }
 
 func TestIsExplicitVarDeclaration(t *testing.T) {
-	p := createParser("x string")
+	p := createParser("var x string")
 	goutil.Assert(t, isExplicitVarDeclaration(p), "expvar statement not recognised")
-	p = createParser("x, a string")
+	p = createParser("var x, a string")
 	goutil.Assert(t, isExplicitVarDeclaration(p), "multiple var expvar statement not recognised")
-	p = createParser("x map[string]string")
+	p = createParser("var x map[string]string")
 	goutil.Assert(t, isExplicitVarDeclaration(p), "map expvar statement not recognised")
-	p = createParser("x []string")
+	p = createParser("var x []string")
 	goutil.Assert(t, isExplicitVarDeclaration(p), "array expvar statement not recognised")
-	p = createParser("transfer func(a address, amount uint256) uint")
+	p = createParser("var transfer func(a address, amount uint256) uint")
 	goutil.Assert(t, isExplicitVarDeclaration(p), "func type statement not recognised")
 	p = createParser("x = 5")
 	goutil.Assert(t, !isExplicitVarDeclaration(p), "should not recognise simple assignment")
@@ -100,7 +100,7 @@ func TestIsExplicitVarDeclaration(t *testing.T) {
 }
 
 func TestIsExpVarFunc(t *testing.T) {
-	p := createParser("blockhash func(blockNumber uint) [32]byte")
+	p := createParser("var blockhash func(blockNumber uint) [32]byte")
 	goutil.Assert(t, isExplicitVarDeclaration(p), "second func type statement not recognised")
 }
 
@@ -257,4 +257,18 @@ func TestNotExpVar(t *testing.T) {
 func TestAnnotation(t *testing.T) {
 	p := createParser("@Builtin()")
 	goutil.Assert(t, isAnnotation(p), "annotation not detected")
+}
+
+func TestIsModifier(t *testing.T) {
+	p := createParser("public class Dog {}")
+	goutil.Assert(t, isModifier(p), "modifier not detected")
+	p = createParser("public ( class Dog {} )")
+	goutil.Assert(t, isModifier(p), "modifier not detected")
+}
+
+func TestIsNotModifier(t *testing.T) {
+	p := createParser("call()")
+	goutil.Assert(t, !isModifier(p), "modifier detected")
+	p = createParser("create(6, 5)")
+	goutil.Assert(t, !isModifier(p), "modifier detected")
 }

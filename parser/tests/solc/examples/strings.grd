@@ -84,26 +84,26 @@ contract Strings {
         v0 = (val >> 24) as uint
         if v0 <= B11H {
             len = 1
-        } else if B21L <= v0 and v0 <= B21H { // Check a 2 byte character.
+        } elif B21L <= v0 and v0 <= B21H { // Check a 2 byte character.
             v1 = (val & 0x00FF0000) >> 16
             require(DL <= v1 and v1 <= DH)
             len = 2
-        } else if v0 == B31 { // Check a 3 byte character in the following three.
+        } elif v0 == B31 { // Check a 3 byte character in the following three.
             validateWithNextDefault((val & 0x00FFFF00) >> 8, B32L, B32H)
             len = 3
-        } else if v0 == B51 {
+        } elif v0 == B51 {
             validateWithNextDefault((val & 0x00FFFF00) >> 8, B52L, B52H)
             len = 3
-        } else if (B41L <= v0 and v0 <= B41H) or v0 == B61L or v0 == B61H {
+        } elif (B41L <= v0 and v0 <= B41H) or v0 == B61L or v0 == B61H {
             validateWithNextDefault((val & 0x00FFFF00) >> 8, DL, DH)
             len = 3
-        } else if v0 == B71 { // Check a 4 byte character in the following three.
+        } elif v0 == B71 { // Check a 4 byte character in the following three.
             validateWithNextTwoDefault(val & 0x00FFFFFF, B72L, B72H)
             len = 4
-        } else if B81L <= v0 and v0 <= B81H {
+        } elif B81L <= v0 and v0 <= B81H {
             validateWithNextTwoDefault(val & 0x00FFFFFF, DL, DH)
             len = 4
-        } else if v0 == B91 {
+        } elif v0 == B91 {
             validateWithNextTwoDefault(val & 0x00FFFFFF, B92L, B92H)
             len = 4
         } else { // If we reach this point, the character is not valid UTF-8

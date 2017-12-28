@@ -131,6 +131,7 @@ func TestParseMultipleExtendsandImplementsClassMultipleGeneric(t *testing.T) {
 func TestParseSingleGenericFunction(t *testing.T) {
 	p := createParser(`func <T> hello(){}`)
 	parseFuncDeclaration(p)
+	goutil.AssertNow(t, p.scope.Declarations != nil, "declarations is nil")
 	goutil.AssertNow(t, p.scope.Declarations.Length() == 1, "wrong length")
 	c := p.scope.Declarations.Next().(*ast.FuncDeclarationNode)
 	goutil.AssertNow(t, c.Generics != nil, "nil generics")
@@ -140,6 +141,7 @@ func TestParseSingleGenericFunction(t *testing.T) {
 func TestParseMultipleGenericFunction(t *testing.T) {
 	p := createParser(`func <T|S|R> hello(){}`)
 	parseFuncDeclaration(p)
+	goutil.AssertNow(t, p.scope.Declarations != nil, "declarations is nil")
 	goutil.AssertNow(t, p.scope.Declarations.Length() == 1, "wrong length")
 	c := p.scope.Declarations.Next().(*ast.FuncDeclarationNode)
 	goutil.AssertNow(t, c.Generics != nil, "nil generics")

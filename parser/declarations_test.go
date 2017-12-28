@@ -330,7 +330,7 @@ func TestParseTypeDeclaration(t *testing.T) {
 }
 
 func TestParseExplicitVarDeclaration(t *testing.T) {
-	p := createParser(`a string`)
+	p := createParser(`var a string`)
 	goutil.Assert(t, isExplicitVarDeclaration(p), "should detect expvar decl")
 	parseExplicitVarDeclaration(p)
 }
@@ -456,8 +456,10 @@ func TestParseFuncNoParameters(t *testing.T) {
 	goutil.Assert(t, isFuncDeclaration(p), "should detect func decl")
 	parseFuncDeclaration(p)
 	n := p.scope.NextDeclaration()
+	goutil.AssertNow(t, n != nil, "node is nil")
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
 	f := n.(*ast.FuncDeclarationNode)
+	goutil.AssertNow(t, f.Signature != nil, "signature isn't nil")
 	goutil.AssertLength(t, len(f.Signature.Parameters), 0)
 }
 
@@ -467,8 +469,10 @@ func TestParseFuncOneParameter(t *testing.T) {
 	parseFuncDeclaration(p)
 
 	n := p.scope.NextDeclaration()
+	goutil.AssertNow(t, n != nil, "node is nil")
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
 	f := n.(*ast.FuncDeclarationNode)
+	goutil.AssertNow(t, f.Signature != nil, "signature isn't nil")
 	goutil.AssertNow(t, len(f.Signature.Parameters) == 1, "wrong param length")
 }
 
@@ -478,9 +482,11 @@ func TestParseFuncParameters(t *testing.T) {
 	parseFuncDeclaration(p)
 
 	n := p.scope.NextDeclaration()
+	goutil.AssertNow(t, n != nil, "node is nil")
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
 	f := n.(*ast.FuncDeclarationNode)
-	goutil.AssertNow(t, len(f.Signature.Parameters) == 2, "wrong param length")
+	goutil.AssertNow(t, f.Signature != nil, "signature isn't nil")
+	goutil.AssertLength(t, len(f.Signature.Parameters), 2)
 }
 
 func TestParseFuncMultiplePerType(t *testing.T) {
@@ -488,8 +494,10 @@ func TestParseFuncMultiplePerType(t *testing.T) {
 	goutil.Assert(t, isFuncDeclaration(p), "should detect func decl")
 	parseFuncDeclaration(p)
 	n := p.scope.NextDeclaration()
+	goutil.AssertNow(t, n != nil, "node is nil")
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
 	f := n.(*ast.FuncDeclarationNode)
+	goutil.AssertNow(t, f.Signature != nil, "signature isn't nil")
 	goutil.AssertNow(t, len(f.Signature.Parameters) == 1, "wrong param length")
 }
 
@@ -499,8 +507,10 @@ func TestParseFuncMultiplePerTypeExtra(t *testing.T) {
 	parseFuncDeclaration(p)
 
 	n := p.scope.NextDeclaration()
+	goutil.AssertNow(t, n != nil, "node is nil")
 	goutil.AssertNow(t, n.Type() == ast.FuncDeclaration, "wrong node type")
 	f := n.(*ast.FuncDeclarationNode)
+	goutil.AssertNow(t, f.Signature != nil, "signature isn't nil")
 	goutil.AssertNow(t, len(f.Signature.Parameters) == 2, "wrong param length")
 }
 
@@ -509,6 +519,7 @@ func TestParseConstructorNoParameters(t *testing.T) {
 	goutil.Assert(t, isLifecycleDeclaration(p), "should detect Constructor decl")
 	parseLifecycleDeclaration(p)
 	n := p.scope.NextDeclaration()
+	goutil.AssertNow(t, n != nil, "node is nil")
 	goutil.AssertNow(t, n.Type() == ast.LifecycleDeclaration, "wrong node type")
 	c := n.(*ast.LifecycleDeclarationNode)
 	goutil.AssertNow(t, len(c.Parameters) == 0, "wrong param length")
@@ -673,4 +684,11 @@ func TestParseReferenceMultipleGenericPlainType(t *testing.T) {
 	goutil.Assert(t, !pt.Variable, "should be variable")
 	goutil.AssertLength(t, len(pt.Names), 2)
 	goutil.AssertLength(t, len(pt.Parameters), 2)
+}
+
+func TestIsNamedParameter(t *testing.T) {
+	p := createParser("a string")
+	goutil.Assert(t, p.isNamedParameter(), "plain should be np")
+	p = createParser("a, b string")
+	goutil.Assert(t, p.isNamedParameter(), "multiple should be np")
 }

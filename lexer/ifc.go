@@ -36,6 +36,9 @@ func LexFile(path string) (tokens []token.Token, errs util.Errors) {
 			Message: "File does not exist",
 		})
 	}
+	Lex(
+		bytes,
+	)
 	return Lex(bytes)
 }
 

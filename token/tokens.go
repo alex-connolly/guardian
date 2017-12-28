@@ -190,7 +190,7 @@ var distinct = map[string]ProtoToken{
 	"destructor":  distinctToken("destructor", Destructor),
 
 	"if":   distinctToken("if", If),
-	"elif": distinctToken("else if", ElseIf),
+	"elif": distinctToken("elif", ElseIf),
 	"else": distinctToken("else", Else),
 
 	"for":    distinctToken("for", For),
@@ -287,7 +287,6 @@ const (
 	Character
 	Comment
 	Alias
-
 	At           // at
 	Assign       // =
 	Comma        // ,
@@ -309,38 +308,37 @@ const (
 	Exp          // **
 	Div          // /
 	Mod          // %
-
-	Increment  // ++
-	Decrement  // --
-	AddAssign  // +=
-	SubAssign  // -=
-	MulAssign  // *=
-	ExpAssign  // **=
-	DivAssign  // /=
-	ModAssign  // %=
-	AndAssign  // &=
-	OrAssign   // |=
-	XorAssign  // ^=
-	ShlAssign  // <<=
-	ShrAssign  // >>=
-	LogicalAnd // and
-	LogicalOr  // or
-	ArrowLeft  // <-
-	ArrowRight // ->
-	Inc        // ++
-	Dec        // --
-	Eql        // ==
-	Lss        // <
-	Gtr        // >
-	Not        // !
-	Neq        // !=
-	Leq        // <=
-	Geq        // >=
-	Define     // :=
-	Ellipsis   // ...
-	Dot        // .
-	Semicolon  // ;
-	Ternary    // ?
+	Increment    // ++
+	Decrement    // --
+	AddAssign    // +=
+	SubAssign    // -=
+	MulAssign    // *=
+	ExpAssign    // **=
+	DivAssign    // /=
+	ModAssign    // %=
+	AndAssign    // &=
+	OrAssign     // |=
+	XorAssign    // ^=
+	ShlAssign    // <<=
+	ShrAssign    // >>=
+	LogicalAnd   // and
+	LogicalOr    // or
+	ArrowLeft    // <-
+	ArrowRight   // ->
+	Inc          // ++
+	Dec          // --
+	Eql          // ==
+	Lss          // <
+	Gtr          // >
+	Not          // !
+	Neq          // !=
+	Leq          // <=
+	Geq          // >=
+	Define       // :=
+	Ellipsis     // ...
+	Dot          // .
+	Semicolon    // ;
+	Ternary      // ?
 	Break
 	Continue
 	Contract

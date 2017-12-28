@@ -198,8 +198,37 @@ func isCaseStatement(p *Parser) bool {
 }
 
 func isModifier(p *Parser) bool {
-	// this will overcatch but that's ok
-	return p.isNextToken(token.Identifier)
+	return p.preserveState(func(p *Parser) bool {
+		if !p.parseOptional(token.Identifier) {
+			return false
+		}
+		for p.parseOptional(token.Identifier) {
+		}
+		if p.hasTokens(1) {
+			switch p.current().Type {
+			case token.Func, token.Var, token.Const, token.Enum,
+				token.Interface, token.Contract, token.Class:
+				return true
+			case token.OpenBracket:
+				p.next()
+				p.ignoreNewLines()
+				if p.isNextToken(token.Func, token.Var, token.Const, token.Enum,
+					token.Interface, token.Contract, token.Class) {
+					return true
+				} else if p.isNextToken(token.Identifier) {
+					// could be a nested group
+					for p.parseOptional(token.Identifier) {
+
+					}
+					//p.ignoreNewLines()
+					return p.isNextToken(token.OpenBracket)
+				}
+				return false
+			}
+			return false
+		}
+		return false
+	})
 }
 
 func isPackageStatement(p *Parser) bool {

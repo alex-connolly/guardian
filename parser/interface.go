@@ -26,6 +26,13 @@ func ParseExpression(expr string) ast.ExpressionNode {
 	return p.parseExpression()
 }
 
+// ParseType ...
+func ParseType(t string) ast.Node {
+	p := new(Parser)
+	p.tokens, _ = lexer.LexString(t)
+	return p.parseType()
+}
+
 // ParseFile ...
 func ParseFile(path string) (scope *ast.ScopeNode, errs util.Errors) {
 	bytes, err := ioutil.ReadFile(path)

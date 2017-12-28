@@ -6,7 +6,7 @@ contract Greeter {
 
             static (
 
-                func GetClassName() string {
+                func ClassName() string {
                     return "PERSON"
                 }
 
@@ -15,5 +15,4 @@ contract Greeter {
         )
 
     }
-
 }

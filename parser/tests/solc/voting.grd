@@ -18,20 +18,6 @@ contract Ballot {
         proposals []Proposal
     )
 
-    constructor(proposalNames []bytes32){
-
-        chairperson = msg.sender
-        voters[chairperson].weight = 1
-
-        for i := 0; i < proposalNames.length; i++ {
-            proposals = append(proposals, Proposal{
-                name: proposalNames[i],
-                voteCount: 0,
-            })
-        }
-
-    }
-
     external func giveRightToVote(voter address){
         assert(msg.sender == chairperson)
         assert(!voters[voter].voted)
@@ -40,7 +26,7 @@ contract Ballot {
     }
 
     external func vote(proposal uint) {
-        storage sender := voters[msg.sender]
+        //storage sender = voters[msg.sender]
         assert(!sender.voted)
 
         sender.voted = true
@@ -50,8 +36,8 @@ contract Ballot {
     }
 
     external func winningProposal() uint {
-        winningVoteCount := 0 as uint
-        for p := 0; p < proposals.length; p++ {
+        winningVoteCount = 0 as uint
+        for p = 0; p < proposals.length; p++ {
             if proposals[p].voteCount > winningVoteCount {
                 winningVoteCount = proposals[p].voteCount
                 winningProposal = p
@@ -62,7 +48,7 @@ contract Ballot {
 
 
     external func delegate(to address){
-        storage sender = voters[msg.sender]
+        //storage sender = voters[msg.sender]
         assert(!sender.voted)
         assert(to != msg.sender)
 
@@ -73,7 +59,7 @@ contract Ballot {
 
         sender.vote = true
         sender.delegate = to
-        storage delegate = voters[to]
+        //storage delegate = voters[to]
         if delegate.voted {
             proposals[delegate.vote].voteCount += sender.weight
         } else {
@@ -81,6 +67,7 @@ contract Ballot {
         }
 
     }
+
 
     external func winnerName() bytes32 {
         return proposals[winningProposal()].name

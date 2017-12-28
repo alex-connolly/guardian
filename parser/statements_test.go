@@ -13,7 +13,8 @@ func TestParseAssignmentStatementSingleConstant(t *testing.T) {
 	p := createParser("x = 6")
 	goutil.Assert(t, isAssignmentStatement(p), "should detect assignment statement")
 	parseAssignmentStatement(p)
-
+	goutil.AssertNow(t, p.scope != nil, "scope is nil")
+	goutil.AssertLength(t, len(p.scope.Sequence), 1)
 	first := p.scope.Next()
 	goutil.AssertNow(t, first.Type() == ast.AssignmentStatement, "wrong node type")
 	assignmentStmt := first.(*ast.AssignmentStatementNode)
@@ -21,7 +22,9 @@ func TestParseAssignmentStatementSingleConstant(t *testing.T) {
 	goutil.AssertNow(t, len(assignmentStmt.Right) == 1, "wrong right length")
 	left := assignmentStmt.Left[0]
 	right := assignmentStmt.Right[0]
+	goutil.AssertNow(t, left != nil, "left is nil")
 	goutil.AssertNow(t, left.Type() == ast.Identifier, "wrong left type")
+	goutil.AssertNow(t, right != nil, "right is nil")
 	goutil.AssertNow(t, right.Type() == ast.Literal, "wrong right type")
 }
 
@@ -98,7 +101,7 @@ func TestParseIfStatementInitElse(t *testing.T) {
 func TestParseIfStatementElifElse(t *testing.T) {
 	p := createParser(`if x > 4 {
 
-	} else if x < 4 {
+	} elif x < 4 {
 
 	} else {
 

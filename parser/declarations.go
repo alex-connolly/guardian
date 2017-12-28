@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/end-r/guardian/token"
@@ -108,8 +109,6 @@ func parseEnumDeclaration(p *Parser) {
 			inherits = p.parsePlainTypeList()
 		}
 
-		p.errorUnless(token.OpenBrace)
-
 		enums := p.parseEnumBody()
 
 		node := ast.EnumDeclarationNode{
@@ -181,8 +180,6 @@ func parseClassBody(p *Parser) {
 		}
 	}
 
-	p.errorUnless(token.OpenBrace)
-
 	body := p.parseBracesScope()
 
 	node := ast.ClassDeclarationNode{
@@ -195,13 +192,6 @@ func parseClassBody(p *Parser) {
 	}
 
 	p.scope.AddDeclaration(identifier, &node)
-}
-
-func (p *Parser) errorUnless(t token.Type) {
-	for !p.isNextToken(t) {
-		p.addError("yoyo")
-		p.next()
-	}
 }
 
 func parseClassDeclaration(p *Parser) {
@@ -228,8 +218,6 @@ func parseContractBody(p *Parser) {
 			inherits = p.parsePlainTypeList()
 		}
 	}
-
-	p.errorUnless(token.OpenBrace)
 
 	valids := []ast.NodeType{
 		ast.ClassDeclaration, ast.InterfaceDeclaration,
@@ -310,9 +298,11 @@ func (p *Parser) parseParameters() []*ast.ExplicitVarDeclarationNode {
 	p.parseRequired(token.OpenBracket)
 	p.ignoreNewLines()
 	if !p.parseOptional(token.CloseBracket) {
+		fmt.Println("param")
 		params = append(params, p.parseVarDeclaration())
 		for p.parseOptional(token.Comma) {
 			p.ignoreNewLines()
+			fmt.Println("param")
 			params = append(params, p.parseVarDeclaration())
 		}
 		p.ignoreNewLines()
@@ -355,13 +345,10 @@ func (p *Parser) parseResults() []ast.Node {
 
 func (p *Parser) parseFuncSignature() *ast.FuncTypeNode {
 
-	// return nil for any errors
-	// TODO: maybe do this better
 	f := new(ast.FuncTypeNode)
 
-	if p.isNextToken(token.Func) {
-		p.addError("can't")
-		p.next()
+	if p.parseOptional(token.Func) {
+		return nil
 	}
 
 	if !p.isNextToken(token.Identifier) {
@@ -394,8 +381,6 @@ func parseFuncDeclaration(p *Parser) {
 
 	signature := p.parseFuncSignature()
 
-	p.errorUnless(token.OpenBrace)
-
 	body := p.parseBracesScope(ast.ExplicitVarDeclaration, ast.FuncDeclaration)
 
 	node := ast.FuncDeclarationNode{
@@ -405,7 +390,9 @@ func parseFuncDeclaration(p *Parser) {
 		Body:      body,
 	}
 
-	p.scope.AddDeclaration(signature.Identifier, &node)
+	if signature != nil {
+		p.scope.AddDeclaration(signature.Identifier, &node)
+	}
 }
 
 func parseLifecycleDeclaration(p *Parser) {
@@ -493,13 +480,27 @@ func (p *Parser) parseFuncType() *ast.FuncTypeNode {
 	return &f
 }
 
+func (p *Parser) isNamedParameter() bool {
+	return p.preserveState(func(p *Parser) bool {
+		if !p.parseOptional(token.Identifier) {
+			return false
+		}
+		for p.parseOptional(token.Comma) {
+			if !p.parseOptional(token.Identifier) {
+				return false
+			}
+		}
+		return p.isNextAType()
+	})
+}
+
 func (p *Parser) parseFuncTypeParameters() []ast.Node {
 	// can't mix named and unnamed
 	var params []ast.Node
-	if isExplicitVarDeclaration(p) {
+	if p.isNamedParameter() {
 		params = append(params, p.parseVarDeclaration())
 		for p.parseOptional(token.Comma) {
-			if isExplicitVarDeclaration(p) {
+			if p.isNamedParameter() {
 				params = append(params, p.parseVarDeclaration())
 			} else if p.isNextAType() {
 				p.addError(errMixedNamedParameters)
@@ -550,44 +551,31 @@ func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 	}
 }
 
+func processVarDeclaration(constant bool) func(p *Parser) {
+	return func(p *Parser) {
+		e := p.parseVarDeclaration()
+
+		//e.IsConstant = constant
+
+		switch p.scope.Type() {
+		case ast.FuncDeclaration, ast.LifecycleDeclaration:
+			p.scope.AddSequential(e)
+			break
+		default:
+			for _, n := range e.Identifiers {
+				p.scope.AddDeclaration(n, e)
+			}
+		}
+	}
+}
+
 func parseExplicitVarDeclaration(p *Parser) {
 
 	if p.isNextToken(token.Var) {
-		p.parseGroupable(token.Var, func(p *Parser) {
-
-			e := p.parseVarDeclaration()
-
-			e.isConstant = false
-
-			switch p.scope.Type() {
-			case ast.FuncDeclaration, ast.LifecycleDeclaration:
-				p.scope.AddSequential(e)
-				break
-			default:
-				for _, n := range e.Identifiers {
-					p.scope.AddDeclaration(n, e)
-				}
-			}
-		})
+		p.parseGroupable(token.Var, processVarDeclaration(false))
 	} else {
-		p.parseGroupable(token.Const, func(p *Parser) {
-
-			e := p.parseVarDeclaration()
-
-			e.isConstant = true
-
-			switch p.scope.Type() {
-			case ast.FuncDeclaration, ast.LifecycleDeclaration:
-				p.scope.AddSequential(e)
-				break
-			default:
-				for _, n := range e.Identifiers {
-					p.scope.AddDeclaration(n, e)
-				}
-			}
-		})
+		p.parseGroupable(token.Const, processVarDeclaration(true))
 	}
-
 }
 
 func parseEventDeclaration(p *Parser) {

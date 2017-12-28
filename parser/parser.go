@@ -77,16 +77,17 @@ func (p *Parser) parseRequired(types ...token.Type) token.Type {
 	if !p.hasTokens(1) {
 		p.addError(fmt.Sprintf("Required one of {%s}, found %s", listTypes(types), "nothing"))
 		// TODO: what should be returned here
-		return token.Return
+		return token.Invalid
 	}
 	for _, t := range types {
-		if p.current().Type == t {
+		if p.isNextToken(t) {
 			p.next()
 			return t
 		}
 	}
 	p.addError(fmt.Sprintf("Required one of {%s}, found %s", listTypes(types), p.current().Name()))
-	return p.current().Type
+	// correct return type
+	return token.Invalid
 }
 
 func listTypes(types []token.Type) string {
@@ -148,14 +149,9 @@ func parseMultiLineComment(p *Parser) {
 
 func (p *Parser) parseModifierList() []string {
 	var mods []string
-	for p.hasTokens(2) && p.current().Type == token.Identifier {
-		switch p.token(1).Type {
-		case token.Assign, token.Comma:
-			goto done
-		}
+	for p.hasTokens(1) && p.current().Type == token.Identifier {
 		mods = append(mods, p.parseIdentifier())
 	}
-done:
 	return mods
 }
 
@@ -166,6 +162,7 @@ func parseModifiers(p *Parser) {
 func parseGroup(p *Parser) {
 	if p.lastModifiers == nil {
 		p.addError(errEmptyGroup)
+		p.next()
 	} else {
 		p.modifiers = append(p.modifiers, p.lastModifiers)
 		p.lastModifiers = nil
@@ -221,7 +218,7 @@ func (p *Parser) parseScope(terminator token.Type, valids ...ast.NodeType) *ast.
 		found := false
 		for _, c := range getPrimaryConstructs() {
 			if c.is(p) {
-				//fmt.Printf("FOUND: %s at index %d\n", c.name, p.index)
+				//fmt.Printf("FOUND: %s at index %d on line %d\n", c.name, p.index, p.line)
 				c.parse(p)
 				found = true
 				break
@@ -233,16 +230,18 @@ func (p *Parser) parseScope(terminator token.Type, valids ...ast.NodeType) *ast.
 			expr := p.parseExpression()
 			if expr == nil {
 				*p = saved
-				fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.current().String())
+				//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.current().String())
 				p.addError(fmt.Sprintf("Unrecognised construct: %s", p.current().String()))
 				p.next()
 			} else {
 				switch expr.Type() {
 				case ast.CallExpression:
+
 					p.scope.AddSequential(expr)
 					break
 				default:
 					p.addError(errDanglingExpression)
+					p.next()
 					break
 				}
 

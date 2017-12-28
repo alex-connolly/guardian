@@ -8,7 +8,7 @@ import (
 	"github.com/end-r/goutil"
 )
 
-func TestClassSimpleRecognisedModifiers(t *testing.T) {
+func TestClassSimpleModifiers(t *testing.T) {
 	a, errs := ParseString(`
 		public static class Dog {
 
@@ -22,21 +22,7 @@ func TestClassSimpleRecognisedModifiers(t *testing.T) {
 	goutil.AssertLength(t, len(c.Modifiers.Modifiers), 2)
 }
 
-func TestClassSimpleUnrecognisedModifiers(t *testing.T) {
-	a, errs := ParseString(`
-		relaxed class Dog {
-
-		}
-	`)
-	goutil.AssertNow(t, a != nil, "ast is nil")
-	goutil.AssertNow(t, len(errs) == 1, errs.Format())
-	goutil.AssertLength(t, a.Declarations.Length(), 1)
-	n := a.Declarations.Next()
-	c := n.(*ast.ClassDeclarationNode)
-	goutil.AssertLength(t, len(c.Modifiers.Modifiers), 0)
-}
-
-func TestGroupedClassSimpleRecognisedModifiers(t *testing.T) {
+func TestGroupedClassSimpleModifiers(t *testing.T) {
 	a, errs := ParseString(`
 		public static (
 			class Dog {
@@ -57,32 +43,15 @@ func TestGroupedClassSimpleRecognisedModifiers(t *testing.T) {
 	goutil.AssertLength(t, len(c.Modifiers.Modifiers), 2)
 }
 
-func TestGroupSimpleUnrecognisedModifiers(t *testing.T) {
-	a, errs := ParseString(`
-		relaxed (
-			Dog {
-
-			}
-		)
-	`)
-	goutil.AssertNow(t, a != nil, "ast is nil")
-	goutil.AssertNow(t, len(errs) == 1, errs.Format())
-	goutil.AssertNow(t, a.Declarations != nil, "nil declarations")
-	goutil.AssertLength(t, a.Declarations.Length(), 1)
-	n := a.Declarations.Next()
-	c := n.(*ast.ClassDeclarationNode)
-	goutil.AssertLength(t, len(c.Modifiers.Modifiers), 0)
-}
-
-func TestGroupedClassMultiLevelRecognisedModifiers(t *testing.T) {
+func TestGroupedClassMultiLevelModifiers(t *testing.T) {
 	a, errs := ParseString(`
 		public static (
 			class Dog {
-				name string
+				var name string
 			}
 
 			class Cat {
-				name string
+				var name string
 			}
 		)
 	`)
