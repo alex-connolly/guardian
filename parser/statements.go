@@ -48,7 +48,7 @@ func (p *Parser) parseSimpleAssignment() ast.AssignmentStatementNode {
 	if !p.parseOptional(token.GetAssignments()...) {
 		if p.parseOptional(token.Increment, token.Decrement) {
 			return ast.AssignmentStatementNode{
-				Modifiers: modifiers,
+				Modifiers: ast.Modifiers{Modifiers: modifiers},
 				Left:      assigned,
 				Right:     nil,
 			}
@@ -62,7 +62,7 @@ func (p *Parser) parseSimpleAssignment() ast.AssignmentStatementNode {
 	}
 
 	return ast.AssignmentStatementNode{
-		Modifiers: modifiers,
+		Modifiers: ast.Modifiers{Modifiers: modifiers},
 		Left:      assigned,
 		Right:     to,
 	}
@@ -81,7 +81,7 @@ func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 	if !p.parseOptional(token.GetAssignments()...) {
 		if p.parseOptional(token.Increment, token.Decrement) {
 			return ast.AssignmentStatementNode{
-				Modifiers: modifiers,
+				Modifiers: ast.Modifiers{Modifiers: modifiers},
 				Left:      assigned,
 				Right:     nil,
 			}
@@ -97,7 +97,7 @@ func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
 	p.parseOptional(token.Semicolon)
 
 	return ast.AssignmentStatementNode{
-		Modifiers: modifiers,
+		Modifiers: ast.Modifiers{Modifiers: modifiers},
 		Left:      assigned,
 		Right:     to,
 	}

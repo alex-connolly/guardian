@@ -153,7 +153,7 @@ func (p *Parser) parseModifierList() []string {
 		case token.Assign, token.Comma:
 			goto done
 		}
-		mods = append(mods, p.current().String())
+		mods = append(mods, p.parseIdentifier())
 	}
 done:
 	return mods

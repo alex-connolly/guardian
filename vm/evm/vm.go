@@ -8,6 +8,17 @@ import (
 	"github.com/end-r/guardian/validator"
 )
 
+func (evm GuardianEVM) Modifiers() []validator.ModifierGroup {
+	return []validator.ModifierGroups{
+		validator.ModifierGroup{
+			Name:       "Visibility",
+			Modifiers:  []string{"external", "internal", "global"},
+			RequiredOn: []ast.NodeType{ast.FuncDeclaration},
+			AllowedOn:  []ast.NodeType{ast.FuncDeclaration},
+		},
+	}
+}
+
 func (evm GuardianEVM) Builtins() *ast.ScopeNode {
 	if builtinScope == nil {
 		builtinScope, _ = parser.ParseString(`

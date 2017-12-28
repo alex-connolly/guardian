@@ -17,26 +17,47 @@ type ModifierGroup struct {
 	Modifiers []string
 }
 
+var defaultAnnotations = []ast.Annotation {
+	ParseAnnotation("Builtin", handleBuiltin, )
+}
+
+func ParseAnnotation(name string, f func({}interface, *Annotation), types ...string) ast.Annotation {
+	var a ast.Annotation
+	a.Name = name
+	for _, t := range types {
+		a.Required = append(a.Required, parser.ParseType(t))
+	}
+	return a
+}
+
+func handleBuiltin(i {}interface, a *Annotation) {
+
+}
+
 var defaultGroups = []ModifierGroup{
 	ModifierGroup{
 		Name:      "Access",
 		Modifiers: []string{"public", "private", "protected"},
+		RequiredOn: nil,
+		AllowedOn: ast.AllDeclarations,
 	},
 	ModifierGroup{
 		Name:      "Concreteness",
 		Modifiers: []string{"abstract"},
+		RequiredOn: nil,
+		AllowedOn: ast.AllDeclarations,
 	},
 	ModifierGroup{
 		Name:      "Instantiability",
 		Modifiers: []string{"static"},
+		RequiredOn: nil,
+		AllowedOn: []ast.NoteType{ast.FuncDeclaration, ast.ClassDeclaration},
 	},
 	ModifierGroup{
 		Name:      "Testing",
 		Modifiers: []string{"test"},
-	},
-	ModifierGroup{
-		Name:      "Mutability",
-		Modifiers: []string{"var", "const"},
+		RequiredOn: nil,
+		AllowedOn: []ast.NoteType{ast.FuncDeclaration},
 	},
 }
 

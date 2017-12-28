@@ -212,6 +212,9 @@ var distinct = map[string]ProtoToken{
 	"true":  distinctToken("true", True),
 	"false": distinctToken("false", False),
 
+	"var":   distinctToken("var", True),
+	"const": distinctToken("const", False),
+
 	"test":     distinctToken("test", Test),
 	"fallback": distinctToken("fallback", Fallback),
 	"version":  distinctToken("version", Version),

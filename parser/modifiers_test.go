@@ -19,7 +19,7 @@ func TestClassSimpleRecognisedModifiers(t *testing.T) {
 	goutil.AssertLength(t, a.Declarations.Length(), 1)
 	n := a.Declarations.Next()
 	c := n.(*ast.ClassDeclarationNode)
-	goutil.AssertLength(t, len(c.Modifiers), 2)
+	goutil.AssertLength(t, len(c.Modifiers.Modifiers), 2)
 }
 
 func TestClassSimpleUnrecognisedModifiers(t *testing.T) {
@@ -33,7 +33,7 @@ func TestClassSimpleUnrecognisedModifiers(t *testing.T) {
 	goutil.AssertLength(t, a.Declarations.Length(), 1)
 	n := a.Declarations.Next()
 	c := n.(*ast.ClassDeclarationNode)
-	goutil.AssertLength(t, len(c.Modifiers), 0)
+	goutil.AssertLength(t, len(c.Modifiers.Modifiers), 0)
 }
 
 func TestGroupedClassSimpleRecognisedModifiers(t *testing.T) {
@@ -54,7 +54,7 @@ func TestGroupedClassSimpleRecognisedModifiers(t *testing.T) {
 	goutil.AssertLength(t, a.Declarations.Length(), 2)
 	n := a.Declarations.Next()
 	c := n.(*ast.ClassDeclarationNode)
-	goutil.AssertLength(t, len(c.Modifiers), 2)
+	goutil.AssertLength(t, len(c.Modifiers.Modifiers), 2)
 }
 
 func TestGroupSimpleUnrecognisedModifiers(t *testing.T) {
@@ -71,7 +71,7 @@ func TestGroupSimpleUnrecognisedModifiers(t *testing.T) {
 	goutil.AssertLength(t, a.Declarations.Length(), 1)
 	n := a.Declarations.Next()
 	c := n.(*ast.ClassDeclarationNode)
-	goutil.AssertLength(t, len(c.Modifiers), 0)
+	goutil.AssertLength(t, len(c.Modifiers.Modifiers), 0)
 }
 
 func TestGroupedClassMultiLevelRecognisedModifiers(t *testing.T) {
@@ -92,5 +92,5 @@ func TestGroupedClassMultiLevelRecognisedModifiers(t *testing.T) {
 	goutil.AssertLength(t, a.Declarations.Length(), 2)
 	n := a.Declarations.Next()
 	c := n.(*ast.ClassDeclarationNode)
-	goutil.AssertLength(t, len(c.Modifiers), 2)
+	goutil.AssertLength(t, len(c.Modifiers.Modifiers), 2)
 }

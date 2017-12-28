@@ -12,33 +12,7 @@ func isNewLine(p *Parser) bool {
 
 // e.g. name string
 func isExplicitVarDeclaration(p *Parser) bool {
-	return p.preserveState(func(p *Parser) bool {
-		if !p.hasTokens(2) {
-			return false
-		}
-		if !p.parseOptional(token.Identifier) {
-			return false
-		}
-		for p.parseOptional(token.Comma) {
-			if !p.parseOptional(token.Identifier) {
-				return false
-			}
-		}
-		if !p.hasTokens(1) {
-			return false
-		}
-		if !p.isNextAType() {
-
-			return false
-		}
-		p.parseType()
-		if p.hasTokens(1) {
-			if !p.isNextTerminating() {
-				return false
-			}
-		}
-		return true
-	})
+	return p.isNextToken(token.Var, token.Const)
 }
 
 func (p *Parser) isNextTerminating() bool {
@@ -224,6 +198,7 @@ func isCaseStatement(p *Parser) bool {
 }
 
 func isModifier(p *Parser) bool {
+	// this will overcatch but that's ok
 	return p.isNextToken(token.Identifier)
 }
 

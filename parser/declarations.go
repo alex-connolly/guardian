@@ -302,7 +302,6 @@ func (p *Parser) parseVarDeclaration() *ast.ExplicitVarDeclarationNode {
 		DeclaredType: dType,
 		Identifiers:  names,
 	}
-
 	return e
 }
 
@@ -553,18 +552,25 @@ func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 
 func parseExplicitVarDeclaration(p *Parser) {
 
-	// parse variable Names
-	node := p.parseVarDeclaration()
+	f := func(p *Parser) {
 
-	// surely needs to be a declaration in some contexts
-	switch p.scope.Type() {
-	case ast.FuncDeclaration, ast.LifecycleDeclaration:
-		p.scope.AddSequential(node)
-		break
-	default:
-		for _, n := range node.Identifiers {
-			p.scope.AddDeclaration(n, node)
+		e := p.parseVarDeclaration()
+
+		switch p.scope.Type() {
+		case ast.FuncDeclaration, ast.LifecycleDeclaration:
+			p.scope.AddSequential(e)
+			break
+		default:
+			for _, n := range e.Identifiers {
+				p.scope.AddDeclaration(n, e)
+			}
 		}
+	}
+
+	if p.isNextToken(token.Var) {
+		p.parseGroupable(token.Var, f)
+	} else {
+		p.parseGroupable(token.Const, f)
 	}
 
 }

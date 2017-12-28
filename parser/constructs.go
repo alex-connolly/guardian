@@ -13,6 +13,7 @@ func getPrimaryConstructs() []construct {
 		construct{"multi line comment", isMultiLineComment, parseMultiLineComment},
 
 		construct{"modifiers", isModifier, parseModifiers},
+		construct{"annotations", isAnnotation, parseAnnotation},
 
 		construct{"group", isGroup, parseGroup},
 
