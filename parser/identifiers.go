@@ -151,8 +151,8 @@ func isIfStatement(p *Parser) bool {
 
 func isAssignmentStatement(p *Parser) bool {
 	return p.preserveState(func(p *Parser) bool {
-		for p.parseOptional(token.GetModifiers()...) {
-		}
+		/*for p.parseOptional(token.GetModifiers()...) {
+		}*/
 		expr := p.parseExpression()
 		if expr == nil {
 			return false

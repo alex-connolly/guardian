@@ -23,7 +23,7 @@ type PackageStatementNode struct {
 func (n *PackageStatementNode) Type() NodeType { return PackageStatement }
 
 type AssignmentStatementNode struct {
-	Modifiers []token.Type
+	Modifiers Modifiers
 	Left      []ExpressionNode
 	Operator  token.Type
 	Right     []ExpressionNode

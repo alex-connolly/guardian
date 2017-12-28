@@ -146,16 +146,16 @@ func parseMultiLineComment(p *Parser) {
 	p.parseOptional(token.CommentClose)
 }
 
-func (p *Parser) parseModifierList() []token.Type {
-	var mods []token.Type
-	for p.hasTokens(1) {
-		if p.current().Type.IsModifier() {
-			mods = append(mods, p.current().Type)
-			p.next()
-		} else {
-			return mods
+func (p *Parser) parseModifierList() []string {
+	var mods []string
+	for p.hasTokens(2) && p.current().Type == token.Identifier {
+		switch p.token(1).Type {
+		case token.Assign, token.Comma:
+			goto done
 		}
+		mods = append(mods, p.current().String())
 	}
+done:
 	return mods
 }
 

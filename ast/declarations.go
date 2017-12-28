@@ -66,7 +66,8 @@ func (n *ContractDeclarationNode) Type() NodeType { return ContractDeclaration }
 
 type Annotation struct {
 	Name       string
-	Parameters []string
+	Parameters []ExpressionNode
+	Required   []Node
 }
 
 type Modifiers struct {
