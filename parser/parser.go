@@ -234,7 +234,6 @@ func (p *Parser) parseScope(terminator token.Type, valids ...ast.NodeType) *ast.
 	scope := new(ast.ScopeNode)
 	scope.Parent = p.scope
 	p.scope = scope
-	fmt.Println("parsing scope")
 	for p.hasTokens(1) {
 		if p.current().Type == terminator {
 			p.scope = scope.Parent
@@ -243,7 +242,7 @@ func (p *Parser) parseScope(terminator token.Type, valids ...ast.NodeType) *ast.
 		found := false
 		for _, c := range getPrimaryConstructs() {
 			if c.is(p) {
-				fmt.Printf("FOUND: %s at index %d on line %d\n", c.name, p.index, p.line)
+				//fmt.Printf("FOUND: %s at index %d on line %d\n", c.name, p.index, p.line)
 				c.parse(p)
 				found = true
 				break
@@ -255,17 +254,16 @@ func (p *Parser) parseScope(terminator token.Type, valids ...ast.NodeType) *ast.
 			expr := p.parseExpression()
 			if expr == nil {
 				*p = saved
-				fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.current().String())
+				//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.current().String())
 				p.addError(fmt.Sprintf("Unrecognised construct: %s", p.current().String()))
 				p.next()
 			} else {
-				fmt.Printf("xxx")
 				switch expr.Type() {
 				case ast.CallExpression:
 					p.scope.AddSequential(expr)
 					break
 				default:
-					fmt.Printf("dangling")
+
 					p.addError(errDanglingExpression)
 					p.next()
 					break
