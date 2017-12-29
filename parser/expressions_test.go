@@ -793,3 +793,22 @@ func TestParseSimpleExpression(t *testing.T) {
 	i := expr.(*ast.IdentifierNode)
 	goutil.AssertNow(t, i.Name == "a", "wrong name")
 }
+
+func TestParseCallExpressionCompositeLiteralParameter(t *testing.T) {
+	_, errs := ParseString(`contributions.push(
+		Contribution {
+			amount: msg.value,
+			contributor: msg.sender,
+		}
+	)`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestParseCallExpressionSequential(t *testing.T) {
+	_, errs := ParseString(`
+		func auctionEnd(){
+			assert(now() >= auctionEnd)
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}

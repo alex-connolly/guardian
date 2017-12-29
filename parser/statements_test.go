@@ -199,7 +199,7 @@ func TestParseSwitchStatementExclusive(t *testing.T) {
 }
 
 func TestParseCaseStatementSingle(t *testing.T) {
-	p := createParser(`case 5 {}`)
+	p := createParser(`case 5:`)
 	goutil.Assert(t, isCaseStatement(p), "should detect case statement")
 	parseCaseStatement(p)
 
@@ -684,4 +684,25 @@ func TestDeclaredForEachStatement(t *testing.T) {
 	p := n.(*ast.ForEachStatementNode)
 	goutil.AssertNow(t, len(p.Variables) == 2, "wrong var length")
 	goutil.AssertNow(t, p.Producer.Type() == ast.Identifier, "wrong producer")
+}
+
+func TestParseCaseStatementDouble(t *testing.T) {
+	a, errs := ParseString(`
+	case x > 5:
+		break
+	case x == 10:
+		break
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+	goutil.AssertNow(t, a != nil, "nil scope")
+	goutil.AssertLength(t, len(a.Sequence), 2)
+	one := a.Sequence[0]
+	fmt.Printf("one: %d\n", one.Type())
+	goutil.AssertNow(t, one.Type() == ast.CaseStatement, "1 not case statement")
+	c1 := one.(*ast.CaseStatementNode)
+	goutil.AssertLength(t, len(c1.Block.Sequence), 1)
+	two := a.Sequence[1]
+	goutil.AssertNow(t, two.Type() == ast.CaseStatement, "2 not case statement")
+	c2 := two.(*ast.CaseStatementNode)
+	goutil.AssertLength(t, len(c2.Block.Sequence), 1)
 }

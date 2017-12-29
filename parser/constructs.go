@@ -7,15 +7,14 @@ type construct struct {
 }
 
 func getPrimaryConstructs() []construct {
-	return []construct{
 
+	standards := []construct{
 		construct{"single line comment", isSingleLineComment, parseSingleLineComment},
 		construct{"multi line comment", isMultiLineComment, parseMultiLineComment},
-
 		construct{"modifiers", isModifier, parseModifiers},
 		construct{"annotations", isAnnotation, parseAnnotation},
-
 		construct{"group", isGroup, parseGroup},
+		construct{"new line", isNewLine, parseNewLine},
 
 		construct{"explict var declaration", isExplicitVarDeclaration, parseExplicitVarDeclaration},
 		construct{"class declaration", isClassDeclaration, parseClassDeclaration},
@@ -26,8 +25,6 @@ func getPrimaryConstructs() []construct {
 		construct{"enum declaration", isEnumDeclaration, parseEnumDeclaration},
 		construct{"type declaration", isTypeDeclaration, parseTypeDeclaration},
 		construct{"event declaration", isEventDeclaration, parseEventDeclaration},
-
-		construct{"new line", isNewLine, parseNewLine},
 
 		construct{"if statement", isIfStatement, parseIfStatement},
 		construct{"for each statement", isForEachStatement, parseForEachStatement},
@@ -40,4 +37,5 @@ func getPrimaryConstructs() []construct {
 		construct{"import statement", isImportStatement, parseImportStatement},
 		construct{"package statement", isPackageStatement, parsePackageStatement},
 	}
+	return standards
 }

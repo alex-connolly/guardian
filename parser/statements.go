@@ -229,12 +229,16 @@ func parseCaseStatement(p *Parser) {
 
 	p.parseRequired(token.Colon)
 
-	body := p.parseBracesScope()
-
+	saved := p.scope
+	p.scope = new(ast.ScopeNode)
+	for p.hasTokens(1) && !p.isNextToken(token.Case, token.Default, token.CloseBracket) {
+		p.parseNextConstruct()
+	}
 	node := ast.CaseStatementNode{
 		Expressions: exprs,
-		Block:       body,
+		Block:       p.scope,
 	}
+	p.scope = saved
 	p.scope.AddSequential(&node)
 }
 
@@ -266,6 +270,10 @@ func parseImportStatement(p *Parser) {
 
 	if p.isNextToken(token.Identifier) {
 		alias = p.parseIdentifier()
+	}
+
+	if !p.isNextToken(token.String) {
+		// err
 	}
 	path = p.current().TrimmedString()
 

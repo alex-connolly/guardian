@@ -30,8 +30,8 @@ func TestParseIdentifier(t *testing.T) {
 
 func TestParserNumDeclarations(t *testing.T) {
 	a, _ := ParseString(`
-		b int
-		a string
+		var b int
+		var a string
 	`)
 	goutil.AssertNow(t, a != nil, "scope should not be nil")
 	goutil.AssertNow(t, a.Declarations != nil, "scope declarations should not be nil")

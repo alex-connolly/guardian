@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/end-r/guardian/token"
@@ -302,11 +301,9 @@ func (p *Parser) parseParameters() []*ast.ExplicitVarDeclarationNode {
 	p.parseRequired(token.OpenBracket)
 	p.ignoreNewLines()
 	if !p.parseOptional(token.CloseBracket) {
-		fmt.Println("param")
 		params = append(params, p.parseVarDeclaration())
 		for p.parseOptional(token.Comma) {
 			p.ignoreNewLines()
-			fmt.Println("param")
 			params = append(params, p.parseVarDeclaration())
 		}
 		p.ignoreNewLines()

@@ -8,4 +8,7 @@ const (
 	errEmptyGroup               = "Group declaration must apply modifiers"
 	errDanglingExpression       = "Dangling expression"
 	errConstantWithoutValue     = "Constants must have a value"
+	errUnclosedGroup            = "Unclosed group not allowed"
+	errInvalidScopeDeclaration  = "Invalid declaration in scope"
+	errRequiredType             = "Required one of {%s}, found %s"
 )

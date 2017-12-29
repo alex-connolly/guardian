@@ -41,7 +41,7 @@ contract GoldTxFeePool {
         var collectors map[address]address
     }
 
-    public (
+    public var (
         dgxTokens address
         dgdTokens address
         environment []byte

@@ -260,10 +260,12 @@ func TestAnnotation(t *testing.T) {
 }
 
 func TestIsModifier(t *testing.T) {
-	p := createParser("public class Dog {}")
-	goutil.Assert(t, isModifier(p), "modifier not detected")
-	p = createParser("public ( class Dog {} )")
-	goutil.Assert(t, isModifier(p), "modifier not detected")
+	//p := createParser("public class Dog {}")
+	//goutil.Assert(t, isModifier(p), "1 modifier not detected")
+	//p := createParser("public ( class Dog {} )")
+	//goutil.Assert(t, isModifier(p), "2 modifier not detected")
+	p := createParser("public ( static ( class Dog {} ) )")
+	goutil.Assert(t, isModifier(p), "3 modifier not detected")
 }
 
 func TestIsNotModifier(t *testing.T) {
@@ -271,4 +273,9 @@ func TestIsNotModifier(t *testing.T) {
 	goutil.Assert(t, !isModifier(p), "modifier detected")
 	p = createParser("create(6, 5)")
 	goutil.Assert(t, !isModifier(p), "modifier detected")
+	p = createParser(`create("hello", "world")`)
+	goutil.Assert(t, !isModifier(p), "modifier detected")
+	p = createParser(`assert(now() >= auctionEnd)`)
+	goutil.Assert(t, !isModifier(p), "modifier 4 detected")
+
 }

@@ -80,8 +80,8 @@ contract CrowdFunder {
 
     public func contribute() uint {
         inState(State.Fundraising)
-        contributions.push (
-            Contribution{
+        contributions.push(
+            Contribution {
                 amount: msg.value,
                 contributor: msg.sender,
             }
@@ -99,7 +99,6 @@ contract CrowdFunder {
         require(len(contributions) > id)
         require(id >= 0)
         require(contributions[id].amount != 0)
-
 
         amountToRefund = contributions[id].amount
         contributions[id].amount = 0
@@ -139,7 +138,7 @@ contract CrowdFunder {
         isCreator()
         atEndOfLifecycle()
         selfDestruct(msg.sender)
-    }*/
+    }
 
     fallback(){
         throw()

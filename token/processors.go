@@ -28,7 +28,7 @@ func processInteger(b Byterable) (t Token) {
 			//hexadecimal
 			t.End++
 			next(b)
-			for '0' <= current(b) && current(b) <= '9' {
+			for '0' <= current(b) && current(b) <= 'F' {
 				next(b)
 				t.End++
 				if isEnd(b) {

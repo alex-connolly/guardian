@@ -82,7 +82,7 @@ func (p *Parser) parseOptional(types ...token.Type) bool {
 // TODO: clarify what this actually returns
 func (p *Parser) parseRequired(types ...token.Type) token.Type {
 	if !p.hasTokens(1) {
-		p.addError(fmt.Sprintf("Required one of {%s}, found %s", listTypes(types), "nothing"))
+		p.addError(fmt.Sprintf(errRequiredType, listTypes(types), "nothing"))
 		// TODO: what should be returned here
 		return token.Invalid
 	}
@@ -124,11 +124,11 @@ func listTypes(types []token.Type) string {
 
 func (p *Parser) parseIdentifier() string {
 	if !p.hasTokens(1) {
-		p.addError("Required identifier, nothing found")
+		p.addError(fmt.Sprintf(errRequiredType, "identifier", "nothing"))
 		return ""
 	}
 	if p.current().Type != token.Identifier {
-		p.addError(fmt.Sprintf("Required identifier, found %s", p.current().Name()))
+		p.addError(fmt.Sprintf(errRequiredType, "identifier", p.current().Name()))
 		return ""
 	}
 	s := p.current().String()
@@ -139,7 +139,7 @@ func (p *Parser) parseIdentifier() string {
 func (p *Parser) validate(t ast.NodeType) {
 	if p.scope != nil {
 		if !p.scope.IsValid(t) {
-			p.addError("Invalid declaration in scope")
+			p.addError(errInvalidScopeDeclaration)
 		}
 	}
 }
@@ -190,8 +190,16 @@ func parseGroup(p *Parser) {
 	} else {
 		p.modifiers = append(p.modifiers, p.lastModifiers)
 		p.lastModifiers = nil
-		p.parseEnclosedScope(token.OpenBracket, token.CloseBracket)
-		p.modifiers = p.modifiers[:len(p.modifiers)-1]
+		p.parseRequired(token.OpenBracket)
+		for p.hasTokens(1) {
+			if p.current().Type == token.CloseBracket {
+				p.modifiers = p.modifiers[:len(p.modifiers)-1]
+				p.parseRequired(token.CloseBracket)
+				return
+			}
+			p.parseNextConstruct()
+		}
+		p.addError(errUnclosedGroup)
 	}
 }
 
@@ -220,63 +228,86 @@ func (p *Parser) addError(message string) {
 }
 
 func (p *Parser) parseBracesScope(valids ...ast.NodeType) *ast.ScopeNode {
-	return p.parseEnclosedScope(token.OpenBrace, token.CloseBrace, valids...)
+	return p.parseEnclosedScope([]token.Type{token.OpenBrace}, []token.Type{token.CloseBrace}, true, valids...)
 }
 
-func (p *Parser) parseEnclosedScope(opener, closer token.Type, valids ...ast.NodeType) *ast.ScopeNode {
-	p.parseRequired(opener)
+func (p *Parser) parseEnclosedScope(opener, closer []token.Type, parseLast bool, valids ...ast.NodeType) *ast.ScopeNode {
+	p.parseRequired(opener...)
 	scope := p.parseScope(closer, valids...)
-	p.parseRequired(closer)
-	return scope
-}
-
-func (p *Parser) parseScope(terminator token.Type, valids ...ast.NodeType) *ast.ScopeNode {
-	scope := new(ast.ScopeNode)
-	scope.Parent = p.scope
-	p.scope = scope
-	for p.hasTokens(1) {
-		if p.current().Type == terminator {
-			p.scope = scope.Parent
-			return scope
-		}
-		found := false
-		for _, c := range getPrimaryConstructs() {
-			if c.is(p) {
-				//fmt.Printf("FOUND: %s at index %d on line %d\n", c.name, p.index, p.line)
-				c.parse(p)
-				found = true
-				break
-			}
-		}
-		if !found {
-			// try interpreting it as an expression
-			saved := *p
-			expr := p.parseExpression()
-			if expr == nil {
-				*p = saved
-				//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.current().String())
-				p.addError(fmt.Sprintf("Unrecognised construct: %s", p.current().String()))
-				p.next()
-			} else {
-				switch expr.Type() {
-				case ast.CallExpression:
-					p.scope.AddSequential(expr)
-					break
-				default:
-
-					p.addError(errDanglingExpression)
-					p.next()
-					break
-				}
-
-			}
-		}
+	if parseLast {
+		p.parseRequired(closer...)
 	}
 	return scope
 }
 
-func parseAnnotation(p *Parser) {
+func (p *Parser) parseScope(terminators []token.Type, valids ...ast.NodeType) *ast.ScopeNode {
+	scope := new(ast.ScopeNode)
+	scope.Parent = p.scope
+	p.scope = scope
+	for p.hasTokens(1) {
+		for _, t := range terminators {
+			if p.current().Type == t {
+				p.scope = scope.Parent
+				return scope
+			}
+		}
+		p.parseNextConstruct()
+	}
+	return scope
+}
 
+func (p *Parser) parseNextConstruct() {
+	found := false
+	for _, c := range getPrimaryConstructs() {
+		if c.is(p) {
+			//fmt.Printf("FOUND: %s at index %d on line %d\n", c.name, p.index, p.line)
+			c.parse(p)
+			found = true
+			break
+		}
+	}
+	if !found {
+		// try interpreting it as an expression
+		saved := *p
+		expr := p.parseExpression()
+		if expr == nil {
+			*p = saved
+			//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.current().String())
+			p.addError(fmt.Sprintf("Unrecognised construct: %s", p.current().String()))
+			p.next()
+		} else {
+			p.parsePossibleSequentialExpression(expr)
+		}
+	}
+}
+
+func (p *Parser) parsePossibleSequentialExpression(expr ast.ExpressionNode) {
+	switch expr.Type() {
+	case ast.CallExpression:
+		//fmt.Println("call")
+		p.scope.AddSequential(expr)
+		return
+	case ast.Reference:
+		for r := expr; r != nil; {
+			switch t := r.(type) {
+			case *ast.CallExpressionNode:
+				p.scope.AddSequential(expr)
+				return
+			case *ast.ReferenceNode:
+				r = t.Reference
+				break
+			default:
+				//fmt.Printf("dangling at index %d\n", p.index)
+				p.addError(errDanglingExpression)
+				return
+			}
+		}
+	}
+	//fmt.Printf("dangling at index %d\n", p.index)
+	p.addError(errDanglingExpression)
+}
+
+func parseAnnotation(p *Parser) {
 	var a *ast.Annotation
 	p.parseRequired(token.At)
 
