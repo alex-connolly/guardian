@@ -1,7 +1,7 @@
 contract CoreWallet {
 
     // indexed modifier on event makes all params indexed
-    indexed event Withdraw(indexed amount uint, recipient, sender address)
+    indexed event Withdraw(amount uint, recipient, sender address)
     indexed event PaymentRequest(requestID uint)
     indexed event Approve(requestID uint)
     indexed event Decline(requestID uint)
@@ -21,22 +21,22 @@ contract CoreWallet {
         public owner address
         requests map[uint]Request
     )
-    
+
     requestCount = 0 as uint
 
-    isOwner(){
+    func isOwner(){
         require(owner == msg.sender)
     }
 
-    ifApproved(){
+    func ifApproved(){
         require(approved[msg.sender])
     }
 
-    ifManager(){
+    func ifManager(){
         require(managers[msg.sender])
     }
 
-    ifStatus(status RequestStatus, requestID uint){
+    func ifStatus(status RequestStatus, requestID uint){
         require(status == requests[requestID].status)
     }
 

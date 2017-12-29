@@ -166,6 +166,9 @@ func parseSingleLineComment(p *Parser) {
 func parseMultiLineComment(p *Parser) {
 	p.parseRequired(token.CommentOpen)
 	for p.hasTokens(1) && p.current().Type != token.CommentClose {
+		if p.current().Type == token.NewLine {
+			p.line++
+		}
 		p.next()
 	}
 	p.parseOptional(token.CommentClose)

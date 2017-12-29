@@ -1,4 +1,4 @@
-import "token.sol"
+/*import "token.sol"
 import "interfaces.grd"
 
 contract Collector {
@@ -31,11 +31,11 @@ contract Collector {
         return true
     }
 
-}
+}*/
 
 contract GoldTxFeePool {
 
-    class Period {
+    /*class Period {
         var collectionStart uint
         var collectionEnd uint
         var collectors map[address]address
@@ -53,30 +53,17 @@ contract GoldTxFeePool {
 
     func afterRecent(){
         require(now >= periods[periodCount].collectedEnd)
-    }
+    }*/
 
     constructor(dgxTokens, dgdTokens address, env []byte){
-        this.dgxTokens = dgxTokens
-        this.dgdTokens = dgdTokens
-        this.environment = env
-        periodCount = 1
         exclusive switch env {
             case "testnet":
                 collectionDuration = 5
                 periodLength = 10
-            case "morden":
-                collectionDuration = 10 //minutes;
-                periodLength = 30 //minutes;
-            case "mainnet":
-                collectionDuration = 7 //days;
-                periodLength = 90 // days;
         }
-
-        periods[periodCount].collectionStart = now + periodLength
-        periods[periodCount].collectionEnd = periods[periodCount].collectionStart + collectionDuration
     }
 
-    func newPeriod() bool {
+    /*func newPeriod() bool {
         afterRecent()
         o = periods[periodCount]
         periodCount++
@@ -90,5 +77,5 @@ contract GoldTxFeePool {
     func getPeriodInfo() (start, end uint){
         current = periods[periodCount]
         return start, end
-    }
+    }*/
 }

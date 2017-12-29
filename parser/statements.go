@@ -231,9 +231,10 @@ func parseCaseStatement(p *Parser) {
 
 	saved := p.scope
 	p.scope = new(ast.ScopeNode)
-	for p.hasTokens(1) && !p.isNextToken(token.Case, token.Default, token.CloseBracket) {
+	for p.hasTokens(1) && !p.isNextToken(token.Case, token.Default, token.CloseBrace) {
 		p.parseNextConstruct()
 	}
+
 	node := ast.CaseStatementNode{
 		Expressions: exprs,
 		Block:       p.scope,
@@ -249,7 +250,7 @@ func parseSwitchStatement(p *Parser) {
 	p.parseRequired(token.Switch)
 
 	// TODO: currently only works with identifier
-	target := p.parseIdentifierExpression()
+	target := p.parseSimpleExpression()
 
 	cases := p.parseBracesScope(ast.CaseStatement)
 
@@ -264,6 +265,7 @@ func parseSwitchStatement(p *Parser) {
 }
 
 func parseImportStatement(p *Parser) {
+
 	p.parseRequired(token.Import)
 
 	var alias, path string
@@ -276,6 +278,8 @@ func parseImportStatement(p *Parser) {
 		// err
 	}
 	path = p.current().TrimmedString()
+
+	p.next()
 
 	node := ast.ImportStatementNode{
 		Alias: alias,

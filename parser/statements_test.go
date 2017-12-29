@@ -697,7 +697,6 @@ func TestParseCaseStatementDouble(t *testing.T) {
 	goutil.AssertNow(t, a != nil, "nil scope")
 	goutil.AssertLength(t, len(a.Sequence), 2)
 	one := a.Sequence[0]
-	fmt.Printf("one: %d\n", one.Type())
 	goutil.AssertNow(t, one.Type() == ast.CaseStatement, "1 not case statement")
 	c1 := one.(*ast.CaseStatementNode)
 	goutil.AssertLength(t, len(c1.Block.Sequence), 1)
