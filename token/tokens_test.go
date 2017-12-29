@@ -116,3 +116,13 @@ func TestNextTokenCharacter(t *testing.T) {
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "character", fmt.Sprintf("wrong name: %s", p.Name))
 }
+
+func TestNextTokenHexadecimal(t *testing.T) {
+	byt := []byte(`0x00001`)
+	b := &bytecode{bytes: byt}
+	p := NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "integer", fmt.Sprintf("wrong name: %s", p.Name))
+	tok := p.Process(b)
+	goutil.AssertLength(t, tok.End, len(byt))
+}

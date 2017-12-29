@@ -38,7 +38,7 @@ func isString(b Byterable) bool {
 }
 
 func isWhitespace(b Byterable) bool {
-	return (current(b) == ' ') || (current(b) == '\t')
+	return (current(b) == ' ') || (current(b) == '\t') || (current(b) == '\v') || (current(b) == '\f')
 }
 
 func isNewLine(b Byterable) bool {

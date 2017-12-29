@@ -69,6 +69,13 @@ func (p *Parser) parseOptional(types ...token.Type) bool {
 			return true
 		}
 	}
+	p.ignoreComments()
+	for _, t := range types {
+		if p.current().Type == t {
+			p.next()
+			return true
+		}
+	}
 	return false
 }
 
@@ -85,9 +92,26 @@ func (p *Parser) parseRequired(types ...token.Type) token.Type {
 			return t
 		}
 	}
+	p.ignoreComments()
+	for _, t := range types {
+		if p.isNextToken(t) {
+			p.next()
+			return t
+		}
+	}
 	p.addError(fmt.Sprintf("Required one of {%s}, found %s", listTypes(types), p.current().Name()))
 	// correct return type
 	return token.Invalid
+}
+
+func (p *Parser) ignoreComments() {
+	for p.isNextToken(token.LineComment, token.CommentOpen) {
+		if p.isNextToken(token.LineComment) {
+			parseSingleLineComment(p)
+		} else if p.isNextToken(token.CommentOpen) {
+			parseMultiLineComment(p)
+		}
+	}
 }
 
 func listTypes(types []token.Type) string {
@@ -210,6 +234,7 @@ func (p *Parser) parseScope(terminator token.Type, valids ...ast.NodeType) *ast.
 	scope := new(ast.ScopeNode)
 	scope.Parent = p.scope
 	p.scope = scope
+	fmt.Println("parsing scope")
 	for p.hasTokens(1) {
 		if p.current().Type == terminator {
 			p.scope = scope.Parent
@@ -234,12 +259,13 @@ func (p *Parser) parseScope(terminator token.Type, valids ...ast.NodeType) *ast.
 				p.addError(fmt.Sprintf("Unrecognised construct: %s", p.current().String()))
 				p.next()
 			} else {
+				fmt.Printf("xxx")
 				switch expr.Type() {
 				case ast.CallExpression:
-
 					p.scope.AddSequential(expr)
 					break
 				default:
+					fmt.Printf("dangling")
 					p.addError(errDanglingExpression)
 					p.next()
 					break

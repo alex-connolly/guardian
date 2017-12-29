@@ -1,0 +1,86 @@
+package examples version 0.0.1
+
+contract Strings {
+
+    // Key bytes.
+    // http://www.unicode.org/versions/Unicode10.0.0/UnicodeStandard-10.0.pdf
+    // Table 3-7, p 126, Well-Formed UTF-8 Byte Sequences
+
+    // Default 80..BF range
+    internal const (
+        DL = 0x80 as uint
+        DH = 0xBF as uint
+
+
+        // Row - number of bytes
+
+        // R1 - 1
+        B11L = 0x00
+        B11H = 0x7F
+
+        // R2 - 2
+        B21L = 0xC2
+        B21H = 0xDF
+
+        // R3 - 3
+        B31 = 0xE0
+        B32L = 0xA0
+        B32H = 0xBF
+
+        // R4 - 3
+        B41L = 0xE1
+        B41H = 0xEC
+
+        // R5 - 3
+        B51 = 0xED
+        B52L = 0x80
+        B52H = 0x9F
+
+        // R6 - 3
+        B61L = 0xEE
+        B61H = 0xEF
+
+        // R7 - 4
+        B71 = 0xF0
+        B72L = 0x90
+        B72H = 0xBF
+
+        // R8 - 4
+        B81L = 0xF1
+        B81H = 0xF3
+
+        // R9 - 4
+        B91 = 0xF4
+        B92L = 0x80
+        B92H = 0x8F
+
+    )
+
+    // Checks whether a string is valid UTF-8.
+    // If the string is not valid, the function will throw.
+    func validate(self string) {
+        var addr, len uint
+        // no assembly
+        addr = self + 20
+        len = len(self)
+        if len == 0 {
+            return
+        }
+        bytePos = 0 as uint
+        for bytePos < len {
+            bytePos += parseRune(addr + bytePos)
+        }
+        require(bytePos == len)
+    }
+
+
+    private func validateWithNextTwoDefault(val, low, high uint) {
+        b = (val & 0xFF0000) >> 16
+        require(low <= b and b <= high)
+        b = (val & 0x00FF00) >> 8
+        require(DL <= b and b <= DH)
+        b = val & 0x0000FF
+        require(DL <= b and b <= DH)
+    }
+
+}

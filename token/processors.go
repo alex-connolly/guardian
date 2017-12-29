@@ -17,19 +17,36 @@ func processIgnored(b Byterable) Token {
 func processInteger(b Byterable) (t Token) {
 	t.Start = b.Offset()
 	t.End = b.Offset()
-	t.Type = Float
 	t.Type = Integer
-	for '0' <= current(b) && current(b) <= '9' {
-		next(b)
+	if current(b) == '0' {
 		t.End++
-		if isEnd(b) {
-			return t
+		next(b)
+		if current(b) == 'x' || current(b) == 'X' {
+			//hexadecimal
+			t.End++
+			next(b)
+			for '0' <= current(b) && current(b) <= '9' {
+				next(b)
+				t.End++
+				if isEnd(b) {
+					return t
+				}
+			}
+		}
+	} else {
+		for '0' <= current(b) && current(b) <= '9' {
+			next(b)
+			t.End++
+			if isEnd(b) {
+				return t
+			}
 		}
 	}
 	return t
 }
 
 func processFloat(b Byterable) (t Token) {
+	// TODO: make this handle exponents
 	t.Start = b.Offset()
 	t.End = b.Offset()
 	t.Type = Float

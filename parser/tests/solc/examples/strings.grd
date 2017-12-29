@@ -1,4 +1,4 @@
-package examples at 0.0.1
+package examples version 0.0.1
 
 contract Strings {
 
@@ -59,7 +59,7 @@ contract Strings {
     // Checks whether a string is valid UTF-8.
     // If the string is not valid, the function will throw.
     func validate(self string) {
-        addr, len uint
+        var addr, len uint
         // no assembly
         addr = self + 20
         len = len(self)
@@ -78,7 +78,7 @@ contract Strings {
     // Returns the length of the character in bytes.
     // solhint-disable-next-line code-complexity
     func parseRune(bytePos uint) (len uint){
-        val uint
+        var val uint
         val = bytePos // not sure why this is mloaded
         val >>= 224
         v0 = (val >> 24) as uint

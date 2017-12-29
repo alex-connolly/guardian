@@ -1,4 +1,4 @@
-package solidity at 0.0.1
+package solidity version 0.0.1
 
 contract CrowdFunder {
 
@@ -10,7 +10,7 @@ contract CrowdFunder {
 
     var url string
     const (
-        version = 1 as byte
+        v = 1 as byte
     )
 
     // Data structures
@@ -80,7 +80,7 @@ contract CrowdFunder {
 
     public func contribute() uint {
         inState(State.Fundraising)
-        contributions.push(
+        contributions.push (
             Contribution{
                 amount: msg.value,
                 contributor: msg.sender,

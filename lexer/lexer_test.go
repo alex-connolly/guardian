@@ -173,3 +173,8 @@ func TestConditionals(t *testing.T) {
 		token.Else,
 	})
 }
+
+func TestComplexFile(t *testing.T) {
+	_, errs := LexFile("tests/strings.grd")
+	goutil.AssertLength(t, len(errs), 0)
+}

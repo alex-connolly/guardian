@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"io/ioutil"
 
 	"github.com/end-r/guardian/token"
@@ -15,6 +16,7 @@ func Parse(tokens []token.Token) (*ast.ScopeNode, util.Errors) {
 	p := new(Parser)
 	p.tokens = tokens
 	p.line = 1
+	fmt.Println("hellooooo")
 	p.parseScope(token.CloseBrace, ast.ContractDeclaration)
 	return p.scope, p.errs
 }
@@ -42,6 +44,7 @@ func ParseFile(path string) (scope *ast.ScopeNode, errs util.Errors) {
 		})
 		return nil, errs
 	}
+	fmt.Println("Parsing file")
 	return ParseBytes(bytes)
 }
 
@@ -52,8 +55,10 @@ func ParseString(data string) (scope *ast.ScopeNode, errs util.Errors) {
 
 // ParseBytes ...
 func ParseBytes(data []byte) (scope *ast.ScopeNode, errs util.Errors) {
+	fmt.Println("attempting to lex")
 	tokens, es := lexer.Lex(data)
 	if es != nil {
+		fmt.Println("error detected")
 		// do something
 	}
 	return Parse(tokens)

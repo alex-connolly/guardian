@@ -248,9 +248,13 @@ func (p *Parser) parseGroupable(id token.Type, declarator func(*Parser)) {
 	p.parseRequired(id)
 	if p.parseOptional(token.OpenBracket) {
 		for !p.parseOptional(token.CloseBracket) {
+			p.ignoreComments()
 			p.ignoreNewLines()
+			p.ignoreComments()
 			declarator(p)
+			p.ignoreComments()
 			p.ignoreNewLines()
+			p.ignoreComments()
 		}
 	} else {
 		declarator(p)
@@ -551,16 +555,40 @@ func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 	}
 }
 
+func (p *Parser) parseOptionallyTypedVarDeclaration() *ast.ExplicitVarDeclarationNode {
+	// can be a simple list of identifiers
+	var names []string
+	names = append(names, p.parseIdentifier())
+	for p.parseOptional(token.Comma) {
+		names = append(names, p.parseIdentifier())
+	}
+	if p.isNextToken(token.Assign) {
+		return &ast.ExplicitVarDeclarationNode{
+			Modifiers:    p.getModifiers(),
+			DeclaredType: nil,
+			Identifiers:  names,
+		}
+	}
+	dType := p.parseType()
+	e := &ast.ExplicitVarDeclarationNode{
+		Modifiers:    p.getModifiers(),
+		DeclaredType: dType,
+		Identifiers:  names,
+	}
+	return e
+}
+
 func processVarDeclaration(constant bool) func(p *Parser) {
 	return func(p *Parser) {
-		e := p.parseVarDeclaration()
+		e := p.parseOptionallyTypedVarDeclaration()
 
 		e.IsConstant = constant
 
 		if p.parseOptional(token.Assign) {
 			e.Value = p.parseExpression()
 		}
-		if e.IsConstant && e.Value != nil {
+
+		if e.IsConstant && e.Value == nil {
 			p.addError(errConstantWithoutValue)
 		}
 

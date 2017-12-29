@@ -692,3 +692,33 @@ func TestIsNamedParameter(t *testing.T) {
 	p = createParser("a, b string")
 	goutil.Assert(t, p.isNamedParameter(), "multiple should be np")
 }
+
+func TestExplicitVarAssignment(t *testing.T) {
+	p := createParser("const a = 5")
+	goutil.Assert(t, isExplicitVarDeclaration(p), "expvar not recognised")
+	v := p.parseOptionallyTypedVarDeclaration()
+	goutil.Assert(t, v != nil, "shouldn't be nil")
+	goutil.AssertLength(t, len(v.Identifiers), 1)
+	p = createParser("const a = 5")
+	parseExplicitVarDeclaration(p)
+	n := p.scope.NextDeclaration()
+	goutil.AssertNow(t, n.Type() == ast.ExplicitVarDeclaration, "wrong node type")
+	v = n.(*ast.ExplicitVarDeclarationNode)
+	goutil.AssertLength(t, len(v.Identifiers), 1)
+	goutil.AssertNow(t, v.Value != nil, "nil value")
+	goutil.AssertNow(t, v.IsConstant, "should be constant")
+}
+
+func TestExplicitVarAssignmentGrouped(t *testing.T) {
+	p := createParser(`const (
+		a = 5 as uint
+	)`)
+	goutil.AssertNow(t, isExplicitVarDeclaration(p), "not recognised")
+	parseExplicitVarDeclaration(p)
+	n := p.scope.NextDeclaration()
+	goutil.AssertNow(t, n.Type() == ast.ExplicitVarDeclaration, "wrong node type")
+	v := n.(*ast.ExplicitVarDeclarationNode)
+	goutil.AssertLength(t, len(v.Identifiers), 1)
+	goutil.AssertNow(t, v.Value != nil, "nil value")
+	goutil.AssertNow(t, v.IsConstant, "should be constant")
+}
