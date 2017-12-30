@@ -310,15 +310,36 @@ func (p *Parser) parsePossibleSequentialExpression(expr ast.ExpressionNode) {
 	p.addError(errDanglingExpression)
 }
 
+func (p *Parser) parseString() string {
+	s := p.current().TrimmedString()
+	p.next()
+	return s
+}
+
 func parseAnnotation(p *Parser) {
-	var a *ast.Annotation
+	a := new(ast.Annotation)
 	p.parseRequired(token.At)
 
 	a.Name = p.parseIdentifier()
 
 	p.parseRequired(token.OpenBracket)
 	if !p.parseOptional(token.CloseBracket) {
-		a.Parameters = p.parseExpressionList()
+		var names []string
+		if !p.isNextToken(token.String) {
+			p.addError(errInvalidAnnotationParameter)
+			p.next()
+		} else {
+			names = append(names, p.parseString())
+		}
+		for p.parseOptional(token.Comma) {
+			if !p.isNextToken(token.String) {
+				p.addError(errInvalidAnnotationParameter)
+				p.next()
+			} else {
+				names = append(names, p.parseString())
+			}
+		}
+		a.Parameters = names
 		p.parseRequired(token.CloseBracket)
 	}
 	if p.annotations == nil {

@@ -87,3 +87,23 @@ func TestParseMultiLineComment(t *testing.T) {
 	parseMultiLineComment(p)
 	goutil.AssertNow(t, p.index == len(p.tokens), "should finish at end")
 }
+
+func TestParseSimpleStringAnnotationValid(t *testing.T) {
+	_, errs := ParseString(`@Builtin("hello")`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestParseMultipleStringAnnotationValid(t *testing.T) {
+	_, errs := ParseString(`@Builtin("hello", "world")`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestParseSingleIntegerAnnotationInvalid(t *testing.T) {
+	_, errs := ParseString(`@Builtin(6)`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestParseMultipleIntegerAnnotationInvalid(t *testing.T) {
+	_, errs := ParseString(`@Builtin(6, 6)`)
+	goutil.AssertNow(t, len(errs) == 2, errs.Format())
+}
