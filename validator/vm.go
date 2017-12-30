@@ -21,6 +21,30 @@ type ModifierGroup struct {
 	Maximum    int
 }
 
+func (mg *ModifierGroup) allowedOn(t ast.NodeType) bool {
+	if mg.AllowedOn == nil {
+		return false
+	}
+	for _, r := range mg.AllowedOn {
+		if t == r {
+			return true
+		}
+	}
+	return false
+}
+
+func (mg *ModifierGroup) requiredOn(t ast.NodeType) bool {
+	if mg.RequiredOn == nil {
+		return false
+	}
+	for _, r := range mg.RequiredOn {
+		if t == r {
+			return true
+		}
+	}
+	return false
+}
+
 func (mg *ModifierGroup) reset() {
 	mg.selected = nil
 }
@@ -38,7 +62,7 @@ var defaultAnnotations = []*ast.Annotation{
 	ParseAnnotation("Bytecode", handleBytecode, "string"),
 }
 
-func ParseAnnotation(name string, f func(a interface{}, b *ast.Annotation), types ...string) *ast.Annotation {
+func ParseAnnotation(name string, f AnnotationFunction, types ...string) *ast.Annotation {
 	a := new(ast.Annotation)
 	a.Name = name
 	for _, t := range types {
@@ -47,11 +71,17 @@ func ParseAnnotation(name string, f func(a interface{}, b *ast.Annotation), type
 	return a
 }
 
+type AnnotationFunction func(vm VM, params BuiltinParams, a *ast.Annotation)
+
 type BytecodeGenerator func(vm VM) vmgen.Bytecode
 
-func handleBytecode(v *Validator, i interface{}, a *ast.Annotation) {
-	f := i.(*BytecodeGenerator)
+type BuiltinParams struct {
+	Bytecode *vmgen.Bytecode
+}
 
+func handleBytecode(vm VM, params BuiltinParams, a *ast.Annotation) {
+	bg, ok := vm.BytecodeGenerators()[a.Parameters[0]]
+	params.Bytecode.Concat(bg(vm))
 }
 
 var defaultGroups = []ModifierGroup{
@@ -107,7 +137,7 @@ type VM interface {
 	ValidDeclarations() []ast.NodeType
 	Modifiers() []ModifierGroup
 	Annotations() []*ast.Annotation
-	BytecodeGenerators() []BytecodeGenerator
+	BytecodeGenerators() map[string]BytecodeGenerator
 }
 
 type TestVM struct {
@@ -118,7 +148,7 @@ func NewTestVM() TestVM {
 }
 
 func (v TestVM) Annotations() []*ast.Annotation {
-
+	return nil
 }
 
 func (v TestVM) BooleanName() string {
@@ -210,13 +240,17 @@ func operatorAdd(v *Validator, ts ...typing.Type) typing.Type {
 }
 
 func (v TestVM) ValidExpressions() []ast.NodeType {
-	return nil
+	return ast.AllExpressions
 }
 
 func (v TestVM) ValidStatements() []ast.NodeType {
-	return nil
+	return ast.AllStatements
 }
 
 func (v TestVM) ValidDeclarations() []ast.NodeType {
+	return ast.AllDeclarations
+}
+
+func (v TestVM) BytecodeGenerators() map[string]BytecodeGenerator {
 	return nil
 }

@@ -236,6 +236,8 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 
 	v.validateModifiers(ast.ClassDeclaration, node.Modifiers.Modifiers)
 
+	v.validateAnnotations(ast.ClassDeclaration, node.Modifiers.Annotations)
+
 	var supers []*typing.Class
 	for _, super := range node.Supers {
 		t := v.validatePlainType(super)
@@ -283,6 +285,8 @@ func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
 
 	v.validateModifiers(ast.EnumDeclaration, node.Modifiers.Modifiers)
 
+	v.validateAnnotations(ast.EnumDeclaration, node.Modifiers.Annotations)
+
 	var supers []*typing.Enum
 	for _, super := range node.Inherits {
 		t := v.validatePlainType(super)
@@ -310,6 +314,8 @@ func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
 func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNode) {
 
 	v.validateModifiers(ast.ContractDeclaration, node.Modifiers.Modifiers)
+
+	v.validateAnnotations(ast.ContractDeclaration, node.Modifiers.Annotations)
 
 	var supers []*typing.Contract
 	for _, super := range node.Supers {
@@ -357,6 +363,8 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationNode) {
 
 	v.validateModifiers(ast.InterfaceDeclaration, node.Modifiers.Modifiers)
+
+	v.validateAnnotations(ast.InterfaceDeclaration, node.Modifiers.Annotations)
 
 	var supers []*typing.Interface
 	if node == nil {
@@ -416,6 +424,8 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
 	v.validateModifiers(ast.FuncDeclaration, node.Modifiers.Modifiers)
 
+	v.validateAnnotations(ast.FuncDeclaration, node.Modifiers.Annotations)
+
 	var params []typing.Type
 	for _, node := range node.Signature.Parameters {
 		// todo: check here?
@@ -447,6 +457,10 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
 }
 
+func (v *Validator) validateAnnotations(typ ast.NodeType, annotations []*ast.Annotation) {
+
+}
+
 func (v *Validator) validateModifiers(typ ast.NodeType, modifiers []string) {
 	for _, mg := range v.modifierGroups {
 		mg.reset()
@@ -462,7 +476,7 @@ func (v *Validator) validateModifiers(typ ast.NodeType, modifiers []string) {
 		}
 	}
 	for _, mg := range v.modifierGroups {
-		if mg.RequiredOn(typ) {
+		if mg.requiredOn(typ) {
 			if mg.selected == nil {
 				v.addError(errRequiredModifier, mg.Name)
 			}
