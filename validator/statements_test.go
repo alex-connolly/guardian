@@ -191,7 +191,7 @@ func TestValidateSwitchStatementValidCases(t *testing.T) {
 		switch x {
 		case 4:
 		case 3:
-			
+
 		}
 	`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
@@ -203,7 +203,7 @@ func TestValidateSwitchStatementValidCases(t *testing.T) {
 func TestValidateClassAssignmentStatement(t *testing.T) {
 	scope, _ := parser.ParseString(`
 		class Dog {
-			name string
+			var name string
 		}
 
 		d = Dog{
@@ -221,7 +221,7 @@ func TestValidateClassAssignmentStatement(t *testing.T) {
 func TestValidateClassAssignmentStatementInvalid(t *testing.T) {
 	scope, _ := parser.ParseString(`
 		class Dog {
-			name string
+			var name string
 		}
 
 		d = Dog{

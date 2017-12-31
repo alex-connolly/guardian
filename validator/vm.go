@@ -12,6 +12,14 @@ import (
 	"github.com/end-r/vmgen"
 )
 
+// SimpleInstruction returns a neat anon func
+func SimpleInstruction(name string) BytecodeGenerator {
+	return func(vm VM) (a vmgen.Bytecode) {
+		a.Add(name)
+		return a
+	}
+}
+
 type ModifierGroup struct {
 	Name       string
 	Modifiers  []string

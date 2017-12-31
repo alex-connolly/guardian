@@ -3,8 +3,6 @@ package evm
 import (
 	"fmt"
 
-	"github.com/end-r/guardian/token"
-
 	"github.com/end-r/vmgen"
 
 	"github.com/end-r/guardian/ast"
@@ -102,7 +100,7 @@ func (e *GuardianEVM) addHook(name string) {
 func (e *GuardianEVM) traverseEvent(n *ast.EventDeclarationNode) (code vmgen.Bytecode) {
 	indexed := 0
 
-	if hasModifier(n.Modifiers, "indexed") {
+	if hasModifier(n.Modifiers.Modifiers, "indexed") {
 		// all parameters will be indexed
 		for _ = range n.Parameters {
 			for _ = range n.Identifier {
@@ -112,7 +110,7 @@ func (e *GuardianEVM) traverseEvent(n *ast.EventDeclarationNode) (code vmgen.Byt
 	} else {
 		for _, param := range n.Parameters {
 			for _ = range n.Identifier {
-				if hasModifier(param.Modifiers, "indexed") {
+				if hasModifier(param.Modifiers.Modifiers, "indexed") {
 					indexed++
 
 				}
@@ -141,11 +139,6 @@ func (e *GuardianEVM) traverseParameters(params []*ast.ExplicitVarDeclarationNod
 		// function parameters are passed in on the stack and then assigned
 		// default: memory, can be overriden to be storage
 		// check if it's in storage
-		for _, m := range p.Modifiers {
-			if m == token.Storage {
-				storage = true
-			}
-		}
 		for _, i := range p.Identifiers {
 			if storage {
 				e.allocateStorage(i, p.Resolved.Size())
@@ -167,11 +160,11 @@ func (e *GuardianEVM) traverseFunc(node *ast.FuncDeclarationNode) (code vmgen.By
 	e.inStorage = true
 
 	// don't worry about hooking
-	if hasModifier(node.Modifiers, "external") {
+	if hasModifier(node.Modifiers.Modifiers, "external") {
 		code.Concat(e.traverseExternalFunction(node))
-	} else if hasModifier(node.Modifiers, "internal") {
+	} else if hasModifier(node.Modifiers.Modifiers, "internal") {
 		code.Concat(e.traverseInternalFunction(node))
-	} else if hasModifier(node.Modifiers, "global") {
+	} else if hasModifier(node.Modifiers.Modifiers, "global") {
 		code.Concat(e.traverseGlobalFunction(node))
 	}
 

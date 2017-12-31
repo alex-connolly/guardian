@@ -1,12 +1,15 @@
 package evm
 
-import "github.com/end-r/vmgen"
+import (
+	"github.com/end-r/guardian/validator"
+	"github.com/end-r/vmgen"
+)
 
-var builtins = map[string]Builtin{
+var builtins = map[string]validator.BytecodeGenerator{
 	// arithmetic
-	"addmod":  simpleInstruction("ADDMOD"),
-	"mulmod":  simpleInstruction("MULMOD"),
-	"balance": simpleInstruction("BALANCE"),
+	"addmod":  validator.SimpleInstruction("ADDMOD"),
+	"mulmod":  validator.SimpleInstruction("MULMOD"),
+	"balance": validator.SimpleInstruction("BALANCE"),
 	// transactional
 	"transfer":     nil,
 	"send":         send,
@@ -14,27 +17,17 @@ var builtins = map[string]Builtin{
 	"call":         call,
 	"callcode":     callCode,
 	// error-checking
-	"revert":  revert,
+	"revert":  validator.SimpleInstruction("REVERT"),
 	"require": require,
 	"assert":  assert,
 	// cryptographic
-	"sha3":      simpleInstruction("SHA3"),
+	"sha3":      validator.SimpleInstruction("SHA3"),
 	"keccak256": nil,
 	"sha256":    nil,
 	"ecrecover": nil,
 	"ripemd160": nil,
 	// ending
 	"selfDestruct": selfDestruct,
-}
-
-type Builtin func() vmgen.Bytecode
-
-// returns an anon func to handle simplest cases
-func simpleInstruction(mnemonic string) Builtin {
-	return func() (code vmgen.Bytecode) {
-		code.Add(mnemonic)
-		return code
-	}
 }
 
 func send() (code vmgen.Bytecode) {
