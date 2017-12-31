@@ -26,4 +26,5 @@ const (
 	errMutuallyExclusiveModifiers = "Mutually exclusive modifiers: %s and %s"
 	errDuplicateModifiers         = "Duplicate modifier %s"
 	errRequiredModifier           = "Modifier from group %s required"
+	errUnknown                    = "Unknown error"
 )

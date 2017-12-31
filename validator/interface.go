@@ -103,7 +103,7 @@ type Validator struct {
 	operators         OperatorMap
 	primitives        map[string]typing.Type
 	builtinVariables  map[string]typing.Type
-	modifierGroups    []ModifierGroup
+	modifierGroups    []*ModifierGroup
 }
 
 // TypeScope ...
@@ -120,6 +120,9 @@ func (v *Validator) importVM(vm VM) {
 	v.operators = vm.Operators()
 	v.primitives = vm.Primitives()
 	v.builtinScope = vm.Builtins()
+
+	v.modifierGroups = defaultGroups
+	v.modifierGroups = append(v.modifierGroups, vm.Modifiers()...)
 
 	v.DeclareBuiltinType(vm.BooleanName(), typing.BooleanType{})
 

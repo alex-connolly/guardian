@@ -38,6 +38,7 @@ func TestValidateString(t *testing.T) {
 
 		}
 	`)
+
 	goutil.AssertNow(t, errs == nil, errs.Format())
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 }

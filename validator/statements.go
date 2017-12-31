@@ -41,10 +41,15 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 	}
 
 	for _, l := range node.Left {
-		switch l.Type() {
-		case ast.CallExpression, ast.Literal, ast.MapLiteral,
-			ast.ArrayLiteral, ast.SliceExpression, ast.FuncLiteral:
-			v.addError(errInvalidExpressionLeft)
+		if l == nil {
+			v.addError(errUnknown)
+			return
+		} else {
+			switch l.Type() {
+			case ast.CallExpression, ast.Literal, ast.MapLiteral,
+				ast.ArrayLiteral, ast.SliceExpression, ast.FuncLiteral:
+				v.addError(errInvalidExpressionLeft)
+			}
 		}
 	}
 

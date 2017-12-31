@@ -458,7 +458,7 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 }
 
 func (v *Validator) validateAnnotations(typ ast.NodeType, annotations []*ast.Annotation) {
-
+	// doesn't do anything yet?
 }
 
 func (v *Validator) validateModifiers(typ ast.NodeType, modifiers []string) {

@@ -213,7 +213,7 @@ func TestValidateContractDeclMixed(t *testing.T) {
 }
 
 func TestValidateExplicitVarDecl(t *testing.T) {
-	scope, _ := parser.ParseString("hi uint8")
+	scope, _ := parser.ParseString("var hi uint8")
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, scope.Declarations != nil, "declarations shouldn't be nil")
 	errs := Validate(scope, NewTestVM())
@@ -221,21 +221,26 @@ func TestValidateExplicitVarDecl(t *testing.T) {
 }
 
 func TestValidateModifiersValidAccess(t *testing.T) {
-	_, errs := ValidateString(NewTestVM(), "public name string")
+	_, errs := ValidateString(NewTestVM(), "public var name string")
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
 func TestValidateModifiersDuplicateAccess(t *testing.T) {
-	_, errs := ValidateString(NewTestVM(), "public public name string")
+	_, errs := ValidateString(NewTestVM(), "public public var name string")
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
 
 func TestValidateModifiersMEAccess(t *testing.T) {
-	_, errs := ValidateString(NewTestVM(), "public private name string")
+	_, errs := ValidateString(NewTestVM(), "public private var name string")
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
 
-func TestValidateModifiersInvalid(t *testing.T) {
-	_, errs := ValidateString(NewTestVM(), "test name string")
+func TestValidateModifiersInvalidNodeType(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), "test var name string")
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestValidateModifiersInvalidUnrecognised(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), "elephant name string")
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }

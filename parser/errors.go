@@ -12,4 +12,5 @@ const (
 	errInvalidScopeDeclaration    = "Invalid declaration in scope"
 	errRequiredType               = "Required one of {%s}, found %s"
 	errInvalidAnnotationParameter = "Invalid annotation parameter, must be string"
+	errInvalidIncDec              = "Cannot increment or decrement in this context"
 )

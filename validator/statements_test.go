@@ -189,12 +189,9 @@ func TestValidateSwitchStatementValidCases(t *testing.T) {
 	scope, _ := parser.ParseString(`
 		x = 5
 		switch x {
-			case 4 {
-
-			}
-			case 3 {
-
-			}
+		case 4:
+		case 3:
+			
 		}
 	`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")

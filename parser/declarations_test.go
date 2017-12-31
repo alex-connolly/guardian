@@ -722,3 +722,15 @@ func TestExplicitVarAssignmentGrouped(t *testing.T) {
 	goutil.AssertNow(t, v.Value != nil, "nil value")
 	goutil.AssertNow(t, v.IsConstant, "should be constant")
 }
+
+func TestParseVariableDeclarations(t *testing.T) {
+	ast, errs := ParseString(`
+		var balance func(a address) uint256
+		var transfer func(a address, amount uint256) uint
+		var send func(a address, amount uint256) bool
+		var call func(a address) bool
+		var delegateCall func(a address)
+	`)
+	goutil.AssertNow(t, ast != nil, "nil ast")
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}

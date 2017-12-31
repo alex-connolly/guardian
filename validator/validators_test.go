@@ -11,7 +11,7 @@ import (
 
 func TestTypeValidateValid(t *testing.T) {
 	scope, errs := parser.ParseString(`
-            a Dog
+            var a Dog
             type Dog int
         `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
@@ -24,7 +24,7 @@ func TestTypeValidateValid(t *testing.T) {
 
 func TestTypeValidateInvalid(t *testing.T) {
 	scope, _ := parser.ParseString(`
-            b Cat
+            var b Cat
             type Dog int
         `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")

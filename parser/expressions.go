@@ -69,6 +69,14 @@ var operators = map[token.Type]Operator{
 	token.XorAssign: assignmentOperator,*/
 }
 
+func parseSimpleExpression(p *Parser) ast.ExpressionNode {
+	return p.parseSimpleExpression()
+}
+
+func parseExpression(p *Parser) ast.ExpressionNode {
+	return p.parseExpression()
+}
+
 func pushNode(stack []ast.ExpressionNode, op token.Type) []ast.ExpressionNode {
 	n := ast.BinaryExpressionNode{}
 	n.Right, stack = stack[len(stack)-1], stack[:len(stack)-1]

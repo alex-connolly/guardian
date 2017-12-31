@@ -20,7 +20,7 @@ func parseReturnStatement(p *Parser) {
 }
 
 func parseAssignmentStatement(p *Parser) {
-	node := p.parseAssignment()
+	node := p.parseFullAssignment()
 	p.scope.AddSequential(&node)
 	p.parseOptional(token.Semicolon)
 }
@@ -35,72 +35,91 @@ func (p *Parser) parseOptionalAssignment() *ast.AssignmentStatementNode {
 	return nil
 }
 
-func (p *Parser) parseSimpleAssignment() ast.AssignmentStatementNode {
-
-	modifiers := p.parseModifierList()
-
-	var assigned []ast.ExpressionNode
-	assigned = append(assigned, p.parseSimpleExpression())
-	for p.parseOptional(token.Comma) {
-		assigned = append(assigned, p.parseSimpleExpression())
+func (p *Parser) parsePostAssignment(assigned []ast.ExpressionNode) ast.AssignmentStatementNode {
+	if len(assigned) > 1 {
+		p.addError(errInvalidIncDec)
 	}
-
-	if !p.parseOptional(token.GetAssignments()...) {
-		if p.parseOptional(token.Increment, token.Decrement) {
-			return ast.AssignmentStatementNode{
-				Modifiers: ast.Modifiers{Modifiers: modifiers},
-				Left:      assigned,
-				Right:     nil,
-			}
-		}
+	b := &ast.BinaryExpressionNode{
+		Left: assigned[0],
+		Right: &ast.LiteralNode{
+			LiteralType: token.Integer,
+			Data:        "1",
+		},
 	}
-
-	var to []ast.ExpressionNode
-	to = append(to, p.parseSimpleExpression())
-	for p.parseOptional(token.Comma) {
-		to = append(to, p.parseSimpleExpression())
+	if p.parseOptional(token.Increment) {
+		b.Operator = token.Add
+	} else if p.parseOptional(token.Decrement) {
+		b.Operator = token.Sub
 	}
-
 	return ast.AssignmentStatementNode{
-		Modifiers: ast.Modifiers{Modifiers: modifiers},
-		Left:      assigned,
-		Right:     to,
+		Left:  assigned,
+		Right: []ast.ExpressionNode{b},
 	}
 }
 
-func (p *Parser) parseAssignment() ast.AssignmentStatementNode {
+var assigns = map[token.Type]token.Type{
+	token.AddAssign: token.Add,
+	token.SubAssign: token.Sub,
+	token.MulAssign: token.Mul,
+	token.DivAssign: token.Div,
+	token.ModAssign: token.Mod,
+	token.ExpAssign: token.Exp,
+	token.AndAssign: token.And,
+	token.OrAssign:  token.Or,
+	token.XorAssign: token.Xor,
+	token.ShlAssign: token.Shl,
+	token.ShrAssign: token.Shr,
+}
 
-	//modifiers := p.parseModifierList()
+func (p *Parser) parseAssignment(expressionParser func(p *Parser) ast.ExpressionNode) ast.AssignmentStatementNode {
 
 	var assigned []ast.ExpressionNode
-	assigned = append(assigned, p.parseExpression())
+	assigned = append(assigned, expressionParser(p))
 	for p.parseOptional(token.Comma) {
-		assigned = append(assigned, p.parseExpression())
+		assigned = append(assigned, expressionParser(p))
 	}
 
-	if !p.parseOptional(token.GetAssignments()...) {
-		if p.parseOptional(token.Increment, token.Decrement) {
+	switch p.current().Type {
+	case token.Increment, token.Decrement:
+		return p.parsePostAssignment(assigned)
+	case token.Assign:
+		p.next()
+		var to []ast.ExpressionNode
+		to = append(to, expressionParser(p))
+		for p.parseOptional(token.Comma) {
+			to = append(to, expressionParser(p))
+		}
+
+		return ast.AssignmentStatementNode{
+			Left:  assigned,
+			Right: to,
+		}
+	default:
+		a, ok := assigns[p.current().Type]
+		if ok {
+			p.next()
+			var to []ast.ExpressionNode
+			to = append(to, expressionParser(p))
+			for p.parseOptional(token.Comma) {
+				to = append(to, expressionParser(p))
+			}
 			return ast.AssignmentStatementNode{
-				Modifiers: ast.Modifiers{},
-				Left:      assigned,
-				Right:     nil,
+				Left:     assigned,
+				Right:    to,
+				Operator: a,
 			}
 		}
+		break
 	}
+	return ast.AssignmentStatementNode{}
+}
 
-	var to []ast.ExpressionNode
-	to = append(to, p.parseExpression())
-	for p.parseOptional(token.Comma) {
-		to = append(to, p.parseExpression())
-	}
+func (p *Parser) parseSimpleAssignment() ast.AssignmentStatementNode {
+	return p.parseAssignment(parseSimpleExpression)
+}
 
-	p.parseOptional(token.Semicolon)
-
-	return ast.AssignmentStatementNode{
-		Modifiers: ast.Modifiers{},
-		Left:      assigned,
-		Right:     to,
-	}
+func (p *Parser) parseFullAssignment() ast.AssignmentStatementNode {
+	return p.parseAssignment(parseExpression)
 }
 
 func parseIfStatement(p *Parser) {

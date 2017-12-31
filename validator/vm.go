@@ -59,15 +59,13 @@ func (mg *ModifierGroup) has(mod string) bool {
 }
 
 var defaultAnnotations = []*ast.Annotation{
-	ParseAnnotation("Bytecode", handleBytecode, "string"),
+	ParseAnnotation("Bytecode", handleBytecode, 1),
 }
 
-func ParseAnnotation(name string, f AnnotationFunction, types ...string) *ast.Annotation {
+func ParseAnnotation(name string, f AnnotationFunction, required int) *ast.Annotation {
 	a := new(ast.Annotation)
 	a.Name = name
-	for _, t := range types {
-		a.Required = append(a.Required, parser.ParseType(t))
-	}
+	a.Required = required
 	return a
 }
 
@@ -80,33 +78,34 @@ type BuiltinParams struct {
 }
 
 func handleBytecode(vm VM, params BuiltinParams, a *ast.Annotation) {
-	bg, ok := vm.BytecodeGenerators()[a.Parameters[0]]
+	// TODO: check if it's there?
+	bg := vm.BytecodeGenerators()[a.Parameters[0]]
 	params.Bytecode.Concat(bg(vm))
 }
 
-var defaultGroups = []ModifierGroup{
-	ModifierGroup{
+var defaultGroups = []*ModifierGroup{
+	&ModifierGroup{
 		Name:       "Access",
 		Modifiers:  []string{"public", "private", "protected"},
 		RequiredOn: nil,
 		AllowedOn:  ast.AllDeclarations,
 		Maximum:    1,
 	},
-	ModifierGroup{
+	&ModifierGroup{
 		Name:       "Concreteness",
 		Modifiers:  []string{"abstract"},
 		RequiredOn: nil,
 		AllowedOn:  ast.AllDeclarations,
 		Maximum:    1,
 	},
-	ModifierGroup{
+	&ModifierGroup{
 		Name:       "Instantiability",
 		Modifiers:  []string{"static"},
 		RequiredOn: nil,
 		AllowedOn:  []ast.NodeType{ast.FuncDeclaration, ast.ClassDeclaration},
 		Maximum:    1,
 	},
-	ModifierGroup{
+	&ModifierGroup{
 		Name:       "Testing",
 		Modifiers:  []string{"test"},
 		RequiredOn: nil,
@@ -135,7 +134,7 @@ type VM interface {
 	ValidExpressions() []ast.NodeType
 	ValidStatements() []ast.NodeType
 	ValidDeclarations() []ast.NodeType
-	Modifiers() []ModifierGroup
+	Modifiers() []*ModifierGroup
 	Annotations() []*ast.Annotation
 	BytecodeGenerators() map[string]BytecodeGenerator
 }
@@ -201,6 +200,10 @@ func getIntegerTypes() map[string]typing.Type {
 	m["int"] = typing.NumericType{Name: "int", BitSize: maxSize, Signed: false, Integer: true}
 	m["uint"] = typing.NumericType{Name: "int", BitSize: maxSize, Signed: true, Integer: true}
 	return m
+}
+
+func (v TestVM) Modifiers() []*ModifierGroup {
+	return nil
 }
 
 func (v TestVM) Primitives() map[string]typing.Type {

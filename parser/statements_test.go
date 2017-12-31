@@ -58,7 +58,7 @@ func TestParseIfStatementComplex(t *testing.T) {
 }
 
 func TestParseIfStatementInit(t *testing.T) {
-	p := createParser(`if x := 0; x > 5 {
+	p := createParser(`if x = 0; x > 5 {
 
 	}`)
 	goutil.Assert(t, isIfStatement(p), "should detect if statement")
@@ -84,7 +84,7 @@ func TestParseIfStatementElse(t *testing.T) {
 }
 
 func TestParseIfStatementInitElse(t *testing.T) {
-	p := createParser(`if x := 0; x > 5 {
+	p := createParser(`if x = 0; x > 5 {
 
 	} else {
 
@@ -136,7 +136,7 @@ func TestParseForStatementCondition(t *testing.T) {
 }
 
 func TestParseForStatementInitCondition(t *testing.T) {
-	p := createParser(`for x := 0; x < 5 {}`)
+	p := createParser(`for x = 0; x < 5 {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
 	parseForStatement(p)
 	goutil.AssertNow(t, len(p.errs) == 0, p.errs.Format())
@@ -149,7 +149,7 @@ func TestParseForStatementInitCondition(t *testing.T) {
 }
 
 func TestParseForStatementInitConditionStatement(t *testing.T) {
-	p := createParser(`for x := 0; x < 5; x++ {}`)
+	p := createParser(`for x = 0; x < 5; x++ {}`)
 	goutil.Assert(t, isForStatement(p), "should detect for statement")
 	parseForStatement(p)
 	goutil.Assert(t, len(p.errs) == 0, "should be error-free")
@@ -177,14 +177,12 @@ func TestParseSwitchStatementSingleCase(t *testing.T) {
 
 func TestParseSwitchStatementMultiCase(t *testing.T) {
 	p := createParser(`switch x {
-		case 5 {
+		case 5:
 			x += 2
 			break
-		}
-		case 4{
+		case 4:
 			x *= 2
 			break
-		}
 	}`)
 	goutil.Assert(t, isSwitchStatement(p), "should detect switch statement")
 	parseSwitchStatement(p)
@@ -704,4 +702,25 @@ func TestParseCaseStatementDouble(t *testing.T) {
 	goutil.AssertNow(t, two.Type() == ast.CaseStatement, "2 not case statement")
 	c2 := two.(*ast.CaseStatementNode)
 	goutil.AssertLength(t, len(c2.Block.Sequence), 1)
+}
+
+func TestParseSimpleAssignmentStatement(t *testing.T) {
+	a, errs := ParseString(`
+		if x = 0; x > 5 {
+
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+	goutil.AssertNow(t, a != nil, "nil scope")
+	goutil.AssertLength(t, len(a.Sequence), 1)
+	one := a.Sequence[0]
+	goutil.AssertNow(t, one.Type() == ast.IfStatement, "1 not if statement")
+	i := one.(*ast.IfStatementNode)
+	goutil.AssertNow(t, i.Init != nil, "nil init")
+	goutil.AssertNow(t, i.Init.Type() == ast.AssignmentStatement, "not assignment statement")
+	as := i.Init.(*ast.AssignmentStatementNode)
+	goutil.AssertLength(t, len(as.Left), 1)
+	goutil.AssertLength(t, len(as.Right), 1)
+	goutil.Assert(t, as.Left[0] != nil, "left is nil")
+	goutil.Assert(t, as.Right[0] != nil, "right is nil")
 }
