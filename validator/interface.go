@@ -38,6 +38,8 @@ func Validate(scope *ast.ScopeNode, vm VM) util.Errors {
 
 	v.importVM(vm)
 
+	v.isParsingBuiltins = false
+
 	v.validateScope(scope)
 
 	return v.errs
@@ -51,9 +53,6 @@ func (v *Validator) validateScope(scope *ast.ScopeNode) (types map[string]typing
 	}
 
 	v.scope = ts
-
-	// just in case
-	v.isParsingBuiltins = false
 
 	v.validateDeclarations(scope)
 
@@ -120,13 +119,13 @@ func (v *Validator) importVM(vm VM) {
 	v.operators = vm.Operators()
 	v.primitives = vm.Primitives()
 	v.builtinScope = vm.Builtins()
-
 	v.modifierGroups = defaultGroups
 	v.modifierGroups = append(v.modifierGroups, vm.Modifiers()...)
 
 	v.DeclareBuiltinType(vm.BooleanName(), typing.BooleanType{})
 
 	v.parseBuiltins()
+
 }
 
 func (v *Validator) parseBuiltins() {
@@ -149,9 +148,7 @@ func (v *Validator) parseBuiltins() {
 // NewValidator creates a new validator
 func NewValidator(vm VM) *Validator {
 	v := Validator{
-		scope:     new(TypeScope),
-		literals:  vm.Literals(),
-		operators: vm.Operators(),
+		scope: new(TypeScope),
 	}
 	v.scope.scope = new(ast.ScopeNode)
 

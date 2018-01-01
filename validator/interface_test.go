@@ -42,3 +42,18 @@ func TestValidateString(t *testing.T) {
 	goutil.AssertNow(t, errs == nil, errs.Format())
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 }
+
+func TestValidateExpression(t *testing.T) {
+	expr, errs := ValidateExpression(NewTestVM(), "5")
+
+	goutil.AssertNow(t, errs == nil, errs.Format())
+	goutil.AssertNow(t, expr != nil, "expr should not be nil")
+}
+
+func TestNewValidator(t *testing.T) {
+	te := NewTestVM()
+	v := NewValidator(te)
+	goutil.AssertLength(t, len(v.operators), len(te.Operators()))
+	goutil.AssertLength(t, len(v.literals), len(te.Literals()))
+	goutil.AssertNow(t, len(v.primitives) > 0, "no primitives")
+}

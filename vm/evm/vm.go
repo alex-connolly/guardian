@@ -10,73 +10,7 @@ import (
 
 func (evm GuardianEVM) Builtins() *ast.ScopeNode {
 	if builtinScope == nil {
-		builtinScope, _ = parser.ParseString(`
-
-			type string []byte
-			type address [20]byte
-
-			wei = 1
-			kwei = 1000 * wei
-			babbage = kwei
-			mwei = 1000 * kwei
-			lovelace = mwei
-			gwei = 1000 * mwei
-			shannon = gwei
-			microether = 1000 * gwei
-			szabo = microether
-			milliether = 1000 * microether
-			finney = milliether
-			ether = 1000 * milliether
-
-			// account functions
-			balance func(a address) uint256
-			transfer func(a address, amount uint256) uint
-			send func(a address, amount uint256) bool
-			call func(a address) bool
-			delegateCall func(a address)
-
-			// cryptographic functions
-			addmod func(x, y, k uint) uint
-			mulmod func(x, y, k uint) uint
-			keccak256 func()
-			sha256 func()
-			sha3 func()
-			ripemd160 func()
-			ecrecover func (v uint8, h, r, s bytes32) address
-
-			// contract functions
-			// NO THIS KEYWORD: confusing for most programmers, unintentional bugs etc
-
-			selfDestruct func(recipient address) uint256
-
-
-			class BuiltinMessage {
-				data []byte
-				gas uint
-				sender address
-				sig [4]byte
-			}
-
-			msg BuiltinMessage
-
-			class BuiltinBlock {
-				@Builtin("timestamp") timestamp uint
-				@Builtin("number") number uint
-				@Builtin("coinbase") coinbase address
-				@Builtin("gasLimit") gasLimit uint
-				blockhash func(blockNumber uint) [32]byte
-			}
-
-			block BuiltinBlock
-
-			class BuiltinTransaction {
-				@Builtin("gasPrice") gasPrice uint
-				@Builtin("origin") origin address
-			}
-
-			tx BuiltinTransaction
-
-		`)
+		builtinScope, _ = parser.ParseFile("builtins.grd")
 	}
 	return builtinScope
 }
@@ -179,7 +113,7 @@ var mods = []*validator.ModifierGroup{
 	&validator.ModifierGroup{
 		Name:       "Visibility",
 		Modifiers:  []string{"external", "internal", "global"},
-		RequiredOn: nil,
+		RequiredOn: []ast.NodeType{ast.FuncDeclaration},
 		AllowedOn:  []ast.NodeType{ast.FuncDeclaration},
 		Maximum:    1,
 	},
@@ -194,5 +128,5 @@ func (evm GuardianEVM) Annotations() []*ast.Annotation {
 }
 
 func (evm GuardianEVM) BytecodeGenerators() map[string]validator.BytecodeGenerator {
-	return nil
+	return builtins
 }

@@ -167,12 +167,73 @@ func (v TestVM) Traverse(ast.Node) (vmgen.Bytecode, util.Errors) {
 }
 
 func (v TestVM) Builtins() *ast.ScopeNode {
-	ast, _ := parser.ParseString(`
-    		type byte uint8
-            type string []byte
-            type address [20]byte
-    	`)
-	return ast
+	a, _ := parser.ParseString(`
+		type byte int8
+		type string []byte
+		type address [20]byte
+
+		wei = 1
+		kwei = 1000 * wei
+		babbage = kwei
+		mwei = 1000 * kwei
+		lovelace = mwei
+		gwei = 1000 * mwei
+		shannon = gwei
+		microether = 1000 * gwei
+		szabo = microether
+		milliether = 1000 * microether
+		finney = milliether
+		ether = 1000 * milliether
+
+		// account functions
+		@Builtin("balance") var balance func(a address) uint256
+		@Builtin("transfer") var transfer func(a address, amount uint256) uint
+		@Builtin("send") var send func(a address, amount uint256) bool
+		@Builtin("call") var call func(a address) bool
+		@Builtin("delegateCall") var delegateCall func(a address)
+
+		// cryptographic functions
+		@Builtin("addmod") var addmod func(x, y, k uint) uint
+		@Builtin("mulmod") var mulmod func(x, y, k uint) uint
+		@Builtin("keccak256") var keccak256 func()
+		@Builtin("sha256") var sha256 func()
+		@Builtin("sha3") var sha3 func()
+		@Builtin("ripemd160") var ripemd160 func()
+		@Builtin("ecrecover") var ecrecover func (v uint8, h, r, s bytes32) address
+
+		// contract functions
+		// NO THIS KEYWORD: confusing for most programmers, unintentional bugs etc
+
+		@Builtin("selfDestruct") var selfDestruct func(recipient address) uint256
+
+
+		class BuiltinMessage {
+			@Builtin("calldata") var data []byte
+			@Builtin("gas") var gas uint
+			@Builtin("caller") var sender address
+			@Builtin("signature") var sig [4]byte
+		}
+
+		var msg BuiltinMessage
+
+		class BuiltinBlock {
+			@Builtin("timestamp") var timestamp uint
+			@Builtin("number") var number uint
+			@Builtin("coinbase") var coinbase address
+			@Builtin("gasLimit") var gasLimit uint
+			@Builtin("blockhash") var blockhash func(blockNumber uint) [32]byte
+		}
+
+		var block BuiltinBlock
+
+		class BuiltinTransaction {
+			@Builtin("gasPrice") var gasPrice uint
+			@Builtin("origin") var origin address
+		}
+
+		var tx BuiltinTransaction
+    `)
+	return a
 }
 
 func (v TestVM) Literals() LiteralMap {

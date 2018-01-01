@@ -224,7 +224,7 @@ func TestValidateClassAssignmentStatementInvalid(t *testing.T) {
 			var name string
 		}
 
-		d = Dog{
+		d = Dog {
 			name: "Fido",
 		}
 

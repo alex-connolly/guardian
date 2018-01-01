@@ -27,34 +27,54 @@ var builtins = map[string]validator.BytecodeGenerator{
 	"ecrecover": nil,
 	"ripemd160": nil,
 	// ending
-	"selfDestruct": selfDestruct,
+	"selfDestruct": validator.SimpleInstruction("SELFDESTRUCT"),
+
+	"calldata":  calldata,
+	"gas":       validator.SimpleInstruction("GAS"),
+	"sender":    validator.SimpleInstruction("CALLER"),
+	"signature": signature,
+
+	// block
+	"timestamp": validator.SimpleInstruction("TIMESTAMP"),
+	"number":    validator.SimpleInstruction("NUMBER"),
+	"blockhash": blockhash,
+	"coinbase":  validator.SimpleInstruction("COINBASE"),
+	"gasLimit":  validator.SimpleInstruction("GASLIMIT"),
+	// tx
+	"gasPrice": validator.SimpleInstruction("GASPRICE"),
+	"origin":   validator.SimpleInstruction("ORIGIN"),
 }
 
-func send() (code vmgen.Bytecode) {
+func send(vm validator.VM) (code vmgen.Bytecode) {
 	// Thus the operand order is: gas, to, value, in offset, in size, out offset, out size
 	code.Add("CALL")
 	return code
 }
 
-func call() (code vmgen.Bytecode) {
+func call(vm validator.VM) (code vmgen.Bytecode) {
 	// Thus the operand order is: gas, to, value, in offset, in size, out offset, out size
 	code.Add("CALL")
 	return code
 }
 
-func revert() (code vmgen.Bytecode) {
-	code.Add("REVERT")
+func calldata(vm validator.VM) (code vmgen.Bytecode) {
+	code.Add("CALLDATA")
 	return code
 }
 
-func require() (code vmgen.Bytecode) {
+func blockhash(vm validator.VM) (code vmgen.Bytecode) {
+	code.Add("BLOCKHASH")
+	return code
+}
+
+func require(vm validator.VM) (code vmgen.Bytecode) {
 	code.Concat(pushMarker(2))
 	code.Add("JUMPI")
 	code.Add("REVERT")
 	return code
 }
 
-func assert() (code vmgen.Bytecode) {
+func assert(vm validator.VM) (code vmgen.Bytecode) {
 	// TODO: invalid opcodes
 	code.Concat(pushMarker(2))
 	code.Add("JUMPI")
@@ -62,17 +82,17 @@ func assert() (code vmgen.Bytecode) {
 	return code
 }
 
-func selfDestruct() (code vmgen.Bytecode) {
-	code.Add("SELFDESTRUCT")
-	return code
-}
-
-func delegateCall() (code vmgen.Bytecode) {
+func delegateCall(vm validator.VM) (code vmgen.Bytecode) {
 	code.Add("DELEGATECALL")
 	return code
 }
 
-func callCode() (code vmgen.Bytecode) {
+func callCode(vm validator.VM) (code vmgen.Bytecode) {
 	code.Add("CALLCODE")
+	return code
+}
+
+func signature(vm validator.VM) (code vmgen.Bytecode) {
+	// get first four bytes of calldata
 	return code
 }

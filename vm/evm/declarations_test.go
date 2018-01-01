@@ -11,7 +11,7 @@ import (
 
 func TestTraverseExplicitVariableDeclaration(t *testing.T) {
 	e := NewVM()
-	ast, errs := validator.ValidateString(e, `name uint8`)
+	ast, errs := validator.ValidateString(e, `var name uint8`)
 	goutil.AssertNow(t, errs == nil, errs.Format())
 	goutil.AssertNow(t, ast != nil, "ast shouldn't be nil")
 	goutil.AssertNow(t, ast.Declarations != nil, "ast decls shouldn't be nil")
@@ -21,7 +21,7 @@ func TestTraverseExplicitVariableDeclaration(t *testing.T) {
 
 func TestTraverseExplicitVariableDeclarationFunc(t *testing.T) {
 	e := NewVM()
-	ast, errs := validator.ValidateString(e, `name func(a, b string) int`)
+	ast, errs := validator.ValidateString(e, `var name func(a, b string) int`)
 	goutil.AssertNow(t, errs == nil, errs.Format())
 	goutil.AssertNow(t, ast != nil, "ast shouldn't be nil")
 	goutil.AssertNow(t, ast.Declarations != nil, "ast decls shouldn't be nil")
@@ -31,7 +31,7 @@ func TestTraverseExplicitVariableDeclarationFunc(t *testing.T) {
 
 func TestTraverseExplicitVariableDeclarationFixedArray(t *testing.T) {
 	e := NewVM()
-	ast, errs := validator.ValidateString(e, `name [3]uint8`)
+	ast, errs := validator.ValidateString(e, `var name [3]uint8`)
 	goutil.AssertNow(t, errs == nil, errs.Format())
 	goutil.AssertNow(t, ast != nil, "ast shouldn't be nil")
 	goutil.AssertNow(t, ast.Declarations != nil, "ast decls shouldn't be nil")
@@ -41,7 +41,7 @@ func TestTraverseExplicitVariableDeclarationFixedArray(t *testing.T) {
 
 func TestTraverseExplicitVariableDeclarationVariableArray(t *testing.T) {
 	e := NewVM()
-	ast, errs := validator.ValidateString(e, `name [3]uint8`)
+	ast, errs := validator.ValidateString(e, `var name [3]uint8`)
 	goutil.AssertNow(t, errs == nil, errs.Format())
 	goutil.AssertNow(t, ast != nil, "ast shouldn't be nil")
 	goutil.AssertNow(t, ast.Declarations != nil, "ast decls shouldn't be nil")

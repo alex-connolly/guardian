@@ -145,18 +145,12 @@ func (e *GuardianEVM) traverseCallExpr(n *ast.CallExpressionNode) (code vmgen.By
 	if n.Call.Type() == ast.Identifier {
 		i := n.Call.(*ast.IdentifierNode)
 		if b, ok := builtins[i.Name]; ok {
-			code.Concat(b())
+			code.Concat(b(e))
 			return code
 		}
 	}
 
 	call := e.traverse(n.Call)
-
-	// check to see whether we need to replace the callhash
-	// with the builtin code
-	if res, ok := checkBuiltin(call); ok {
-		call = res
-	}
 
 	code.Concat(call)
 

@@ -1,6 +1,7 @@
 package evm
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/end-r/guardian/validator"
@@ -12,11 +13,12 @@ import (
 
 func TestTraverseSimpleIdentifierExpression(t *testing.T) {
 	e := NewVM()
+	fmt.Println("hi")
 	a, _ := validator.ValidateString(e, `
-
 		hello = 5
 		x = hello
 	`)
+	fmt.Println("hello")
 	bytecode, _ := e.Traverse(a)
 	expected := []string{
 		// push x
@@ -122,7 +124,7 @@ func TestTraverseCallBinaryExpression(t *testing.T) {
 func TestTraverseIndexExpressionIdentifierLiteral(t *testing.T) {
 	e := NewVM()
 	a, _ := validator.ValidateString(e, `
-		b [5]int
+		var b [5]int
 		x = b[1]
 	`)
 	bytecode, _ := e.Traverse(a)

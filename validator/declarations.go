@@ -28,9 +28,9 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 	// start the validating process for another node
 	typ := v.getNamedType(node.Names...)
 	if typ == typing.Unknown() {
-		t := v.getDeclarationNode(node.Names)
+		typ = v.getDeclarationNode(node.Names)
 		// validate parameters if necessary
-		switch a := t.(type) {
+		switch a := typ.(type) {
 		case typing.Class:
 			if len(node.Parameters) != len(a.Generics) {
 				v.addError(errWrongParameterLength)
@@ -516,7 +516,7 @@ func (v *Validator) validateEventDeclaration(node *ast.EventDeclarationNode) {
 }
 
 func (v *Validator) declareContextualType(name string, typ typing.Type) {
-	if v.scope == nil {
+	if v.isParsingBuiltins {
 		v.DeclareBuiltinType(name, typ)
 	} else {
 		v.DeclareType(name, typ)
