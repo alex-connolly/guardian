@@ -44,41 +44,6 @@ func resolveFloatLiteral(v *validator.Validator, data string) typing.Type {
 	return typing.Unknown()
 }
 
-func (evm GuardianEVM) Operators() (m validator.OperatorMap) {
-
-	if opMap != nil {
-		return opMap
-	}
-	m = validator.OperatorMap{}
-
-	m.Add(validator.BooleanOperator, token.Geq, token.Leq,
-		token.Lss, token.Neq, token.Eql, token.Gtr, token.Or, token.And)
-
-	m.Add(operatorAdd, token.Add)
-	m.Add(validator.BooleanOperator, token.LogicalAnd, token.LogicalOr)
-
-	// numericalOperator with floats/ints
-	m.Add(validator.BinaryNumericOperator, token.Sub, token.Mul, token.Div,
-		token.Mod)
-
-	// integers only
-	m.Add(validator.BinaryIntegerOperator, token.Shl, token.Shr)
-
-	m.Add(validator.CastOperator, token.As)
-
-	opMap = m
-
-	return m
-}
-
-func operatorAdd(v *validator.Validator, ts ...typing.Type) typing.Type {
-	switch ts[0].(type) {
-	case typing.NumericType:
-		return validator.BinaryNumericOperator(v, ts...)
-	}
-	return typing.Invalid()
-}
-
 func (evm GuardianEVM) Primitives() map[string]typing.Type {
 
 	const maxSize = 256
@@ -88,8 +53,8 @@ func (evm GuardianEVM) Primitives() map[string]typing.Type {
 	for i := increment; i <= maxSize; i += increment {
 		ints := fmt.Sprintf("int%d", i)
 		uints := "u" + ints
-		m[uints] = typing.NumericType{Name: uints, BitSize: i, Signed: false, Integer: true}
-		m[ints] = typing.NumericType{Name: ints, BitSize: i, Signed: true, Integer: true}
+		m[uints] = &typing.NumericType{Name: uints, BitSize: i, Signed: false, Integer: true}
+		m[ints] = &typing.NumericType{Name: ints, BitSize: i, Signed: true, Integer: true}
 	}
 
 	return m

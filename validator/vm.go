@@ -137,7 +137,6 @@ type VM interface {
 	Builtins() *ast.ScopeNode
 	Primitives() map[string]typing.Type
 	Literals() LiteralMap
-	Operators() OperatorMap
 	BooleanName() string
 	ValidExpressions() []ast.NodeType
 	ValidStatements() []ast.NodeType
@@ -279,9 +278,15 @@ func (v TestVM) Primitives() map[string]typing.Type {
 	return getIntegerTypes()
 }
 
-func (v TestVM) Operators() (m OperatorMap) {
-	m = OperatorMap{}
+var m OperatorMap
 
+func operators() OperatorMap {
+
+	if m != nil {
+		return m
+	} else {
+		m = make(OperatorMap)
+	}
 	m.Add(BooleanOperator, token.Geq, token.Leq,
 		token.Lss, token.Neq, token.Eql, token.Gtr)
 

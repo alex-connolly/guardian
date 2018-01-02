@@ -53,7 +53,7 @@ func TestValidateExpression(t *testing.T) {
 func TestNewValidator(t *testing.T) {
 	te := NewTestVM()
 	v := NewValidator(te)
-	goutil.AssertLength(t, len(v.operators), len(te.Operators()))
+	goutil.AssertLength(t, len(v.operators), len(operators()))
 	goutil.AssertLength(t, len(v.literals), len(te.Literals()))
 	goutil.AssertNow(t, len(v.primitives) > 0, "no primitives")
 }

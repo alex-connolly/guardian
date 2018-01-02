@@ -289,10 +289,10 @@ func (e *GuardianEVM) traverseContextual(t typing.Type, expr ast.ExpressionNode)
 	switch expr.(type) {
 	case *ast.IdentifierNode:
 		switch t.(type) {
-		case typing.Class:
+		case *typing.Class:
 
 			break
-		case typing.Interface:
+		case *typing.Interface:
 			break
 		}
 		break

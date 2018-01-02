@@ -116,7 +116,7 @@ type TypeScope struct {
 
 func (v *Validator) importVM(vm VM) {
 	v.literals = vm.Literals()
-	v.operators = vm.Operators()
+	v.operators = operators()
 	v.primitives = vm.Primitives()
 	v.builtinScope = vm.Builtins()
 	v.modifierGroups = defaultGroups

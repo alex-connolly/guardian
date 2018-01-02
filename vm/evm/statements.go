@@ -83,7 +83,7 @@ func (e *GuardianEVM) traverseForEachStatement(n *ast.ForEachStatementNode) (cod
 	// would be more expensive - add a keyword?
 
 	switch n.ResolvedType.(type) {
-	case typing.Array:
+	case *typing.Array:
 		// TODO: index size must be large enough for any vars
 		name := n.Variables[0]
 		e.allocateMemory(name, 10)
@@ -106,7 +106,7 @@ func (e *GuardianEVM) traverseForEachStatement(n *ast.ForEachStatementNode) (cod
 
 		code.Add("JUMPDEST")
 		break
-	case typing.Map:
+	case *typing.Map:
 		break
 	}
 	return code
