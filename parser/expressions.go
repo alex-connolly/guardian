@@ -112,6 +112,9 @@ main:
 			return finalise(expStack, opStack)
 		default:
 			if o1, ok := operators[current]; ok {
+				if current == token.As || current == token.Is {
+					p.seenCastOperator = true
+				}
 				p.next()
 				for len(opStack) > 0 {
 					// consider top item on stack
@@ -146,7 +149,6 @@ main:
 
 func finalise(expStack []ast.ExpressionNode, opStack []token.Type) ast.ExpressionNode {
 	for len(opStack) > 0 {
-
 		n := ast.BinaryExpressionNode{}
 		n.Right, expStack = expStack[len(expStack)-1], expStack[:len(expStack)-1]
 		n.Left, expStack = expStack[len(expStack)-1], expStack[:len(expStack)-1]
@@ -162,12 +164,21 @@ func finalise(expStack []ast.ExpressionNode, opStack []token.Type) ast.Expressio
 
 func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 
+	if p.seenCastOperator {
+		n := p.parseType()
+		if n == nil {
+			return nil
+		} else {
+			return n.(ast.ExpressionNode)
+		}
+	}
+
 	var expr ast.ExpressionNode
 	//fmt.Printf("index: %d, tokens: %d\n", p.index, len(p.tokens))
 	if p.hasTokens(1) {
 		expr = p.parsePrimaryComponent()
 	}
-	// parse composite expressions
+	// parse composite expxressions
 	var done bool
 	for p.hasTokens(1) && expr != nil && !done {
 		expr, done = p.parseSecondaryComponent(expr)

@@ -14,16 +14,17 @@ import (
 
 // Parser ...
 type Parser struct {
-	scope         *ast.ScopeNode
-	Expression    ast.ExpressionNode
-	tokens        []token.Token
-	modifiers     [][]string
-	lastModifiers []string
-	annotations   []*ast.Annotation
-	index         int
-	errs          util.Errors
-	line          int
-	simple        bool
+	scope            *ast.ScopeNode
+	Expression       ast.ExpressionNode
+	tokens           []token.Token
+	modifiers        [][]string
+	lastModifiers    []string
+	annotations      []*ast.Annotation
+	index            int
+	errs             util.Errors
+	line             int
+	simple           bool
+	seenCastOperator bool
 }
 
 func createParser(data string) *Parser {

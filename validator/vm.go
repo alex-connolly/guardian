@@ -124,7 +124,7 @@ var defaultGroups = []*ModifierGroup{
 
 // A VM is the mechanism through which all vm-specific features are applied
 // to the Guardian AST: bytecode generation, type enforcement etc
-type OperatorFunc func(*Validator, ...typing.Type) typing.Type
+type OperatorFunc func(*Validator, []typing.Type, []ast.ExpressionNode) typing.Type
 type OperatorMap map[token.Type]OperatorFunc
 
 type LiteralFunc func(*Validator, string) typing.Type
@@ -299,13 +299,13 @@ func (v TestVM) Operators() (m OperatorMap) {
 	return m
 }
 
-func operatorAdd(v *Validator, ts ...typing.Type) typing.Type {
-	switch ts[0].(type) {
+func operatorAdd(v *Validator, types []typing.Type, expressions []ast.ExpressionNode) typing.Type {
+	switch types[0].(type) {
 	case *typing.NumericType:
-		return BinaryNumericOperator(v, ts...)
+		return BinaryNumericOperator(v, types, expressions)
 	}
 	strType := v.getNamedType("string")
-	if ts[0].Compare(strType) {
+	if types[0].Compare(strType) {
 		return strType
 	}
 	return typing.Invalid()

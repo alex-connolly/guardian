@@ -1,5 +1,7 @@
 package ast
 
+import "axia/guardian/typing"
+
 // NodeType denotes the type of node
 type NodeType int
 
@@ -17,7 +19,6 @@ const (
 	MapType
 	FuncType
 	PlainType
-
 	Identifier
 	Reference
 	Literal
@@ -31,7 +32,6 @@ const (
 	SliceExpression
 	IndexExpression
 	CallExpression
-
 	AssignmentStatement
 	ReturnStatement
 	BranchStatement
@@ -43,10 +43,8 @@ const (
 	ForStatement
 	ForEachStatement
 	FlowStatement
-
 	ImportStatement
 	PackageStatement
-
 	File
 	Package
 	Scope
@@ -78,6 +76,8 @@ type MapTypeNode struct {
 
 func (n *MapTypeNode) Type() NodeType { return MapType }
 
+func (n *MapTypeNode) ResolvedType() typing.Type { return typing.Unknown() }
+
 type ArrayTypeNode struct {
 	Variable bool
 	Length   int
@@ -85,6 +85,8 @@ type ArrayTypeNode struct {
 }
 
 func (n *ArrayTypeNode) Type() NodeType { return ArrayType }
+
+func (n *ArrayTypeNode) ResolvedType() typing.Type { return typing.Unknown() }
 
 type PlainTypeNode struct {
 	Variable   bool
@@ -94,12 +96,16 @@ type PlainTypeNode struct {
 
 func (n *PlainTypeNode) Type() NodeType { return PlainType }
 
+func (n *PlainTypeNode) ResolvedType() typing.Type { return typing.Unknown() }
+
 type FuncTypeNode struct {
 	Variable   bool
 	Identifier string
 	Parameters []Node
 	Results    []Node
 }
+
+func (n *FuncTypeNode) ResolvedType() typing.Type { return typing.Unknown() }
 
 func (n *FuncTypeNode) Type() NodeType { return FuncType }
 

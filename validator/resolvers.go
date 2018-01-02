@@ -302,43 +302,9 @@ func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 		b.Resolved = typing.Invalid()
 		return b.Resolved
 	}
-	t := operatorFunc(v, leftType, rightType)
+	t := operatorFunc(v, []typing.Type{leftType, rightType}, []ast.ExpressionNode{b.Left, b.Right})
 	b.Resolved = t
 	return b.Resolved
-	/*
-		switch b.Operator {
-		case token.Add:
-			// can be numeric or a string
-			// string = type user has defined as string literal
-			getStrType, ok := v.literals[token.String]
-			if ok && v.resolveExpression(b.Left).Compare(getStrType(v)) {
-				return getStrType(v)
-			} else {
-				return v.resolveNumericType()
-			}
-		case token.Sub, token.Div, token.Mul, token.Mod:
-			// must be numeric
-			return v.resolveNumericType()
-		case token.Geq, token.Leq, token.Lss, token.Gtr:
-			// must be numeric
-			return standards[boolean]
-		case token.Eql, token.Neq:
-			// don't have to be numeric
-			return standards[boolean]
-		case token.Shl, token.Shr, token.And, token.Or, token.Xor:
-			// must be numeric
-			return standards[Int]
-		case token.LogicalAnd, token.LogicalOr:
-			// must be boolean
-			return standards[boolean]
-		case token.As:
-			// make sure this is a type
-
-		}
-
-		// else it is a type which is not defined for binary operators
-		return typing.Invalid()
-	*/
 }
 
 func resolveUnaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {

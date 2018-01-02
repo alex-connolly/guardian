@@ -812,3 +812,45 @@ func TestParseCallExpressionSequential(t *testing.T) {
 	`)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
+
+func TestParseCastExpressionPlainType(t *testing.T) {
+	_, errs := ParseString(`
+		5 as a.b
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestParseCastExpressionMapType(t *testing.T) {
+	_, errs := ParseString(`
+		a.b as map[string]string
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestParseCastExpressionArrayType(t *testing.T) {
+	_, errs := ParseString(`
+		a[b] as []string
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestParseCastExpressionInvalidType(t *testing.T) {
+	_, errs := ParseString(`
+		5 as 6
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestParseCastExpressionInvalidTypeChained(t *testing.T) {
+	_, errs := ParseString(`
+		5 as 6 + 1
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestParseCastExpressionPlainTypeChained(t *testing.T) {
+	_, errs := ParseString(`
+		5 as a.b + 1
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}

@@ -41,13 +41,13 @@ func (m OperatorMap) Add(function OperatorFunc, types ...token.Type) {
 }
 
 func SimpleOperator(typeName string) OperatorFunc {
-	return func(v *Validator, types ...typing.Type) typing.Type {
+	return func(v *Validator, types []typing.Type, exprs []ast.ExpressionNode) typing.Type {
 		return v.getNamedType(typeName)
 	}
 }
-func BinaryNumericOperator(v *Validator, ts ...typing.Type) typing.Type {
-	left := typing.ResolveUnderlying(ts[0])
-	right := typing.ResolveUnderlying(ts[1])
+func BinaryNumericOperator(v *Validator, types []typing.Type, exprs []ast.ExpressionNode) typing.Type {
+	left := typing.ResolveUnderlying(types[0])
+	right := typing.ResolveUnderlying(types[1])
 	if na, ok := left.(*typing.NumericType); ok {
 		if nb, ok := right.(*typing.NumericType); ok {
 			if na.BitSize > nb.BitSize {
@@ -59,9 +59,9 @@ func BinaryNumericOperator(v *Validator, ts ...typing.Type) typing.Type {
 	return typing.Invalid()
 }
 
-func BinaryIntegerOperator(v *Validator, ts ...typing.Type) typing.Type {
-	if na, ok := ts[0].(*typing.NumericType); ok && na.Integer {
-		if nb, ok := ts[1].(*typing.NumericType); ok && nb.Integer {
+func BinaryIntegerOperator(v *Validator, types []typing.Type, exprs []ast.ExpressionNode) typing.Type {
+	if na, ok := types[0].(*typing.NumericType); ok && na.Integer {
+		if nb, ok := types[1].(*typing.NumericType); ok && nb.Integer {
 			if na.BitSize > nb.BitSize {
 				return v.SmallestNumericType(na.BitSize, false)
 			}
@@ -71,21 +71,22 @@ func BinaryIntegerOperator(v *Validator, ts ...typing.Type) typing.Type {
 	return typing.Invalid()
 }
 
-func CastOperator(v *Validator, ts ...typing.Type) typing.Type {
+func CastOperator(v *Validator, types []typing.Type, exprs []ast.ExpressionNode) typing.Type {
 	// pretend it's a valid type
-	left := ts[0]
-	right := ts[1]
-	if !typing.AssignableTo(left, right) {
-		v.addError(errImpossibleCast, typing.WriteType(left), typing.WriteType(right))
+	left := types[0]
+	t := v.validateType(exprs[1])
+	if t == typing.Unknown() || t == typing.Invalid() {
+		v.addError(errImpossibleCastToNonType)
 		return left
 	}
-	return right
+	if !typing.AssignableTo(left, t) {
+		v.addError(errImpossibleCast, typing.WriteType(left), typing.WriteType(t))
+		return left
+	}
+	return t
 }
 
-func BooleanOperator(v *Validator, ts ...typing.Type) typing.Type {
-	if len(ts) != 2 {
-
-	}
+func BooleanOperator(v *Validator, types []typing.Type, exprs []ast.ExpressionNode) typing.Type {
 	return typing.Boolean()
 }
 

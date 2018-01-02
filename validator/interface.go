@@ -122,7 +122,7 @@ func (v *Validator) importVM(vm VM) {
 	v.modifierGroups = defaultGroups
 	v.modifierGroups = append(v.modifierGroups, vm.Modifiers()...)
 
-	v.DeclareBuiltinType(vm.BooleanName(), &typing.BooleanType{})
+	v.DeclareBuiltinType(vm.BooleanName(), typing.Boolean())
 
 	v.parseBuiltins()
 
