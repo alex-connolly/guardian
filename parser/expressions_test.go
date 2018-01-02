@@ -859,3 +859,23 @@ func TestParseBinaryExpressionUnfinished(t *testing.T) {
 	expr := ParseExpression(`5 +`)
 	goutil.AssertNow(t, expr == nil, "should be nil")
 }
+
+func TestParseBinaryExpressionDoubleOperator(t *testing.T) {
+	expr := ParseExpression(`5 + + 5`)
+	goutil.AssertNow(t, expr == nil, "should be nil")
+}
+
+func TestParseBinaryExpressionDoubleOperatorCloseBracket(t *testing.T) {
+	expr := ParseExpression(`5 + ) + 5`)
+	goutil.AssertNow(t, expr == nil, "should be nil")
+}
+
+func TestParseBinaryExpressionDoubleOperatorOpenBracket(t *testing.T) {
+	expr := ParseExpression(`5 + ( + 5`)
+	goutil.AssertNow(t, expr == nil, "should be nil")
+}
+
+func TestParseBinaryExpressionDoubleOperatorFullBrackets(t *testing.T) {
+	expr := ParseExpression(`(5 + ) (+ 5)`)
+	goutil.AssertNow(t, expr == nil, "should be nil")
+}

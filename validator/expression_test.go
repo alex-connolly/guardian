@@ -16,9 +16,7 @@ func TestCallExpressionValid(t *testing.T) {
             }
             return call(a - 1, b - 1)
         }
-
-        call(5, 5)
-        `)
+    `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	errs := Validate(scope, NewTestVM())
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())

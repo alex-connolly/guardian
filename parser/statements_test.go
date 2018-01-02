@@ -724,3 +724,14 @@ func TestParseSimpleAssignmentStatement(t *testing.T) {
 	goutil.Assert(t, as.Left[0] != nil, "left is nil")
 	goutil.Assert(t, as.Right[0] != nil, "right is nil")
 }
+
+func TestParseOrIfCondition(t *testing.T) {
+	a, errs := ParseString(`
+		if a == 0 or b == 0 {
+			return 0
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+	goutil.AssertNow(t, a != nil, "nil scope")
+	goutil.AssertLength(t, len(a.Sequence), 1)
+}

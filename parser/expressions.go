@@ -106,11 +106,15 @@ main:
 					p.next()
 					continue main
 				} else {
+					if len(expStack) < 2 {
+						p.addError(errIncompleteExpression)
+						return nil
+					}
 					expStack = pushNode(expStack, op)
 				}
 			}
 			// unmatched parens
-			return finalise(expStack, opStack)
+			return p.finalise(expStack, opStack)
 		default:
 			if o1, ok := operators[current]; ok {
 				if current == token.As || current == token.Is {
@@ -125,6 +129,10 @@ main:
 						break
 					} else {
 						opStack = opStack[:len(opStack)-1]
+						if len(expStack) < 2 {
+							p.addError(errIncompleteExpression)
+							return nil
+						}
 						expStack = pushNode(expStack, op)
 					}
 				}
@@ -135,7 +143,7 @@ main:
 
 				// if it isn't an expression
 				if expr == nil {
-					return finalise(expStack, opStack)
+					return p.finalise(expStack, opStack)
 				}
 				expStack = append(expStack, expr)
 			}
@@ -143,16 +151,18 @@ main:
 		}
 	}
 	if len(expStack) == 0 {
+
 		return nil
 	}
-	return finalise(expStack, opStack)
+	return p.finalise(expStack, opStack)
 }
 
-func finalise(expStack []ast.ExpressionNode, opStack []token.Type) ast.ExpressionNode {
-	if len(expStack) != len(opStack)+1 {
-		return nil
-	}
+func (p *Parser) finalise(expStack []ast.ExpressionNode, opStack []token.Type) ast.ExpressionNode {
 	for len(opStack) > 0 {
+		if len(expStack) < 2 {
+			p.addError(errIncompleteExpression)
+			return nil
+		}
 		n := ast.BinaryExpressionNode{}
 		n.Right, expStack = expStack[len(expStack)-1], expStack[:len(expStack)-1]
 		n.Left, expStack = expStack[len(expStack)-1], expStack[:len(expStack)-1]
@@ -162,7 +172,6 @@ func finalise(expStack []ast.ExpressionNode, opStack []token.Type) ast.Expressio
 	if len(expStack) == 0 {
 		return nil
 	}
-
 	return expStack[len(expStack)-1]
 }
 

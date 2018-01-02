@@ -14,4 +14,5 @@ const (
 	errInvalidAnnotationParameter = "Invalid annotation parameter, must be string"
 	errInvalidIncDec              = "Cannot increment or decrement in this context"
 	errInvalidTypeAfterCast       = "Expected type after cast operator"
+	errIncompleteExpression       = "Incomplete expression"
 )

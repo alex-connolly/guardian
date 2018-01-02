@@ -75,11 +75,19 @@ func (v *Validator) resolveExpression(e ast.ExpressionNode) typing.Type {
 		ast.Reference:        resolveReference,
 		ast.Identifier:       resolveIdentifier,
 		ast.CompositeLiteral: resolveCompositeLiteral,
+		ast.PlainType:        resolveUnknown,
+		ast.FuncType:         resolveUnknown,
+		ast.ArrayType:        resolveUnknown,
+		ast.MapType:          resolveUnknown,
 	}
 	return resolvers[e.Type()](v, e)
 }
 
 type resolver func(v *Validator, e ast.ExpressionNode) typing.Type
+
+func resolveUnknown(v *Validator, e ast.ExpressionNode) typing.Type {
+	return typing.Unknown()
+}
 
 func resolveIdentifier(v *Validator, e ast.ExpressionNode) typing.Type {
 	i := e.(*ast.IdentifierNode)
