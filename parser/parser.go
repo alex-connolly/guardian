@@ -30,6 +30,7 @@ type Parser struct {
 func createParser(data string) *Parser {
 	p := new(Parser)
 	p.line = 1
+	p.seenCastOperator = false
 	p.tokens, _ = lexer.LexString(data)
 	p.scope = &ast.ScopeNode{
 		ValidTypes: []ast.NodeType{

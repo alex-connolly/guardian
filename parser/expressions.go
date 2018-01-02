@@ -86,6 +86,7 @@ func pushNode(stack []ast.ExpressionNode, op token.Type) []ast.ExpressionNode {
 }
 
 func (p *Parser) parseExpression() ast.ExpressionNode {
+	p.seenCastOperator = false
 	var opStack []token.Type
 	var expStack []ast.ExpressionNode
 	var current token.Type
@@ -148,6 +149,9 @@ main:
 }
 
 func finalise(expStack []ast.ExpressionNode, opStack []token.Type) ast.ExpressionNode {
+	if len(expStack) != len(opStack)+1 {
+		return nil
+	}
 	for len(opStack) > 0 {
 		n := ast.BinaryExpressionNode{}
 		n.Right, expStack = expStack[len(expStack)-1], expStack[:len(expStack)-1]
@@ -166,13 +170,14 @@ func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 
 	if p.seenCastOperator {
 		p.seenCastOperator = false
-		n := p.parseType()
-		if n == nil {
-			p.addError(errInvalidTypeAfterCast)
-			return nil
-		} else {
+		if p.isNextAType() {
+			n := p.parseType()
+			// all types can be converted to expressions for this purpose
+			// they resolve to unknown for now
 			return n.(ast.ExpressionNode)
 		}
+		p.addError(errInvalidTypeAfterCast)
+		return nil
 	}
 
 	var expr ast.ExpressionNode
