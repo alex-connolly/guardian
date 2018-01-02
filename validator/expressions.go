@@ -20,13 +20,13 @@ func (v *Validator) validateCallExpression(call *ast.CallExpressionNode) {
 	fullType := v.resolveExpression(call)
 	args := v.ExpressionTuple(call.Arguments)
 	switch a := exprType.(type) {
-	case typing.Func:
+	case *typing.Func:
 		if !typing.AssignableTo(args, a.Params) {
 			v.addError(errInvalidFuncCall, typing.WriteType(args), typing.WriteType(a))
 		}
 		break
-	case typing.StandardType:
-		if a, ok := fullType.(typing.Class); ok {
+	case *typing.StandardType:
+		if a, ok := fullType.(*typing.Class); ok {
 			constructors := a.Lifecycles[token.Constructor]
 			if typing.NewTuple().Compare(args) && len(constructors) == 0 {
 				return

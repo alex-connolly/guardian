@@ -31,7 +31,7 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 		typ = v.getDeclarationNode(node.Names)
 		// validate parameters if necessary
 		switch a := typ.(type) {
-		case typing.Class:
+		case *typing.Class:
 			if len(node.Parameters) != len(a.Generics) {
 				v.addError(errWrongParameterLength)
 			}
@@ -41,7 +41,7 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 				}
 			}
 			break
-		case typing.Interface:
+		case *typing.Interface:
 			if len(node.Parameters) != len(a.Generics) {
 				v.addError(errWrongParameterLength)
 			}
@@ -51,7 +51,7 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 				}
 			}
 			break
-		case typing.Contract:
+		case *typing.Contract:
 			if len(node.Parameters) != len(a.Generics) {
 				v.addError(errWrongParameterLength)
 			}
@@ -72,15 +72,15 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 	return typ
 }
 
-func (v *Validator) validateArrayType(node *ast.ArrayTypeNode) typing.Array {
+func (v *Validator) validateArrayType(node *ast.ArrayTypeNode) *typing.Array {
 	value := v.validateType(node.Value)
-	return typing.Array{Value: value, Length: node.Length, Variable: node.Variable}
+	return &typing.Array{Value: value, Length: node.Length, Variable: node.Variable}
 }
 
-func (v *Validator) validateMapType(node *ast.MapTypeNode) typing.Map {
+func (v *Validator) validateMapType(node *ast.MapTypeNode) *typing.Map {
 	key := v.validateType(node.Key)
 	value := v.validateType(node.Value)
-	return typing.Map{Key: key, Value: value}
+	return &typing.Map{Key: key, Value: value}
 }
 
 func (v *Validator) validateFuncType(node *ast.FuncTypeNode) typing.Type {
@@ -99,7 +99,7 @@ func (v *Validator) validateFuncType(node *ast.FuncTypeNode) typing.Type {
 			results = append(results, v.validateType(r))
 		}
 	}
-	return typing.Func{Params: typing.NewTuple(params...), Results: typing.NewTuple(results...)}
+	return &typing.Func{Params: typing.NewTuple(params...), Results: typing.NewTuple(results...)}
 }
 
 func (v *Validator) validateDeclaration(node ast.Node) {
@@ -194,8 +194,8 @@ func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*
 		for _, ifc := range node.Implements {
 			t := v.validatePlainType(ifc)
 			if t != typing.Unknown() {
-				if c, ok := t.(typing.Interface); ok {
-					interfaces = append(interfaces, &c)
+				if c, ok := t.(*typing.Interface); ok {
+					interfaces = append(interfaces, c)
 				} else {
 					v.addError(errTypeRequired, makeName(ifc.Names), "interface")
 				}
@@ -206,15 +206,15 @@ func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*
 		for _, super := range node.Inherits {
 			t := v.validatePlainType(super)
 			switch t.(type) {
-			case typing.Class:
+			case *typing.Class:
 
 				break
-			case typing.Interface:
+			case *typing.Interface:
 				if node.Implements != nil {
 
 				}
 				break
-			case typing.Contract:
+			case *typing.Contract:
 
 				break
 			}
@@ -242,8 +242,8 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 	for _, super := range node.Supers {
 		t := v.validatePlainType(super)
 		if t != typing.Unknown() {
-			if c, ok := t.(typing.Class); ok {
-				supers = append(supers, &c)
+			if c, ok := t.(*typing.Class); ok {
+				supers = append(supers, c)
 			} else {
 				v.addError(errTypeRequired, makeName(super.Names), "class")
 			}
@@ -254,8 +254,8 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 	for _, ifc := range node.Interfaces {
 		t := v.validatePlainType(ifc)
 		if t != typing.Unknown() {
-			if c, ok := t.(typing.Interface); ok {
-				interfaces = append(interfaces, &c)
+			if c, ok := t.(*typing.Interface); ok {
+				interfaces = append(interfaces, c)
 			} else {
 				v.addError(errTypeRequired, makeName(ifc.Names), "interface")
 			}
@@ -266,7 +266,7 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 
 	types, properties, lifecycles := v.validateScope(node.Body)
 
-	classType := typing.Class{
+	classType := &typing.Class{
 		Name:       node.Identifier,
 		Supers:     supers,
 		Interfaces: interfaces,
@@ -290,8 +290,8 @@ func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
 	var supers []*typing.Enum
 	for _, super := range node.Inherits {
 		t := v.validatePlainType(super)
-		if c, ok := t.(typing.Enum); ok {
-			supers = append(supers, &c)
+		if c, ok := t.(*typing.Enum); ok {
+			supers = append(supers, c)
 		} else {
 			v.addError(errTypeRequired, makeName(super.Names), "enum")
 		}
@@ -299,7 +299,7 @@ func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
 
 	list := node.Enums
 
-	enumType := typing.Enum{
+	enumType := &typing.Enum{
 		Name:   node.Identifier,
 		Supers: supers,
 		Items:  list,
@@ -321,8 +321,8 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 	for _, super := range node.Supers {
 		t := v.validatePlainType(super)
 		if t != typing.Unknown() {
-			if c, ok := t.(typing.Contract); ok {
-				supers = append(supers, &c)
+			if c, ok := t.(*typing.Contract); ok {
+				supers = append(supers, c)
 			} else {
 				v.addError(errTypeRequired, makeName(super.Names), "contract")
 			}
@@ -333,8 +333,8 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 	for _, ifc := range node.Interfaces {
 		t := v.validatePlainType(ifc)
 		if t != typing.Unknown() {
-			if c, ok := t.(typing.Interface); ok {
-				interfaces = append(interfaces, &c)
+			if c, ok := t.(*typing.Interface); ok {
+				interfaces = append(interfaces, c)
 			} else {
 				v.addError(errTypeRequired, makeName(ifc.Names), "interface")
 			}
@@ -345,7 +345,7 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 
 	types, properties, lifecycles := v.validateScope(node.Body)
 
-	contractType := typing.Contract{
+	contractType := &typing.Contract{
 		Name:       node.Identifier,
 		Generics:   generics,
 		Supers:     supers,
@@ -370,17 +370,17 @@ func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationN
 	for _, super := range node.Supers {
 		t := v.validatePlainType(super)
 		if t != typing.Unknown() {
-			if c, ok := t.(typing.Interface); ok {
-				supers = append(supers, &c)
+			if c, ok := t.(*typing.Interface); ok {
+				supers = append(supers, c)
 			} else {
 				v.addError(errTypeRequired, makeName(super.Names), "interface")
 			}
 		}
 	}
 
-	funcs := map[string]typing.Func{}
+	funcs := map[string]*typing.Func{}
 	for _, function := range node.Signatures {
-		f, ok := v.validateContextualType(function).(typing.Func)
+		f, ok := v.validateContextualType(function).(*typing.Func)
 		if ok {
 			funcs[function.Identifier] = f
 		} else {
@@ -391,7 +391,7 @@ func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationN
 
 	generics := v.validateGenerics(node.Generics)
 
-	interfaceType := typing.Interface{
+	interfaceType := &typing.Interface{
 		Name:     node.Identifier,
 		Generics: generics,
 		Supers:   supers,
@@ -441,7 +441,7 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
 	generics := v.validateGenerics(node.Generics)
 
-	funcType := typing.Func{
+	funcType := &typing.Func{
 		Generics: generics,
 		Params:   typing.NewTuple(params...),
 		Results:  typing.NewTuple(results...),
@@ -502,7 +502,7 @@ func (v *Validator) validateEventDeclaration(node *ast.EventDeclarationNode) {
 
 	generics := v.validateGenerics(node.Generics)
 
-	eventType := typing.Event{
+	eventType := &typing.Event{
 		Name:       node.Identifier,
 		Generics:   generics,
 		Parameters: typing.NewTuple(params...),

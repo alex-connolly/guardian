@@ -117,7 +117,7 @@ func (v *Validator) requireType(expected, actual typing.Type) bool {
 	return true
 }
 
-func (v *Validator) ExpressionTuple(exprs []ast.ExpressionNode) typing.Tuple {
+func (v *Validator) ExpressionTuple(exprs []ast.ExpressionNode) *typing.Tuple {
 	var types []typing.Type
 	for _, expression := range exprs {
 		typ := v.resolveExpression(expression)
@@ -125,7 +125,7 @@ func (v *Validator) ExpressionTuple(exprs []ast.ExpressionNode) typing.Tuple {
 		// ((int, string)) --> (int, string)
 		// ((int), string) --> (int, string)
 		// this is to facilitate assignment comparisons
-		if tuple, ok := typ.(typing.Tuple); ok {
+		if tuple, ok := typ.(*typing.Tuple); ok {
 			types = append(types, tuple.Types...)
 		} else {
 			types = append(types, typ)

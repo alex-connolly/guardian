@@ -128,7 +128,7 @@ type Interface struct {
 	Name     string
 	Generics []*Generic
 	Supers   []*Interface
-	Funcs    map[string]Func
+	Funcs    map[string]*Func
 }
 
 // Contract ...

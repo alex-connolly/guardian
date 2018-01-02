@@ -32,33 +32,33 @@ func (v *Validator) resolvePlainType(node *ast.PlainTypeNode) typing.Type {
 	return v.getNamedType(node.Names...)
 }
 
-func (v *Validator) resolveArrayType(node *ast.ArrayTypeNode) typing.Array {
-	a := typing.Array{}
+func (v *Validator) resolveArrayType(node *ast.ArrayTypeNode) *typing.Array {
+	a := new(typing.Array)
 	a.Value = v.resolveType(node.Value)
 	return a
 }
 
-func (v *Validator) resolveMapType(node *ast.MapTypeNode) typing.Map {
+func (v *Validator) resolveMapType(node *ast.MapTypeNode) *typing.Map {
 	m := typing.Map{}
 	m.Key = v.resolveType(node.Key)
 	m.Value = v.resolveType(node.Value)
-	return m
+	return &m
 }
 
-func (v *Validator) resolveFuncType(node *ast.FuncTypeNode) typing.Func {
+func (v *Validator) resolveFuncType(node *ast.FuncTypeNode) *typing.Func {
 	f := typing.Func{}
 	f.Params = v.resolveTuple(node.Parameters)
 	f.Results = v.resolveTuple(node.Results)
-	return f
+	return &f
 }
 
-func (v *Validator) resolveTuple(nodes []ast.Node) typing.Tuple {
+func (v *Validator) resolveTuple(nodes []ast.Node) *typing.Tuple {
 	t := typing.Tuple{}
 	t.Types = make([]typing.Type, len(nodes))
 	for i, n := range nodes {
 		t.Types[i] = v.resolveType(n)
 	}
-	return t
+	return &t
 }
 
 func (v *Validator) resolveExpression(e ast.ExpressionNode) typing.Type {
@@ -106,7 +106,7 @@ func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Ty
 	// must be literal
 	m := e.(*ast.ArrayLiteralNode)
 	keyType := v.resolveType(m.Signature.Value)
-	arrayType := typing.Array{
+	arrayType := &typing.Array{
 		Value:    keyType,
 		Length:   m.Signature.Length,
 		Variable: m.Signature.Variable,
@@ -137,7 +137,7 @@ func resolveFuncLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Typ
 	for _, r := range f.Results {
 		results = append(results, v.resolveType(r))
 	}
-	f.Resolved = typing.Func{
+	f.Resolved = &typing.Func{
 		Params:  typing.NewTuple(params...),
 		Results: typing.NewTuple(results...),
 	}
@@ -150,7 +150,7 @@ func resolveMapLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Type
 	m := e.(*ast.MapLiteralNode)
 	keyType := v.resolveType(m.Signature.Key)
 	valueType := v.resolveType(m.Signature.Value)
-	mapType := typing.Map{Key: keyType, Value: valueType}
+	mapType := &typing.Map{Key: keyType, Value: valueType}
 	m.Resolved = mapType
 	return m.Resolved
 }
@@ -161,10 +161,10 @@ func resolveIndexExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	exprType := v.resolveExpression(i.Expression)
 	// enforce that this must be an array/map type
 	switch t := exprType.(type) {
-	case typing.Array:
+	case *typing.Array:
 		i.Resolved = t.Value
 		break
-	case typing.Map:
+	case *typing.Map:
 		i.Resolved = t.Value
 		break
 	default:
@@ -264,10 +264,10 @@ func resolveCallExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 		under = typing.ResolveUnderlying(call)
 	}
 	switch ctwo := under.(type) {
-	case typing.Func:
+	case *typing.Func:
 		c.Resolved = ctwo.Results
 		return c.Resolved
-	case typing.Class:
+	case *typing.Class:
 		c.Resolved = ctwo
 		return c.Resolved
 	}
@@ -283,7 +283,7 @@ func resolveSliceExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	exprType := v.resolveExpression(s.Expression)
 	// must be an array
 	switch t := exprType.(type) {
-	case typing.Array:
+	case *typing.Array:
 		s.Resolved = t
 		return s.Resolved
 	}
@@ -416,16 +416,16 @@ func (v *Validator) getPropertiesType(t typing.Type, names []string) (resolved t
 func (v *Validator) getPropertyType(t typing.Type, name string) (typing.Type, bool) {
 	// only classes, interfaces, contracts and enums are subscriptable
 	switch c := t.(type) {
-	case typing.Class:
+	case *typing.Class:
 		p, has := c.Properties[name]
 		return p, has
-	case typing.Contract:
+	case *typing.Contract:
 		p, has := c.Properties[name]
 		return p, has
-	case typing.Interface:
+	case *typing.Interface:
 		p, has := c.Funcs[name]
 		return p, has
-	case typing.Enum:
+	case *typing.Enum:
 		for _, s := range c.Items {
 			if s == name {
 				return v.SmallestNumericType(len(c.Items), false), true
@@ -440,7 +440,7 @@ func (v *Validator) getPropertyType(t typing.Type, name string) (typing.Type, bo
 func isSubscriptable(t typing.Type) bool {
 	// only classes, interfaces and enums are subscriptable
 	switch t.(type) {
-	case typing.Class, typing.Interface, typing.Enum, typing.Contract:
+	case *typing.Class, *typing.Interface, *typing.Enum, *typing.Contract:
 		return true
 	}
 	return false

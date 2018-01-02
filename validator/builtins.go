@@ -48,8 +48,8 @@ func SimpleOperator(typeName string) OperatorFunc {
 func BinaryNumericOperator(v *Validator, ts ...typing.Type) typing.Type {
 	left := typing.ResolveUnderlying(ts[0])
 	right := typing.ResolveUnderlying(ts[1])
-	if na, ok := left.(typing.NumericType); ok {
-		if nb, ok := right.(typing.NumericType); ok {
+	if na, ok := left.(*typing.NumericType); ok {
+		if nb, ok := right.(*typing.NumericType); ok {
 			if na.BitSize > nb.BitSize {
 				return v.SmallestNumericType(na.BitSize, true)
 			}
@@ -60,8 +60,8 @@ func BinaryNumericOperator(v *Validator, ts ...typing.Type) typing.Type {
 }
 
 func BinaryIntegerOperator(v *Validator, ts ...typing.Type) typing.Type {
-	if na, ok := ts[0].(typing.NumericType); ok && na.Integer {
-		if nb, ok := ts[1].(typing.NumericType); ok && nb.Integer {
+	if na, ok := ts[0].(*typing.NumericType); ok && na.Integer {
+		if nb, ok := ts[1].(*typing.NumericType); ok && nb.Integer {
 			if na.BitSize > nb.BitSize {
 				return v.SmallestNumericType(na.BitSize, false)
 			}
@@ -93,7 +93,7 @@ func (v *Validator) LargestNumericType(allowFloat bool) typing.Type {
 	largest := -1
 	largestType := typing.Type(typing.Unknown())
 	for _, typ := range v.primitives {
-		n, ok := typ.(typing.NumericType)
+		n, ok := typ.(*typing.NumericType)
 		if ok {
 			if !n.Integer && !allowFloat {
 				continue
@@ -115,7 +115,7 @@ func (v *Validator) SmallestNumericType(bits int, allowFloat bool) typing.Type {
 	smallest := -1
 	smallestType := typing.Type(typing.Unknown())
 	for _, typ := range v.primitives {
-		n, ok := typ.(typing.NumericType)
+		n, ok := typ.(*typing.NumericType)
 		if ok {
 			if !n.Integer && !allowFloat {
 				continue

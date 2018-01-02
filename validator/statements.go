@@ -143,7 +143,7 @@ func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
 	gen := v.resolveExpression(node.Producer)
 	var req int
 	switch a := gen.(type) {
-	case typing.Map:
+	case *typing.Map:
 		// maps must handle k, v in MAP
 		req = 2
 		if len(node.Variables) != req {
@@ -153,7 +153,7 @@ func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
 			v.declareContextualVar(node.Variables[1], a.Value)
 		}
 		break
-	case typing.Array:
+	case *typing.Array:
 		// arrays must handle i, v in ARRAY
 		req = 2
 		if len(node.Variables) != req {

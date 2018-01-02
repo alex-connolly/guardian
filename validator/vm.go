@@ -265,8 +265,8 @@ func getIntegerTypes() map[string]typing.Type {
 	for i := increment; i <= maxSize; i += increment {
 		intName := "int" + strconv.Itoa(i)
 		uintName := "u" + intName
-		m[uintName] = typing.NumericType{Name: uintName, BitSize: i, Signed: false, Integer: true}
-		m[intName] = typing.NumericType{Name: intName, BitSize: i, Signed: true, Integer: true}
+		m[uintName] = &typing.NumericType{Name: uintName, BitSize: i, Signed: false, Integer: true}
+		m[intName] = &typing.NumericType{Name: intName, BitSize: i, Signed: true, Integer: true}
 	}
 	return m
 }
@@ -301,7 +301,7 @@ func (v TestVM) Operators() (m OperatorMap) {
 
 func operatorAdd(v *Validator, ts ...typing.Type) typing.Type {
 	switch ts[0].(type) {
-	case typing.NumericType:
+	case *typing.NumericType:
 		return BinaryNumericOperator(v, ts...)
 	}
 	strType := v.getNamedType("string")
