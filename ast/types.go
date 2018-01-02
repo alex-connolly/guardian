@@ -1,6 +1,6 @@
 package ast
 
-import "axia/guardian/typing"
+import "github.com/end-r/guardian/typing"
 
 // NodeType denotes the type of node
 type NodeType int

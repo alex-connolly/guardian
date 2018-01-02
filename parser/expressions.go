@@ -165,8 +165,10 @@ func finalise(expStack []ast.ExpressionNode, opStack []token.Type) ast.Expressio
 func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 
 	if p.seenCastOperator {
+		p.seenCastOperator = false
 		n := p.parseType()
 		if n == nil {
+			p.addError(errInvalidTypeAfterCast)
 			return nil
 		} else {
 			return n.(ast.ExpressionNode)
