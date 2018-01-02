@@ -91,3 +91,28 @@ func TestIsAssignableFuncParams(t *testing.T) {
 	goutil.Assert(t, AssignableTo(a, b), "a --> b")
 	goutil.Assert(t, AssignableTo(b, a), "b --> a")
 }
+
+func TestNumericAssignability(t *testing.T) {
+	a := &NumericType{BitSize: 10, Signed: true}
+	b := &NumericType{BitSize: 10, Signed: true}
+	goutil.Assert(t, AssignableTo(a, b), "a --> b")
+	// ints --> larger ints
+	a = &NumericType{BitSize: 10, Signed: true}
+	b = &NumericType{BitSize: 11, Signed: true}
+	goutil.Assert(t, AssignableTo(b, a), "b --> a")
+	goutil.Assert(t, !AssignableTo(a, b), "a --> b")
+	// uints --> larger uints
+	a = &NumericType{BitSize: 10, Signed: false}
+	b = &NumericType{BitSize: 11, Signed: false}
+	goutil.Assert(t, AssignableTo(b, a), "b --> a")
+	goutil.Assert(t, !AssignableTo(a, b), "a --> b")
+	// uints --> larger ints
+	a = &NumericType{BitSize: 10, Signed: false}
+	b = &NumericType{BitSize: 11, Signed: true}
+	goutil.Assert(t, AssignableTo(b, a), "b --> a")
+	goutil.Assert(t, !AssignableTo(a, b), "a --> b")
+	// can never go int --> uint
+	a = &NumericType{BitSize: 10, Signed: false}
+	b = &NumericType{BitSize: 100, Signed: true}
+	goutil.Assert(t, !AssignableTo(a, b), "a --> b")
+}

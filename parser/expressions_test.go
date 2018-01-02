@@ -879,3 +879,13 @@ func TestParseBinaryExpressionDoubleOperatorFullBrackets(t *testing.T) {
 	expr := ParseExpression(`(5 + ) (+ 5)`)
 	goutil.AssertNow(t, expr == nil, "should be nil")
 }
+
+func TestParseBinaryExpressionUnmatchedOpenBracket(t *testing.T) {
+	expr := ParseExpression(`(5 + `)
+	goutil.AssertNow(t, expr == nil, "should be nil")
+}
+
+func TestParseBinaryExpressionUnmatchedCloseBracket(t *testing.T) {
+	expr := ParseExpression(`5 + )`)
+	goutil.AssertNow(t, expr == nil, "should be nil")
+}

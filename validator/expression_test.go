@@ -11,7 +11,7 @@ import (
 func TestCallExpressionValid(t *testing.T) {
 	scope, _ := parser.ParseString(`
         func call(a, b int8) int8 {
-            if a == 0 or b == 0 {
+			if a == 0 or b == 0 {
                 return 0
             }
             return call(a - 1, b - 1)
