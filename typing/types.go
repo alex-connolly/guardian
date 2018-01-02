@@ -32,6 +32,7 @@ const (
 	invalid baseType = iota
 	unknown
 	boolean
+	void
 )
 
 type StandardType struct {
@@ -50,10 +51,15 @@ func Boolean() Type {
 	return standards[boolean]
 }
 
-var standards = map[baseType]StandardType{
-	invalid: StandardType{"invalid"},
-	unknown: StandardType{"unknown"},
-	boolean: StandardType{"bool"},
+func Void() Type {
+	return standards[void]
+}
+
+var standards = map[baseType]*StandardType{
+	invalid: &StandardType{"invalid"},
+	unknown: &StandardType{"unknown"},
+	boolean: &StandardType{"bool"},
+	void:    &StandardType{"void"},
 }
 
 type Array struct {
@@ -70,16 +76,16 @@ type Map struct {
 type Func struct {
 	Name     string
 	Generics []*Generic
-	Params   Tuple
-	Results  Tuple
+	Params   *Tuple
+	Results  *Tuple
 }
 
 type Tuple struct {
 	Types []Type
 }
 
-func NewTuple(types ...Type) Tuple {
-	return Tuple{
+func NewTuple(types ...Type) *Tuple {
+	return &Tuple{
 		Types: types,
 	}
 }
@@ -90,7 +96,7 @@ type Aliased struct {
 }
 
 func ResolveUnderlying(t Type) Type {
-	for al, ok := t.(Aliased); ok; al, ok = t.(Aliased) {
+	for al, ok := t.(*Aliased); ok; al, ok = t.(*Aliased) {
 		t = al.Underlying
 	}
 	return t
@@ -140,5 +146,5 @@ type Contract struct {
 type Event struct {
 	Name       string
 	Generics   []*Generic
-	Parameters Tuple
+	Parameters *Tuple
 }

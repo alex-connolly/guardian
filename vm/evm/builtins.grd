@@ -1,4 +1,6 @@
-
+type uint uint256
+type int int256
+type byte int8
 type string []byte
 type address [20]byte
 
@@ -26,10 +28,13 @@ ether = 1000 * milliether
 @Builtin("addmod") var addmod func(x, y, k uint) uint
 @Builtin("mulmod") var mulmod func(x, y, k uint) uint
 @Builtin("keccak256") var keccak256 func()
-@Builtin("sha256") var sha256 func()
-@Builtin("sha3") var sha3 func()
+@Builtin("sha256") var sha256 func(text []byte)
+@Builtin("sha3") var sha3 func(text []byte)
 @Builtin("ripemd160") var ripemd160 func()
-@Builtin("ecrecover") var ecrecover func (v uint8, h, r, s bytes32) address
+@Builtin("ecrecover") var ecrecover func (v uint8, h, r, s []byte) address
+
+@Builtin("require") var require func (that bool)
+@Builtin("assert") var assert func (that bool)
 
 // contract functions
 // NO THIS KEYWORD: confusing for most programmers, unintentional bugs etc

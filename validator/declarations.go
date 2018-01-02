@@ -367,10 +367,6 @@ func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationN
 	v.validateAnnotations(ast.InterfaceDeclaration, node.Modifiers.Annotations)
 
 	var supers []*typing.Interface
-	if node == nil {
-		v.addError("")
-		return
-	}
 	for _, super := range node.Supers {
 		t := v.validatePlainType(super)
 		if t != typing.Unknown() {

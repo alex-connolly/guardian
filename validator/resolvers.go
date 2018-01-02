@@ -94,16 +94,12 @@ func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	l := e.(*ast.LiteralNode)
 	literalResolver, ok := v.literals[l.LiteralType]
 	if ok {
-
 		t := literalResolver(v, l.Data)
 		l.Resolved = t
 		return l.Resolved
-	} else {
-		v.addError(errStringLiteralUnsupported)
-		l.Resolved = typing.Invalid()
-		return l.Resolved
 	}
-
+	l.Resolved = typing.Invalid()
+	return l.Resolved
 }
 
 func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Type {

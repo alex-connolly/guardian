@@ -8,6 +8,9 @@ type NumericType struct {
 	Integer bool
 }
 
+type VoidType struct {
+}
+
 type BooleanType struct {
 }
 

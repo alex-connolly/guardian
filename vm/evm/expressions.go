@@ -142,6 +142,8 @@ func (e *GuardianEVM) traverseCallExpr(n *ast.CallExpressionNode) (code vmgen.By
 	// traverse the call expression
 	// should leave the function address on top of the stack
 
+	// need to get annotations through this process
+
 	if n.Call.Type() == ast.Identifier {
 		i := n.Call.(*ast.IdentifierNode)
 		if b, ok := builtins[i.Name]; ok {
@@ -157,15 +159,6 @@ func (e *GuardianEVM) traverseCallExpr(n *ast.CallExpressionNode) (code vmgen.By
 	// parameters are at the top of the stack
 	// jump to the top of the function
 	return code
-}
-
-func checkBuiltin(code vmgen.Bytecode) (res vmgen.Bytecode, isBuiltin bool) {
-	/*for name, b := range builtins {
-		if code.CompareBytes(EncodeName(name)) {
-			return b(), true
-		}
-	}*/
-	return code, false
 }
 
 func (e *GuardianEVM) traverseLiteral(n *ast.LiteralNode) (code vmgen.Bytecode) {

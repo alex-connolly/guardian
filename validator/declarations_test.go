@@ -244,3 +244,26 @@ func TestValidateModifiersInvalidUnrecognised(t *testing.T) {
 	_, errs := ValidateString(NewTestVM(), "elephant name string")
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
+
+func TestInterfaceParents(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		interface Switchable{}
+		interface Deletable{}
+		interface Light inherits Switchable, Deletable {}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestInterfaceParentsImplemented(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		interface Switchable{
+			on()
+			off()
+		}
+		interface Deletable{}
+		interface Light inherits Switchable, Deletable {
+
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}

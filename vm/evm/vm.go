@@ -1,6 +1,8 @@
 package evm
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/parser"
 	"github.com/end-r/guardian/token"
@@ -80,15 +82,11 @@ func operatorAdd(v *validator.Validator, ts ...typing.Type) typing.Type {
 func (evm GuardianEVM) Primitives() map[string]typing.Type {
 
 	const maxSize = 256
-	m := map[string]typing.Type{
-		"int":  typing.NumericType{Name: "int", BitSize: maxSize, Signed: false, Integer: true},
-		"uint": typing.NumericType{Name: "uint", BitSize: maxSize, Signed: true, Integer: true},
-		"byte": typing.NumericType{Name: "byte", BitSize: 8, Signed: true, Integer: true},
-	}
+	m := map[string]typing.Type{}
 
 	const increment = 8
 	for i := increment; i <= maxSize; i += increment {
-		ints := "int" + string(i)
+		ints := fmt.Sprintf("int%d", i)
 		uints := "u" + ints
 		m[uints] = typing.NumericType{Name: uints, BitSize: i, Signed: false, Integer: true}
 		m[ints] = typing.NumericType{Name: ints, BitSize: i, Signed: true, Integer: true}

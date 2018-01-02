@@ -58,6 +58,15 @@ func TestParseInterfaceDeclarationAbstract(t *testing.T) {
 	goutil.AssertNow(t, len(i.Supers) == 0, "wrong supers length")
 }
 
+func TestParseInterfaceInheriting(t *testing.T) {
+	_, errs := ParseString(`
+		interface Switchable{}
+		interface Deletable{}
+		interface Light inherits Switchable, Deletable {}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
 func TestParseContractDeclarationEmpty(t *testing.T) {
 	p := createParser(`contract Wagable {}`)
 	goutil.AssertNow(t, len(p.tokens) == 4, fmt.Sprintf("wrong token length: %d", len(p.tokens)))

@@ -57,3 +57,15 @@ func TestNewValidator(t *testing.T) {
 	goutil.AssertLength(t, len(v.literals), len(te.Literals()))
 	goutil.AssertNow(t, len(v.primitives) > 0, "no primitives")
 }
+
+func TestDeclarationAndCall(t *testing.T) {
+	te := NewTestVM()
+	_, errs := ValidateString(te, `
+		func hi(a bool){
+
+		}
+		hi(6 > 7)
+		hi(false)
+	`)
+	goutil.AssertNow(t, errs == nil, errs.Format())
+}

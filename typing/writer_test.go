@@ -8,13 +8,13 @@ import (
 )
 
 func TestWriteMapType(t *testing.T) {
-	m := Map{Key: standards[boolean], Value: standards[boolean]}
+	m := &Map{Key: standards[boolean], Value: standards[boolean]}
 	expected := "map[bool]bool"
 	goutil.Assert(t, WriteType(m) == expected, fmt.Sprintf("wrong type written: %s\n", WriteType(m)))
 }
 
 func TestWriteArrayType(t *testing.T) {
-	m := Array{Value: standards[unknown], Length: 0, Variable: true}
+	m := &Array{Value: standards[unknown], Length: 0, Variable: true}
 	expected := "[]unknown"
 	goutil.Assert(t, WriteType(m) == expected, fmt.Sprintf("wrong type written: %s\n", WriteType(m)))
 }
@@ -38,20 +38,19 @@ func TestWriteTupleTypeMultiple(t *testing.T) {
 }
 
 func TestWriteFuncEmptyParamsEmptyResults(t *testing.T) {
-	m := Func{Params: NewTuple(), Results: NewTuple()}
+	m := &Func{Params: NewTuple(), Results: NewTuple()}
 	expected := "func()()"
 	goutil.Assert(t, WriteType(m) == expected, fmt.Sprintf("wrong type written: %s\n", WriteType(m)))
 }
 
 func TestWriteFuncEmptyParamsSingleResults(t *testing.T) {
-
-	m := Func{Params: NewTuple(), Results: NewTuple(standards[boolean])}
+	m := &Func{Params: NewTuple(), Results: NewTuple(standards[boolean])}
 	expected := "func()(bool)"
 	goutil.Assert(t, WriteType(m) == expected, fmt.Sprintf("wrong type written: %s\n", WriteType(m)))
 }
 
 func TestWriteFuncMultipleParamsMultipleResults(t *testing.T) {
-	m := Func{Params: NewTuple(standards[boolean], standards[unknown]), Results: NewTuple(standards[boolean], standards[unknown])}
+	m := &Func{Params: NewTuple(standards[boolean], standards[unknown]), Results: NewTuple(standards[boolean], standards[unknown])}
 	expected := "func(bool, unknown)(bool, unknown)"
 	goutil.Assert(t, WriteType(m) == expected, fmt.Sprintf("wrong type written: %s\n", WriteType(m)))
 }

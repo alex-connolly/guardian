@@ -168,6 +168,8 @@ func (v TestVM) Traverse(ast.Node) (vmgen.Bytecode, util.Errors) {
 
 func (v TestVM) Builtins() *ast.ScopeNode {
 	a, _ := parser.ParseString(`
+		type uint uint256
+		type int int256
 		type byte int8
 		type string []byte
 		type address [20]byte
@@ -266,8 +268,6 @@ func getIntegerTypes() map[string]typing.Type {
 		m[uintName] = typing.NumericType{Name: uintName, BitSize: i, Signed: false, Integer: true}
 		m[intName] = typing.NumericType{Name: intName, BitSize: i, Signed: true, Integer: true}
 	}
-	m["int"] = typing.NumericType{Name: "int", BitSize: maxSize, Signed: false, Integer: true}
-	m["uint"] = typing.NumericType{Name: "int", BitSize: maxSize, Signed: true, Integer: true}
 	return m
 }
 
