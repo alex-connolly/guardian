@@ -33,8 +33,8 @@ ether = 1000 * milliether
 @Builtin("ripemd160") var ripemd160 func()
 @Builtin("ecrecover") var ecrecover func (v uint8, h, r, s []byte) address
 
-@Builtin("require") var require func (that bool)
-@Builtin("assert") var assert func (that bool)
+@Builtin("require") var require func(that bool)
+@Builtin("assert") var assert func(that bool)
 
 // contract functions
 // NO THIS KEYWORD: confusing for most programmers, unintentional bugs etc
