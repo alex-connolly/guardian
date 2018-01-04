@@ -98,7 +98,7 @@ func (v *Validator) validateFuncType(node *ast.FuncTypeNode) typing.Type {
 				t := v.validateType(n.DeclaredType)
 				n.Resolved = t
 				for _ = range n.Identifiers {
-					params = append(params, v.validateType(p))
+					params = append(params, t)
 				}
 				break
 			}
