@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/ast"
@@ -72,16 +74,36 @@ func BinaryIntegerOperator(v *Validator, types []typing.Type, exprs []ast.Expres
 }
 
 func CastOperator(v *Validator, types []typing.Type, exprs []ast.ExpressionNode) typing.Type {
-	// pretend it's a valid type
+	fmt.Println("here")
 	left := types[0]
 	t := v.validateType(exprs[1])
-	if t == typing.Unknown() || t == typing.Invalid() {
+	if t == typing.Unknown() || t == typing.Invalid() || t == nil {
 		v.addError(errImpossibleCastToNonType)
 		return left
 	}
+
 	if !typing.AssignableTo(left, t) {
+
+		if exprs[0].Type() == ast.Literal {
+			l := exprs[0].(*ast.LiteralNode)
+
+			if l.LiteralType != token.String {
+
+				num, ok := typing.ResolveUnderlying(t).(*typing.NumericType)
+				if ok {
+					if l.Data[0] == '-' {
+						if num.Signed {
+							return t
+						}
+					} else {
+						// TODO: handle floats
+						return t
+					}
+				}
+			}
+		}
 		v.addError(errImpossibleCast, typing.WriteType(left), typing.WriteType(t))
-		return left
+		return t
 	}
 	return t
 }

@@ -200,7 +200,7 @@ func (v TestVM) Builtins() *ast.ScopeNode {
 		@Builtin("sha256") var sha256 func()
 		@Builtin("sha3") var sha3 func()
 		@Builtin("ripemd160") var ripemd160 func()
-		@Builtin("ecrecover") var ecrecover func (v uint8, h, r, s bytes32) address
+		@Builtin("ecrecover") var ecrecover func (v uint8, h, r, s string) address
 
 		// contract functions
 		// NO THIS KEYWORD: confusing for most programmers, unintentional bugs etc

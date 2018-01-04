@@ -11,7 +11,6 @@ import (
 
 // GuardianEVM
 type GuardianEVM struct {
-	VM                 *vmgen.VM
 	hooks              []hook
 	lastSlot           uint
 	lastOffset         uint

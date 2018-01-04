@@ -35,3 +35,13 @@ func TestImportVM(t *testing.T) {
 	goutil.AssertNow(t, v.primitives != nil, "primitives should not be nil")
 	goutil.AssertNow(t, v.getNamedType("address") != typing.Unknown(), "addr unrecognised")
 }
+
+func TestCastingValidToUnsigned(t *testing.T) {
+	_, errs := ValidateExpression(NewTestVM(), "5 as uint")
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestCastingInvalidToUnsigned(t *testing.T) {
+	_, errs := ValidateExpression(NewTestVM(), "-5 as uint")
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}

@@ -1,6 +1,10 @@
 package evm
 
-import "github.com/end-r/vmgen"
+import (
+	"fmt"
+
+	"github.com/end-r/vmgen"
+)
 
 // why are gas costs needed?
 // to enable the compiler to estimate the gas usage of different execution paths
@@ -36,45 +40,83 @@ type Instruction struct {
 	cost   func(interface{}) int
 }
 
-func constantGas(gas int) func() int {
-	return func(nil) int {
+func constantGas(gas int) func(interface{}) int {
+	return func(interface{}) int {
 		return gas
 	}
 }
 
 func generateDups() (im vmgen.InstructionMap) {
-    number := 16
-    for i := 0; i < number; i++ {
-        im[fmt.Sprintf("DUP%d", i)] = vmgen.Instruction{Opcode: 0x80 + i, Cost: constantGas(gasZero)}
-    }
-    return im
+	number := 16
+	for i := 1; i <= number; i++ {
+		im[fmt.Sprintf("DUP%d", i)] = vmgen.Instruction{Opcode: uint(0x80 + i), Cost: constantGas(gasZero)}
+	}
+	return im
 }
 
 func generateSwaps() (im vmgen.InstructionMap) {
-    number := 16
-    for i := 0; i < number; i++ {
-        im[fmt.Sprintf("SWAP%d", i)] = vmgen.Instruction{Opcode: 0x90 + i, Cost: constantGas(gasZero)}
-    }
-    return im
+	number := 16
+	for i := 1; i <= number; i++ {
+		im[fmt.Sprintf("SWAP%d", i)] = vmgen.Instruction{Opcode: uint(0x90 + i), Cost: constantGas(gasZero)}
+	}
+	return im
 }
 
 func generatePushes() (im vmgen.InstructionMap) {
-    number := 32
-    for i := 0; i < number; i++ {
-        im[fmt.Sprintf("SWAP%d", i)] = vmgen.Instruction{Opcode: 0x60 + i, Cost: constantGas(gasZero)}
-    }
-    return im
+	number := 32
+	for i := 1; i <= number; i++ {
+		im[fmt.Sprintf("SWAP%d", i)] = vmgen.Instruction{Opcode: uint(0x60 + i), Cost: constantGas(gasZero)}
+	}
+	return im
 }
 
 func generateLogs() (im vmgen.InstructionMap) {
-    number := 5
-    for i := 0; i < number; i++ {
-        im[fmt.Sprintf("SWAP%d", i)] = vmgen.Instruction{Opcode: 0xA0 + i, Cost: constantGas(gasZero)}
-    }
-    return im
+	number := 5
+	for i := 0; i < number; i++ {
+		im[fmt.Sprintf("SWAP%d", i)] = vmgen.Instruction{Opcode: uint(0xA0 + i), Cost: constantGas(gasZero)}
+	}
+	return im
 }
 
+func gasExp(interface{}) int {
+	return 0
+}
 
+func gasSLoad(interface{}) int {
+	return 0
+}
+
+func gasSStore(interface{}) int {
+	return 0
+}
+
+func gasCall(interface{}) int {
+	return 0
+}
+
+func gasBalance(interface{}) int {
+	return 0
+}
+
+func gasSha3(interface{}) int {
+	return 0
+}
+
+func gasCodeCopy(interface{}) int {
+	return 0
+}
+
+func gasCallDataCopy(interface{}) int {
+	return 0
+}
+
+func gasExtCodeSize(interface{}) int {
+	return 0
+}
+
+func gasExtCodeCopy(interface{}) int {
+	return 0
+}
 
 func (e EVMGenerator) Opcodes() vmgen.InstructionMap {
 	m := vmgen.InstructionMap{
@@ -88,62 +130,62 @@ func (e EVMGenerator) Opcodes() vmgen.InstructionMap {
 		"SMOD":       vmgen.Instruction{Opcode: 0x07, Cost: constantGas(gasLow)},
 		"ADDMOD":     vmgen.Instruction{Opcode: 0x08, Cost: constantGas(gasMid)},
 		"MULMOD":     vmgen.Instruction{Opcode: 0x09, Cost: constantGas(gasMid)},
-		"EXP":        vmgen.Instruction{Opcode: 0x0A, Cost: },
+		"EXP":        vmgen.Instruction{Opcode: 0x0A, Cost: gasExp},
 		"SIGNEXTEND": vmgen.Instruction{Opcode: 0x0B, Cost: constantGas(gasLow)},
 
-        "LT": vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasVeryLow)},
-        "GT": vmgen.Instruction{Opcode: 0x11, Cost: constantGas(gasVeryLow)},
-        "SLT": vmgen.Instruction{Opcode: 0x12, Cost: constantGas(gasVeryLow)},
-        "SGT": vmgen.Instruction{Opcode: 0x13, Cost: constantGas(gasVeryLow)},
-        "EQ": vmgen.Instruction{Opcode: 0x14, Cost: constantGas(gasVeryLow)},
-        "ISZERO": vmgen.Instruction{Opcode: 0x15, Cost: constantGas(gasVeryLow)},
-        "AND": vmgen.Instruction{Opcode: 0x16, Cost: constantGas(gasVeryLow)},
-        "OR": vmgen.Instruction{Opcode: 0x17, Cost: constantGas(gasVeryLow)},
-        "XOR": vmgen.Instruction{Opcode: 0x18, Cost: constantGas(gasVeryLow)},
-        "NOT": vmgen.Instruction{Opcode: 0x19, Cost: constantGas(gasVeryLow)},
-        "BYTE": vmgen.Instruction{Opcode: 0x1A, Cost: constantGas(gasVeryLow)},
+		"LT":     vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasVeryLow)},
+		"GT":     vmgen.Instruction{Opcode: 0x11, Cost: constantGas(gasVeryLow)},
+		"SLT":    vmgen.Instruction{Opcode: 0x12, Cost: constantGas(gasVeryLow)},
+		"SGT":    vmgen.Instruction{Opcode: 0x13, Cost: constantGas(gasVeryLow)},
+		"EQ":     vmgen.Instruction{Opcode: 0x14, Cost: constantGas(gasVeryLow)},
+		"ISZERO": vmgen.Instruction{Opcode: 0x15, Cost: constantGas(gasVeryLow)},
+		"AND":    vmgen.Instruction{Opcode: 0x16, Cost: constantGas(gasVeryLow)},
+		"OR":     vmgen.Instruction{Opcode: 0x17, Cost: constantGas(gasVeryLow)},
+		"XOR":    vmgen.Instruction{Opcode: 0x18, Cost: constantGas(gasVeryLow)},
+		"NOT":    vmgen.Instruction{Opcode: 0x19, Cost: constantGas(gasVeryLow)},
+		"BYTE":   vmgen.Instruction{Opcode: 0x1A, Cost: constantGas(gasVeryLow)},
 
-        "SHA3": vmgen.Instruction{Opcode: 0x20, Cost: },
+		"SHA3": vmgen.Instruction{Opcode: 0x20, Cost: gasSha3},
 
-        "ADDRESS": vmgen.Instruction{Opcode: 0x30, Cost: constantGas(gasBase)},
-        "BALANCE": vmgen.Instruction{Opcode: 0x31, Cost: },
-        "ORIGIN": vmgen.Instruction{Opcode: 0x32, Cost: constantGas(gasBase)},
-        "CALLER": vmgen.Instruction{Opcode: 0x33, Cost: constantGas(gasBase)},
-        "CALLVALUE": vmgen.Instruction{Opcode: 0x34, Cost: constantGas(gasBase)},
-        "CALLDATALOAD": vmgen.Instruction{Opcode: 0x35, Cost: constantGas(gasVeryLow)},
-        "CALLDATASIZE": vmgen.Instruction{Opcode: 0x36, Cost: constantGas(gasBase)},
-        "CALLDATACOPY": vmgen.Instruction{Opcode: 0x37, Cost: },
-        "CODESIZE": vmgen.Instruction{Opcode: 0x38, Cost: },
-        "CODECOPY": vmgen.Instruction{Opcode: 0x39, Cost: },
-        "GASPRICE": vmgen.Instruction{Opcode: 0x3A, Cost: constantGas(gasBase)},
-        "EXTCODESIZE": vmgen.Instruction{Opcode: 0x3B, Cost: constantGas(gasExtCode)},
-        "EXTCODECOPY": vmgen.Instruction{Opcode: 0x3C, Cost: },
+		"ADDRESS":      vmgen.Instruction{Opcode: 0x30, Cost: constantGas(gasBase)},
+		"BALANCE":      vmgen.Instruction{Opcode: 0x31, Cost: gasBalance},
+		"ORIGIN":       vmgen.Instruction{Opcode: 0x32, Cost: constantGas(gasBase)},
+		"CALLER":       vmgen.Instruction{Opcode: 0x33, Cost: constantGas(gasBase)},
+		"CALLVALUE":    vmgen.Instruction{Opcode: 0x34, Cost: constantGas(gasBase)},
+		"CALLDATALOAD": vmgen.Instruction{Opcode: 0x35, Cost: constantGas(gasVeryLow)},
+		"CALLDATASIZE": vmgen.Instruction{Opcode: 0x36, Cost: constantGas(gasBase)},
+		"CALLDATACOPY": vmgen.Instruction{Opcode: 0x37, Cost: gasCallDataCopy},
+		"CODESIZE":     vmgen.Instruction{Opcode: 0x38, Cost: constantGas(gasBase)},
+		"CODECOPY":     vmgen.Instruction{Opcode: 0x39, Cost: gasCodeCopy},
+		"GASPRICE":     vmgen.Instruction{Opcode: 0x3A, Cost: constantGas(gasBase)},
+		"EXTCODESIZE":  vmgen.Instruction{Opcode: 0x3B, Cost: gasExtCodeSize},
+		"EXTCODECOPY":  vmgen.Instruction{Opcode: 0x3C, Cost: gasExtCodeCopy},
 
-        "BLOCKHASH": vmgen.Instruction{Opcode: 0x10, Cost: },
-        "COINBASE": vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasBase)},
-        "TIMESTAMP": vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasBase)},
-        "NUMBER": vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasBase)},
-        "DIFFICULTY": vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasBase)},
-        "GASLIMIT": vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasBase)},
+		"BLOCKHASH":  vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasExtStep)},
+		"COINBASE":   vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasBase)},
+		"TIMESTAMP":  vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasBase)},
+		"NUMBER":     vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasBase)},
+		"DIFFICULTY": vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasBase)},
+		"GASLIMIT":   vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasBase)},
 
-        "POP": vmgen.Instruction{Opcode: 0x50, Cost: constantGas(gasBase)},
-        "MLOAD": vmgen.Instruction{Opcode: 0x51, Cost: constantGas(gasVeryLow)},
-        "MSTORE": vmgen.Instruction{Opcode: 0x52, Cost: constantGas(gasVeryLow)},
-        "MSTORE8": vmgen.Instruction{Opcode: 0x53, Cost: constantGas(gasVeryLow)},
-        "SLOAD": vmgen.Instruction{Opcode: 0x54, Cost: },
-        "SSTORE": vmgen.Instruction{Opcode: 0x55, Cost: },
-        "JUMP": vmgen.Instruction{Opcode: 0x56, Cost: constantGas(gasMid)},
-        "JUMPI": vmgen.Instruction{Opcode: 0x57, Cost: constantGas(gasHigh)},
-        "PC": vmgen.Instruction{Opcode: 0x58, Cost: constantGas(gasBase)},
-        "MSIZE": vmgen.Instruction{Opcode: 0x59, Cost: constantGas(gasBase)},
-        "GAS": vmgen.Instruction{Opcode: 0x5A, Cost: constantGas(gasBase)},
-        "JUMPDEST": vmgen.Instruction{Opcode: 0x5B, Cost: },
+		"POP":      vmgen.Instruction{Opcode: 0x50, Cost: constantGas(gasBase)},
+		"MLOAD":    vmgen.Instruction{Opcode: 0x51, Cost: constantGas(gasVeryLow)},
+		"MSTORE":   vmgen.Instruction{Opcode: 0x52, Cost: constantGas(gasVeryLow)},
+		"MSTORE8":  vmgen.Instruction{Opcode: 0x53, Cost: constantGas(gasVeryLow)},
+		"SLOAD":    vmgen.Instruction{Opcode: 0x54, Cost: gasSLoad},
+		"SSTORE":   vmgen.Instruction{Opcode: 0x55, Cost: gasSStore},
+		"JUMP":     vmgen.Instruction{Opcode: 0x56, Cost: constantGas(gasMid)},
+		"JUMPI":    vmgen.Instruction{Opcode: 0x57, Cost: constantGas(gasHigh)},
+		"PC":       vmgen.Instruction{Opcode: 0x58, Cost: constantGas(gasBase)},
+		"MSIZE":    vmgen.Instruction{Opcode: 0x59, Cost: constantGas(gasBase)},
+		"GAS":      vmgen.Instruction{Opcode: 0x5A, Cost: constantGas(gasBase)},
+		"JUMPDEST": vmgen.Instruction{Opcode: 0x5B, Cost: constantGas(gasJumpDest)},
 	}
 
-    m.AddAll(vmgen.GeneratePushes())
-    m.AddAll(vmgen.GenerateDups())
-    m.AddAll(vmgen.GenerateLogs())
-    m.AddAll(vmgen.GenerateSwaps())
+	m.AddAll(generatePushes())
+	m.AddAll(generateDups())
+	m.AddAll(generateLogs())
+	m.AddAll(generateSwaps())
 
-    return m
+	return m
 }

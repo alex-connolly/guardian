@@ -8,6 +8,8 @@ import (
 )
 
 func (v *Validator) validateExpression(node ast.ExpressionNode) {
+	// only need to handle the permissible danging expressions
+	// technically this is a statement I suppose
 	switch n := node.(type) {
 	case *ast.CallExpressionNode:
 		v.validateCallExpression(n)

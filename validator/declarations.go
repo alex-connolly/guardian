@@ -20,6 +20,8 @@ func (v *Validator) validateType(destination ast.Node) typing.Type {
 		return v.validateArrayType(n)
 	case *ast.FuncTypeNode:
 		return v.validateFuncType(n)
+	case *ast.ExplicitVarDeclarationNode:
+		return v.validateType(n.DeclaredType)
 	}
 	return typing.Invalid()
 }

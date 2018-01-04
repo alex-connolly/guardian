@@ -27,3 +27,18 @@ func TestIsIdentifierByte(t *testing.T) {
 	goutil.Assert(t, isIdentifierByte('_'), "underscore not id byte")
 	goutil.Assert(t, !isIdentifierByte(' '), "space should not be id byte")
 }
+
+func TestIsNumber(t *testing.T) {
+	byt := []byte(`9`)
+	b := &bytecode{bytes: byt}
+	goutil.Assert(t, isInteger(b), "positive integer")
+	byt = []byte(`-9`)
+	b = &bytecode{bytes: byt}
+	goutil.Assert(t, isInteger(b), "negative integer")
+	byt = []byte(`9.0`)
+	b = &bytecode{bytes: byt}
+	goutil.Assert(t, isFloat(b), "positive float")
+	byt = []byte(`-9.0`)
+	b = &bytecode{bytes: byt}
+	goutil.Assert(t, isFloat(b), "negative float")
+}
