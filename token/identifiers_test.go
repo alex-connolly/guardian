@@ -41,4 +41,7 @@ func TestIsNumber(t *testing.T) {
 	byt = []byte(`-9.0`)
 	b = &bytecode{bytes: byt}
 	goutil.Assert(t, isFloat(b), "negative float")
+	byt = []byte(`-.9`)
+	b = &bytecode{bytes: byt}
+	goutil.Assert(t, isFloat(b), "negative float")
 }

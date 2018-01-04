@@ -18,6 +18,10 @@ func processInteger(b Byterable) (t Token) {
 	t.Start = b.Offset()
 	t.End = b.Offset()
 	t.Type = Integer
+	if current(b) == '-' {
+		t.End++
+		next(b)
+	}
 	if current(b) == '0' {
 		t.End++
 		next(b)
@@ -54,6 +58,10 @@ func processFloat(b Byterable) (t Token) {
 	t.End = b.Offset()
 	t.Type = Float
 	decimalUsed := false
+	if current(b) == '-' {
+		t.End++
+		next(b)
+	}
 	for '0' <= current(b) && current(b) <= '9' || current(b) == '.' {
 		if current(b) == '.' {
 			if decimalUsed {

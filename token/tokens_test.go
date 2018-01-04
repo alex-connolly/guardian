@@ -146,3 +146,23 @@ func TestNextTokenSingleZero(t *testing.T) {
 	tok := p.Process(b)
 	goutil.AssertLength(t, tok.End, len(byt))
 }
+
+func TestNextTokenNegativeInt(t *testing.T) {
+	byt := []byte(`-55`)
+	b := &bytecode{bytes: byt}
+	p := NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "integer", fmt.Sprintf("wrong name: %s", p.Name))
+	tok := p.Process(b)
+	goutil.AssertLength(t, tok.End, len(byt))
+}
+
+func TestNextTokenNegativeFloat(t *testing.T) {
+	byt := []byte(`-55.00`)
+	b := &bytecode{bytes: byt}
+	p := NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "float", fmt.Sprintf("wrong name: %s", p.Name))
+	tok := p.Process(b)
+	goutil.AssertLength(t, tok.End, len(byt))
+}
