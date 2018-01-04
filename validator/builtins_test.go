@@ -37,11 +37,11 @@ func TestImportVM(t *testing.T) {
 }
 
 func TestCastingValidToUnsigned(t *testing.T) {
-	_, errs := ValidateExpression(NewTestVM(), "5 as uint")
+	_, errs := ValidateString(NewTestVM(), "x = 5 as uint")
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
 func TestCastingInvalidToUnsigned(t *testing.T) {
-	_, errs := ValidateExpression(NewTestVM(), "-5 as uint")
+	_, errs := ValidateString(NewTestVM(), "x = -5 as uint")
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }

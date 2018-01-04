@@ -20,8 +20,6 @@ func (v *Validator) validateType(destination ast.Node) typing.Type {
 		return v.validateArrayType(n)
 	case *ast.FuncTypeNode:
 		return v.validateFuncType(n)
-	case *ast.ExplicitVarDeclarationNode:
-		return v.validateType(n.DeclaredType)
 	}
 	return typing.Invalid()
 }
@@ -92,7 +90,19 @@ func (v *Validator) validateFuncType(node *ast.FuncTypeNode) typing.Type {
 	}
 	if node.Parameters != nil {
 		for _, p := range node.Parameters {
-			params = append(params, v.validateType(p))
+			switch n := p.(type) {
+			case *ast.PlainTypeNode:
+				params = append(params, v.validateType(n))
+				break
+			case *ast.ExplicitVarDeclarationNode:
+				t := v.validateType(n.DeclaredType)
+				n.Resolved = t
+				for _ = range n.Identifiers {
+					params = append(params, v.validateType(p))
+				}
+				break
+			}
+
 		}
 	}
 	var results []typing.Type

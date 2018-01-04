@@ -1,8 +1,6 @@
 package validator
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/ast"
@@ -74,7 +72,6 @@ func BinaryIntegerOperator(v *Validator, types []typing.Type, exprs []ast.Expres
 }
 
 func CastOperator(v *Validator, types []typing.Type, exprs []ast.ExpressionNode) typing.Type {
-	fmt.Println("here")
 	left := types[0]
 	t := v.validateType(exprs[1])
 	if t == typing.Unknown() || t == typing.Invalid() || t == nil {
