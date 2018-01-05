@@ -45,13 +45,13 @@ func TestBuiltinAssert(t *testing.T) {
 
 func TestBuiltinAddmod(t *testing.T) {
 	e := NewVM()
-	a, errs := validator.ValidateExpression(e, "addmod(1, 2, 3)")
+	a, errs := validator.ValidateExpression(e, "addmod(1 as uint, 2  as uint, 3 as uint)")
 	goutil.AssertNow(t, errs == nil, errs.Format())
 	code := e.traverseExpression(a)
 	expected := []string{
-		"PUSH1",
-		"PUSH1",
-		"PUSH1",
+		"PUSH32",
+		"PUSH32",
+		"PUSH32",
 		"ADDMOD",
 	}
 	goutil.Assert(t, code.CompareMnemonics(expected), code.Format())
@@ -59,13 +59,13 @@ func TestBuiltinAddmod(t *testing.T) {
 
 func TestBuiltinMulmod(t *testing.T) {
 	e := NewVM()
-	a, errs := validator.ValidateExpression(e, "addmod(1, 2, 3)")
+	a, errs := validator.ValidateExpression(e, "mulmod(1 as uint, 2 as uint, 3 as uint)")
 	goutil.AssertNow(t, errs == nil, errs.Format())
 	code := e.traverseExpression(a)
 	expected := []string{
-		"PUSH1",
-		"PUSH1",
-		"PUSH1",
+		"PUSH32",
+		"PUSH32",
+		"PUSH32",
 		"ADDMOD",
 	}
 	goutil.Assert(t, code.CompareMnemonics(expected), code.Format())
@@ -97,12 +97,11 @@ func TestBuiltinSha3(t *testing.T) {
 
 func TestBuiltinRevert(t *testing.T) {
 	e := NewVM()
-	a, errs := validator.ValidateExpression(e, `sha3("hello")`)
+	a, errs := validator.ValidateExpression(e, `revert()`)
 	goutil.AssertNow(t, errs == nil, errs.Format())
 	code := e.traverseExpression(a)
 	expected := []string{
-		"PUSH",
-		"SHA3",
+		"REVERT",
 	}
 	goutil.Assert(t, code.CompareMnemonics(expected), code.Format())
 }

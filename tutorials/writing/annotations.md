@@ -22,3 +22,5 @@ func handleHello(i {}interface, a []*Annotation) {
 }
 
 ```
+
+Currently, annotations can only accept string parameters, but this is a flexible limitation and is open to revision in future versions.

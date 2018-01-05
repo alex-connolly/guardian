@@ -161,3 +161,67 @@ func TestForStatement(t *testing.T) {
 func TestReturnStatement(t *testing.T) {
 
 }
+
+func TestBreakStatement(t *testing.T) {
+	e := NewVM()
+	scope, _ := validator.ValidateString(e, `
+        for x = 0; x < 5; x++ {
+			if x == 3 {
+				break
+			}
+		}
+    `)
+	f := scope.Sequence[0].(*ast.ForStatementNode)
+	bytecode := e.traverseForStatement(f)
+	expected := []string{
+		// init
+		"PUSH", "PUSH", "MSTORE",
+		// top of loop
+		"PUSH", "PUSH", "GT",
+		// jumper
+		"PUSH", "JUMPI",
+		// loop body
+		// if statement
+		"PUSH", "MLOAD", "PUSH", "EQ", "ISZERO", "JUMPI",
+		"JUMP",
+		"JUMPDEST",
+	}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func Test2DLoopBreakStatement(t *testing.T) {
+	e := NewVM()
+	scope, _ := validator.ValidateString(e, `
+        for x = 0; x < 5; x++ {
+			for y = 0; y < 5; y++ {
+				if x + y == 3 {
+					break
+				}
+			}
+		}
+    `)
+	f := scope.Sequence[0].(*ast.ForStatementNode)
+	bytecode := e.traverseForStatement(f)
+	expected := []string{
+		// init
+		"PUSH", "PUSH", "MSTORE",
+		// top of loop
+		"PUSH", "PUSH", "GT",
+		// jumper
+		"PUSH", "JUMPI",
+		// loop body
+		// init
+		"PUSH", "PUSH", "MSTORE",
+		// top of loop
+		"PUSH", "PUSH", "GT",
+		// jumper
+		"PUSH", "JUMPI",
+		// if statement
+		"PUSH", "MLOAD", "PUSH", "MLOAD,", "ADD", "PUSH", "EQ", "ISZERO", "JUMPI",
+		// break statement
+		"JUMP",
+		"JUMPDEST",
+		"JUMPDEST",
+	}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}

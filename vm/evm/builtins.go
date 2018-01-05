@@ -18,6 +18,7 @@ var builtins = map[string]validator.BytecodeGenerator{
 	"callcode":     callCode,
 	// error-checking
 	"revert":  validator.SimpleInstruction("REVERT"),
+	"throw":   validator.SimpleInstruction("REVERT"),
 	"require": require,
 	"assert":  assert,
 	// cryptographic

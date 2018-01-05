@@ -35,6 +35,9 @@ func (evm GuardianEVM) Literals() validator.LiteralMap {
 }
 
 func resolveIntegerLiteral(v *validator.Validator, data string) typing.Type {
+	if len(data) == len("0x")+20 {
+		// this might be an address
+	}
 	x := typing.BitsNeeded(len(data))
 	return v.SmallestNumericType(x, false)
 }

@@ -1,7 +1,6 @@
 package evm
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/end-r/guardian/validator"
@@ -13,12 +12,10 @@ import (
 
 func TestTraverseSimpleIdentifierExpression(t *testing.T) {
 	e := NewVM()
-	fmt.Println("hi")
 	a, _ := validator.ValidateString(e, `
 		hello = 5
 		x = hello
 	`)
-	fmt.Println("hello")
 	bytecode, _ := e.Traverse(a)
 	expected := []string{
 		// push x
@@ -307,5 +304,13 @@ func TestTraverseLiteralThirtyTwoBytes(t *testing.T) {
 	expr := parser.ParseExpression("115792089237316195423570985008687907853269984665640564039457584007913129639936")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH32"}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func TestSimpleBinaryComparisonSigned(t *testing.T) {
+	e := new(GuardianEVM)
+	expr := parser.ParseExpression("3 < 4")
+	bytecode := e.traverseExpression(expr)
+	expected := []string{"PUSH1", "PUSH1", "SLT"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }

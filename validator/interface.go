@@ -17,6 +17,8 @@ func ValidateExpression(vm VM, text string) (ast.ExpressionNode, util.Errors) {
 	expr := parser.ParseExpression(text)
 	v := NewValidator(vm)
 	v.validateExpression(expr)
+	// have to resolve as well so that bytecode generators can process
+	v.resolveExpression(expr)
 	return expr, v.errs
 }
 

@@ -36,6 +36,9 @@ ether = 1000 * milliether
 @Builtin("require") var require func(that bool)
 @Builtin("assert") var assert func(that bool)
 
+@Builtin("revert") var revert func()
+@Builtin("throw") var throw func()
+
 // contract functions
 // NO THIS KEYWORD: confusing for most programmers, unintentional bugs etc
 

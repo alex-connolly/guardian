@@ -12,6 +12,14 @@ import (
 	"github.com/end-r/guardian/ast"
 )
 
+func (e *GuardianEVM) traverseValue(n ast.ExpressionNode) (code vmgen.Bytecode) {
+	return code
+}
+
+func (e *GuardianEVM) traverseLocation(n ast.ExpressionNode) (code vmgen.Bytecode) {
+	return code
+}
+
 func (e *GuardianEVM) traverseExpression(n ast.ExpressionNode) (code vmgen.Bytecode) {
 	switch node := n.(type) {
 	case *ast.ArrayLiteralNode:
@@ -86,17 +94,91 @@ func (e *GuardianEVM) traverseCompositeLiteral(n *ast.CompositeLiteralNode) (cod
 	return code
 }
 
-var binaryOps = map[token.Type]string{
-	token.Add: "ADD",
-	token.Sub: "SUB",
-	token.Mul: "MUL",
-	token.Div: "DIV",
-	token.Mod: "MOD",
-	token.Shl: "SHL",
-	token.Shr: "SHR",
-	token.And: "AND",
-	token.Or:  "OR",
-	token.Xor: "XOR",
+var binaryOps = map[token.Type]BinaryOperator{
+	token.Add: additionOrConcatenation,
+	token.Sub: simpleOperator("SUB"),
+	token.Mul: simpleOperator("MUL"),
+	token.Div: signedOperator("DIV", "SDIV"),
+	token.Mod: signedOperator("MOD", "SMOD"),
+	token.Shl: simpleOperator("SHL"),
+	token.Shr: simpleOperator("SHR"),
+	token.And: simpleOperator("AND"),
+	token.Or:  simpleOperator("OR"),
+	token.Xor: simpleOperator("XOR"),
+	token.As:  ignoredOperator(),
+	token.Gtr: signedOperator("GT", "SGT"),
+	token.Lss: signedOperator("LT", "SLT"),
+	token.Eql: simpleOperator("EQL"),
+	token.Neq: reversedOperator("EQL"),
+	token.Geq: reversedSignedOperator("LT", "SLT"),
+	token.Leq: reversedSignedOperator("GT", "SGT"),
+}
+
+type BinaryOperator func(n *ast.BinaryExpressionNode) vmgen.Bytecode
+
+func reversedSignedOperator(unsigned, signed string) BinaryOperator {
+	return func(n *ast.BinaryExpressionNode) (code vmgen.Bytecode) {
+		left, lok := typing.ResolveUnderlying(n.Left.ResolvedType()).(*typing.NumericType)
+		right, rok := typing.ResolveUnderlying(n.Left.ResolvedType()).(*typing.NumericType)
+		if lok && rok {
+			if left.Signed || right.Signed {
+				code.Add(signed)
+			} else {
+				code.Add(unsigned)
+			}
+			code.Add("NOT")
+		}
+		return code
+	}
+}
+
+func reversedOperator(mnemonic string) BinaryOperator {
+	return func(n *ast.BinaryExpressionNode) (code vmgen.Bytecode) {
+		code.Add(mnemonic)
+		code.Add("NOT")
+		return code
+	}
+}
+
+func ignoredOperator() BinaryOperator {
+	return func(n *ast.BinaryExpressionNode) (code vmgen.Bytecode) {
+		return code
+	}
+}
+
+func simpleOperator(mnemonic string) BinaryOperator {
+	return func(n *ast.BinaryExpressionNode) (code vmgen.Bytecode) {
+		code.Add(mnemonic)
+		return code
+	}
+}
+
+func signedOperator(unsigned, signed string) BinaryOperator {
+	return func(n *ast.BinaryExpressionNode) (code vmgen.Bytecode) {
+		fmt.Println("signed")
+		left, lok := typing.ResolveUnderlying(n.Left.ResolvedType()).(*typing.NumericType)
+		right, rok := typing.ResolveUnderlying(n.Right.ResolvedType()).(*typing.NumericType)
+		if lok && rok {
+			if left.Signed || right.Signed {
+				code.Add(signed)
+			} else {
+				code.Add(unsigned)
+			}
+		}
+		return code
+	}
+}
+
+func additionOrConcatenation(n *ast.BinaryExpressionNode) (code vmgen.Bytecode) {
+	switch n.Resolved.(type) {
+	case *typing.NumericType:
+		code.Add("ADD")
+		return code
+	default:
+		// otherwise must be a string
+		return code
+
+	}
 }
 
 func (e *GuardianEVM) traverseBinaryExpr(n *ast.BinaryExpressionNode) (code vmgen.Bytecode) {
@@ -111,7 +193,7 @@ func (e *GuardianEVM) traverseBinaryExpr(n *ast.BinaryExpressionNode) (code vmge
 	code.Concat(e.traverseExpression(n.Left))
 	code.Concat(e.traverseExpression(n.Right))
 
-	//op := binaryOps[n.Operator]
+	code.Concat(binaryOps[n.Operator](n))
 
 	return code
 }

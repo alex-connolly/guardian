@@ -64,7 +64,6 @@ func (e *GuardianEVM) traverseForStatement(n *ast.ForStatementNode) (code vmgen.
 }
 
 func (evm *GuardianEVM) increment(varName string) (code vmgen.Bytecode) {
-
 	code.Concat(push([]byte(varName)))
 	code.Add("DUP1")
 	code.Add("MLOAD")
@@ -120,6 +119,10 @@ func (e *GuardianEVM) traverseReturnStatement(n *ast.ReturnStatementNode) (code 
 	// jump back to somewhere
 	// top of stack should now be return address
 	code.Add("JUMP")
+	return code
+}
+
+func (e *GuardianEVM) traverseControlFlowStatement(n *ast.FlowStatementNode) (code vmgen.Bytecode) {
 	return code
 }
 
