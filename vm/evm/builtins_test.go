@@ -1,6 +1,7 @@
 package evm
 
 import (
+	"axia/guardian/parser"
 	"fmt"
 	"testing"
 
@@ -104,4 +105,100 @@ func TestBuiltinRevert(t *testing.T) {
 		"REVERT",
 	}
 	goutil.Assert(t, code.CompareMnemonics(expected), code.Format())
+}
+
+func TestCalldata(t *testing.T) {
+	e := new(GuardianEVM)
+	expr := parser.ParseExpression("msg.data")
+	bytecode := e.traverseExpression(expr)
+	expected := []string{"CALLDATA"}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func TestGas(t *testing.T) {
+	e := new(GuardianEVM)
+	expr := parser.ParseExpression("msg.gas")
+	bytecode := e.traverseExpression(expr)
+	expected := []string{"GAS"}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func TestCaller(t *testing.T) {
+	e := new(GuardianEVM)
+	expr := parser.ParseExpression("msg.sender")
+	bytecode := e.traverseExpression(expr)
+	expected := []string{"CALLER"}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func TestSignature(t *testing.T) {
+	e := new(GuardianEVM)
+	expr := parser.ParseExpression("msg.sig")
+	bytecode := e.traverseExpression(expr)
+	// should get first 4 bytes of calldata
+	expected := []string{"CALLDATA"}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func TestTimestamp(t *testing.T) {
+	e := new(GuardianEVM)
+	expr := parser.ParseExpression("block.timestamp")
+	bytecode := e.traverseExpression(expr)
+	// should get first 4 bytes of calldata
+	expected := []string{"TIMESTAMP"}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func TestNumber(t *testing.T) {
+	e := new(GuardianEVM)
+	expr := parser.ParseExpression("block.timestamp")
+	bytecode := e.traverseExpression(expr)
+	// should get first 4 bytes of calldata
+	expected := []string{"NUMBER"}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func TestCoinbase(t *testing.T) {
+	e := new(GuardianEVM)
+	expr := parser.ParseExpression("block.timestamp")
+	bytecode := e.traverseExpression(expr)
+	// should get first 4 bytes of calldata
+	expected := []string{"COINBASE"}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func TestGasLimit(t *testing.T) {
+	e := new(GuardianEVM)
+	expr := parser.ParseExpression("block.gasLimit")
+	bytecode := e.traverseExpression(expr)
+	// should get first 4 bytes of calldata
+	expected := []string{"GASLIMIT"}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func TestBlockhash(t *testing.T) {
+	e := new(GuardianEVM)
+	expr := parser.ParseExpression("block.gasLimit")
+	bytecode := e.traverseExpression(expr)
+	// should get first 4 bytes of calldata
+	expected := []string{"GASLIMIT"}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func TestGasPrice(t *testing.T) {
+	e := new(GuardianEVM)
+	expr := parser.ParseExpression("tx.gasPrice")
+	bytecode := e.traverseExpression(expr)
+	// should get first 4 bytes of calldata
+	expected := []string{"GASPRICE"}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func TestOrigin(t *testing.T) {
+	e := new(GuardianEVM)
+	expr := parser.ParseExpression("tx.origin")
+	bytecode := e.traverseExpression(expr)
+	// should get first 4 bytes of calldata
+	expected := []string{"ORIGIN"}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }

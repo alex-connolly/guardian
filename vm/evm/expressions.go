@@ -95,23 +95,25 @@ func (e *GuardianEVM) traverseCompositeLiteral(n *ast.CompositeLiteralNode) (cod
 }
 
 var binaryOps = map[token.Type]BinaryOperator{
-	token.Add: additionOrConcatenation,
-	token.Sub: simpleOperator("SUB"),
-	token.Mul: simpleOperator("MUL"),
-	token.Div: signedOperator("DIV", "SDIV"),
-	token.Mod: signedOperator("MOD", "SMOD"),
-	token.Shl: simpleOperator("SHL"),
-	token.Shr: simpleOperator("SHR"),
-	token.And: simpleOperator("AND"),
-	token.Or:  simpleOperator("OR"),
-	token.Xor: simpleOperator("XOR"),
-	token.As:  ignoredOperator(),
-	token.Gtr: signedOperator("GT", "SGT"),
-	token.Lss: signedOperator("LT", "SLT"),
-	token.Eql: simpleOperator("EQL"),
-	token.Neq: reversedOperator("EQL"),
-	token.Geq: reversedSignedOperator("LT", "SLT"),
-	token.Leq: reversedSignedOperator("GT", "SGT"),
+	token.Add:        additionOrConcatenation,
+	token.Sub:        simpleOperator("SUB"),
+	token.Mul:        simpleOperator("MUL"),
+	token.Div:        signedOperator("DIV", "SDIV"),
+	token.Mod:        signedOperator("MOD", "SMOD"),
+	token.Shl:        simpleOperator("SHL"),
+	token.Shr:        simpleOperator("SHR"),
+	token.And:        simpleOperator("AND"),
+	token.Or:         simpleOperator("OR"),
+	token.Xor:        simpleOperator("XOR"),
+	token.As:         ignoredOperator(),
+	token.Gtr:        signedOperator("GT", "SGT"),
+	token.Lss:        signedOperator("LT", "SLT"),
+	token.Eql:        simpleOperator("EQL"),
+	token.Neq:        reversedOperator("EQL"),
+	token.Geq:        reversedSignedOperator("LT", "SLT"),
+	token.Leq:        reversedSignedOperator("GT", "SGT"),
+	token.LogicalAnd: ignoredOperator(),
+	token.LogicalOr:  ignoredOperator(),
 }
 
 type BinaryOperator func(n *ast.BinaryExpressionNode) vmgen.Bytecode
@@ -155,7 +157,7 @@ func simpleOperator(mnemonic string) BinaryOperator {
 
 func signedOperator(unsigned, signed string) BinaryOperator {
 	return func(n *ast.BinaryExpressionNode) (code vmgen.Bytecode) {
-		fmt.Println("signed")
+		//fmt.Println(typing.WriteType(n.Left.ResolvedType()))
 		left, lok := typing.ResolveUnderlying(n.Left.ResolvedType()).(*typing.NumericType)
 		right, rok := typing.ResolveUnderlying(n.Right.ResolvedType()).(*typing.NumericType)
 		if lok && rok {

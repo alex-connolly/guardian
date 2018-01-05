@@ -71,7 +71,7 @@ func (t Type) isToken(list []Type) bool {
 func GetBinaryOperators() []Type {
 	return []Type{
 		Add, Sub, Mul, Div, Gtr, Lss, Geq, Leq,
-		As, And, Or, Eql, Xor, Is, Shl, Shr, LogicalAnd, LogicalOr,
+		As, And, Or, Eql, Xor, Is, Shl, Shr, LogicalAnd, LogicalOr, Exp,
 	}
 }
 
@@ -91,7 +91,7 @@ func GetLifecycles() []Type {
 func GetAssignments() []Type {
 	return []Type{Assign, AddAssign, SubAssign, MulAssign,
 		DivAssign, ShrAssign, ShlAssign, ModAssign, AndAssign,
-		OrAssign, XorAssign, Define}
+		OrAssign, XorAssign, ExpAssign}
 }
 
 func distinctToken(name string, typ Type) ProtoToken {
@@ -246,7 +246,7 @@ var fixed = map[string]ProtoToken{
 	">>":  fixedToken(">>", Shr),
 
 	"&=":  fixedToken("&=", AndAssign),
-	"&":   fixedToken("", And),
+	"&":   fixedToken("&", And),
 	"|=":  fixedToken("|=", OrAssign),
 	"|":   fixedToken("|", Or),
 	"^=":  fixedToken("^=", XorAssign),
