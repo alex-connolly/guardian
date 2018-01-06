@@ -288,6 +288,8 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 		Lifecycles: lifecycles,
 	}
 
+	v.validateClassInterfaces(classType)
+
 	node.Resolved = classType
 
 	v.declareContextualType(node.Identifier, classType)
@@ -367,9 +369,75 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 		Lifecycles: lifecycles,
 	}
 
+	v.validateContractInterfaces(contractType)
+
 	node.Resolved = contractType
 
 	v.declareContextualType(node.Identifier, contractType)
+}
+
+func (v *Validator) validateContractInterfaces(contract *typing.Contract) {
+	for _, i := range contract.Interfaces {
+		v.validateContractInterface(contract, i)
+	}
+}
+
+func (v *Validator) validateClassInterfaces(class *typing.Class) {
+	for _, i := range class.Interfaces {
+		v.validateClassInterface(class, i)
+	}
+}
+
+func hasContractFunction(contract *typing.Contract, name string, funcType *typing.Func) bool {
+	if typ, ok := contract.Properties[name]; ok {
+		// they share a name, now compare types
+		if funcType.Compare(typ) {
+			return true
+		}
+	}
+	for _, sup := range contract.Supers {
+		if hasContractFunction(sup, name, funcType) {
+			return true
+		}
+	}
+	return false
+}
+
+func hasClassFunction(class *typing.Class, name string, funcType *typing.Func) bool {
+	if typ, ok := class.Properties[name]; ok {
+		// they share a name, now compare types
+		if funcType.Compare(typ) {
+			return true
+		}
+	}
+	for _, sup := range class.Supers {
+		if hasClassFunction(sup, name, funcType) {
+			return true
+		}
+	}
+	return false
+}
+
+func (v *Validator) validateContractInterface(contract *typing.Contract, ifc *typing.Interface) {
+	for f, t := range ifc.Funcs {
+		if !hasContractFunction(contract, f, t) {
+			v.addError(errUnimplementedInterface, contract.Name)
+		}
+	}
+	for _, super := range ifc.Supers {
+		v.validateContractInterface(contract, super)
+	}
+}
+
+func (v *Validator) validateClassInterface(class *typing.Class, ifc *typing.Interface) {
+	for f, t := range ifc.Funcs {
+		if !hasClassFunction(class, f, t) {
+			v.addError(errUnimplementedInterface, class.Name)
+		}
+	}
+	for _, super := range ifc.Supers {
+		v.validateClassInterface(class, super)
+	}
 }
 
 func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationNode) {

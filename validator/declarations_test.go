@@ -365,10 +365,134 @@ func TestContractImplementationValid(t *testing.T) {
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
-func TestContractImplementationInvalid(t *testing.T) {
+func TestContractImplementationInvalidWrongType(t *testing.T) {
 	_, errs := ValidateString(NewTestVM(), `
 		contract Dog {}
 		contract Mastiff is Dog {}
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestClassImplementationInvalidWrongType(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class Dog {}
+		class Mastiff is Dog {}
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestContractImplementationInvalidMissingMethods(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		interface Dog {
+			woof()
+		}
+		contract Mastiff is Dog {}
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestClassImplementationInvalidMissingMethods(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		interface Dog {
+			woof()
+		}
+		class Mastiff is Dog {}
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestContractImplementationInvalidWrongMethodParameters(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		interface Dog {
+			woof()
+		}
+		contract Mastiff is Dog {
+			func woof(msg string){
+
+			}
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestClassImplementationInvalidWrongMethodParameters(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		interface Dog {
+			woof()
+		}
+		class Mastiff is Dog {
+			func woof(msg string){
+
+			}
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestContractImplementationValidThroughParent(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		interface Dog {
+			woof()
+		}
+
+		contract X {
+			func woof(){
+
+			}
+		}
+
+		contract Mastiff is Dog inherits X {
+
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestClassImplementationValidThroughParent(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		interface Dog {
+			woof()
+		}
+
+		class X {
+			func woof(){
+
+			}
+		}
+
+		class Mastiff is Dog inherits X {
+
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestContractImplementationInvalidMissingParentMethods(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		interface Dog {
+			woof()
+		}
+
+		interface Cat inherits Dog {
+
+		}
+
+		contract Mastiff is Cat {}
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestClassImplementationInvalidMissingParentMethods(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		interface Dog {
+			woof()
+		}
+
+		interface Cat inherits Dog {
+
+		}
+
+		class Mastiff is Cat {}
 	`)
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }

@@ -28,4 +28,5 @@ const (
 	errRequiredModifier           = "Modifier from group %s required"
 	errUnknown                    = "Unknown error"
 	errImpossibleCastToNonType    = "Cannot cast to non-type"
+	errUnimplementedInterface     = "%s does not implement interface %s: missing method %s"
 )
