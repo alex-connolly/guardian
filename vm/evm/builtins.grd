@@ -4,18 +4,20 @@ type byte int8
 type string []byte
 type address [20]byte
 
-wei = 1
-kwei = 1000 * wei
-babbage = kwei
-mwei = 1000 * kwei
-lovelace = mwei
-gwei = 1000 * mwei
-shannon = gwei
-microether = 1000 * gwei
-szabo = microether
-milliether = 1000 * microether
-finney = milliether
-ether = 1000 * milliether
+const (
+	wei = 1
+	kwei = 1000 * wei
+	babbage = kwei
+	mwei = 1000 * kwei
+	lovelace = mwei
+	gwei = 1000 * mwei
+	shannon = gwei
+	microether = 1000 * gwei
+	szabo = microether
+	milliether = 1000 * microether
+	finney = milliether
+	ether = 1000 * milliether
+)
 
 // account functions
 @Builtin("balance") var balance func(a address) uint256
@@ -53,6 +55,8 @@ class BuiltinMessage {
 }
 
 var msg BuiltinMessage
+
+
 
 class BuiltinBlock {
 	@Builtin("timestamp") var timestamp uint

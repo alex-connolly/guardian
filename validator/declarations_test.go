@@ -267,3 +267,108 @@ func TestInterfaceParentsImplemented(t *testing.T) {
 	`)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
+
+func TestMapTypeValid(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		var a map[int]int
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestMapTypeInvalid(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		var a map[zoop]doop
+	`)
+	goutil.AssertNow(t, len(errs) == 2, errs.Format())
+}
+
+func TestEnumValid(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		enum Weekday {
+			Mon, Tue, Wed, Thurs, Fri
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestEnumInheritanceValid(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		enum Weekday {
+			Mon, Tue, Wed, Thurs, Fri
+		}
+
+		enum Weekend {
+			Sat, Sun
+		}
+
+		enum Day inherits Weekday, Weekend {
+
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestEnumInheritanceInvalid(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		enum Weekday {
+			Mon, Tue, Wed, Thurs, Fri
+		}
+
+		interface Weekend {
+
+		}
+
+		enum Day inherits Weekday, Weekend {
+
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestClassInheritanceValid(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class Dog {}
+		class Mastiff inherits Dog {}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestClassInheritanceInvalid(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		interface Dog {}
+		class Mastiff inherits Dog {}
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestClassImplementationValid(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		interface Dog {}
+		class Mastiff is Dog {}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestClassImplementationInvalid(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class Dog {}
+		class Mastiff is Dog {}
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestContractImplementationValid(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		interface Dog {}
+		contract Mastiff is Dog {}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestContractImplementationInvalid(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		contract Dog {}
+		contract Mastiff is Dog {}
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}

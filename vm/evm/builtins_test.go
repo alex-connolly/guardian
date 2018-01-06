@@ -1,9 +1,10 @@
 package evm
 
 import (
-	"axia/guardian/parser"
 	"fmt"
 	"testing"
+
+	"github.com/end-r/guardian/parser"
 
 	"github.com/end-r/guardian/validator"
 

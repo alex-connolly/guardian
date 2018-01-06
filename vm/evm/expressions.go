@@ -258,7 +258,8 @@ func (e *GuardianEVM) traverseLiteral(n *ast.LiteralNode) (code vmgen.Bytecode) 
 		if len(n.Data) > 32 {
 			// error
 		} else {
-			code.Add(fmt.Sprintf("PUSH%d", len(n.Data)), []byte(n.Data)...)
+			// TODO: type size or data size
+			code.Add(fmt.Sprintf("PUSH%d", n.Resolved.Size()), []byte(n.Data)...)
 		}
 		break
 	case token.String:

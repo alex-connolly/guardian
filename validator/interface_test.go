@@ -45,9 +45,11 @@ func TestValidateString(t *testing.T) {
 
 func TestValidateExpression(t *testing.T) {
 	expr, errs := ValidateExpression(NewTestVM(), "5")
-
 	goutil.AssertNow(t, errs == nil, errs.Format())
 	goutil.AssertNow(t, expr != nil, "expr should not be nil")
+	goutil.AssertNow(t, expr.ResolvedType() != nil, "resolved is nil")
+	_, ok := expr.ResolvedType().(*typing.NumericType)
+	goutil.AssertNow(t, ok, "wrong type")
 }
 
 func TestNewValidator(t *testing.T) {

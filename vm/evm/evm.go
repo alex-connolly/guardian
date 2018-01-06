@@ -3,6 +3,8 @@ package evm
 import (
 	"strconv"
 
+	"github.com/end-r/guardian/typing"
+
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/util"
 	"github.com/end-r/guardian/validator"
@@ -36,10 +38,18 @@ func push(data []byte) (code vmgen.Bytecode) {
 	return code
 }
 
+func bytesRequired(offset int) int {
+	i := typing.BitsNeeded(offset)
+	if i == 0 {
+		i++
+	}
+	return i
+}
+
 // support all offsets which can be stored in a 64 bit integer
 func pushMarker(offset int) (code vmgen.Bytecode) {
 	//TODO: fix
-	code.AddMarker("PUSH"+strconv.Itoa(8), offset)
+	code.AddMarker("PUSH"+strconv.Itoa(bytesRequired(offset)), offset)
 	return code
 }
 
