@@ -5,12 +5,10 @@ import (
 
 	"github.com/end-r/guardian/validator"
 
-	"github.com/end-r/guardian/parser"
-
 	"github.com/end-r/goutil"
 )
 
-func TestTraverseSimpleIdentifierExpression(t *testing.T) {
+func TestTraverseIdentifierExpression(t *testing.T) {
 	e := NewVM()
 	a, _ := validator.ValidateString(e, `
 		hello = 5
@@ -284,7 +282,7 @@ func TestTraverseIndexExpressionCallCall(t *testing.T) {
 
 func TestTraverseLiteral(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("0")
+	expr, _ := validator.ValidateExpression(e, "0")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
@@ -292,7 +290,7 @@ func TestTraverseLiteral(t *testing.T) {
 
 func TestTraverseLiteralTwoBytes(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("256")
+	expr, _ := validator.ValidateExpression(e, "256")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH2"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
@@ -301,160 +299,194 @@ func TestTraverseLiteralTwoBytes(t *testing.T) {
 func TestTraverseLiteralThirtyTwoBytes(t *testing.T) {
 	e := new(GuardianEVM)
 	// 2^256
-	expr := parser.ParseExpression("115792089237316195423570985008687907853269984665640564039457584007913129639936")
+	expr, _ := validator.ValidateExpression(e, "115792089237316195423570985008687907853269984665640564039457584007913129639936")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH32"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinarySignedLess(t *testing.T) {
+func TestBinarySignedLess(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("3 < 4")
+	expr, _ := validator.ValidateExpression(e, "3 < 4")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "SLT"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinarySignedLessEqual(t *testing.T) {
+func TestBinarySignedLessEqual(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("3 <= 4")
+	expr, _ := validator.ValidateExpression(e, "3 <= 4")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "SGT", "NOT"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinarySignedGreater(t *testing.T) {
+func TestBinarySignedGreater(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("3 < 4")
+	expr, _ := validator.ValidateExpression(e, "3 < 4")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "SLT"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinarySignedGreaterEqual(t *testing.T) {
+func TestBinarySignedGreaterEqual(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("3 >= 4")
+	expr, _ := validator.ValidateExpression(e, "3 >= 4")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "SLT", "NOT"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinaryEqual(t *testing.T) {
+func TestBinaryEqual(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("3 == 4")
+	expr, _ := validator.ValidateExpression(e, "3 == 4")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "EQ"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinaryNotEqual(t *testing.T) {
+func TestBinaryNotEqual(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("3 == 4")
+	expr, _ := validator.ValidateExpression(e, "3 == 4")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "EQ", "NOT"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinaryAnd(t *testing.T) {
+func TestBinaryAnd(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("3 & 4")
+	expr, _ := validator.ValidateExpression(e, "3 & 4")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "AND"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinaryOr(t *testing.T) {
+func TestBinaryOr(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("3 | 4")
+	expr, _ := validator.ValidateExpression(e, "3 | 4")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "OR"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinaryXor(t *testing.T) {
+func TestBinaryXor(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("3 ^ 4")
+	expr, _ := validator.ValidateExpression(e, "3 ^ 4")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "XOR"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinaryLogicalAnd(t *testing.T) {
+func TestBinaryLogicalAnd(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("true and false")
+	expr, _ := validator.ValidateExpression(e, "true and false")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "OR"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinaryLogicalOr(t *testing.T) {
+func TestBinaryLogicalOr(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("true or false")
+	expr, _ := validator.ValidateExpression(e, "true or false")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "OR"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinaryAddition(t *testing.T) {
+func TestBinaryAddition(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("3 + 5")
+	expr, _ := validator.ValidateExpression(e, "3 + 5")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "ADD"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinarySubtraction(t *testing.T) {
+func TestBinarySubtraction(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("3 - 5")
+	expr, _ := validator.ValidateExpression(e, "3 - 5")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "SUB"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinaryMultiplication(t *testing.T) {
+func TestBinaryMultiplication(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("3 * 5")
+	expr, _ := validator.ValidateExpression(e, "3 * 5")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "MUL"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinarySignedDivision(t *testing.T) {
+func TestBinarySignedDivision(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("4 / 2")
+	expr, _ := validator.ValidateExpression(e, "4 / 2")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "DIV"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinaryDivision(t *testing.T) {
+func TestBinaryDivision(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("4 as uint / 2 as uint")
+	expr, _ := validator.ValidateExpression(e, "4 as uint / 2 as uint")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "DIV"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinarySignedMod(t *testing.T) {
+func TestBinarySignedMod(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("4 % 2")
+	expr, _ := validator.ValidateExpression(e, "4 % 2")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "SMOD"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinaryMod(t *testing.T) {
+func TestBinaryMod(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("4 as uint % 2 as uint")
+	expr, _ := validator.ValidateExpression(e, "4 as uint % 2 as uint")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "MOD"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }
 
-func TestSimpleBinaryExp(t *testing.T) {
+func TestBinaryExp(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("2 ** 4")
+	expr, _ := validator.ValidateExpression(e, "2 ** 4")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"PUSH1", "PUSH1", "EXP"}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func TestEmptyConstructorCall(t *testing.T) {
+	e := new(GuardianEVM)
+	expr, _ := validator.ValidateString(e, `
+		contract Dog {
+
+		}
+
+		d = Dog()
+	`)
+	bytecode, _ := e.Traverse(expr)
+	expected := []string{"PUSH1", "PUSH1", "PUSH1", "CREATE"}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func TestLiteralParameterConstructorCall(t *testing.T) {
+	e := new(GuardianEVM)
+	expr, _ := validator.ValidateString(e, `
+		contract Dog {
+
+			var name string
+
+			constructor(n string){
+				this.name = n
+			}
+
+		}
+
+		d = Dog("Alex")
+	`)
+	bytecode, _ := e.Traverse(expr)
+	expected := []string{"PUSH1", "PUSH1", "PUSH1", "CREATE"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }

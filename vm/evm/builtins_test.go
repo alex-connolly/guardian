@@ -1,7 +1,6 @@
 package evm
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/end-r/guardian/parser"
@@ -16,13 +15,12 @@ func TestBuiltinRequire(t *testing.T) {
 	a, errs := validator.ValidateExpression(e, "require(5 > 3)")
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 
-	fmt.Println("here")
 	code := e.traverseExpression(a)
 	expected := []string{
 		"PUSH1",
 		"PUSH1",
 		"LT",
-		"PUSH",
+		"PUSH1",
 		"JUMPI",
 		"REVERT",
 	}
@@ -41,6 +39,18 @@ func TestBuiltinAssert(t *testing.T) {
 		"PUSH",
 		"JUMPI",
 		"INVALID",
+	}
+	goutil.Assert(t, code.CompareMnemonics(expected), code.Format())
+}
+
+func TestBuiltinArrayLength(t *testing.T) {
+	e := NewVM()
+	a, errs := validator.ValidateExpression(e, `len("hello")`)
+	goutil.AssertNow(t, errs == nil, errs.Format())
+	code := e.traverseExpression(a)
+	expected := []string{
+		"PUSH7",
+		"MLOAD",
 	}
 	goutil.Assert(t, code.CompareMnemonics(expected), code.Format())
 }
@@ -69,6 +79,42 @@ func TestBuiltinMulmod(t *testing.T) {
 		"PUSH32",
 		"PUSH32",
 		"ADDMOD",
+	}
+	goutil.Assert(t, code.CompareMnemonics(expected), code.Format())
+}
+
+func TestBuiltinCall(t *testing.T) {
+	e := NewVM()
+	a, errs := validator.ValidateExpression(e, "call(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)")
+	goutil.AssertNow(t, errs == nil, errs.Format())
+	code := e.traverseExpression(a)
+	expected := []string{
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"CALL",
+	}
+	goutil.Assert(t, code.CompareMnemonics(expected), code.Format())
+}
+
+func TestBuiltinDelegateCall(t *testing.T) {
+	e := NewVM()
+	a, errs := validator.ValidateExpression(e, "delegate(0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF)")
+	goutil.AssertNow(t, errs == nil, errs.Format())
+	code := e.traverseExpression(a)
+	expected := []string{
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"CALL",
 	}
 	goutil.Assert(t, code.CompareMnemonics(expected), code.Format())
 }

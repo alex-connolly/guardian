@@ -217,8 +217,23 @@ func (e *GuardianEVM) traverseUnaryExpr(n *ast.UnaryExpressionNode) (code vmgen.
 	return code
 }
 
-func (e *GuardianEVM) traverseCallExpr(n *ast.CallExpressionNode) (code vmgen.Bytecode) {
+func (e *GuardianEVM) traverseContractCall(n *ast.CallExpressionNode) (code vmgen.Bytecode) {
+	// calls another contract, The CREATE opcode takes three values:
+	// value (ie. initial amount of ether),
+	code.Add("GAS")
+	// memory start
+	code.Add("PUSH")
+	// memory length
+	code.Add("PUSH")
+	code.Add("CREATE")
+	return code
+}
 
+func (e *GuardianEVM) traverseClassCall(n *ast.CallExpressionNode) (code vmgen.Bytecode) {
+	return code
+}
+
+func (e *GuardianEVM) traverseFunctionCall(n *ast.CallExpressionNode) (code vmgen.Bytecode) {
 	for _, arg := range n.Arguments {
 		code.Concat(e.traverseExpression(arg))
 	}
@@ -245,9 +260,21 @@ func (e *GuardianEVM) traverseCallExpr(n *ast.CallExpressionNode) (code vmgen.By
 	return code
 }
 
+func (e *GuardianEVM) traverseCallExpr(n *ast.CallExpressionNode) (code vmgen.Bytecode) {
+
+	switch typing.ResolveUnderlying(n.Call.ResolvedType()).(type) {
+	case *typing.Func:
+		return e.traverseFunctionCall(n)
+	case *typing.Contract:
+		return e.traverseContractCall(n)
+	case *typing.Class:
+		return e.traverseClassCall(n)
+	}
+	return code
+}
+
 func (e *GuardianEVM) traverseLiteral(n *ast.LiteralNode) (code vmgen.Bytecode) {
 
-	fmt.Println("Literal")
 	// Literal Nodes are directly converted to push instructions
 	// these nodes must be divided into blocks of 16 bytes
 	// in order to maintain
@@ -258,8 +285,9 @@ func (e *GuardianEVM) traverseLiteral(n *ast.LiteralNode) (code vmgen.Bytecode) 
 		if len(n.Data) > 32 {
 			// error
 		} else {
+			fmt.Println("HERE")
 			// TODO: type size or data size
-			code.Add(fmt.Sprintf("PUSH%d", n.Resolved.Size()), []byte(n.Data)...)
+			code.Add(fmt.Sprintf("PUSH%d", bytesRequired(int(n.Resolved.Size()))), []byte(n.Data)...)
 		}
 		break
 	case token.String:
@@ -338,32 +366,26 @@ func (e *GuardianEVM) traverseFuncLiteral(n *ast.FuncLiteralNode) (code vmgen.By
 }
 
 func (e *GuardianEVM) traverseIdentifier(n *ast.IdentifierNode) (code vmgen.Bytecode) {
+
 	if e.inStorage {
 		s := e.lookupStorage(n.Name)
-		if n.Resolved == nil {
-			fmt.Println("RESOLVED IS NIL")
-		} else {
-			fmt.Println(typing.WriteType(n.Resolved))
-			e.allocateStorage(n.Name, n.Resolved.Size())
-			if s != nil {
-				return s.retrieve()
-			}
+		if s != nil {
+			return s.retrieve()
 		}
-
+		e.allocateStorage(n.Name, n.Resolved.Size())
+		s = e.lookupStorage(n.Name)
+		if s != nil {
+			return s.retrieve()
+		}
 	} else {
 		m := e.lookupMemory(n.Name)
 		if m != nil {
 			return m.retrieve()
 		}
-		if n.Resolved == nil {
-			fmt.Println("RESOLVED IS NIL")
-		} else {
-			fmt.Println(typing.WriteType(n.Resolved))
-			e.allocateMemory(n.Name, n.Resolved.Size())
-			m = e.lookupMemory(n.Name)
-			if m != nil {
-				return m.retrieve()
-			}
+		e.allocateMemory(n.Name, n.Resolved.Size())
+		m = e.lookupMemory(n.Name)
+		if m != nil {
+			return m.retrieve()
 		}
 
 	}

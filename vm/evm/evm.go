@@ -3,8 +3,6 @@ package evm
 import (
 	"strconv"
 
-	"github.com/end-r/guardian/typing"
-
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/util"
 	"github.com/end-r/guardian/validator"
@@ -39,11 +37,15 @@ func push(data []byte) (code vmgen.Bytecode) {
 }
 
 func bytesRequired(offset int) int {
-	i := typing.BitsNeeded(offset)
-	if i == 0 {
-		i++
+	count := 0
+	for offset > 0 {
+		count++
+		offset >>= 1
 	}
-	return i
+	if count%8 == 0 {
+		return count / 8
+	}
+	return (count / 8) + 1
 }
 
 // support all offsets which can be stored in a 64 bit integer
@@ -156,6 +158,11 @@ func (e *GuardianEVM) traverseScope(s *ast.ScopeNode) (code vmgen.Bytecode) {
 	if s.Declarations != nil {
 		for _, d := range s.Declarations.Array() {
 			code.Concat(e.traverse(d.(ast.Node)))
+		}
+	}
+	if s.Sequence != nil {
+		for _, s := range s.Sequence {
+			code.Concat(e.traverse(s))
 		}
 	}
 

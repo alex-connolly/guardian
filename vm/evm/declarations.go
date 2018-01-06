@@ -55,19 +55,21 @@ func (e *GuardianEVM) traverseContract(n *ast.ContractDeclarationNode) (code vmg
 	// create hooks for constructors
 	// create hooks for events
 	// traverse everything else?
-	for _, d := range n.Body.Declarations.Map() {
-		switch a := d.(type) {
-		case *ast.LifecycleDeclarationNode:
-			//	e.addLifecycleHook(n.Identifier, a)
-			break
-		case *ast.FuncDeclarationNode:
-			e.addFunctionHook(n.Identifier, a)
-			break
-		case *ast.EventDeclarationNode:
-			e.addEventHook(n.Identifier, a)
-			break
-		default:
-			e.traverse(a.(ast.Node))
+	if n.Body.Declarations != nil {
+		for _, d := range n.Body.Declarations.Map() {
+			switch a := d.(type) {
+			case *ast.LifecycleDeclarationNode:
+				//	e.addLifecycleHook(n.Identifier, a)
+				break
+			case *ast.FuncDeclarationNode:
+				e.addFunctionHook(n.Identifier, a)
+				break
+			case *ast.EventDeclarationNode:
+				e.addEventHook(n.Identifier, a)
+				break
+			default:
+				e.traverse(a.(ast.Node))
+			}
 		}
 	}
 

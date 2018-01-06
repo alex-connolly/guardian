@@ -19,12 +19,14 @@ const (
 	ether = 1000 * milliether
 )
 
+@Builtin("length") var len func <Key>([]Key)
+
 // account functions
 @Builtin("balance") var balance func(a address) uint256
 @Builtin("transfer") var transfer func(a address, amount uint256) uint
 @Builtin("send") var send func(a address, amount uint256) bool
 @Builtin("call") var call func(a address) bool
-@Builtin("delegateCall") var delegateCall func(a address)
+@Builtin("delegate") var delegate func(a address)
 
 // cryptographic functions
 @Builtin("addmod") var addmod func(x, y, k uint) uint

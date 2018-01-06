@@ -161,12 +161,12 @@ func (e EVMGenerator) Opcodes() vmgen.InstructionMap {
 		"EXTCODESIZE":  vmgen.Instruction{Opcode: 0x3B, Cost: gasExtCodeSize},
 		"EXTCODECOPY":  vmgen.Instruction{Opcode: 0x3C, Cost: gasExtCodeCopy},
 
-		"BLOCKHASH":  vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasExtStep)},
-		"COINBASE":   vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasBase)},
-		"TIMESTAMP":  vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasBase)},
-		"NUMBER":     vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasBase)},
-		"DIFFICULTY": vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasBase)},
-		"GASLIMIT":   vmgen.Instruction{Opcode: 0x10, Cost: constantGas(gasBase)},
+		"BLOCKHASH":  vmgen.Instruction{Opcode: 0x40, Cost: constantGas(gasExtStep)},
+		"COINBASE":   vmgen.Instruction{Opcode: 0x41, Cost: constantGas(gasBase)},
+		"TIMESTAMP":  vmgen.Instruction{Opcode: 0x42, Cost: constantGas(gasBase)},
+		"NUMBER":     vmgen.Instruction{Opcode: 0x43, Cost: constantGas(gasBase)},
+		"DIFFICULTY": vmgen.Instruction{Opcode: 0x44, Cost: constantGas(gasBase)},
+		"GASLIMIT":   vmgen.Instruction{Opcode: 0x45, Cost: constantGas(gasBase)},
 
 		"POP":      vmgen.Instruction{Opcode: 0x50, Cost: constantGas(gasBase)},
 		"MLOAD":    vmgen.Instruction{Opcode: 0x51, Cost: constantGas(gasVeryLow)},
@@ -180,6 +180,14 @@ func (e EVMGenerator) Opcodes() vmgen.InstructionMap {
 		"MSIZE":    vmgen.Instruction{Opcode: 0x59, Cost: constantGas(gasBase)},
 		"GAS":      vmgen.Instruction{Opcode: 0x5A, Cost: constantGas(gasBase)},
 		"JUMPDEST": vmgen.Instruction{Opcode: 0x5B, Cost: constantGas(gasJumpDest)},
+
+		"CREATE":       vmgen.Instruction{Opcode: 0xF0, Cost: constantGas(gasJumpDest)},
+		"CALL":         vmgen.Instruction{Opcode: 0xF1, Cost: constantGas(gasJumpDest)},
+		"CALLCODE":     vmgen.Instruction{Opcode: 0xF2, Cost: constantGas(gasJumpDest)},
+		"RETURN":       vmgen.Instruction{Opcode: 0xF3, Cost: constantGas(gasJumpDest)},
+		"DELEGATECALL": vmgen.Instruction{Opcode: 0xF4, Cost: constantGas(gasJumpDest)},
+
+		"SELFDESTRUCT": vmgen.Instruction{Opcode: 0xFF, Cost: constantGas(gasJumpDest)},
 	}
 
 	m.AddAll(generatePushes())

@@ -30,6 +30,7 @@ var builtins = map[string]validator.BytecodeGenerator{
 	// ending
 	"selfDestruct": validator.SimpleInstruction("SELFDESTRUCT"),
 
+	// message
 	"calldata":  calldata,
 	"gas":       validator.SimpleInstruction("GAS"),
 	"sender":    validator.SimpleInstruction("CALLER"),
@@ -95,5 +96,17 @@ func callCode(vm validator.VM) (code vmgen.Bytecode) {
 
 func signature(vm validator.VM) (code vmgen.Bytecode) {
 	// get first four bytes of calldata
+	return code
+}
+
+func length(vm validator.VM) (code vmgen.Bytecode) {
+	// must be an array
+	// array size is always at the first index
+	evm := vm.(*GuardianEVM)
+	if evm.inStorage {
+		code.Add("SLOAD")
+	} else {
+		code.Add("MLOAD")
+	}
 	return code
 }
