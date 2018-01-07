@@ -421,7 +421,7 @@ func hasClassFunction(class *typing.Class, name string, funcType *typing.Func) b
 func (v *Validator) validateContractInterface(contract *typing.Contract, ifc *typing.Interface) {
 	for f, t := range ifc.Funcs {
 		if !hasContractFunction(contract, f, t) {
-			v.addError(errUnimplementedInterface, contract.Name)
+			v.addError(errUnimplementedInterface, contract.Name, ifc.Name, typing.WriteType(t))
 		}
 	}
 	for _, super := range ifc.Supers {
@@ -432,7 +432,7 @@ func (v *Validator) validateContractInterface(contract *typing.Contract, ifc *ty
 func (v *Validator) validateClassInterface(class *typing.Class, ifc *typing.Interface) {
 	for f, t := range ifc.Funcs {
 		if !hasClassFunction(class, f, t) {
-			v.addError(errUnimplementedInterface, class.Name)
+			v.addError(errUnimplementedInterface, class.Name, ifc.Name, typing.WriteType(t))
 		}
 	}
 	for _, super := range ifc.Supers {
@@ -466,7 +466,6 @@ func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationN
 		} else {
 			v.addError("Invalid func type")
 		}
-
 	}
 
 	generics := v.validateGenerics(node.Generics)

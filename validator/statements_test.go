@@ -218,6 +218,60 @@ func TestValidateClassAssignmentStatement(t *testing.T) {
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
+func TestValidateSuperClassAssignmentStatement(t *testing.T) {
+	scope, _ := parser.ParseString(`
+		class Animal {
+			var legs int
+		}
+
+		class Dog inherits Animal {
+			var name string
+		}
+
+		d = Dog{
+			name: "Fido",
+		}
+
+		x = d.name
+		y = d.legs
+	`)
+	goutil.AssertNow(t, scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, len(scope.Sequence) == 3, "wrong sequence length")
+	errs := Validate(scope, NewTestVM())
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestValidateInterfaceAssignmentStatement(t *testing.T) {
+	scope, _ := parser.ParseString(`
+		interface Dog {
+			name() string
+		}
+		var x Dog
+
+		y = x.name()
+	`)
+	goutil.AssertNow(t, scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, len(scope.Sequence) == 1, "wrong sequence length")
+	errs := Validate(scope, NewTestVM())
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+
+}
+
+func TestValidateInterfaceWrongTypeAssignmentStatement(t *testing.T) {
+	scope, _ := parser.ParseString(`
+		interface Dog {
+			name()
+		}
+		var x Dog
+
+		y = x.name()
+	`)
+	goutil.AssertNow(t, scope != nil, "scope should not be nil")
+	goutil.AssertNow(t, len(scope.Sequence) == 1, "wrong sequence length")
+	errs := Validate(scope, NewTestVM())
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
 func TestValidateClassAssignmentStatementInvalid(t *testing.T) {
 	scope, _ := parser.ParseString(`
 		class Dog {
@@ -247,4 +301,85 @@ func TestValidateForEachStatementValid(t *testing.T) {
 	goutil.AssertNow(t, len(scope.Sequence) == 2, fmt.Sprintf("wrong sequence length: %d", len(scope.Sequence)))
 	errs := Validate(scope, NewTestVM())
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestTripleReferenceIdentifiers(t *testing.T) {
+	scope, _ := parser.ParseString(`
+		class A {
+			var b string
+		}
+		class C {
+			var a A
+		}
+		var x string
+		var c C
+		x = c.a.b
+	`)
+	goutil.AssertNow(t, scope != nil, "scope should not be nil")
+	errs := Validate(scope, NewTestVM())
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestTripleReferenceCalls(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class B {
+			func c() string {
+				return "hi"
+			}
+		}
+		class A {
+			func b() B {
+				return B{}
+			}
+		}
+		var x string
+		var a A
+		x = a().b().c()
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestPrivateVariableAccess(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class A {
+			private var all string
+		}
+		var min A
+		x = min.all
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestPrivateVariableAccessFromFunction(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class A {
+			private var a string
+		}
+		class B inherits A {
+			func getA() string {
+				return a
+			}
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestProtectedVariableAccessFromFunction(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class A {
+			protected var a string
+		}
+		class B inherits A {
+			func getA() string {
+				return a
+			}
+		}
+		class C {
+			var a A
+			func getA() string {
+				return a.a
+			}
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }

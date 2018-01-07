@@ -326,11 +326,23 @@ func (v *Validator) resolveContextualReference(context typing.Type, exp ast.Expr
 	// check if context is subscriptable
 	if isSubscriptable(context) {
 		if name, ok := getIdentifier(exp); ok {
-			if _, ok := v.getPropertyType(context, name); ok {
-				if exp.Type() == ast.Reference {
-					a := exp.(*ast.ReferenceNode)
+			if t, ok := v.getPropertyType(context, name); ok {
+				switch a := exp.(type) {
+				case *ast.ReferenceNode:
 					context = v.resolveExpression(a.Parent)
 					return v.resolveContextualReference(context, a.Reference)
+				case *ast.IdentifierNode:
+					return t
+				case *ast.CallExpressionNode:
+					switch f := t.(type) {
+					case *typing.Func:
+						return f.Results
+					case *typing.Class:
+						return f
+					case *typing.Contract:
+						return f
+					}
+					break
 				}
 				return v.resolveExpression(exp)
 			} else {
@@ -387,33 +399,91 @@ func (v *Validator) getPropertiesType(t typing.Type, names []string) (resolved t
 	return t
 }
 
+func getClassProperty(class *typing.Class, name string) (typing.Type, bool) {
+	if p, has := class.Properties[name]; has {
+		return p, has
+	}
+	/* check for cancellation
+	cancel, ok := class.Cancelled[name]
+	if ok {
+		return cancel, false
+	}*/
+	for _, super := range class.Supers {
+		if c, ok := getClassProperty(super, name); ok {
+			return c, ok
+		}
+	}
+	return nil, false
+}
+
+func getContractProperty(contract *typing.Contract, name string) (typing.Type, bool) {
+
+	if p, has := contract.Properties[name]; has {
+		return p, has
+	}
+	/* check for cancellation
+	cancel, ok := class.Cancelled[name]
+	if ok {
+		return cancel, false
+	}*/
+	for _, super := range contract.Supers {
+		if c, ok := getContractProperty(super, name); ok {
+			return c, ok
+		}
+	}
+	return nil, false
+}
+
+func getInterfaceProperty(ifc *typing.Interface, name string) (typing.Type, bool) {
+	if p, has := ifc.Funcs[name]; has {
+		return p, has
+	}
+	/* check for cancellation
+	cancel, ok := class.Cancelled[name]
+	if ok {
+		return cancel, false
+	}*/
+	for _, super := range ifc.Supers {
+		if c, ok := getInterfaceProperty(super, name); ok {
+			return c, ok
+		}
+	}
+	return nil, false
+}
+
+func (v *Validator) getEnumProperty(c *typing.Enum, name string) (typing.Type, bool) {
+
+	for _, s := range c.Items {
+		if s == name {
+			return v.SmallestNumericType(len(c.Items), false), true
+		}
+	}
+	for _, s := range c.Supers {
+		if a, ok := v.getEnumProperty(s, name); ok {
+			return a, ok
+		}
+	}
+	return typing.Invalid(), false
+}
+
 func (v *Validator) getPropertyType(t typing.Type, name string) (typing.Type, bool) {
 	// only classes, interfaces, contracts and enums are subscriptable
-	switch c := t.(type) {
+	switch c := typing.ResolveUnderlying(t).(type) {
 	case *typing.Class:
-		p, has := c.Properties[name]
-		return p, has
+		return getClassProperty(c, name)
 	case *typing.Contract:
-		p, has := c.Properties[name]
-		return p, has
+		return getContractProperty(c, name)
 	case *typing.Interface:
-		p, has := c.Funcs[name]
-		return p, has
+		return getInterfaceProperty(c, name)
 	case *typing.Enum:
-		for _, s := range c.Items {
-			if s == name {
-				return v.SmallestNumericType(len(c.Items), false), true
-			}
-		}
-		// TODO: fix this
-		return v.SmallestNumericType(len(c.Items), false), false
+		return v.getEnumProperty(c, name)
 	}
 	return typing.Invalid(), false
 }
 
 func isSubscriptable(t typing.Type) bool {
 	// only classes, interfaces and enums are subscriptable
-	switch t.(type) {
+	switch typing.ResolveUnderlying(t).(type) {
 	case *typing.Class, *typing.Interface, *typing.Enum, *typing.Contract:
 		return true
 	}

@@ -743,3 +743,17 @@ func TestParseVariableDeclarations(t *testing.T) {
 	goutil.AssertNow(t, ast != nil, "nil ast")
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
+
+func TestInterfaceMethods(t *testing.T) {
+	a, errs := ParseString(`
+		interface Calculator {
+			add(a, b int) int
+			sub(a, b int) int
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+	goutil.AssertNow(t, a.Declarations != nil, "nil declarations")
+	f := a.Declarations.Next()
+	ifc := f.(*ast.InterfaceDeclarationNode)
+	goutil.AssertLength(t, len(ifc.Signatures), 2)
+}

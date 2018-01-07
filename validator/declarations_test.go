@@ -3,6 +3,9 @@ package validator
 import (
 	"testing"
 
+	"github.com/end-r/guardian/ast"
+	"github.com/end-r/guardian/typing"
+
 	"github.com/end-r/guardian/parser"
 
 	"github.com/end-r/goutil"
@@ -495,4 +498,22 @@ func TestClassImplementationInvalidMissingParentMethods(t *testing.T) {
 		class Mastiff is Cat {}
 	`)
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestInterfaceMethods(t *testing.T) {
+	a, errs := ValidateString(NewTestVM(), `
+		interface Calculator {
+			add(a, b int) int
+			sub(a, b int) int
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+	goutil.AssertNow(t, a.Declarations != nil, "nil declarations")
+	n := a.Declarations.Next().(*ast.InterfaceDeclarationNode)
+	i := n.Resolved.(*typing.Interface)
+	goutil.AssertLength(t, len(i.Funcs), 2)
+	add := i.Funcs["add"]
+	goutil.AssertNow(t, add != nil, "add is nil")
+	sub := i.Funcs["sub"]
+	goutil.AssertNow(t, sub != nil, "sub is nil")
 }

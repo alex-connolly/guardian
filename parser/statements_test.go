@@ -735,3 +735,12 @@ func TestParseOrIfCondition(t *testing.T) {
 	goutil.AssertNow(t, a != nil, "nil scope")
 	goutil.AssertLength(t, len(a.Sequence), 1)
 }
+
+func TestGenericStatement(t *testing.T) {
+	a, errs := ParseString(`
+		x = List<string>()
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+	goutil.AssertNow(t, a != nil, "nil scope")
+	goutil.AssertLength(t, len(a.Sequence), 1)
+}

@@ -392,6 +392,17 @@ func (p *Parser) parseSliceExpression(expr ast.ExpressionNode,
 func (p *Parser) parseIdentifierExpression() *ast.IdentifierNode {
 	n := new(ast.IdentifierNode)
 	n.Name = p.parseIdentifier()
+	if p.isNextToken(token.Lss) {
+		if p.isNextToken(token.Gtr) {
+			p.addError("Empty parameters")
+		} else {
+			n.Parameters = append(n.Parameters, p.parseType())
+			for p.parseOptional(token.Or) {
+				n.Parameters = append(n.Parameters, p.parseType())
+			}
+			p.parseRequired(token.Gtr)
+		}
+	}
 	return n
 }
 
