@@ -261,6 +261,7 @@ func (e *GuardianEVM) traverseFunctionCall(n *ast.CallExpressionNode) (code vmge
 }
 
 func (e *GuardianEVM) traverseCallExpr(n *ast.CallExpressionNode) (code vmgen.Bytecode) {
+	e.expression = n
 
 	switch typing.ResolveUnderlying(n.Call.ResolvedType()).(type) {
 	case *typing.Func:

@@ -29,4 +29,5 @@ const (
 	errUnknown                    = "Unknown error"
 	errImpossibleCastToNonType    = "Cannot cast to non-type"
 	errUnimplementedInterface     = "%s does not implement interface %s: missing method %s"
+	errInvalidReference           = "Invalid reference expression type"
 )

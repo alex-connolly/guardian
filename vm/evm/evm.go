@@ -11,6 +11,7 @@ import (
 
 // GuardianEVM
 type GuardianEVM struct {
+	expression         ast.ExpressionNode
 	hooks              []hook
 	lastSlot           uint
 	lastOffset         uint

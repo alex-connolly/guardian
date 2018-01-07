@@ -26,6 +26,7 @@ const (
 	MapLiteral
 	ArrayLiteral
 	FuncLiteral
+	Keyword
 	BinaryExpression
 	UnaryExpression
 	GenericExpression

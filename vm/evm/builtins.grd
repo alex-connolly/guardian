@@ -24,8 +24,7 @@ const (
 // account functions
 @Builtin("balance") var balance func(a address) uint256
 @Builtin("transfer") var transfer func(a address, amount uint256) uint
-@Builtin("send") var send func(a address, amount uint256) bool
-@Builtin("call") var call func(a address) bool
+@Builtin("call") var call func(a address, gas uint, value uint, signature string) bool
 @Builtin("delegate") var delegate func(a address)
 
 // cryptographic functions
@@ -58,7 +57,36 @@ class BuiltinMessage {
 
 var msg BuiltinMessage
 
+class Call {
 
+	private var (
+		base address
+		gas uint
+		value uint
+		signature [4]byte
+	)
+
+	constructor(a address){
+		base = a
+	}
+
+	func gas(b uint) Call {
+		this.gas = b
+		return this
+	}
+
+	func value(c uint) Call {
+		this.value = c
+		return this
+	}
+
+	func sig(c uint) Call {
+		this.value = c
+		return this
+	}
+
+	@Builtin("call") var call func()
+}
 
 class BuiltinBlock {
 	@Builtin("timestamp") var timestamp uint

@@ -168,6 +168,7 @@ func NextProtoToken(b Byterable) *ProtoToken {
 }
 
 var distinct = map[string]ProtoToken{
+	"new":       distinctToken("new", New),
 	"contract":  distinctToken("contract", Contract),
 	"class":     distinctToken("class", Class),
 	"event":     distinctToken("event", Event),
@@ -286,6 +287,7 @@ const (
 	String
 	Character
 	Comment
+	New
 	Alias
 	At           // at
 	Assign       // =

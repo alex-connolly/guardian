@@ -1,0 +1,45 @@
+package test version 0.0.1
+
+contract Builtins {
+
+    external getOrigin() address {
+        return tx.origin
+    }
+
+    external getGasPrice() uint {
+        return tx.gasPrice
+    }
+
+    external getCallData() []byte {
+        return msg.data
+    }
+
+    external getGas() uint {
+        return msg.gas
+    }
+
+    external getCaller() address {
+        return msg.sender
+    }
+
+    external getSig() [4]byte {
+        return msg.sig
+    }
+
+    external getTimestamp() uint {
+        return block.timestamp
+    }
+
+    external getBlockNumber() uint {
+        return block.number
+    }
+
+    external getCoinbase() address {
+        return block.coinbase
+    }
+
+    external getGasLimit() uint {
+        return block.gasLimit
+    }
+
+}

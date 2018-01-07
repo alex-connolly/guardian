@@ -3,8 +3,6 @@ package evm
 import (
 	"testing"
 
-	"github.com/end-r/guardian/parser"
-
 	"github.com/end-r/guardian/validator"
 
 	"github.com/end-r/goutil"
@@ -156,7 +154,7 @@ func TestBuiltinRevert(t *testing.T) {
 
 func TestCalldata(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("msg.data")
+	expr, _ := validator.ValidateExpression(e, "msg.data")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"CALLDATA"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
@@ -164,7 +162,7 @@ func TestCalldata(t *testing.T) {
 
 func TestGas(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("msg.gas")
+	expr, _ := validator.ValidateExpression(e, "msg.gas")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"GAS"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
@@ -172,7 +170,7 @@ func TestGas(t *testing.T) {
 
 func TestCaller(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("msg.sender")
+	expr, _ := validator.ValidateExpression(e, "msg.sender")
 	bytecode := e.traverseExpression(expr)
 	expected := []string{"CALLER"}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
@@ -180,7 +178,7 @@ func TestCaller(t *testing.T) {
 
 func TestSignature(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("msg.sig")
+	expr, _ := validator.ValidateExpression(e, "msg.sig")
 	bytecode := e.traverseExpression(expr)
 	// should get first 4 bytes of calldata
 	expected := []string{"CALLDATA"}
@@ -189,7 +187,7 @@ func TestSignature(t *testing.T) {
 
 func TestTimestamp(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("block.timestamp")
+	expr, _ := validator.ValidateExpression(e, "block.timestamp")
 	bytecode := e.traverseExpression(expr)
 	// should get first 4 bytes of calldata
 	expected := []string{"TIMESTAMP"}
@@ -198,7 +196,7 @@ func TestTimestamp(t *testing.T) {
 
 func TestNumber(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("block.timestamp")
+	expr, _ := validator.ValidateExpression(e, "block.timestamp")
 	bytecode := e.traverseExpression(expr)
 	// should get first 4 bytes of calldata
 	expected := []string{"NUMBER"}
@@ -207,7 +205,7 @@ func TestNumber(t *testing.T) {
 
 func TestCoinbase(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("block.timestamp")
+	expr, _ := validator.ValidateExpression(e, "block.timestamp")
 	bytecode := e.traverseExpression(expr)
 	// should get first 4 bytes of calldata
 	expected := []string{"COINBASE"}
@@ -216,7 +214,7 @@ func TestCoinbase(t *testing.T) {
 
 func TestGasLimit(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("block.gasLimit")
+	expr, _ := validator.ValidateExpression(e, "block.gasLimit")
 	bytecode := e.traverseExpression(expr)
 	// should get first 4 bytes of calldata
 	expected := []string{"GASLIMIT"}
@@ -225,7 +223,7 @@ func TestGasLimit(t *testing.T) {
 
 func TestBlockhash(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("block.gasLimit")
+	expr, _ := validator.ValidateExpression(e, "block.gasLimit")
 	bytecode := e.traverseExpression(expr)
 	// should get first 4 bytes of calldata
 	expected := []string{"GASLIMIT"}
@@ -234,7 +232,7 @@ func TestBlockhash(t *testing.T) {
 
 func TestGasPrice(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("tx.gasPrice")
+	expr, _ := validator.ValidateExpression(e, "tx.gasPrice")
 	bytecode := e.traverseExpression(expr)
 	// should get first 4 bytes of calldata
 	expected := []string{"GASPRICE"}
@@ -243,9 +241,49 @@ func TestGasPrice(t *testing.T) {
 
 func TestOrigin(t *testing.T) {
 	e := new(GuardianEVM)
-	expr := parser.ParseExpression("tx.origin")
+	expr, _ := validator.ValidateExpression(e, "tx.origin")
 	bytecode := e.traverseExpression(expr)
 	// should get first 4 bytes of calldata
 	expected := []string{"ORIGIN"}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func TestTransfer(t *testing.T) {
+	e := new(GuardianEVM)
+	expr, _ := validator.ValidateExpression(e, `
+		transfer(0x123f681646d4a755815f9cb19e1acc8565a0c2ac, 1000)
+	`)
+	bytecode := e.traverseExpression(expr)
+	// should get first 4 bytes of calldata
+	expected := []string{
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"CALL",
+	}
+	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
+}
+
+func TestCall(t *testing.T) {
+	e := new(GuardianEVM)
+	expr, _ := validator.ValidateExpression(e, `
+		Call(0x123f681646d4a755815f9cb19e1acc8565a0c2ac).gas(1000).value(1000).sig("aaaaa").call()
+	`)
+	bytecode := e.traverseExpression(expr)
+	// should get first 4 bytes of calldata
+	expected := []string{
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"PUSH",
+		"CALL",
+	}
 	goutil.Assert(t, bytecode.CompareMnemonics(expected), bytecode.Format())
 }

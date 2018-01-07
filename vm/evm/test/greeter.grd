@@ -1,0 +1,15 @@
+package test version 0.0.1
+
+contract Greeter {
+
+    var name string
+
+    constructor(ownerName string){
+        this.ownerName = name
+    }
+
+    external sayHi() string {
+        return "Hi " + this.ownerName
+    }
+
+}

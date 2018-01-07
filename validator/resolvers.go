@@ -343,8 +343,10 @@ func (v *Validator) resolveContextualReference(context typing.Type, exp ast.Expr
 						return f
 					}
 					break
+				default:
+					v.addError(errInvalidReference)
+					return typing.Invalid()
 				}
-				return v.resolveExpression(exp)
 			} else {
 				v.addError(errPropertyNotFound, typing.WriteType(context), name)
 			}

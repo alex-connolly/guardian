@@ -1,6 +1,8 @@
 package evm
 
 import (
+	"github.com/end-r/guardian/ast"
+
 	"github.com/end-r/guardian/validator"
 	"github.com/end-r/vmgen"
 )
@@ -12,7 +14,6 @@ var builtins = map[string]validator.BytecodeGenerator{
 	"balance": validator.SimpleInstruction("BALANCE"),
 	// transactional
 	"transfer":     nil,
-	"send":         send,
 	"delegateCall": delegateCall,
 	"call":         call,
 	//"callcode": callCode,
@@ -47,29 +48,54 @@ var builtins = map[string]validator.BytecodeGenerator{
 	"origin":   validator.SimpleInstruction("ORIGIN"),
 }
 
-func send(vm validator.VM) (code vmgen.Bytecode) {
-	// Thus the operand order is: gas, to, value, in offset, in size, out offset, out size
+func transfer(vm validator.VM) (code vmgen.Bytecode) {
+	e := vm.(GuardianEVM)
+	call := e.expression.(*ast.CallExpressionNode)
+	// gas
+	code.Concat(push(uintAsBytes(uint(2300))))
+	// to
+	code.Concat(e.traverse(call.Arguments[0]))
+	// value
+	code.Concat(e.traverse(call.Arguments[1]))
+	// in offset
+	code.Concat(push(uintAsBytes(uint(0))))
+	// in size
+	code.Concat(push(uintAsBytes(uint(0))))
+	// out offset
+	e.allocateMemory("transfer", 1)
+	mem := e.lookupMemory("transfer")
+	code.Concat(push(uintAsBytes(uint(mem.offset))))
+	// out size
+	code.Concat(push(uintAsBytes(uint(1))))
 	code.Add("CALL")
 	return code
 }
 
 func call(vm validator.VM) (code vmgen.Bytecode) {
 	e := vm.(GuardianEVM)
+	call := e.expression.(*ast.CallExpressionNode)
 	// gas
-	code.Add("GAS")
+	code.Concat(e.traverse(call.Arguments[1]))
 	// recipient --> should be on the stack already
-	code.Add("PUSH")
+	code.Concat(e.traverse(call.Arguments[0]))
 	// ether value
-	code.Add("PUSH")
+	code.Concat(e.traverse(call.Arguments[2]))
 	// memory location of start of input data
 	code.Add("PUSH")
 	// length of input data
 	code.Add("PUSH")
-	// memory location to put start of output data
-	code.Add("PUSH")
-	// length of output data
-	code.Add("PUSH")
+	// out offset
+	e.allocateMemory("transfer", 1)
+	mem := e.lookupMemory("transfer")
+	code.Concat(push(uintAsBytes(uint(mem.offset))))
+	// out size
+	code.Concat(push(uintAsBytes(uint(1))))
 	code.Add("CALL")
+	return code
+}
+
+func calldata(vm validator.VM) (code vmgen.Bytecode) {
+	code.Add("CALLDATA")
 	return code
 }
 

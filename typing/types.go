@@ -24,6 +24,8 @@ type Type interface {
 	implements(Type) bool
 	Size() uint
 }
+
+// LifecycleMap ...
 type LifecycleMap map[token.Type][]Lifecycle
 
 type baseType int
@@ -35,22 +37,27 @@ const (
 	void
 )
 
+// StandardType ...
 type StandardType struct {
 	name string
 }
 
+// Invalid ...
 func Invalid() Type {
 	return standards[invalid]
 }
 
+// Unknown ...
 func Unknown() Type {
 	return standards[unknown]
 }
 
+// Boolean ...
 func Boolean() Type {
 	return standards[boolean]
 }
 
+// Void ...
 func Void() Type {
 	return standards[void]
 }
@@ -62,22 +69,27 @@ var standards = map[baseType]*StandardType{
 	void:    &StandardType{"void"},
 }
 
+// Array ...
 type Array struct {
 	Length   int
 	Value    Type
 	Variable bool
 }
 
+// Map ...
 type Map struct {
+	Modifiers
 	Key   Type
 	Value Type
 }
 
+// Func ...
 type Func struct {
-	Name     string
-	Generics []*Generic
-	Params   *Tuple
-	Results  *Tuple
+	Modifiers Modifiers
+	Name      string
+	Generics  []*Generic
+	Params    *Tuple
+	Results   *Tuple
 }
 
 type Tuple struct {
@@ -109,6 +121,7 @@ type Lifecycle struct {
 
 // A Class is a collection of properties
 type Class struct {
+	Modifiers  Modifiers
 	Name       string
 	Generics   []*Generic
 	Lifecycles LifecycleMap
@@ -119,20 +132,23 @@ type Class struct {
 }
 
 type Enum struct {
-	Name   string
-	Supers []*Enum
-	Items  []string
+	Modifiers Modifiers
+	Name      string
+	Supers    []*Enum
+	Items     []string
 }
 
 type Interface struct {
-	Name     string
-	Generics []*Generic
-	Supers   []*Interface
-	Funcs    map[string]*Func
+	Modifiers Modifiers
+	Name      string
+	Generics  []*Generic
+	Supers    []*Interface
+	Funcs     map[string]*Func
 }
 
 // Contract ...
 type Contract struct {
+	Modifiers  Modifiers
 	Name       string
 	Generics   []*Generic
 	Supers     []*Contract
@@ -142,8 +158,20 @@ type Contract struct {
 	Properties map[string]Type
 }
 
+type Annotation struct {
+	Name       string
+	Parameters []string
+	Required   int
+}
+
+type Modifiers struct {
+	Annotations []*Annotation
+	Modifiers   []string
+}
+
 // Event ...
 type Event struct {
+	Modifiers  Modifiers
 	Name       string
 	Generics   []*Generic
 	Parameters *Tuple
