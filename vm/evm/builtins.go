@@ -15,7 +15,7 @@ var builtins = map[string]validator.BytecodeGenerator{
 	"send":         send,
 	"delegateCall": delegateCall,
 	"call":         call,
-	"callcode":     callCode,
+	//"callcode": callCode,
 	// error-checking
 	"revert":  validator.SimpleInstruction("REVERT"),
 	"throw":   validator.SimpleInstruction("REVERT"),
@@ -54,13 +54,22 @@ func send(vm validator.VM) (code vmgen.Bytecode) {
 }
 
 func call(vm validator.VM) (code vmgen.Bytecode) {
-	// Thus the operand order is: gas, to, value, in offset, in size, out offset, out size
+	e := vm.(GuardianEVM)
+	// gas
+	code.Add("GAS")
+	// recipient --> should be on the stack already
+	code.Add("PUSH")
+	// ether value
+	code.Add("PUSH")
+	// memory location of start of input data
+	code.Add("PUSH")
+	// length of input data
+	code.Add("PUSH")
+	// memory location to put start of output data
+	code.Add("PUSH")
+	// length of output data
+	code.Add("PUSH")
 	code.Add("CALL")
-	return code
-}
-
-func calldata(vm validator.VM) (code vmgen.Bytecode) {
-	code.Add("CALLDATA")
 	return code
 }
 

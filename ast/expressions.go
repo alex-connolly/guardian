@@ -1,8 +1,6 @@
 package ast
 
 import (
-	"go/ast"
-
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/typing"
@@ -120,7 +118,7 @@ func (n *FuncLiteralNode) ResolvedType() typing.Type { return n.Resolved }
 
 type IdentifierNode struct {
 	Name       string
-	Parameters []ast.Node
+	Parameters []Node
 	Resolved   typing.Type
 }
 
