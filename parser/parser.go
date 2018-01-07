@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/end-r/guardian/typing"
+
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/util"
@@ -19,7 +21,7 @@ type Parser struct {
 	tokens           []token.Token
 	modifiers        [][]string
 	lastModifiers    []string
-	annotations      []*ast.Annotation
+	annotations      []*typing.Annotation
 	index            int
 	errs             util.Errors
 	line             int
@@ -208,7 +210,7 @@ func parseGroup(p *Parser) {
 	}
 }
 
-func (p *Parser) getModifiers() ast.Modifiers {
+func (p *Parser) getModifiers() typing.Modifiers {
 	var mods []string
 	for _, m := range p.lastModifiers {
 		mods = append(mods, m)
@@ -218,7 +220,7 @@ func (p *Parser) getModifiers() ast.Modifiers {
 			mods = append(mods, m)
 		}
 	}
-	return ast.Modifiers{
+	return typing.Modifiers{
 		Modifiers:   mods,
 		Annotations: p.annotations,
 	}
@@ -319,7 +321,7 @@ func (p *Parser) parseString() string {
 }
 
 func parseAnnotation(p *Parser) {
-	a := new(ast.Annotation)
+	a := new(typing.Annotation)
 	p.parseRequired(token.At)
 
 	a.Name = p.parseIdentifier()
@@ -345,7 +347,7 @@ func parseAnnotation(p *Parser) {
 		p.parseRequired(token.CloseBracket)
 	}
 	if p.annotations == nil {
-		p.annotations = make([]*ast.Annotation, 0)
+		p.annotations = make([]*typing.Annotation, 0)
 	}
 	p.annotations = append(p.annotations, a)
 }

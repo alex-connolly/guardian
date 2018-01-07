@@ -164,9 +164,52 @@ type Annotation struct {
 	Required   int
 }
 
+// currently leaving these as arrays
+// in the future, order might be important
 type Modifiers struct {
 	Annotations []*Annotation
 	Modifiers   []string
+}
+
+func (m *Modifiers) AddAnnotation(a *Annotation) {
+	if m.Annotations == nil {
+		m.Annotations = make([]*Annotation, 0)
+	}
+	m.Annotations = append(m.Annotations, a)
+}
+
+func (m *Modifiers) AddModifier(mod string) {
+	if m.Modifiers == nil {
+		m.Modifiers = make([]string, 0)
+	}
+	m.Modifiers = append(m.Modifiers, mod)
+}
+
+func (m *Modifiers) Annotation(anno string) *Annotation {
+	for _, annotation := range m.Annotations {
+		if annotation.Name == anno {
+			return annotation
+		}
+	}
+	return nil
+}
+
+func (m *Modifiers) HasAnnotation(anno string) bool {
+	for _, annotation := range m.Annotations {
+		if annotation.Name == anno {
+			return true
+		}
+	}
+	return false
+}
+
+func (m *Modifiers) HasModifier(mod string) bool {
+	for _, modifier := range m.Modifiers {
+		if modifier == mod {
+			return true
+		}
+	}
+	return false
 }
 
 // Event ...

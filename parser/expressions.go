@@ -287,6 +287,20 @@ func (p *Parser) parseIdentifierList() []string {
 	return ids
 }
 
+func (p *Parser) parseKeywordExpression() *ast.KeywordNode {
+	n := new(ast.KeywordNode)
+	n.Keyword = p.parseRequired(token.New)
+	n.TypeNode = p.parseType()
+	p.parseRequired(token.OpenBracket)
+	if !p.parseOptional(token.CloseBracket) {
+		p.ignoreNewLines()
+		n.Arguments = p.parseExpressionList()
+		p.ignoreNewLines()
+		p.parseRequired(token.CloseBracket)
+	}
+	return n
+}
+
 func (p *Parser) parseCallExpression(expr ast.ExpressionNode) *ast.CallExpressionNode {
 	n := new(ast.CallExpressionNode)
 	n.Call = expr
@@ -392,17 +406,6 @@ func (p *Parser) parseSliceExpression(expr ast.ExpressionNode,
 func (p *Parser) parseIdentifierExpression() *ast.IdentifierNode {
 	n := new(ast.IdentifierNode)
 	n.Name = p.parseIdentifier()
-	if p.isNextToken(token.Lss) {
-		if p.isNextToken(token.Gtr) {
-			p.addError("Empty parameters")
-		} else {
-			n.Parameters = append(n.Parameters, p.parseType())
-			for p.parseOptional(token.Or) {
-				n.Parameters = append(n.Parameters, p.parseType())
-			}
-			p.parseRequired(token.Gtr)
-		}
-	}
 	return n
 }
 

@@ -206,7 +206,8 @@ func TestParseGenericComplex(t *testing.T) {
 
 func TestParseEventGenericSimpleMultiple(t *testing.T) {
 	a, errs := ParseString(`event <T|S|R> hello(a T, b S, c R)`)
-	goutil.AssertNow(t, errs == nil, errs.Format())
+	goutil.As
+	sertNow(t, errs == nil, errs.Format())
 	goutil.AssertNow(t, a.Declarations.Length() == 1, "wrong length")
 	c := a.Declarations.Next().(*ast.EventDeclarationNode)
 	goutil.AssertNow(t, c.Generics != nil, "nil generics")

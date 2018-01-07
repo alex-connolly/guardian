@@ -1,8 +1,6 @@
 package ast
 
 import (
-	"go/ast"
-
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/typing"
@@ -139,9 +137,10 @@ func (n *ReferenceNode) Type() NodeType { return Reference }
 func (n *ReferenceNode) ResolvedType() typing.Type { return n.Resolved }
 
 type KeywordNode struct {
-	Resolved typing.Type
-	Keyword  token.Type
-	TypeNode ast.Node
+	Resolved  typing.Type
+	Keyword   token.Type
+	TypeNode  Node
+	Arguments []ExpressionNode
 }
 
 func (n *KeywordNode) Type() NodeType { return Keyword }
