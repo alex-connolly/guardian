@@ -102,7 +102,6 @@ func (v *Validator) validateFuncType(node *ast.FuncTypeNode) typing.Type {
 				}
 				break
 			}
-
 		}
 	}
 	var results []typing.Type
@@ -111,7 +110,11 @@ func (v *Validator) validateFuncType(node *ast.FuncTypeNode) typing.Type {
 			results = append(results, v.validateType(r))
 		}
 	}
-	return &typing.Func{Params: typing.NewTuple(params...), Results: typing.NewTuple(results...)}
+	return &typing.Func{
+		Params:    typing.NewTuple(params...),
+		Results:   typing.NewTuple(results...),
+		Modifiers: node.Modifiers,
+	}
 }
 
 func (v *Validator) validateDeclaration(node ast.Node) {
@@ -286,6 +289,7 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 		Types:      types,
 		Properties: properties,
 		Lifecycles: lifecycles,
+		Modifiers:  node.Modifiers,
 	}
 
 	v.validateClassInterfaces(classType)
@@ -314,9 +318,10 @@ func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
 	list := node.Enums
 
 	enumType := &typing.Enum{
-		Name:   node.Identifier,
-		Supers: supers,
-		Items:  list,
+		Name:      node.Identifier,
+		Supers:    supers,
+		Items:     list,
+		Modifiers: node.Modifiers,
 	}
 
 	node.Resolved = enumType
@@ -367,6 +372,7 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 		Types:      types,
 		Properties: properties,
 		Lifecycles: lifecycles,
+		Modifiers:  node.Modifiers,
 	}
 
 	v.validateContractInterfaces(contractType)
