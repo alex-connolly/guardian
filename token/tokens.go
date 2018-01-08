@@ -276,7 +276,7 @@ var fixed = map[string]ProtoToken{
 	":=":  fixedToken(":=", Define),
 	"...": fixedToken("...", Ellipsis),
 
-	"{": fixedToken("}", OpenBrace),
+	"{": fixedToken("{", OpenBrace),
 	"}": fixedToken("}", CloseBrace),
 	"<": fixedToken("<", Lss),
 	">": fixedToken(">", Gtr),

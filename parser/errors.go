@@ -10,7 +10,7 @@ const (
 	errConstantWithoutValue       = "Constants must have a value"
 	errUnclosedGroup              = "Unclosed group not allowed"
 	errInvalidScopeDeclaration    = "Invalid declaration in scope"
-	errRequiredType               = "Required one of {%s}, found %s"
+	errRequiredType               = "Required %s, found %s"
 	errInvalidAnnotationParameter = "Invalid annotation parameter, must be string"
 	errInvalidIncDec              = "Cannot increment or decrement in this context"
 	errInvalidTypeAfterCast       = "Expected type after cast operator"

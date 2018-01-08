@@ -138,6 +138,9 @@ func (p *Parser) parsePlainType() *ast.PlainTypeNode {
 		for p.parseOptional(token.Or) {
 			params = append(params, p.parseType())
 		}
+		if p.isNextToken(token.Shr) {
+			p.spliceTokens(token.Gtr, token.Gtr)
+		}
 		p.parseRequired(token.Gtr)
 	}
 
@@ -145,6 +148,21 @@ func (p *Parser) parsePlainType() *ast.PlainTypeNode {
 		Names:      names,
 		Parameters: params,
 		Variable:   variable,
+	}
+}
+
+func (p *Parser) spliceTokens(types ...token.Type) {
+	// delete the token
+	tok := p.current()
+	p.tokens = append(p.tokens[:p.index], p.tokens[p.index+1:]...)
+	// insert new tokens with all those types
+	for i, t := range types {
+		p.tokens = append(p.tokens, token.Token{})
+		copy(p.tokens[p.index+1:], p.tokens[p.index:])
+		p.tokens[p.index] = token.Token{
+			Start: tok.Start + i + 1,
+			Type:  t,
+		}
 	}
 }
 
@@ -524,16 +542,20 @@ func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 
 	var max int
 
-	if p.nextTokens(token.Integer) {
-		i, err := strconv.ParseInt(p.current().String(), 10, 64)
-		if err != nil {
+	if !p.parseOptional(token.CloseSquare) {
+		if p.nextTokens(token.Integer) {
+			i, err := strconv.ParseInt(p.current().String(), 10, 64)
+			if err != nil {
+				p.addError(errInvalidArraySize)
+			}
+			max = int(i)
+			p.next()
+		} else {
 			p.addError(errInvalidArraySize)
+			p.next()
 		}
-		max = int(i)
-		p.next()
+		p.parseRequired(token.CloseSquare)
 	}
-
-	p.parseRequired(token.CloseSquare)
 
 	typ := p.parseType()
 

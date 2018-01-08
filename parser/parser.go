@@ -102,7 +102,7 @@ func (p *Parser) parseRequired(types ...token.Type) token.Type {
 			return t
 		}
 	}
-	p.addError(fmt.Sprintf("Required one of {%s}, found %s", listTypes(types), p.current().Name()))
+	p.addError(fmt.Sprintf(errRequiredType, listTypes(types), p.current().Name()))
 	// correct return type
 	return token.Invalid
 }
@@ -118,9 +118,12 @@ func (p *Parser) ignoreComments() {
 }
 
 func listTypes(types []token.Type) string {
+	if len(types) == 1 {
+		return types[0].Name()
+	}
 	s := ""
 	for _, t := range types {
-		s += t.TypeName()
+		s += t.Name()
 		s += ","
 	}
 	// remove trailing comma

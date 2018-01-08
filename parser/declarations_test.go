@@ -768,3 +768,11 @@ func TestFuncDeclarationEnclosedParams(t *testing.T) {
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 	goutil.AssertNow(t, a.Declarations != nil, "nil declarations")
 }
+
+func TestInvalidArrayTypeSize(t *testing.T) {
+	a, errs := ParseString(`
+		var x ["hi"]string
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+	goutil.AssertNow(t, a.Declarations != nil, "nil declarations")
+}

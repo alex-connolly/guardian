@@ -767,3 +767,32 @@ func TestMultiLineMapTypeAssignment(t *testing.T) {
 	goutil.AssertNow(t, a != nil, "nil scope")
 	goutil.AssertLength(t, len(a.Sequence), 1)
 }
+
+func TestParseForStatementMultipleSimples(t *testing.T) {
+	a, errs := ParseString(`
+		for i, j, k = 0, 0, 0; i < j < k; j++ {
+
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+	goutil.AssertNow(t, a != nil, "nil scope")
+	goutil.AssertLength(t, len(a.Sequence), 1)
+}
+
+func TestParseMultiplePostInvalid(t *testing.T) {
+	a, errs := ParseString(`
+		i, j++
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+	goutil.AssertNow(t, a != nil, "nil scope")
+	goutil.AssertLength(t, len(a.Sequence), 1)
+}
+
+func TestParseDecrement(t *testing.T) {
+	a, errs := ParseString(`
+		i--
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+	goutil.AssertNow(t, a != nil, "nil scope")
+	goutil.AssertLength(t, len(a.Sequence), 1)
+}
