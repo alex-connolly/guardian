@@ -31,4 +31,6 @@ const (
 	errUnimplementedInterface     = "%s does not implement interface %s: missing method %s"
 	errInvalidReference           = "Invalid reference expression type"
 	errUnknownExpressionType      = "Unknown expression type"
+	errInvalidInheritance         = "Cannot inherit type %s"
+	errIncompatibleInheritance    = "Cannot inherit from both %s and %s"
 )

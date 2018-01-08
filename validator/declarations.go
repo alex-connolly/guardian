@@ -2,6 +2,7 @@ package validator
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/end-r/guardian/token"
 
@@ -29,46 +30,46 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 	typ := v.getNamedType(node.Names...)
 	if typ == typing.Unknown() {
 		typ = v.getDeclarationNode(node.Names)
-		// validate parameters if necessary
-		switch a := typ.(type) {
-		case *typing.Class:
-			if len(node.Parameters) != len(a.Generics) {
-				v.addError(errWrongParameterLength)
-			}
-			for i, p := range node.Parameters {
-				if !a.Generics[i].Accepts(v.validateType(p)) {
-					v.addError(errInvalidParameter)
-				}
-			}
-			break
-		case *typing.Interface:
-			if len(node.Parameters) != len(a.Generics) {
-				v.addError(errWrongParameterLength)
-			}
-			for i, p := range node.Parameters {
-				if !a.Generics[i].Accepts(v.validateType(p)) {
-					v.addError(errInvalidParameter)
-				}
-			}
-			break
-		case *typing.Contract:
-			if len(node.Parameters) != len(a.Generics) {
-				v.addError(errWrongParameterLength)
-			}
-			for i, p := range node.Parameters {
-				if !a.Generics[i].Accepts(v.validateType(p)) {
-					v.addError(errInvalidParameter)
-				}
-			}
-			break
-		default:
-			if len(node.Parameters) > 0 {
-				v.addError(errCannotParametrizeType)
-			}
-			break
-		}
-
 	}
+	// validate parameters if necessary
+	switch a := typ.(type) {
+	case *typing.Class:
+		if len(node.Parameters) != len(a.Generics) {
+			v.addError(errWrongParameterLength)
+		}
+		for i, p := range node.Parameters {
+			if !a.Generics[i].Accepts(v.validateType(p)) {
+				v.addError(errInvalidParameter)
+			}
+		}
+		break
+	case *typing.Interface:
+		if len(node.Parameters) != len(a.Generics) {
+			v.addError(errWrongParameterLength)
+		}
+		for i, p := range node.Parameters {
+			if !a.Generics[i].Accepts(v.validateType(p)) {
+				v.addError(errInvalidParameter)
+			}
+		}
+		break
+	case *typing.Contract:
+		if len(node.Parameters) != len(a.Generics) {
+			v.addError(errWrongParameterLength)
+		}
+		for i, p := range node.Parameters {
+			if !a.Generics[i].Accepts(v.validateType(p)) {
+				v.addError(errInvalidParameter)
+			}
+		}
+		break
+	default:
+		if len(node.Parameters) > 0 {
+			v.addError(errCannotParametrizeType)
+		}
+		break
+	}
+
 	return typ
 }
 
@@ -201,18 +202,6 @@ func (v *Validator) validateVarDeclaration(node *ast.ExplicitVarDeclarationNode)
 func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*typing.Generic {
 	genericTypes := make([]*typing.Generic, 0)
 	for _, node := range generics {
-		// use the first type to set the required standard
-		if node.Inherits != nil && len(node.Inherits) > 0 {
-			t := v.validatePlainType(node.Inherits[0])
-			switch t.(type) {
-			case *typing.Class:
-				break
-			case *typing.Interface:
-				break
-			default:
-				break
-			}
-		}
 
 		var interfaces []*typing.Interface
 		for _, ifc := range node.Implements {
@@ -227,19 +216,7 @@ func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*
 		}
 		var inherits []typing.Type
 		for _, super := range node.Inherits {
-			t := v.validatePlainType(super)
-			switch t.(type) {
-			case *typing.Class:
-				break
-			case *typing.Interface:
-				if node.Implements != nil {
-
-				}
-				break
-			case *typing.Contract:
-
-				break
-			}
+			inherits = append(inherits, v.validatePlainType(super))
 		}
 		// enforce that all inheritors are the same type
 
@@ -248,10 +225,33 @@ func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*
 			Interfaces: interfaces,
 			Inherits:   inherits,
 		}
-
 		genericTypes = append(genericTypes, g)
 	}
+
+	for _, g := range genericTypes {
+		v.validateGenericInherits(g.Inherits)
+	}
 	return genericTypes
+}
+
+func (v *Validator) validateGenericInherits(types []typing.Type) {
+	var typ typing.Type
+	for i, t := range types {
+		switch t.(type) {
+		case *typing.Contract, *typing.Class, *typing.Enum, *typing.Interface:
+			break
+		default:
+			v.addError(errInvalidInheritance, typing.WriteType(t))
+			break
+		}
+		if i == 0 {
+			typ = t
+		} else {
+			if reflect.TypeOf(t) != reflect.TypeOf(typ) {
+				v.addError(errIncompatibleInheritance, typing.WriteType(typ), typing.WriteType(t))
+			}
+		}
+	}
 }
 
 func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {

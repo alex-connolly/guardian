@@ -53,8 +53,8 @@ func TestMultipleInheritanceConstraintGenericAssignment(t *testing.T) {
 
         }
 
-        a = new ConstrainedList<string, int>()
-		b = new ConstrainedList<BorderCollie, BorderCollie>()
+        a = new ConstrainedList<string|int>()
+		b = new ConstrainedList<BorderCollie|BorderCollie>()
     `)
 	goutil.AssertNow(t, len(errs) == 2, errs.Format())
 	// one for each wrong type
@@ -68,8 +68,8 @@ func TestMultipleImplementationConstraintGenericAssignment(t *testing.T) {
 
         }
 
-        a = new ConstrainedList<string, int>()
-		b = new ConstrainedList<BorderCollie, BorderCollie>()
+        a = new ConstrainedList<string|int>()
+		b = new ConstrainedList<BorderCollie|BorderCollie>()
     `)
 	goutil.AssertNow(t, len(errs) == 2, errs.Format())
 	// one for each wrong type
