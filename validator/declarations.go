@@ -38,6 +38,7 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 			v.addError(errWrongParameterLength)
 		}
 		for i, p := range node.Parameters {
+			v.declareContextualType(a.Generics[i].Identifier, &typing.Generic{})
 			if !a.Generics[i].Accepts(v.validateType(p)) {
 				v.addError(errInvalidParameter)
 			}
@@ -48,6 +49,7 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 			v.addError(errWrongParameterLength)
 		}
 		for i, p := range node.Parameters {
+			v.declareContextualType(a.Generics[i].Identifier, &typing.Generic{})
 			if !a.Generics[i].Accepts(v.validateType(p)) {
 				v.addError(errInvalidParameter)
 			}
@@ -58,6 +60,7 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 			v.addError(errWrongParameterLength)
 		}
 		for i, p := range node.Parameters {
+			v.declareContextualType(a.Generics[i].Identifier, &typing.Generic{})
 			if !a.Generics[i].Accepts(v.validateType(p)) {
 				v.addError(errInvalidParameter)
 			}

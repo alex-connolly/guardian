@@ -5,6 +5,10 @@ const (
 	byteSize = 8
 )
 
+func (g *Generic) Size() uint {
+	return 0
+}
+
 func (a *Array) Size() uint {
 	return uint(a.Length) * a.Value.Size()
 }

@@ -138,3 +138,21 @@ func (nt *BooleanType) Compare(t Type) bool {
 	_, ok := ResolveUnderlying(t).(*BooleanType)
 	return ok
 }
+
+func (g *Generic) Compare(t Type) bool {
+	other, ok := ResolveUnderlying(t).(*Generic)
+	if !ok {
+		return false
+	}
+	for _, i := range g.Inherits {
+		if !other.inherits(i) {
+			return false
+		}
+	}
+	for _, i := range g.Interfaces {
+		if !other.implements(i) {
+			return false
+		}
+	}
+	return true
+}

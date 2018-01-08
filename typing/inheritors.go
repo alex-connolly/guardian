@@ -55,6 +55,7 @@ func (f *Func) inherits(t Type) bool         { return false }
 func (a *Array) inherits(t Type) bool        { return false }
 func (m *Map) inherits(t Type) bool          { return false }
 func (e *Event) inherits(t Type) bool        { return false }
+func (g *Generic) inherits(t Type) bool      { return false }
 
 func (n *NumericType) inherits(t Type) bool { return false }
 func (n *BooleanType) inherits(t Type) bool { return false }

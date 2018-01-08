@@ -11,6 +11,10 @@ func WriteType(t Type) string {
 	return b.String()
 }
 
+func (g *Generic) write(b *bytes.Buffer) {
+	b.WriteString(g.Identifier)
+}
+
 func (s *StandardType) write(b *bytes.Buffer) {
 	b.WriteString(s.name)
 }
