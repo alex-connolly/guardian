@@ -757,3 +757,14 @@ func TestInterfaceMethods(t *testing.T) {
 	ifc := f.(*ast.InterfaceDeclarationNode)
 	goutil.AssertLength(t, len(ifc.Signatures), 2)
 }
+
+func TestFuncDeclarationEnclosedParams(t *testing.T) {
+	a, errs := ParseString(`
+		func hi() (int, int, string){
+
+		}
+		var x func() (int, int, string)
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+	goutil.AssertNow(t, a.Declarations != nil, "nil declarations")
+}

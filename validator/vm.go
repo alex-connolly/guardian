@@ -3,9 +3,10 @@ package validator
 import (
 	"strconv"
 
+	"github.com/end-r/guardian/ast"
+
 	"github.com/end-r/guardian/token"
 
-	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/parser"
 	"github.com/end-r/guardian/typing"
 	"github.com/end-r/guardian/util"
@@ -66,18 +67,18 @@ func (mg *ModifierGroup) has(mod string) bool {
 	return false
 }
 
-var defaultAnnotations = []*ast.Annotation{
+var defaultAnnotations = []*typing.Annotation{
 	ParseAnnotation("Bytecode", handleBytecode, 1),
 }
 
-func ParseAnnotation(name string, f AnnotationFunction, required int) *ast.Annotation {
-	a := new(ast.Annotation)
+func ParseAnnotation(name string, f AnnotationFunction, required int) *typing.Annotation {
+	a := new(typing.Annotation)
 	a.Name = name
 	a.Required = required
 	return a
 }
 
-type AnnotationFunction func(vm VM, params BuiltinParams, a *ast.Annotation)
+type AnnotationFunction func(vm VM, params BuiltinParams, a *typing.Annotation)
 
 type BytecodeGenerator func(vm VM) vmgen.Bytecode
 
@@ -85,7 +86,7 @@ type BuiltinParams struct {
 	Bytecode *vmgen.Bytecode
 }
 
-func handleBytecode(vm VM, params BuiltinParams, a *ast.Annotation) {
+func handleBytecode(vm VM, params BuiltinParams, a *typing.Annotation) {
 	// TODO: check if it's there?
 	bg := vm.BytecodeGenerators()[a.Parameters[0]]
 	params.Bytecode.Concat(bg(vm))
@@ -123,7 +124,7 @@ var defaultGroups = []*ModifierGroup{
 }
 
 // A VM is the mechanism through which all vm-specific features are applied
-// to the Guardian AST: bytecode generation, type enforcement etc
+// to the Guardian typing: bytecode generation, type enforcement etc
 type OperatorFunc func(*Validator, []typing.Type, []ast.ExpressionNode) typing.Type
 type OperatorMap map[token.Type]OperatorFunc
 
@@ -131,7 +132,7 @@ type LiteralFunc func(*Validator, string) typing.Type
 type LiteralMap map[token.Type]LiteralFunc
 
 // A VM is the mechanism through which all vm-specific features are applied
-// to the Guardian AST: bytecode generation, type enforcement etc
+// to the Guardian typing: bytecode generation, type enforcement etc
 type VM interface {
 	Traverse(ast.Node) (vmgen.Bytecode, util.Errors)
 	Builtins() *ast.ScopeNode
@@ -142,7 +143,7 @@ type VM interface {
 	ValidStatements() []ast.NodeType
 	ValidDeclarations() []ast.NodeType
 	Modifiers() []*ModifierGroup
-	Annotations() []*ast.Annotation
+	Annotations() []*typing.Annotation
 	BytecodeGenerators() map[string]BytecodeGenerator
 }
 
@@ -153,7 +154,7 @@ func NewTestVM() TestVM {
 	return TestVM{}
 }
 
-func (v TestVM) Annotations() []*ast.Annotation {
+func (v TestVM) Annotations() []*typing.Annotation {
 	return nil
 }
 

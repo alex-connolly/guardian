@@ -24,3 +24,8 @@ func TestParseStringDeclaration(t *testing.T) {
 func TestParseFile(t *testing.T) {
 	ParseFile("tests/empty.grd")
 }
+
+func TestParseType(t *testing.T) {
+	typ := ParseType("map[string]string")
+	goutil.AssertNow(t, typ != nil, "typ is nil")
+}

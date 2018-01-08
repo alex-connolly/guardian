@@ -221,6 +221,8 @@ func (p *Parser) parsePrimaryComponent() ast.ExpressionNode {
 		return p.parsePrefixUnaryExpression()
 	case token.Func:
 		return p.parseFuncLiteral()
+	case token.New:
+		return p.parseKeywordExpression()
 	}
 	return nil
 }
@@ -277,9 +279,6 @@ func (p *Parser) parseReference(expr ast.ExpressionNode) *ast.ReferenceNode {
 
 func (p *Parser) parseIdentifierList() []string {
 	var ids []string
-	if p.current().Type != token.Identifier {
-		return nil
-	}
 	ids = append(ids, p.parseIdentifier())
 	for p.parseOptional(token.Comma) {
 		ids = append(ids, p.parseIdentifier())
@@ -306,7 +305,6 @@ func (p *Parser) parseCallExpression(expr ast.ExpressionNode) *ast.CallExpressio
 	n.Call = expr
 	p.parseRequired(token.OpenBracket)
 	if !p.parseOptional(token.CloseBracket) {
-
 		p.ignoreNewLines()
 		n.Arguments = p.parseExpressionList()
 		p.ignoreNewLines()
@@ -324,8 +322,10 @@ func (p *Parser) parseArrayLiteral() *ast.ArrayLiteralNode {
 
 	p.parseRequired(token.OpenBrace)
 	if !p.parseOptional(token.CloseBrace) {
+		p.ignoreNewLines()
 		// TODO: check this is right
 		n.Data = p.parseExpressionList()
+		p.ignoreNewLines()
 		p.parseRequired(token.CloseBrace)
 	}
 	return n
@@ -350,17 +350,25 @@ func (p *Parser) parseMapLiteral() *ast.MapLiteralNode {
 
 	p.parseRequired(token.OpenBrace)
 	if !p.parseOptional(token.CloseBrace) {
+		p.ignoreNewLines()
 		firstKey := p.parseExpression()
 		p.parseRequired(token.Colon)
 		firstValue := p.parseExpression()
+		p.ignoreNewLines()
 		n.Data = make(map[ast.ExpressionNode]ast.ExpressionNode)
 		n.Data[firstKey] = firstValue
 		for p.parseOptional(token.Comma) {
+			p.ignoreNewLines()
+			if p.parseOptional(token.CloseBrace) {
+				return n
+			}
 			key := p.parseExpression()
 			p.parseRequired(token.Colon)
 			value := p.parseExpression()
 			n.Data[key] = value
+			p.ignoreNewLines()
 		}
+		p.ignoreNewLines()
 		p.parseRequired(token.CloseBrace)
 	}
 	return n

@@ -62,6 +62,9 @@ func (v *Validator) resolveTuple(nodes []ast.Node) *typing.Tuple {
 }
 
 func (v *Validator) resolveExpression(e ast.ExpressionNode) typing.Type {
+	if e == nil {
+		return typing.Invalid()
+	}
 	resolvers := map[ast.NodeType]resolver{
 		ast.Literal:          resolveLiteralExpression,
 		ast.MapLiteral:       resolveMapLiteralExpression,
@@ -75,18 +78,32 @@ func (v *Validator) resolveExpression(e ast.ExpressionNode) typing.Type {
 		ast.Reference:        resolveReference,
 		ast.Identifier:       resolveIdentifier,
 		ast.CompositeLiteral: resolveCompositeLiteral,
+		ast.Keyword:          resolveKeyword,
 		ast.PlainType:        resolveUnknown,
 		ast.FuncType:         resolveUnknown,
 		ast.ArrayType:        resolveUnknown,
 		ast.MapType:          resolveUnknown,
 	}
-	return resolvers[e.Type()](v, e)
+	r, ok := resolvers[e.Type()]
+	if !ok {
+		v.addError(errUnknownExpressionType)
+		return typing.Invalid()
+	}
+	return r(v, e)
 }
 
 type resolver func(v *Validator, e ast.ExpressionNode) typing.Type
 
 func resolveUnknown(v *Validator, e ast.ExpressionNode) typing.Type {
 	return typing.Unknown()
+}
+
+func resolveKeyword(v *Validator, e ast.ExpressionNode) typing.Type {
+	i := e.(*ast.KeywordNode)
+	// look up the identifier in scope
+	t := v.resolveType(i.TypeNode)
+	i.Resolved = t
+	return t
 }
 
 func resolveIdentifier(v *Validator, e ast.ExpressionNode) typing.Type {

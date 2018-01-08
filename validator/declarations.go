@@ -74,13 +74,20 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 
 func (v *Validator) validateArrayType(node *ast.ArrayTypeNode) *typing.Array {
 	value := v.validateType(node.Value)
-	return &typing.Array{Value: value, Length: node.Length, Variable: node.Variable}
+	return &typing.Array{
+		Value:    value,
+		Length:   node.Length,
+		Variable: node.Variable,
+	}
 }
 
 func (v *Validator) validateMapType(node *ast.MapTypeNode) *typing.Map {
 	key := v.validateType(node.Key)
 	value := v.validateType(node.Value)
-	return &typing.Map{Key: key, Value: value}
+	return &typing.Map{
+		Key:   key,
+		Value: value,
+	}
 }
 
 func (v *Validator) validateFuncType(node *ast.FuncTypeNode) typing.Type {
@@ -111,9 +118,8 @@ func (v *Validator) validateFuncType(node *ast.FuncTypeNode) typing.Type {
 		}
 	}
 	return &typing.Func{
-		Params:    typing.NewTuple(params...),
-		Results:   typing.NewTuple(results...),
-		Modifiers: node.Modifiers,
+		Params:  typing.NewTuple(params...),
+		Results: typing.NewTuple(results...),
 	}
 }
 
@@ -195,16 +201,19 @@ func (v *Validator) validateVarDeclaration(node *ast.ExplicitVarDeclarationNode)
 func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*typing.Generic {
 	genericTypes := make([]*typing.Generic, 0)
 	for _, node := range generics {
-		// use the first type to set the
-		if node.Inherits != nil {
+		// use the first type to set the required standard
+		if node.Inherits != nil && len(node.Inherits) > 0 {
 			t := v.validatePlainType(node.Inherits[0])
 			switch t.(type) {
 			case *typing.Class:
 				break
 			case *typing.Interface:
 				break
+			default:
+				break
 			}
 		}
+
 		var interfaces []*typing.Interface
 		for _, ifc := range node.Implements {
 			t := v.validatePlainType(ifc)
@@ -216,13 +225,11 @@ func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*
 				}
 			}
 		}
-
 		var inherits []typing.Type
 		for _, super := range node.Inherits {
 			t := v.validatePlainType(super)
 			switch t.(type) {
 			case *typing.Class:
-
 				break
 			case *typing.Interface:
 				if node.Implements != nil {
@@ -538,7 +545,7 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
 }
 
-func (v *Validator) validateAnnotations(typ ast.NodeType, annotations []*ast.Annotation) {
+func (v *Validator) validateAnnotations(typ ast.NodeType, annotations []*typing.Annotation) {
 	// doesn't do anything yet?
 }
 

@@ -2,7 +2,6 @@ package parser
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/end-r/guardian/typing"
 
@@ -121,9 +120,11 @@ func (p *Parser) ignoreComments() {
 func listTypes(types []token.Type) string {
 	s := ""
 	for _, t := range types {
-		s += strconv.Itoa(int(t))
+		s += t.TypeName()
+		s += ","
 	}
-	return s
+	// remove trailing comma
+	return s[:len(s)-1]
 }
 
 func (p *Parser) parseIdentifier() string {

@@ -1,8 +1,6 @@
 package token
 
-import (
-	"strings"
-)
+import "strings"
 
 // TODO: make the token parser faster using a map or something
 
@@ -95,6 +93,7 @@ func GetAssignments() []Type {
 }
 
 func distinctToken(name string, typ Type) ProtoToken {
+	named[typ] = name
 	return ProtoToken{
 		Name:    name,
 		Type:    typ,
@@ -103,6 +102,7 @@ func distinctToken(name string, typ Type) ProtoToken {
 }
 
 func fixedToken(name string, typ Type) ProtoToken {
+	named[typ] = name
 	return ProtoToken{
 		Name:    name,
 		Type:    typ,
@@ -165,6 +165,22 @@ func NextProtoToken(b Byterable) *ProtoToken {
 		return &ProtoToken{Name: "identifier", Type: Identifier, Process: processIdentifier}
 	}
 	return nil
+}
+
+var named = map[Type]string{
+	Integer:    "integer",
+	Float:      "float",
+	NewLine:    "new line",
+	Character:  "character",
+	Identifier: "identifier",
+}
+
+func (typ Type) Name() string {
+	n, ok := named[typ]
+	if !ok {
+		return "<<UNKNOWN>>"
+	}
+	return n
 }
 
 var distinct = map[string]ProtoToken{

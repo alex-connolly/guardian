@@ -71,16 +71,17 @@ var standards = map[baseType]*StandardType{
 
 // Array ...
 type Array struct {
-	Length   int
-	Value    Type
-	Variable bool
+	Modifiers Modifiers
+	Length    int
+	Value     Type
+	Variable  bool
 }
 
 // Map ...
 type Map struct {
-	Modifiers
-	Key   Type
-	Value Type
+	Modifiers Modifiers
+	Key       Type
+	Value     Type
 }
 
 // Func ...

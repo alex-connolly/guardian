@@ -322,14 +322,6 @@ func (p *Parser) parseTypeList() []ast.Node {
 	return types
 }
 
-// currently not supporting named return types
-// reasoning: confusing to user
-// returns can either be single
-// string {
-// or multiple
-// (string, string) {
-// or none
-// {
 func (p *Parser) parseResults() []ast.Node {
 	if p.parseOptional(token.OpenBracket) {
 		types := p.parseTypeList()

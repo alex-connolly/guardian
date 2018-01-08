@@ -206,8 +206,7 @@ func TestParseGenericComplex(t *testing.T) {
 
 func TestParseEventGenericSimpleMultiple(t *testing.T) {
 	a, errs := ParseString(`event <T|S|R> hello(a T, b S, c R)`)
-	goutil.As
-	sertNow(t, errs == nil, errs.Format())
+	goutil.AssertNow(t, errs == nil, errs.Format())
 	goutil.AssertNow(t, a.Declarations.Length() == 1, "wrong length")
 	c := a.Declarations.Next().(*ast.EventDeclarationNode)
 	goutil.AssertNow(t, c.Generics != nil, "nil generics")
@@ -257,4 +256,32 @@ func TestParseInterfaceGenericsComplexSingle(t *testing.T) {
 	c := a.Declarations.Next().(*ast.InterfaceDeclarationNode)
 	goutil.AssertNow(t, c.Generics != nil, "nil generics")
 	goutil.AssertLength(t, len(c.Generics), 1)
+}
+
+func TestParseSimpleGenericAssignment(t *testing.T) {
+	_, errs := ParseString(`x = new List<string>()`)
+	goutil.AssertNow(t, errs == nil, errs.Format())
+}
+
+func TestParseMultipleGenericAssignment(t *testing.T) {
+	_, errs := ParseString(`x = new List<string|int>()`)
+	goutil.AssertNow(t, errs == nil, errs.Format())
+}
+
+func TestParseFullGenerics(t *testing.T) {
+	_, errs := ParseString(`
+		class List<T> {
+
+		}
+
+		class Dog<T> inherits List<T> {
+
+		}
+
+		a = new Dog<string>()
+		b = new Dog<List<string>>()
+		c = new Dog<Dog<Dog<string>>>()
+		d = new Dog<List<List<List<string>>>>()
+	`)
+	goutil.AssertNow(t, errs == nil, errs.Format())
 }

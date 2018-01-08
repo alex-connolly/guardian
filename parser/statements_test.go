@@ -736,9 +736,32 @@ func TestParseOrIfCondition(t *testing.T) {
 	goutil.AssertLength(t, len(a.Sequence), 1)
 }
 
-func TestGenericStatement(t *testing.T) {
+func TestGenericStatementPlainType(t *testing.T) {
 	a, errs := ParseString(`
-		x = List<string>()
+		x = new List<string>()
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+	goutil.AssertNow(t, a != nil, "nil scope")
+	goutil.AssertLength(t, len(a.Sequence), 1)
+}
+
+func TestGenericStatementArrayType(t *testing.T) {
+	a, errs := ParseString(`
+		x = []List<string> {
+			new List<string>([]string{"hi"}),
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+	goutil.AssertNow(t, a != nil, "nil scope")
+	goutil.AssertLength(t, len(a.Sequence), 1)
+}
+
+func TestMultiLineMapTypeAssignment(t *testing.T) {
+	a, errs := ParseString(`
+		x = map[int]int{
+			5: 4,
+			3: 1,
+		}
 	`)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 	goutil.AssertNow(t, a != nil, "nil scope")
