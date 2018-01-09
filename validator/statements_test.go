@@ -334,7 +334,7 @@ func TestTripleReferenceCalls(t *testing.T) {
 		}
 		var x string
 		var a A
-		x = a().b().c()
+		x = a.b().c()
 	`)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }

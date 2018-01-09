@@ -68,7 +68,8 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 			if leftTuple.Types[i] == typing.Unknown() {
 				if id, ok := left.(*ast.IdentifierNode); ok {
 					ty := rightTuple.Types[0]
-					id.Resolved = ty.ResetModifiers()
+					id.Resolved = ty
+					//id.Resolved.ResetModifiers()
 					v.declareContextualVar(id.Name, id.Resolved)
 				}
 			}
@@ -137,6 +138,18 @@ func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
 	// resolved tuple must match function expression
 
 	// scope is now a func declaration
+	for c := v.scope; v.scope != nil; c = c.scope {
+		switch a := c.context.(type) {
+		case *ast.FuncDeclarationNode:
+			results := a.Resolved.(*typing.Func).Results
+			returned := v.ExpressionTuple(exprs)
+			if typing.AssignableTo(results, returned) {
+				v.addError(errInvalidReturn, a.Signature.Identifier, typing.WriteType(results), typing.WriteType(returned))
+			}
+			return
+		}
+	}
+	v.addError(errInvalidReturnStatementOutsideFunc)
 }
 
 func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {

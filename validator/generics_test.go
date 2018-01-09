@@ -119,3 +119,12 @@ func TestMultipleGenericInSignature(t *testing.T) {
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 	// one for each wrong type
 }
+
+func TestTypesWithoutParameters(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		enum Dog {}
+		x = Dog<string>
+    `)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+	// one for each wrong type
+}

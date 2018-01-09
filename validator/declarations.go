@@ -258,11 +258,15 @@ func (v *Validator) validateGenericInherits(types []typing.Type) {
 	}
 }
 
-func (v *Validator) validateClassCancellation(class *typing.Class, peers []*typing.Class) {
+func (v *Validator) validateClassesCancellation(parent *typing.Class, classes []*typing.Class) {
 
 }
 
-func (v *Validator) validateContractCancellation(contract *typing.Contract, peers []*typing.Contract) {
+func (v *Validator) validateContractsCancellation(parent *typing.Contract, contracts []*typing.Contract) {
+
+}
+
+func (v *Validator) validateEnumsCancellation(parent *typing.Enum, enums []*typing.Enum) {
 
 }
 
@@ -279,7 +283,6 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 		t := v.validatePlainType(super)
 		if t != typing.Unknown() {
 			if c, ok := t.(*typing.Class); ok {
-				v.validateClassCancellation(c, supers)
 				supers = append(supers, c)
 			} else {
 				v.addError(errTypeRequired, makeName(super.Names), "class")
@@ -311,6 +314,8 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 		Lifecycles: lifecycles,
 		Mods:       &node.Modifiers,
 	}
+
+	v.validateClassesCancellation(classType, supers)
 
 	v.validateClassInterfaces(classType)
 
@@ -344,10 +349,11 @@ func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
 		Mods:   &node.Modifiers,
 	}
 
+	v.validateEnumsCancellation(enumType, supers)
+
 	node.Resolved = enumType
-
+	fmt.Println("declaring enum", node.Identifier)
 	v.declareContextualType(node.Identifier, enumType)
-
 }
 
 func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNode) {
@@ -361,7 +367,6 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 		t := v.validatePlainType(super)
 		if t != typing.Unknown() {
 			if c, ok := t.(*typing.Contract); ok {
-				v.validateContractCancellation(c, supers)
 				supers = append(supers, c)
 			} else {
 				v.addError(errTypeRequired, makeName(super.Names), "contract")
@@ -395,6 +400,8 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 		Lifecycles: lifecycles,
 		Mods:       &node.Modifiers,
 	}
+
+	v.validateContractsCancellation(contractType, supers)
 
 	v.validateContractInterfaces(contractType)
 

@@ -343,6 +343,7 @@ func (v *Validator) resolveContextualReference(context typing.Type, exp ast.Expr
 	// check if context is subscriptable
 	if name, ok := getIdentifier(exp); ok {
 		if t, ok := v.getPropertyType(context, name); ok {
+			t = typing.ResolveUnderlying(t)
 			switch a := exp.(type) {
 			case *ast.ReferenceNode:
 				context = v.resolveContextualReference(context, a.Parent)
@@ -355,6 +356,20 @@ func (v *Validator) resolveContextualReference(context typing.Type, exp ast.Expr
 					return f.Results
 				}
 				break
+			case *ast.IndexExpressionNode:
+				switch f := t.(type) {
+				case *typing.Map:
+					return f.Value
+				case *typing.Array:
+					return f.Value
+				}
+			case *ast.SliceExpressionNode:
+				switch f := t.(type) {
+				case *typing.Array:
+					return f
+				default:
+					break
+				}
 			default:
 				v.addError(errInvalidReference)
 				return typing.Invalid()

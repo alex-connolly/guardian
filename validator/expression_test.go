@@ -29,7 +29,7 @@ func TestCallExpressionInvalid(t *testing.T) {
         }
 
         Open(5, 5)
-        `)
+    `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	errs := Validate(scope, NewTestVM())
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())

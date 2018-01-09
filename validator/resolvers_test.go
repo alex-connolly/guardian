@@ -217,3 +217,235 @@ func TestResolution(t *testing.T) {
 	v.resolveExpression(expr)
 	goutil.Assert(t, expr.ResolvedType() != nil, "nil resolved")
 }
+
+func TestReferenceCallResolution(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class A {
+			func b() string {
+
+			}
+		}
+		var x string
+		var a A
+		x = a.b()
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestReferenceIdentifierResolution(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class A {
+			var b string
+		}
+		var x string
+		var a A
+		x = a.b
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestReferenceIndexResolution(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class A {
+			var b []int
+		}
+		var x int
+		var a A
+		x = a.b[2]
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestReferenceSliceResolution(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class A {
+			var b []int
+		}
+		var x []int
+		var a A
+		x = a.b[:]
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestAliasedReferenceCallResolution(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class A {
+			func c() string {
+
+			}
+		}
+		type B A
+		var x string
+		var b B
+		x = b.c()
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestAliasedReferenceIdentifierResolution(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class A {
+			var c string
+		}
+		type B A
+		var x string
+		var b B
+		x = b.c
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestAliasedReferenceIndexResolution(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class A {
+			var c []int
+		}
+		type B A
+		var x int
+		var b B
+		x = b.c[2]
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestAliasedReferenceSliceResolution(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class A {
+			var c []int
+		}
+		type B A
+		var x []int
+		var b B
+		x = b.c[:]
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestTripleReferenceCallResolution(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class B {
+			func c() string {
+
+			}
+		}
+		class A {
+			var b B
+		}
+		var x string
+		var a A
+		x = a.b.c()
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestTripleReferenceIdentifierResolution(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class B {
+			var c string
+		}
+		class A {
+			var b B
+		}
+		var x string
+		var a A
+		x = a.b.c
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestTripleReferenceIndexResolution(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class B {
+			var c []int
+		}
+		class A {
+			var b B
+		}
+		var x int
+		var a A
+		x = a.b.c[2]
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestTripleReferenceSliceResolution(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class B {
+			var c
+		}
+		class A {
+			var b B
+		}
+		var x []int
+		var a A
+		x = a.b.c[:]
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestTripleAliasedReferenceCallResolution(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class B {
+			func c() string {
+
+			}
+		}
+		class A {
+			var b B
+		}
+		type Z A
+		var x string
+		var z Z
+		x = z.b.c()
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestTripleAliasedReferenceIdentifierResolution(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class B {
+			var c string
+		}
+		class A {
+			var b B
+		}
+		type Z A
+		var x string
+		var z Z
+		x = z.b.c()
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestTripleAliasedReferenceIndexResolution(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class B {
+			var c []int
+		}
+		class A {
+			var b B
+		}
+		type Z A
+		var x int
+		var z Z
+		x = z.b.c[2]
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestTripleAliasedReferenceSliceResolution(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class B {
+			var c []int
+		}
+		class A {
+			var b B
+		}
+		type Z A
+		var x []int
+		var z Z
+		x = z.b.c[:]
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}

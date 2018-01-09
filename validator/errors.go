@@ -36,4 +36,5 @@ const (
 	errInvalidAccess                     = "Property %s has %s access in type %s"
 	errRequiredType                      = "Required type %s, found %s"
 	errInvalidFuncType                   = "Invalid func type"
+	errInvalidReturnStatementOutsideFunc = "Return statement must be inside func"
 )

@@ -517,3 +517,39 @@ func TestInterfaceMethods(t *testing.T) {
 	sub := i.Funcs["sub"]
 	goutil.AssertNow(t, sub != nil, "sub is nil")
 }
+
+func TestCancellationEnums(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		enum Weekday { Mon, Tue, Wed, Thu, Fri }
+		enum WeekdayTwo { Mon, Tue, Wed, Thu, Fri }
+		enum Cancelled inherits Weekday, WeekdayTwo {}
+		x = Cancelled.Mon
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestCancellationClass(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class Lion { var name string }
+		class Tiger { var name string }
+		class Liger inherits Lion, Tiger {
+			func getName() string {
+				return name
+			}
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestCancellationContract(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		contract Lion { var name string }
+		contract Tiger { var name string }
+		contract Liger inherits Lion, Tiger {
+			func getName() string {
+				return name
+			}
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
