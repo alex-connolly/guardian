@@ -259,15 +259,45 @@ func (v *Validator) validateGenericInherits(types []typing.Type) {
 }
 
 func (v *Validator) validateClassesCancellation(parent *typing.Class, classes []*typing.Class) {
-
+	props := map[string]bool{}
+	for _, c := range classes {
+		for k, v := range c.Properties {
+			// check if it already exists
+			if props[k] {
+				parent.Cancelled[k] = true
+			} else {
+				props[k] = true
+			}
+		}
+	}
 }
 
 func (v *Validator) validateContractsCancellation(parent *typing.Contract, contracts []*typing.Contract) {
-
+	props := map[string]bool{}
+	for _, c := range contracts {
+		for k, v := range c.Properties {
+			// check if it already exists
+			if props[k] {
+				parent.Cancelled[k] = true
+			} else {
+				props[k] = true
+			}
+		}
+	}
 }
 
 func (v *Validator) validateEnumsCancellation(parent *typing.Enum, enums []*typing.Enum) {
-
+	props := map[string]bool{}
+	for _, e := range enums {
+		for _, i := range e.Items {
+			// check if it already exists
+			if props[i] {
+				e.Cancelled[i] = true
+			} else {
+				props[i] = true
+			}
+		}
+	}
 }
 
 func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
@@ -302,7 +332,7 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 		}
 	}
 
-	types, properties, lifecycles := v.validateScope(node.Body)
+	types, properties, lifecycles := v.validateScope(node, node.Body)
 
 	classType := &typing.Class{
 		Name:       node.Identifier,
@@ -349,6 +379,9 @@ func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
 		Mods:   &node.Modifiers,
 	}
 
+	fmt.Println("vec:", node.Identifier)
+	fmt.Println(v.errs.Format())
+
 	v.validateEnumsCancellation(enumType, supers)
 
 	node.Resolved = enumType
@@ -388,7 +421,7 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 
 	generics := v.validateGenerics(node.Generics)
 
-	types, properties, lifecycles := v.validateScope(node.Body)
+	types, properties, lifecycles := v.validateScope(node, node.Body)
 
 	contractType := &typing.Contract{
 		Name:       node.Identifier,
@@ -562,7 +595,7 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
 	node.Resolved = funcType
 	v.declareContextualVar(node.Signature.Identifier, funcType)
-	v.validateScope(node.Body)
+	v.validateScope(node, node.Body)
 
 }
 
@@ -651,7 +684,7 @@ func (v *Validator) validateLifecycleDeclaration(node *ast.LifecycleDeclarationN
 			types = append(types, typ)
 		}
 	}
-	v.validateScope(node.Body)
+	v.validateScope(node, node.Body)
 	l := typing.Lifecycle{
 		Type:       node.Category,
 		Parameters: types,

@@ -42,16 +42,17 @@ func Validate(scope *ast.ScopeNode, vm VM) util.Errors {
 
 	v.isParsingBuiltins = false
 
-	v.validateScope(scope)
+	v.validateScope(nil, scope)
 
 	return v.errs
 }
 
-func (v *Validator) validateScope(scope *ast.ScopeNode) (types map[string]typing.Type, properties map[string]typing.Type, lifecycles typing.LifecycleMap) {
+func (v *Validator) validateScope(context ast.Node, scope *ast.ScopeNode) (types map[string]typing.Type, properties map[string]typing.Type, lifecycles typing.LifecycleMap) {
 
 	ts := &TypeScope{
-		parent: v.scope,
-		scope:  scope,
+		context: context,
+		parent:  v.scope,
+		scope:   scope,
 	}
 
 	v.scope = ts
@@ -111,6 +112,7 @@ type Validator struct {
 // TypeScope ...
 type TypeScope struct {
 	parent     *TypeScope
+	context    ast.Node
 	scope      *ast.ScopeNode
 	lifecycles typing.LifecycleMap
 	variables  map[string]typing.Type

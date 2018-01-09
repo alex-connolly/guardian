@@ -123,8 +123,11 @@ type Lifecycle struct {
 	Parameters []Type
 }
 
+type CancellationMap map[string]bool
+
 // A Class is a collection of properties
 type Class struct {
+	Cancelled  CancellationMap
 	Mods       *Modifiers
 	Name       string
 	Generics   []*Generic
@@ -136,22 +139,25 @@ type Class struct {
 }
 
 type Enum struct {
-	Mods   *Modifiers
-	Name   string
-	Supers []*Enum
-	Items  []string
+	Cancelled CancellationMap
+	Mods      *Modifiers
+	Name      string
+	Supers    []*Enum
+	Items     []string
 }
 
 type Interface struct {
-	Mods     *Modifiers
-	Name     string
-	Generics []*Generic
-	Supers   []*Interface
-	Funcs    map[string]*Func
+	Cancelled CancellationMap
+	Mods      *Modifiers
+	Name      string
+	Generics  []*Generic
+	Supers    []*Interface
+	Funcs     map[string]*Func
 }
 
 // Contract ...
 type Contract struct {
+	Cancelled  CancellationMap
 	Mods       *Modifiers
 	Name       string
 	Generics   []*Generic

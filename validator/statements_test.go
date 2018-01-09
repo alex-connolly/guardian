@@ -383,3 +383,28 @@ func TestProtectedVariableAccessFromFunction(t *testing.T) {
 	`)
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
+
+func TestFunctionSingleReturnTypeValid(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		func a() string {
+			return "hi"
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestFunctionSingleReturnTypeInvalid(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		func a() string {
+			return 6
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestDanglingReturn(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		return 6
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}

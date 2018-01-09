@@ -106,11 +106,11 @@ func (v *Validator) validateIfStatement(node *ast.IfStatementNode) {
 	for _, cond := range node.Conditions {
 		// condition must be of type bool
 		v.requireType(typing.Boolean(), v.resolveExpression(cond.Condition))
-		v.validateScope(cond.Body)
+		v.validateScope(node, cond.Body)
 	}
 
 	if node.Else != nil {
-		v.validateScope(node.Else)
+		v.validateScope(node, node.Else)
 	}
 }
 
@@ -130,23 +130,22 @@ func (v *Validator) validateCaseStatement(switchType typing.Type, clause *ast.Ca
 	for _, expr := range clause.Expressions {
 		v.requireType(switchType, v.resolveExpression(expr))
 	}
-	v.validateScope(clause.Block)
+	v.validateScope(clause, clause.Block)
 }
 
 func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
-	// must be in the context of a function (checked during ast generation)
-	// resolved tuple must match function expression
 
-	// scope is now a func declaration
-	for c := v.scope; v.scope != nil; c = c.scope {
-		switch a := c.context.(type) {
-		case *ast.FuncDeclarationNode:
-			results := a.Resolved.(*typing.Func).Results
-			returned := v.ExpressionTuple(exprs)
-			if typing.AssignableTo(results, returned) {
-				v.addError(errInvalidReturn, a.Signature.Identifier, typing.WriteType(results), typing.WriteType(returned))
+	for c := v.scope; c != nil; c = c.parent {
+		if c.context != nil {
+			switch a := c.context.(type) {
+			case *ast.FuncDeclarationNode:
+				results := a.Resolved.(*typing.Func).Results
+				returned := v.ExpressionTuple(node.Results)
+				if !typing.AssignableTo(results, returned) {
+					v.addError(errInvalidReturn, typing.WriteType(results), a.Signature.Identifier, typing.WriteType(returned))
+				}
+				return
 			}
-			return
 		}
 	}
 	v.addError(errInvalidReturnStatementOutsideFunc)
@@ -198,5 +197,5 @@ func (v *Validator) validateForStatement(node *ast.ForStatementNode) {
 		v.validateStatement(node.Post)
 	}
 
-	v.validateScope(node.Block)
+	v.validateScope(node, node.Block)
 }
