@@ -23,6 +23,7 @@ type Type interface {
 	inherits(Type) bool
 	implements(Type) bool
 	Size() uint
+	Modifiers() *Modifiers
 }
 
 // LifecycleMap ...
@@ -104,6 +105,7 @@ func NewTuple(types ...Type) *Tuple {
 }
 
 type Aliased struct {
+	Mods       *Modifiers
 	Alias      string
 	Underlying Type
 }
@@ -217,7 +219,7 @@ func (m *Modifiers) HasModifier(mod string) bool {
 
 // Event ...
 type Event struct {
-	//	Mods       *Modifiers
+	Mods       *Modifiers
 	Name       string
 	Generics   []*Generic
 	Parameters *Tuple

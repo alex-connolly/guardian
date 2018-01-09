@@ -309,7 +309,7 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 		Types:      types,
 		Properties: properties,
 		Lifecycles: lifecycles,
-		Modifiers:  node.Modifiers,
+		Mods:       &node.Modifiers,
 	}
 
 	v.validateClassInterfaces(classType)
@@ -338,10 +338,10 @@ func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
 	list := node.Enums
 
 	enumType := &typing.Enum{
-		Name:      node.Identifier,
-		Supers:    supers,
-		Items:     list,
-		Modifiers: node.Modifiers,
+		Name:   node.Identifier,
+		Supers: supers,
+		Items:  list,
+		Mods:   &node.Modifiers,
 	}
 
 	node.Resolved = enumType
@@ -393,7 +393,7 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 		Types:      types,
 		Properties: properties,
 		Lifecycles: lifecycles,
-		Modifiers:  node.Modifiers,
+		Mods:       &node.Modifiers,
 	}
 
 	v.validateContractInterfaces(contractType)

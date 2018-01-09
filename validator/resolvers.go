@@ -438,13 +438,15 @@ func (v *Validator) isCurrentContextOrSubclass(context typing.Type) bool {
 }
 
 func (v *Validator) checkVisible(context, property typing.Type, name string) {
-	if property.Modifiers().HasModifier("private") {
-		if !v.isCurrentContext(context) {
-			v.addError(errInvalidAccess, name, "private")
-		}
-	} else if property.Modifiers().HasModifier("protected") {
-		if !v.isCurrentContextOrSubclass(context) {
-			v.addError(errInvalidAccess, name, "protected")
+	if property.Modifiers() != nil {
+		if property.Modifiers().HasModifier("private") {
+			if !v.isCurrentContext(context) {
+				v.addError(errInvalidAccess, name, "private")
+			}
+		} else if property.Modifiers().HasModifier("protected") {
+			if !v.isCurrentContextOrSubclass(context) {
+				v.addError(errInvalidAccess, name, "protected")
+			}
 		}
 	}
 }
