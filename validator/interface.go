@@ -96,6 +96,7 @@ func (v *Validator) validate(node ast.Node) {
 
 // Validator ...
 type Validator struct {
+	context           typing.Type
 	builtinScope      *ast.ScopeNode
 	scope             *TypeScope
 	errs              util.Errors

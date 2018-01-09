@@ -111,7 +111,7 @@ func (v *Validator) getNamedType(names ...string) typing.Type {
 
 func (v *Validator) requireType(expected, actual typing.Type) bool {
 	if typing.ResolveUnderlying(expected) != typing.ResolveUnderlying(actual) {
-		v.addError("required type %s, got %s", typing.WriteType(expected), typing.WriteType(actual))
+		v.addError(errRequiredType, typing.WriteType(expected), typing.WriteType(actual))
 		return false
 	}
 	return true

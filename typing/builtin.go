@@ -2,6 +2,7 @@ package typing
 
 // NumericType ... used to pass types into the s
 type NumericType struct {
+	Mods    *Modifiers
 	BitSize int
 	Name    string
 	Signed  bool
@@ -9,9 +10,11 @@ type NumericType struct {
 }
 
 type VoidType struct {
+	Mods *Modifiers
 }
 
 type BooleanType struct {
+	Mods *Modifiers
 }
 
 // can probs use logs here

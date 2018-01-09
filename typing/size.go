@@ -19,8 +19,8 @@ func (m *Map) Size() uint {
 
 func (c *Class) Size() uint {
 	s := uint(0)
-	for _, f := range c.Properties {
-		s += f.Size()
+	for _, v := range c.Properties {
+		s += v.Size()
 	}
 	return s
 }

@@ -2,6 +2,7 @@ package typing
 
 // Generic ...
 type Generic struct {
+	Mods       *Modifiers
 	Identifier string
 	Interfaces []*Interface
 	Inherits   []Type

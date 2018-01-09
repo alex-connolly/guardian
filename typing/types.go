@@ -71,26 +71,26 @@ var standards = map[baseType]*StandardType{
 
 // Array ...
 type Array struct {
-	Modifiers Modifiers
-	Length    int
-	Value     Type
-	Variable  bool
+	Mods     *Modifiers
+	Length   int
+	Value    Type
+	Variable bool
 }
 
 // Map ...
 type Map struct {
-	Modifiers Modifiers
-	Key       Type
-	Value     Type
+	Mods  *Modifiers
+	Key   Type
+	Value Type
 }
 
 // Func ...
 type Func struct {
-	Modifiers Modifiers
-	Name      string
-	Generics  []*Generic
-	Params    *Tuple
-	Results   *Tuple
+	Mods     *Modifiers
+	Name     string
+	Generics []*Generic
+	Params   *Tuple
+	Results  *Tuple
 }
 
 type Tuple struct {
@@ -122,42 +122,44 @@ type Lifecycle struct {
 
 // A Class is a collection of properties
 type Class struct {
-	Modifiers  Modifiers
+	Mods       *Modifiers
 	Name       string
 	Generics   []*Generic
 	Lifecycles LifecycleMap
 	Supers     []*Class
-	Properties map[string]Type
-	Types      map[string]Type
+	Properties TypeMap
+	Types      TypeMap
 	Interfaces []*Interface
 }
 
 type Enum struct {
-	Modifiers Modifiers
-	Name      string
-	Supers    []*Enum
-	Items     []string
+	Mods   *Modifiers
+	Name   string
+	Supers []*Enum
+	Items  []string
 }
 
 type Interface struct {
-	Modifiers Modifiers
-	Name      string
-	Generics  []*Generic
-	Supers    []*Interface
-	Funcs     map[string]*Func
+	Mods     *Modifiers
+	Name     string
+	Generics []*Generic
+	Supers   []*Interface
+	Funcs    map[string]*Func
 }
 
 // Contract ...
 type Contract struct {
-	Modifiers  Modifiers
+	Mods       *Modifiers
 	Name       string
 	Generics   []*Generic
 	Supers     []*Contract
 	Interfaces []*Interface
 	Lifecycles map[token.Type][]Lifecycle
-	Types      map[string]Type
-	Properties map[string]Type
+	Types      TypeMap
+	Properties TypeMap
 }
+
+type TypeMap map[string]Type
 
 type Annotation struct {
 	Name       string
@@ -215,7 +217,7 @@ func (m *Modifiers) HasModifier(mod string) bool {
 
 // Event ...
 type Event struct {
-	Modifiers  Modifiers
+	//	Mods       *Modifiers
 	Name       string
 	Generics   []*Generic
 	Parameters *Tuple

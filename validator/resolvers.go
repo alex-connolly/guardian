@@ -341,37 +341,29 @@ func resolveUnaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 
 func (v *Validator) resolveContextualReference(context typing.Type, exp ast.ExpressionNode) typing.Type {
 	// check if context is subscriptable
-	if isSubscriptable(context) {
-		if name, ok := getIdentifier(exp); ok {
-			if t, ok := v.getPropertyType(context, name); ok {
-				switch a := exp.(type) {
-				case *ast.ReferenceNode:
-					context = v.resolveExpression(a.Parent)
-					return v.resolveContextualReference(context, a.Reference)
-				case *ast.IdentifierNode:
-					return t
-				case *ast.CallExpressionNode:
-					switch f := t.(type) {
-					case *typing.Func:
-						return f.Results
-					case *typing.Class:
-						return f
-					case *typing.Contract:
-						return f
-					}
-					break
-				default:
-					v.addError(errInvalidReference)
-					return typing.Invalid()
+	if name, ok := getIdentifier(exp); ok {
+		if t, ok := v.getPropertyType(context, name); ok {
+			switch a := exp.(type) {
+			case *ast.ReferenceNode:
+				context = v.resolveContextualReference(context, a.Parent)
+				return v.resolveContextualReference(context, a.Reference)
+			case *ast.IdentifierNode:
+				return t
+			case *ast.CallExpressionNode:
+				switch f := t.(type) {
+				case *typing.Func:
+					return f.Results
 				}
-			} else {
-				v.addError(errPropertyNotFound, typing.WriteType(context), name)
+				break
+			default:
+				v.addError(errInvalidReference)
+				return typing.Invalid()
 			}
 		} else {
-			v.addError(errUnnamedReference)
+			v.addError(errPropertyNotFound, typing.WriteType(context), name)
 		}
 	} else {
-		v.addError(errInvalidSubscriptable, typing.WriteType(context))
+		v.addError(errUnnamedReference)
 	}
 	return typing.Invalid()
 }
@@ -418,8 +410,48 @@ func (v *Validator) getPropertiesType(t typing.Type, names []string) (resolved t
 	return t
 }
 
-func getClassProperty(class *typing.Class, name string) (typing.Type, bool) {
+func (v *Validator) isCurrentContext(context typing.Type) bool {
+	return v.context.Compare(context)
+}
+
+func (v *Validator) isCurrentContextOrSubclass(context typing.Type) bool {
+	if v.isCurrentContext(context) {
+		return true
+	}
+	switch a := context.(type) {
+	case *typing.Class:
+		for _, c := range a.Supers {
+			if v.isCurrentContextOrSubclass(c) {
+				return true
+			}
+		}
+		return false
+	case *typing.Contract:
+		for _, c := range a.Supers {
+			if v.isCurrentContextOrSubclass(c) {
+				return true
+			}
+		}
+		return false
+	}
+	return false
+}
+
+func (v *Validator) checkVisible(context, property typing.Type, name string) {
+	if property.Modifiers().HasModifier("private") {
+		if !v.isCurrentContext(context) {
+			v.addError(errInvalidAccess, name, "private")
+		}
+	} else if property.Modifiers().HasModifier("protected") {
+		if !v.isCurrentContextOrSubclass(context) {
+			v.addError(errInvalidAccess, name, "protected")
+		}
+	}
+}
+
+func (v *Validator) getClassProperty(class *typing.Class, name string) (typing.Type, bool) {
 	if p, has := class.Properties[name]; has {
+		v.checkVisible(class, p, name)
 		return p, has
 	}
 	/* check for cancellation
@@ -428,16 +460,17 @@ func getClassProperty(class *typing.Class, name string) (typing.Type, bool) {
 		return cancel, false
 	}*/
 	for _, super := range class.Supers {
-		if c, ok := getClassProperty(super, name); ok {
+		if c, ok := v.getClassProperty(super, name); ok {
 			return c, ok
 		}
 	}
 	return nil, false
 }
 
-func getContractProperty(contract *typing.Contract, name string) (typing.Type, bool) {
+func (v *Validator) getContractProperty(contract *typing.Contract, name string) (typing.Type, bool) {
 
 	if p, has := contract.Properties[name]; has {
+		v.checkVisible(contract, p, name)
 		return p, has
 	}
 	/* check for cancellation
@@ -446,7 +479,7 @@ func getContractProperty(contract *typing.Contract, name string) (typing.Type, b
 		return cancel, false
 	}*/
 	for _, super := range contract.Supers {
-		if c, ok := getContractProperty(super, name); ok {
+		if c, ok := v.getContractProperty(super, name); ok {
 			return c, ok
 		}
 	}
@@ -489,22 +522,23 @@ func (v *Validator) getPropertyType(t typing.Type, name string) (typing.Type, bo
 	// only classes, interfaces, contracts and enums are subscriptable
 	switch c := typing.ResolveUnderlying(t).(type) {
 	case *typing.Class:
-		return getClassProperty(c, name)
+		return v.getClassProperty(c, name)
 	case *typing.Contract:
-		return getContractProperty(c, name)
+		return v.getContractProperty(c, name)
 	case *typing.Interface:
 		return getInterfaceProperty(c, name)
 	case *typing.Enum:
 		return v.getEnumProperty(c, name)
+	case *typing.Tuple:
+		if len(c.Types) == 1 {
+			return c.Types[0], true
+		} else {
+			v.addError(errMultipleTypesInSingleValueContext)
+		}
+		break
+	default:
+		v.addError(errInvalidSubscriptable, typing.WriteType(c))
+		break
 	}
 	return typing.Invalid(), false
-}
-
-func isSubscriptable(t typing.Type) bool {
-	// only classes, interfaces and enums are subscriptable
-	switch typing.ResolveUnderlying(t).(type) {
-	case *typing.Class, *typing.Interface, *typing.Enum, *typing.Contract:
-		return true
-	}
-	return false
 }

@@ -38,7 +38,6 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 			v.addError(errWrongParameterLength)
 		}
 		for i, p := range node.Parameters {
-			v.declareContextualType(a.Generics[i].Identifier, &typing.Generic{})
 			if !a.Generics[i].Accepts(v.validateType(p)) {
 				v.addError(errInvalidParameter)
 			}
@@ -49,7 +48,6 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 			v.addError(errWrongParameterLength)
 		}
 		for i, p := range node.Parameters {
-			v.declareContextualType(a.Generics[i].Identifier, &typing.Generic{})
 			if !a.Generics[i].Accepts(v.validateType(p)) {
 				v.addError(errInvalidParameter)
 			}
@@ -60,7 +58,6 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 			v.addError(errWrongParameterLength)
 		}
 		for i, p := range node.Parameters {
-			v.declareContextualType(a.Generics[i].Identifier, &typing.Generic{})
 			if !a.Generics[i].Accepts(v.validateType(p)) {
 				v.addError(errInvalidParameter)
 			}
@@ -206,6 +203,10 @@ func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*
 	genericTypes := make([]*typing.Generic, 0)
 	for _, node := range generics {
 
+		g := new(typing.Generic)
+
+		v.declareContextualType(node.Identifier, g)
+
 		var interfaces []*typing.Interface
 		for _, ifc := range node.Implements {
 			t := v.validatePlainType(ifc)
@@ -223,7 +224,7 @@ func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*
 		}
 		// enforce that all inheritors are the same type
 
-		g := &typing.Generic{
+		*g = typing.Generic{
 			Identifier: node.Identifier,
 			Interfaces: interfaces,
 			Inherits:   inherits,
@@ -250,11 +251,19 @@ func (v *Validator) validateGenericInherits(types []typing.Type) {
 		if i == 0 {
 			typ = t
 		} else {
-			if reflect.TypeOf(t) != reflect.TypeOf(typ) {
+			if reflect.TypeOf(typing.ResolveUnderlying(t)) != reflect.TypeOf(typing.ResolveUnderlying(typ)) {
 				v.addError(errIncompatibleInheritance, typing.WriteType(typ), typing.WriteType(t))
 			}
 		}
 	}
+}
+
+func (v *Validator) validateClassCancellation(class *typing.Class, peers []*typing.Class) {
+
+}
+
+func (v *Validator) validateContractCancellation(contract *typing.Contract, peers []*typing.Contract) {
+
 }
 
 func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
@@ -263,11 +272,14 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 
 	v.validateAnnotations(ast.ClassDeclaration, node.Modifiers.Annotations)
 
+	generics := v.validateGenerics(node.Generics)
+
 	var supers []*typing.Class
 	for _, super := range node.Supers {
 		t := v.validatePlainType(super)
 		if t != typing.Unknown() {
 			if c, ok := t.(*typing.Class); ok {
+				v.validateClassCancellation(c, supers)
 				supers = append(supers, c)
 			} else {
 				v.addError(errTypeRequired, makeName(super.Names), "class")
@@ -286,8 +298,6 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 			}
 		}
 	}
-
-	generics := v.validateGenerics(node.Generics)
 
 	types, properties, lifecycles := v.validateScope(node.Body)
 
@@ -351,6 +361,7 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 		t := v.validatePlainType(super)
 		if t != typing.Unknown() {
 			if c, ok := t.(*typing.Contract); ok {
+				v.validateContractCancellation(c, supers)
 				supers = append(supers, c)
 			} else {
 				v.addError(errTypeRequired, makeName(super.Names), "contract")
@@ -480,7 +491,7 @@ func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationN
 		if ok {
 			funcs[function.Identifier] = f
 		} else {
-			v.addError("Invalid func type")
+			v.addError(errInvalidFuncType)
 		}
 	}
 
