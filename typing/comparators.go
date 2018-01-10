@@ -43,7 +43,7 @@ func (t *Tuple) Compare(o Type) bool {
 		}
 		for i, typ := range t.Types {
 			if typ != nil {
-				if !AssignableTo(typ, other.Types[i]) && other.Types[i] != standards[unknown] {
+				if !AssignableTo(typ, other.Types[i], true) {
 					return false
 				}
 			} else {

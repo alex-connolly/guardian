@@ -553,3 +553,21 @@ func TestCancellationContract(t *testing.T) {
 	`)
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
+
+func TestFuncDeclarationSingleReturn(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		func hi() string {
+			return "hi"
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestFuncDeclarationMultipleReturn(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		func hi() (int, int) {
+			return 6, 6
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}

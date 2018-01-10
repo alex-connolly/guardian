@@ -1,7 +1,7 @@
 package typing
 
 // AssignableTo checks whether a value of type 'right' can be assigned to a variable of type 'left'
-func AssignableTo(left, right Type) bool {
+func AssignableTo(left, right Type, allowUnknown bool) bool {
 
 	// assignable if the two types are equal
 	if left.Compare(right) {
@@ -16,7 +16,7 @@ func AssignableTo(left, right Type) bool {
 		return true
 	}
 
-	if left == Unknown() {
+	if left == Unknown() && allowUnknown {
 		return true
 	}
 

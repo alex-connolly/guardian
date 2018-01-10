@@ -489,7 +489,7 @@ func (v *Validator) getClassProperty(class *typing.Class, name string) (typing.T
 	for k, _ := range class.Cancelled {
 		if k == name {
 			v.addError(errCancelledProperty, name, class.Name)
-			return typing.Invalid(), false
+			return typing.Unknown(), false
 		}
 	}
 	if p, has := class.Properties[name]; has {
@@ -509,7 +509,7 @@ func (v *Validator) getContractProperty(contract *typing.Contract, name string) 
 	for k, _ := range contract.Cancelled {
 		if k == name {
 			v.addError(errCancelledProperty, name, contract.Name)
-			return typing.Invalid(), false
+			return typing.Unknown(), false
 		}
 	}
 
@@ -530,7 +530,7 @@ func (v *Validator) getInterfaceProperty(ifc *typing.Interface, name string) (ty
 	for k, _ := range ifc.Cancelled {
 		if k == name {
 			v.addError(errCancelledProperty, name, ifc.Name)
-			return typing.Invalid(), false
+			return typing.Unknown(), false
 		}
 	}
 
@@ -550,7 +550,7 @@ func (v *Validator) getEnumProperty(c *typing.Enum, name string) (typing.Type, b
 	for k, _ := range c.Cancelled {
 		if k == name {
 			v.addError(errCancelledProperty, name, c.Name)
-			t := typing.Invalid()
+			t := typing.Unknown()
 			t.MakeStatic()
 			return t, true
 		}

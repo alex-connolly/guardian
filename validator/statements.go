@@ -55,11 +55,10 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 
 	leftTuple := v.ExpressionTuple(node.Left)
 	rightTuple := v.ExpressionTuple(node.Right)
-
 	if len(leftTuple.Types) > len(rightTuple.Types) && len(rightTuple.Types) == 1 {
 		right := rightTuple.Types[0]
 		for _, left := range leftTuple.Types {
-			if !typing.AssignableTo(right, left) {
+			if !typing.AssignableTo(right, left, false) {
 				v.addError(errInvalidAssignment, typing.WriteType(left), typing.WriteType(right))
 			}
 		}
@@ -92,8 +91,10 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 				if leftTuple.Types[i] == typing.Unknown() {
 					if id, ok := left.(*ast.IdentifierNode); ok {
 						id.Resolved = rightTuple.Types[i]
-						//fmt.Printf("Declaring %s as %s\n", id.Name, typing.WriteType(rightTuple.Types[i]))
-						v.declareContextualVar(id.Name, rightTuple.Types[i])
+						if id.Name != "_" {
+							//fmt.Printf("Declaring %s as %s\n", id.Name, typing.WriteType(rightTuple.Types[i]))
+							v.declareContextualVar(id.Name, rightTuple.Types[i])
+						}
 					}
 				}
 			}
@@ -146,7 +147,7 @@ func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
 				results := a.Resolved.(*typing.Func).Results
 				returned := v.ExpressionTuple(node.Results)
 				if !typing.AssignableTo(results, returned) {
-					v.addError(errInvalidReturn, typing.WriteType(results), a.Signature.Identifier, typing.WriteType(returned))
+					v.addError(errInvalidReturn, typing.WriteType(returned), a.Signature.Identifier, typing.WriteType(results))
 				}
 				return
 			}

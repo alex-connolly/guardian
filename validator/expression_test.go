@@ -74,12 +74,11 @@ func TestCallExpressionMultipleArgumentConstructorValid(t *testing.T) {
             var fullName string
 
             constructor(name string, age int8){
-                //fullName = name
-                //yearsOld = age
+
             }
         }
 
-        d = new Dog("alan", 10)
+        d = new Dog("alan", 10 as int8)
         `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	errs := Validate(scope, NewTestVM())
