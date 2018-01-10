@@ -2,6 +2,7 @@ package typing
 
 // Generic ...
 type Generic struct {
+	static     bool
 	Mods       *Modifiers
 	Identifier string
 	Interfaces []*Interface

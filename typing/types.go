@@ -25,6 +25,8 @@ type Type interface {
 	Size() uint
 	Modifiers() *Modifiers
 	ResetModifiers()
+	MakeStatic()
+	Static() bool
 }
 
 // LifecycleMap ...
@@ -41,7 +43,8 @@ const (
 
 // StandardType ...
 type StandardType struct {
-	name string
+	static bool
+	name   string
 }
 
 // Invalid ...
@@ -65,14 +68,15 @@ func Void() Type {
 }
 
 var standards = map[baseType]*StandardType{
-	invalid: &StandardType{"invalid"},
-	unknown: &StandardType{"unknown"},
-	boolean: &StandardType{"bool"},
-	void:    &StandardType{"void"},
+	invalid: &StandardType{name: "invalid"},
+	unknown: &StandardType{name: "unknown"},
+	boolean: &StandardType{name: "bool"},
+	void:    &StandardType{name: "void"},
 }
 
 // Array ...
 type Array struct {
+	static   bool
 	Mods     *Modifiers
 	Length   int
 	Value    Type
@@ -81,13 +85,15 @@ type Array struct {
 
 // Map ...
 type Map struct {
-	Mods  *Modifiers
-	Key   Type
-	Value Type
+	static bool
+	Mods   *Modifiers
+	Key    Type
+	Value  Type
 }
 
 // Func ...
 type Func struct {
+	static   bool
 	Mods     *Modifiers
 	Name     string
 	Generics []*Generic
@@ -96,7 +102,8 @@ type Func struct {
 }
 
 type Tuple struct {
-	Types []Type
+	static bool
+	Types  []Type
 }
 
 func NewTuple(types ...Type) *Tuple {
@@ -106,6 +113,7 @@ func NewTuple(types ...Type) *Tuple {
 }
 
 type Aliased struct {
+	static     bool
 	Mods       *Modifiers
 	Alias      string
 	Underlying Type
@@ -127,6 +135,7 @@ type CancellationMap map[string]bool
 
 // A Class is a collection of properties
 type Class struct {
+	static     bool
 	Cancelled  CancellationMap
 	Mods       *Modifiers
 	Name       string
@@ -139,6 +148,7 @@ type Class struct {
 }
 
 type Enum struct {
+	static    bool
 	Cancelled CancellationMap
 	Mods      *Modifiers
 	Name      string
@@ -147,6 +157,7 @@ type Enum struct {
 }
 
 type Interface struct {
+	static    bool
 	Cancelled CancellationMap
 	Mods      *Modifiers
 	Name      string
@@ -157,6 +168,7 @@ type Interface struct {
 
 // Contract ...
 type Contract struct {
+	static     bool
 	Cancelled  CancellationMap
 	Mods       *Modifiers
 	Name       string
@@ -226,6 +238,7 @@ func (m *Modifiers) HasModifier(mod string) bool {
 
 // Event ...
 type Event struct {
+	static     bool
 	Mods       *Modifiers
 	Name       string
 	Generics   []*Generic

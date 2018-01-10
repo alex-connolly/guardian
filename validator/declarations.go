@@ -261,9 +261,12 @@ func (v *Validator) validateGenericInherits(types []typing.Type) {
 func (v *Validator) validateClassesCancellation(parent *typing.Class, classes []*typing.Class) {
 	props := map[string]bool{}
 	for _, c := range classes {
-		for k, v := range c.Properties {
+		for k, _ := range c.Properties {
 			// check if it already exists
 			if props[k] {
+				if parent.Cancelled == nil {
+					parent.Cancelled = make(typing.CancellationMap)
+				}
 				parent.Cancelled[k] = true
 			} else {
 				props[k] = true
@@ -275,9 +278,12 @@ func (v *Validator) validateClassesCancellation(parent *typing.Class, classes []
 func (v *Validator) validateContractsCancellation(parent *typing.Contract, contracts []*typing.Contract) {
 	props := map[string]bool{}
 	for _, c := range contracts {
-		for k, v := range c.Properties {
+		for k, _ := range c.Properties {
 			// check if it already exists
 			if props[k] {
+				if parent.Cancelled == nil {
+					parent.Cancelled = make(typing.CancellationMap)
+				}
 				parent.Cancelled[k] = true
 			} else {
 				props[k] = true
@@ -292,6 +298,9 @@ func (v *Validator) validateEnumsCancellation(parent *typing.Enum, enums []*typi
 		for _, i := range e.Items {
 			// check if it already exists
 			if props[i] {
+				if e.Cancelled == nil {
+					e.Cancelled = make(typing.CancellationMap)
+				}
 				e.Cancelled[i] = true
 			} else {
 				props[i] = true
@@ -355,6 +364,7 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 }
 
 func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
+	fmt.Println("ved")
 
 	v.validateModifiers(ast.EnumDeclaration, node.Modifiers.Modifiers)
 

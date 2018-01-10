@@ -38,4 +38,6 @@ const (
 	errInvalidFuncType                   = "Invalid func type"
 	errInvalidReturnStatementOutsideFunc = "Return statement must be inside func"
 	errInvalidReturn                     = "Cannot return %s from function %s with return type %s"
+	errCancelledProperty                 = "Property %s on type %s has been cancelled"
+	errInvalidStaticReference            = "Invalid static reference "
 )

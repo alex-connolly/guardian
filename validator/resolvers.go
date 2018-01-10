@@ -110,6 +110,10 @@ func resolveIdentifier(v *Validator, e ast.ExpressionNode) typing.Type {
 	i := e.(*ast.IdentifierNode)
 	// look up the identifier in scope
 	t := v.findVariable(i.Name)
+	if t == typing.Unknown() {
+		t = v.getNamedType(i.Name)
+		t.MakeStatic()
+	}
 	i.Resolved = t
 	return t
 }
@@ -467,15 +471,16 @@ func (v *Validator) checkVisible(context, property typing.Type, name string) {
 }
 
 func (v *Validator) getClassProperty(class *typing.Class, name string) (typing.Type, bool) {
+	for k, _ := range class.Cancelled {
+		if k == name {
+			v.addError(errCancelledProperty, name, class.Name)
+			return typing.Invalid(), false
+		}
+	}
 	if p, has := class.Properties[name]; has {
 		v.checkVisible(class, p, name)
 		return p, has
 	}
-	/* check for cancellation
-	cancel, ok := class.Cancelled[name]
-	if ok {
-		return cancel, false
-	}*/
 	for _, super := range class.Supers {
 		if c, ok := v.getClassProperty(super, name); ok {
 			return c, ok
@@ -486,15 +491,17 @@ func (v *Validator) getClassProperty(class *typing.Class, name string) (typing.T
 
 func (v *Validator) getContractProperty(contract *typing.Contract, name string) (typing.Type, bool) {
 
+	for k, _ := range contract.Cancelled {
+		if k == name {
+			v.addError(errCancelledProperty, name, contract.Name)
+			return typing.Invalid(), false
+		}
+	}
+
 	if p, has := contract.Properties[name]; has {
 		v.checkVisible(contract, p, name)
 		return p, has
 	}
-	/* check for cancellation
-	cancel, ok := class.Cancelled[name]
-	if ok {
-		return cancel, false
-	}*/
 	for _, super := range contract.Supers {
 		if c, ok := v.getContractProperty(super, name); ok {
 			return c, ok
@@ -503,17 +510,21 @@ func (v *Validator) getContractProperty(contract *typing.Contract, name string) 
 	return nil, false
 }
 
-func getInterfaceProperty(ifc *typing.Interface, name string) (typing.Type, bool) {
+func (v *Validator) getInterfaceProperty(ifc *typing.Interface, name string) (typing.Type, bool) {
+
+	for k, _ := range ifc.Cancelled {
+		if k == name {
+			v.addError(errCancelledProperty, name, ifc.Name)
+			return typing.Invalid(), false
+		}
+	}
+
 	if p, has := ifc.Funcs[name]; has {
 		return p, has
 	}
-	/* check for cancellation
-	cancel, ok := class.Cancelled[name]
-	if ok {
-		return cancel, false
-	}*/
+
 	for _, super := range ifc.Supers {
-		if c, ok := getInterfaceProperty(super, name); ok {
+		if c, ok := v.getInterfaceProperty(super, name); ok {
 			return c, ok
 		}
 	}
@@ -521,6 +532,12 @@ func getInterfaceProperty(ifc *typing.Interface, name string) (typing.Type, bool
 }
 
 func (v *Validator) getEnumProperty(c *typing.Enum, name string) (typing.Type, bool) {
+	for k, _ := range c.Cancelled {
+		if k == name {
+			v.addError(errCancelledProperty, c.Name, name)
+			return typing.Invalid(), true
+		}
+	}
 
 	for _, s := range c.Items {
 		if s == name {
@@ -543,7 +560,7 @@ func (v *Validator) getPropertyType(t typing.Type, name string) (typing.Type, bo
 	case *typing.Contract:
 		return v.getContractProperty(c, name)
 	case *typing.Interface:
-		return getInterfaceProperty(c, name)
+		return v.getInterfaceProperty(c, name)
 	case *typing.Enum:
 		return v.getEnumProperty(c, name)
 	case *typing.Tuple:
