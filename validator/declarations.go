@@ -298,10 +298,10 @@ func (v *Validator) validateEnumsCancellation(parent *typing.Enum, enums []*typi
 		for _, i := range e.Items {
 			// check if it already exists
 			if props[i] {
-				if e.Cancelled == nil {
-					e.Cancelled = make(typing.CancellationMap)
+				if parent.Cancelled == nil {
+					parent.Cancelled = make(typing.CancellationMap)
 				}
-				e.Cancelled[i] = true
+				parent.Cancelled[i] = true
 			} else {
 				props[i] = true
 			}
@@ -341,30 +341,31 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 		}
 	}
 
-	types, properties, lifecycles := v.validateScope(node, node.Body)
-
 	classType := &typing.Class{
 		Name:       node.Identifier,
 		Supers:     supers,
 		Interfaces: interfaces,
 		Generics:   generics,
-		Types:      types,
-		Properties: properties,
-		Lifecycles: lifecycles,
 		Mods:       &node.Modifiers,
 	}
 
+	node.Resolved = classType
+
 	v.validateClassesCancellation(classType, supers)
+
+	types, properties, lifecycles := v.validateScope(node, node.Body)
+
+	classType.Types = types
+	classType.Properties = properties
+	classType.Lifecycles = lifecycles
 
 	v.validateClassInterfaces(classType)
 
-	node.Resolved = classType
-
 	v.declareContextualType(node.Identifier, classType)
+
 }
 
 func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
-	fmt.Println("ved")
 
 	v.validateModifiers(ast.EnumDeclaration, node.Modifiers.Modifiers)
 
@@ -389,13 +390,10 @@ func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
 		Mods:   &node.Modifiers,
 	}
 
-	fmt.Println("vec:", node.Identifier)
-	fmt.Println(v.errs.Format())
-
 	v.validateEnumsCancellation(enumType, supers)
 
 	node.Resolved = enumType
-	fmt.Println("declaring enum", node.Identifier)
+
 	v.declareContextualType(node.Identifier, enumType)
 }
 
@@ -431,24 +429,26 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 
 	generics := v.validateGenerics(node.Generics)
 
-	types, properties, lifecycles := v.validateScope(node, node.Body)
-
 	contractType := &typing.Contract{
 		Name:       node.Identifier,
 		Generics:   generics,
 		Supers:     supers,
 		Interfaces: interfaces,
-		Types:      types,
-		Properties: properties,
-		Lifecycles: lifecycles,
-		Mods:       &node.Modifiers,
+
+		Mods: &node.Modifiers,
 	}
+
+	node.Resolved = contractType
 
 	v.validateContractsCancellation(contractType, supers)
 
-	v.validateContractInterfaces(contractType)
+	types, properties, lifecycles := v.validateScope(node, node.Body)
 
-	node.Resolved = contractType
+	contractType.Types = types
+	contractType.Properties = properties
+	contractType.Lifecycles = lifecycles
+
+	v.validateContractInterfaces(contractType)
 
 	v.declareContextualType(node.Identifier, contractType)
 }

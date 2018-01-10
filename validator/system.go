@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/typing"
@@ -23,6 +25,29 @@ func (v *Validator) findVariable(name string) typing.Type {
 		}
 	}
 	for scope := v.scope; scope != nil; scope = scope.parent {
+		if scope.context != nil {
+			// check parents
+			switch c := scope.context.(type) {
+			case *ast.ClassDeclarationNode:
+				if c.Resolved == nil {
+					fmt.Println("nil resolved")
+				}
+				t, _ := v.getTypeProperty(c.Resolved, name)
+				return t
+			case *ast.EnumDeclarationNode:
+				t, _ := v.getTypeProperty(c.Resolved, name)
+				return t
+				break
+			case *ast.InterfaceDeclarationNode:
+				t, _ := v.getTypeProperty(c.Resolved, name)
+				return t
+				break
+			case *ast.ContractDeclarationNode:
+				t, _ := v.getTypeProperty(c.Resolved, name)
+				return t
+				break
+			}
+		}
 		if scope.variables != nil {
 			if typ, ok := scope.variables[name]; ok {
 				return typ

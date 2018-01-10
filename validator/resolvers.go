@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/typing"
 
 	"github.com/end-r/guardian/ast"
@@ -108,6 +110,7 @@ func resolveKeyword(v *Validator, e ast.ExpressionNode) typing.Type {
 
 func resolveIdentifier(v *Validator, e ast.ExpressionNode) typing.Type {
 	i := e.(*ast.IdentifierNode)
+
 	// look up the identifier in scope
 	t := v.findVariable(i.Name)
 	if t == typing.Unknown() {
@@ -346,7 +349,10 @@ func resolveUnaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 func (v *Validator) resolveContextualReference(context typing.Type, exp ast.ExpressionNode) typing.Type {
 	// check if context is subscriptable
 	if name, ok := getIdentifier(exp); ok {
-		if t, ok := v.getPropertyType(context, name); ok {
+		if t, ok := v.getTypeProperty(context, name); ok {
+			if context.Static() && !t.Static() {
+				v.addError(errInvalidStaticReference)
+			}
 			t = typing.ResolveUnderlying(t)
 			switch a := exp.(type) {
 			case *ast.ReferenceNode:
@@ -379,7 +385,12 @@ func (v *Validator) resolveContextualReference(context typing.Type, exp ast.Expr
 				return typing.Invalid()
 			}
 		} else {
-			v.addError(errPropertyNotFound, typing.WriteType(context), name)
+			if context == nil {
+				fmt.Println("NIL CONTEXT")
+			} else {
+				v.addError(errPropertyNotFound, typing.WriteType(context), name)
+			}
+
 		}
 	} else {
 		v.addError(errUnnamedReference)
@@ -424,7 +435,7 @@ func (v *Validator) getPropertiesType(t typing.Type, names []string) (resolved t
 		if !working {
 			break
 		}
-		t, working = v.getPropertyType(t, name)
+		t, working = v.getTypeProperty(t, name)
 	}
 	return t
 }
@@ -439,16 +450,20 @@ func (v *Validator) isCurrentContextOrSubclass(context typing.Type) bool {
 	}
 	switch a := context.(type) {
 	case *typing.Class:
-		for _, c := range a.Supers {
-			if v.isCurrentContextOrSubclass(c) {
-				return true
+		if a.Supers != nil {
+			for _, c := range a.Supers {
+				if v.isCurrentContextOrSubclass(c) {
+					return true
+				}
 			}
 		}
 		return false
 	case *typing.Contract:
-		for _, c := range a.Supers {
-			if v.isCurrentContextOrSubclass(c) {
-				return true
+		if a.Supers != nil {
+			for _, c := range a.Supers {
+				if v.isCurrentContextOrSubclass(c) {
+					return true
+				}
 			}
 		}
 		return false
@@ -457,7 +472,7 @@ func (v *Validator) isCurrentContextOrSubclass(context typing.Type) bool {
 }
 
 func (v *Validator) checkVisible(context, property typing.Type, name string) {
-	if property.Modifiers() != nil {
+	if property != nil && property.Modifiers() != nil {
 		if property.Modifiers().HasModifier("private") {
 			if !v.isCurrentContext(context) {
 				v.addError(errInvalidAccess, name, "private")
@@ -534,14 +549,19 @@ func (v *Validator) getInterfaceProperty(ifc *typing.Interface, name string) (ty
 func (v *Validator) getEnumProperty(c *typing.Enum, name string) (typing.Type, bool) {
 	for k, _ := range c.Cancelled {
 		if k == name {
-			v.addError(errCancelledProperty, c.Name, name)
-			return typing.Invalid(), true
+			v.addError(errCancelledProperty, name, c.Name)
+			t := typing.Invalid()
+			t.MakeStatic()
+			return t, true
 		}
 	}
 
 	for _, s := range c.Items {
 		if s == name {
-			return v.SmallestNumericType(len(c.Items), false), true
+			t := v.SmallestNumericType(len(c.Items), false)
+			// so that it can be referenced Day.Mon
+			t.MakeStatic()
+			return t, true
 		}
 	}
 	for _, s := range c.Supers {
@@ -552,7 +572,11 @@ func (v *Validator) getEnumProperty(c *typing.Enum, name string) (typing.Type, b
 	return typing.Invalid(), false
 }
 
-func (v *Validator) getPropertyType(t typing.Type, name string) (typing.Type, bool) {
+func (v *Validator) getTypeProperty(t typing.Type, name string) (typing.Type, bool) {
+	if t == nil {
+		// TODO: do something?
+		return typing.Invalid(), false
+	}
 	// only classes, interfaces, contracts and enums are subscriptable
 	switch c := typing.ResolveUnderlying(t).(type) {
 	case *typing.Class:

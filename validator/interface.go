@@ -164,7 +164,7 @@ func NewValidator(vm VM) *Validator {
 
 func (v *Validator) addError(err string, data ...interface{}) {
 	v.errs = append(v.errs, util.Error{
-		LineNumber: 12345,
+		LineNumber: 123,
 		Message:    fmt.Sprintf(err, data...),
 	})
 }

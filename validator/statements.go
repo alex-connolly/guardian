@@ -69,8 +69,12 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 				if id, ok := left.(*ast.IdentifierNode); ok {
 					ty := rightTuple.Types[0]
 					id.Resolved = ty
-					//id.Resolved.ResetModifiers()
-					v.declareContextualVar(id.Name, id.Resolved)
+					id.Resolved.ResetModifiers()
+					ignored := "_"
+					if id.Name != ignored {
+						v.declareContextualVar(id.Name, id.Resolved)
+					}
+
 				}
 			}
 		}
