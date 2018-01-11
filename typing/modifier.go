@@ -11,6 +11,14 @@ package typing
 
 */
 
+func AddModifier(t Type, mod string) {
+	if t.Modifiers() == nil {
+		t.SetModifiers(new(Modifiers))
+	}
+	mods := t.Modifiers()
+	mods.AddModifier(mod)
+}
+
 func (g *Generic) Modifiers() *Modifiers      { return g.Mods }
 func (a *Array) Modifiers() *Modifiers        { return a.Mods }
 func (m *Map) Modifiers() *Modifiers          { return m.Mods }
@@ -22,9 +30,9 @@ func (c *NumericType) Modifiers() *Modifiers  { return c.Mods }
 func (c *BooleanType) Modifiers() *Modifiers  { return c.Mods }
 func (c *VoidType) Modifiers() *Modifiers     { return c.Mods }
 func (c *Func) Modifiers() *Modifiers         { return c.Mods }
-func (a *StandardType) Modifiers() *Modifiers { return nil }
+func (a *StandardType) Modifiers() *Modifiers { return a.Mods }
 func (a *Aliased) Modifiers() *Modifiers      { return a.Mods }
-func (t *Tuple) Modifiers() *Modifiers        { return nil }
+func (t *Tuple) Modifiers() *Modifiers        { return t.Mods }
 func (e *Event) Modifiers() *Modifiers        { return e.Mods }
 
 func (g *Generic) SetModifiers(m *Modifiers)      { g.Mods = m }
@@ -38,7 +46,7 @@ func (c *NumericType) SetModifiers(m *Modifiers)  { c.Mods = m }
 func (c *BooleanType) SetModifiers(m *Modifiers)  { c.Mods = m }
 func (c *VoidType) SetModifiers(m *Modifiers)     { c.Mods = m }
 func (c *Func) SetModifiers(m *Modifiers)         { c.Mods = m }
-func (a *StandardType) SetModifiers(m *Modifiers) {}
+func (a *StandardType) SetModifiers(m *Modifiers) { a.Mods = m }
 func (a *Aliased) SetModifiers(m *Modifiers)      { a.Mods = m }
-func (t *Tuple) SetModifiers(m *Modifiers)        {}
+func (t *Tuple) SetModifiers(m *Modifiers)        { t.Mods = m }
 func (e *Event) SetModifiers(m *Modifiers)        { e.Mods = m }

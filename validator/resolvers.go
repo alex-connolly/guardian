@@ -115,7 +115,9 @@ func resolveIdentifier(v *Validator, e ast.ExpressionNode) typing.Type {
 	t := v.findVariable(i.Name)
 	if t == typing.Unknown() {
 		t = v.getNamedType(i.Name)
-		t.MakeStatic()
+		if t != nil {
+			typing.AddModifier(t, "static")
+		}
 	}
 	i.Resolved = t
 	return t
@@ -380,11 +382,15 @@ func (v *Validator) determineType(t typing.Type, exp ast.ExpressionNode) typing.
 	return typing.Invalid()
 }
 
+func Static(t typing.Type) bool {
+	return t.Modifiers() != nil && t.Modifiers().HasModifier("static")
+}
+
 func (v *Validator) resolveContextualReference(context typing.Type, exp ast.ExpressionNode) typing.Type {
 	// check if context is subscriptable
 	if name, ok := getIdentifier(exp); ok {
 		if t, ok := v.getTypeProperty(context, name); ok {
-			if context.Static() && !t.Static() {
+			if Static(context) && Static(t) {
 				v.addError(errInvalidStaticReference)
 			}
 			return v.determineType(typing.ResolveUnderlying(t), exp)
@@ -582,7 +588,7 @@ func (v *Validator) getEnumProperty(c *typing.Enum, name string) (typing.Type, b
 		if k == name {
 			v.addError(errCancelledProperty, name, c.Name)
 			t := typing.Unknown()
-			t.MakeStatic()
+			typing.AddModifier(t, "static")
 			return t, true
 		}
 	}
@@ -591,7 +597,7 @@ func (v *Validator) getEnumProperty(c *typing.Enum, name string) (typing.Type, b
 		if s == name {
 			t := v.SmallestNumericType(len(c.Items), false)
 			// so that it can be referenced Day.Mon
-			t.MakeStatic()
+			typing.AddModifier(t, "static")
 			return t, true
 		}
 	}

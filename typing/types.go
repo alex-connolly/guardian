@@ -27,11 +27,6 @@ type Type interface {
 	SetModifiers(*Modifiers)
 }
 
-func AddModifier(t Type, mod string) {
-	mods := t.Modifiers()
-	mods.AddModifier(mod)
-}
-
 // LifecycleMap ...
 type LifecycleMap map[token.Type][]Lifecycle
 
@@ -46,6 +41,7 @@ const (
 
 // StandardType ...
 type StandardType struct {
+	Mods *Modifiers
 	name string
 }
 
@@ -101,6 +97,7 @@ type Func struct {
 }
 
 type Tuple struct {
+	Mods  *Modifiers
 	Types []Type
 }
 
