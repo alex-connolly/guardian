@@ -58,7 +58,7 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 	if len(leftTuple.Types) > len(rightTuple.Types) && len(rightTuple.Types) == 1 {
 		right := rightTuple.Types[0]
 		for _, left := range leftTuple.Types {
-			if !typing.AssignableTo(right, left, false) {
+			if !typing.AssignableTo(right, left, true) {
 				v.addError(errInvalidAssignment, typing.WriteType(left), typing.WriteType(right))
 			}
 		}
@@ -79,7 +79,7 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 		}
 
 	} else {
-		if !rightTuple.Compare(leftTuple) {
+		if !leftTuple.Compare(rightTuple) {
 			v.addError(errInvalidAssignment, typing.WriteType(leftTuple), typing.WriteType(rightTuple))
 		}
 
@@ -146,7 +146,7 @@ func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
 			case *ast.FuncDeclarationNode:
 				results := a.Resolved.(*typing.Func).Results
 				returned := v.ExpressionTuple(node.Results)
-				if !typing.AssignableTo(results, returned) {
+				if !typing.AssignableTo(results, returned, false) {
 					v.addError(errInvalidReturn, typing.WriteType(returned), a.Signature.Identifier, typing.WriteType(results))
 				}
 				return

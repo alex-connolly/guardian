@@ -372,7 +372,7 @@ func TestTripleReferenceIndexResolution(t *testing.T) {
 func TestTripleReferenceSliceResolution(t *testing.T) {
 	_, errs := ValidateString(NewTestVM(), `
 		class B {
-			var c
+			var c []int
 		}
 		class A {
 			var b B
@@ -413,7 +413,7 @@ func TestTripleAliasedReferenceIdentifierResolution(t *testing.T) {
 		type Z A
 		var x string
 		var z Z
-		x = z.b.c()
+		x = z.b.c
 	`)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }

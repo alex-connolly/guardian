@@ -79,7 +79,7 @@ func CastOperator(v *Validator, types []typing.Type, exprs []ast.ExpressionNode)
 		return left
 	}
 
-	if !typing.AssignableTo(left, t) {
+	if !typing.AssignableTo(left, t, false) {
 
 		if exprs[0].Type() == ast.Literal {
 			l := exprs[0].(*ast.LiteralNode)

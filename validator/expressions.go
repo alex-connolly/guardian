@@ -57,7 +57,7 @@ func (v *Validator) validateCallExpression(call *ast.CallExpressionNode) {
 	args := v.ExpressionTuple(call.Arguments)
 	switch a := exprType.(type) {
 	case *typing.Func:
-		if !typing.AssignableTo(args, a.Params) {
+		if !typing.AssignableTo(a.Params, args, false) {
 			v.addError(errInvalidFuncCall, typing.WriteType(args), typing.WriteType(a))
 		}
 		break

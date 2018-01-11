@@ -346,6 +346,40 @@ func resolveUnaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	return operandType
 }
 
+func (v *Validator) determineType(t typing.Type, exp ast.ExpressionNode) typing.Type {
+	switch a := exp.(type) {
+	case *ast.ReferenceNode:
+		t = v.determineType(t, a.Parent)
+		return v.resolveContextualReference(t, a.Reference)
+	case *ast.IdentifierNode:
+		return t
+	case *ast.CallExpressionNode:
+		switch f := t.(type) {
+		case *typing.Func:
+			return f.Results
+		}
+		break
+	case *ast.IndexExpressionNode:
+		switch f := t.(type) {
+		case *typing.Map:
+			return f.Value
+		case *typing.Array:
+			return f.Value
+		}
+	case *ast.SliceExpressionNode:
+		switch f := t.(type) {
+		case *typing.Array:
+			return f
+		default:
+			break
+		}
+	default:
+		v.addError(errInvalidReference)
+		return typing.Invalid()
+	}
+	return typing.Invalid()
+}
+
 func (v *Validator) resolveContextualReference(context typing.Type, exp ast.ExpressionNode) typing.Type {
 	// check if context is subscriptable
 	if name, ok := getIdentifier(exp); ok {
@@ -353,37 +387,7 @@ func (v *Validator) resolveContextualReference(context typing.Type, exp ast.Expr
 			if context.Static() && !t.Static() {
 				v.addError(errInvalidStaticReference)
 			}
-			t = typing.ResolveUnderlying(t)
-			switch a := exp.(type) {
-			case *ast.ReferenceNode:
-				context = v.resolveContextualReference(context, a.Parent)
-				return v.resolveContextualReference(context, a.Reference)
-			case *ast.IdentifierNode:
-				return t
-			case *ast.CallExpressionNode:
-				switch f := t.(type) {
-				case *typing.Func:
-					return f.Results
-				}
-				break
-			case *ast.IndexExpressionNode:
-				switch f := t.(type) {
-				case *typing.Map:
-					return f.Value
-				case *typing.Array:
-					return f.Value
-				}
-			case *ast.SliceExpressionNode:
-				switch f := t.(type) {
-				case *typing.Array:
-					return f
-				default:
-					break
-				}
-			default:
-				v.addError(errInvalidReference)
-				return typing.Invalid()
-			}
+			return v.determineType(typing.ResolveUnderlying(t), exp)
 		} else {
 			if context == nil {
 				fmt.Println("NIL CONTEXT")
@@ -472,7 +476,9 @@ func (v *Validator) isCurrentContextOrSubclass(context typing.Type) bool {
 }
 
 func (v *Validator) checkVisible(context, property typing.Type, name string) {
+	fmt.Println("checking visibility")
 	if property != nil && property.Modifiers() != nil {
+		fmt.Println("here")
 		if property.Modifiers().HasModifier("private") {
 			if !v.isCurrentContext(context) {
 				v.addError(errInvalidAccess, name, "private")
@@ -589,7 +595,7 @@ func (v *Validator) getTypeProperty(t typing.Type, name string) (typing.Type, bo
 		return v.getEnumProperty(c, name)
 	case *typing.Tuple:
 		if len(c.Types) == 1 {
-			return c.Types[0], true
+			return v.getTypeProperty(c.Types[0], name)
 		} else {
 			v.addError(errMultipleTypesInSingleValueContext)
 		}

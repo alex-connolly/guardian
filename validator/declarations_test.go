@@ -533,8 +533,8 @@ func TestCancellationClass(t *testing.T) {
 		class Lion { var name string }
 		class Tiger { var name string }
 		class Liger inherits Lion, Tiger {
-			func getName() string {
-				return name
+			func getName() {
+				x = name
 			}
 		}
 	`)
@@ -546,8 +546,8 @@ func TestCancellationContract(t *testing.T) {
 		contract Lion { var name string }
 		contract Tiger { var name string }
 		contract Liger inherits Lion, Tiger {
-			func getName() string {
-				return name
+			func getName() {
+				x = name
 			}
 		}
 	`)

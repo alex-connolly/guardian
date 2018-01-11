@@ -116,3 +116,10 @@ func TestNumericAssignability(t *testing.T) {
 	b = &NumericType{BitSize: 100, Signed: true}
 	goutil.Assert(t, !AssignableTo(a, b, false), "a --> b")
 }
+
+func TestIsAssignableUnknown(t *testing.T) {
+	a := Unknown()
+	b := Boolean()
+	goutil.Assert(t, !AssignableTo(a, b, false), "a --> b")
+	goutil.Assert(t, AssignableTo(a, b, true), "a --> b")
+}
