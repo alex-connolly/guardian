@@ -571,3 +571,30 @@ func TestFuncDeclarationMultipleReturn(t *testing.T) {
 	`)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
+
+func TestFuncDeclarationInvalidMultipleReturn(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		func hi() (int, int) {
+			return 6, "hi"
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestFuncDeclarationVoidEmptyReturn(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		func hi() {
+			return
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestFuncDeclarationVoidSingleInvalidReturn(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		func hi() {
+			return a
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}

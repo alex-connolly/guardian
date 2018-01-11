@@ -25,8 +25,11 @@ type Type interface {
 	Size() uint
 	Modifiers() *Modifiers
 	SetModifiers(*Modifiers)
-	MakeStatic()
-	Static() bool
+}
+
+func AddModifier(t Type, mod string) {
+	mods := t.Modifiers()
+	mods.AddModifier(mod)
 }
 
 // LifecycleMap ...
@@ -43,8 +46,7 @@ const (
 
 // StandardType ...
 type StandardType struct {
-	static bool
-	name   string
+	name string
 }
 
 // Invalid ...
@@ -76,7 +78,6 @@ var standards = map[baseType]*StandardType{
 
 // Array ...
 type Array struct {
-	static   bool
 	Mods     *Modifiers
 	Length   int
 	Value    Type
@@ -85,15 +86,13 @@ type Array struct {
 
 // Map ...
 type Map struct {
-	static bool
-	Mods   *Modifiers
-	Key    Type
-	Value  Type
+	Mods  *Modifiers
+	Key   Type
+	Value Type
 }
 
 // Func ...
 type Func struct {
-	static   bool
 	Mods     *Modifiers
 	Name     string
 	Generics []*Generic
@@ -102,8 +101,7 @@ type Func struct {
 }
 
 type Tuple struct {
-	static bool
-	Types  []Type
+	Types []Type
 }
 
 func NewTuple(types ...Type) *Tuple {
@@ -113,7 +111,6 @@ func NewTuple(types ...Type) *Tuple {
 }
 
 type Aliased struct {
-	static     bool
 	Mods       *Modifiers
 	Alias      string
 	Underlying Type
@@ -135,7 +132,6 @@ type CancellationMap map[string]bool
 
 // A Class is a collection of properties
 type Class struct {
-	static     bool
 	Cancelled  CancellationMap
 	Mods       *Modifiers
 	Name       string
@@ -148,7 +144,6 @@ type Class struct {
 }
 
 type Enum struct {
-	static    bool
 	Cancelled CancellationMap
 	Mods      *Modifiers
 	Name      string
@@ -157,7 +152,6 @@ type Enum struct {
 }
 
 type Interface struct {
-	static    bool
 	Cancelled CancellationMap
 	Mods      *Modifiers
 	Name      string
@@ -168,7 +162,6 @@ type Interface struct {
 
 // Contract ...
 type Contract struct {
-	static     bool
 	Cancelled  CancellationMap
 	Mods       *Modifiers
 	Name       string
@@ -238,7 +231,6 @@ func (m *Modifiers) HasModifier(mod string) bool {
 
 // Event ...
 type Event struct {
-	static     bool
 	Mods       *Modifiers
 	Name       string
 	Generics   []*Generic

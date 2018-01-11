@@ -25,7 +25,7 @@ func CompileBytes(vm validator.VM, bytes []byte) vmgen.Bytecode {
 		reportErrors("Lexing", errs)
 	}
 
-	ast, errs := parser.Parse(tokens)
+	ast, errs := parser.Parse(tokens, errs)
 
 	if errs != nil {
 		reportErrors("Parsing", errs)
@@ -34,7 +34,7 @@ func CompileBytes(vm validator.VM, bytes []byte) vmgen.Bytecode {
 	errs = validator.Validate(ast, vm)
 
 	if errs != nil {
-		reportErrors("Type Valdidation", errs)
+		reportErrors("Type Validation", errs)
 	}
 
 	bytecode, errs := vm.Traverse(ast)

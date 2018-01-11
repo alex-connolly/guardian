@@ -776,3 +776,16 @@ func TestInvalidArrayTypeSize(t *testing.T) {
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 	goutil.AssertNow(t, a.Declarations != nil, "nil declarations")
 }
+
+func TestFuncDeclarationResults(t *testing.T) {
+	a, errs := ParseString(`
+		func hi(){
+
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+	goutil.AssertNow(t, a.Declarations != nil, "nil declarations")
+	f := a.Declarations.Next().(*ast.FuncDeclarationNode)
+	goutil.AssertLength(t, len(f.Signature.Parameters), 0)
+	goutil.AssertLength(t, len(f.Signature.Results), 0)
+}

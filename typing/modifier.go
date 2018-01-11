@@ -2,6 +2,15 @@ package typing
 
 // shoutout to maz - let me have her seat on the bus to do this <3
 
+// why do types have modifiers/annotations?
+// so that they aren't lost when the declared variable is referenced
+/*
+   @Builtin("dog") var dog string
+
+   x = dog // we need to know to replace this reference to dog
+
+*/
+
 func (g *Generic) Modifiers() *Modifiers      { return g.Mods }
 func (a *Array) Modifiers() *Modifiers        { return a.Mods }
 func (m *Map) Modifiers() *Modifiers          { return m.Mods }

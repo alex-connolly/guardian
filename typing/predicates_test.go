@@ -123,3 +123,9 @@ func TestIsAssignableUnknown(t *testing.T) {
 	goutil.Assert(t, !AssignableTo(a, b, false), "a --> b")
 	goutil.Assert(t, AssignableTo(a, b, true), "a --> b")
 }
+
+func TestIsAssignableEmptyTuples(t *testing.T) {
+	a := NewTuple(Unknown())
+	b := NewTuple()
+	goutil.Assert(t, !AssignableTo(a, b, true), "a --> b")
+}

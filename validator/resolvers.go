@@ -445,40 +445,65 @@ func (v *Validator) getPropertiesType(t typing.Type, names []string) (resolved t
 }
 
 func (v *Validator) isCurrentContext(context typing.Type) bool {
-	return v.context.Compare(context)
-}
-
-func (v *Validator) isCurrentContextOrSubclass(context typing.Type) bool {
-	if v.isCurrentContext(context) {
-		return true
-	}
-	switch a := context.(type) {
-	case *typing.Class:
-		if a.Supers != nil {
-			for _, c := range a.Supers {
-				if v.isCurrentContextOrSubclass(c) {
+	for c := v.scope; c != nil; c = c.parent {
+		if c.context != nil {
+			switch a := c.context.(type) {
+			case *ast.ClassDeclarationNode:
+				if a.Resolved.Compare(context) {
 					return true
 				}
-			}
-		}
-		return false
-	case *typing.Contract:
-		if a.Supers != nil {
-			for _, c := range a.Supers {
-				if v.isCurrentContextOrSubclass(c) {
+				break
+			case *ast.ContractDeclarationNode:
+				if a.Resolved.Compare(context) {
 					return true
 				}
+				break
 			}
 		}
-		return false
 	}
 	return false
 }
 
+func (v *Validator) isCurrentContextOrSubclass(context typing.Type) bool {
+	for c := v.scope; c != nil; c = c.parent {
+		if c.context != nil {
+			switch a := c.context.(type) {
+			case *ast.ClassDeclarationNode:
+				if a.Resolved.Compare(context) {
+					return true
+				}
+				switch p := typing.ResolveUnderlying(a.Resolved).(type) {
+				case *typing.Class:
+					for _, c := range p.Supers {
+						if c.Compare(context) {
+							return true
+						}
+					}
+				}
+
+				break
+			case *ast.ContractDeclarationNode:
+				if a.Resolved.Compare(context) {
+					return true
+				}
+				switch p := typing.ResolveUnderlying(a.Resolved).(type) {
+				case *typing.Contract:
+					for _, c := range p.Supers {
+						if c.Compare(context) {
+							return true
+						}
+					}
+				}
+				break
+			}
+		}
+	}
+
+	return false
+}
+
 func (v *Validator) checkVisible(context, property typing.Type, name string) {
-	fmt.Println("checking visibility")
 	if property.Modifiers() != nil {
-		fmt.Println("here")
 		if property.Modifiers().HasModifier("private") {
 			if !v.isCurrentContext(context) {
 				v.addError(errInvalidAccess, name, "private")

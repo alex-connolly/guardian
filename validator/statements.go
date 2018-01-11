@@ -146,6 +146,10 @@ func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
 			case *ast.FuncDeclarationNode:
 				results := a.Resolved.(*typing.Func).Results
 				returned := v.ExpressionTuple(node.Results)
+				if (results == nil || len(results.Types) == 0) && len(returned.Types) > 0 {
+					v.addError(errInvalidReturnFromVoid, typing.WriteType(returned))
+					return
+				}
 				if !typing.AssignableTo(results, returned, false) {
 					v.addError(errInvalidReturn, typing.WriteType(returned), a.Signature.Identifier, typing.WriteType(results))
 				}
