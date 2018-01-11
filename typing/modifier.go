@@ -1,5 +1,7 @@
 package typing
 
+// shoutout to maz - let me have her seat on the bus to do this <3
+
 func (g *Generic) Modifiers() *Modifiers      { return g.Mods }
 func (a *Array) Modifiers() *Modifiers        { return a.Mods }
 func (m *Map) Modifiers() *Modifiers          { return m.Mods }
@@ -16,18 +18,18 @@ func (a *Aliased) Modifiers() *Modifiers      { return a.Mods }
 func (t *Tuple) Modifiers() *Modifiers        { return nil }
 func (e *Event) Modifiers() *Modifiers        { return e.Mods }
 
-func (g *Generic) ResetModifiers()      { g.Mods = nil }
-func (a *Array) ResetModifiers()        { a.Mods = nil }
-func (m *Map) ResetModifiers()          { m.Mods = nil }
-func (c *Class) ResetModifiers()        { c.Mods = nil }
-func (e *Enum) ResetModifiers()         { e.Mods = nil }
-func (i *Interface) ResetModifiers()    { i.Mods = nil }
-func (c *Contract) ResetModifiers()     { c.Mods = nil }
-func (c *NumericType) ResetModifiers()  { c.Mods = nil }
-func (c *BooleanType) ResetModifiers()  { c.Mods = nil }
-func (c *VoidType) ResetModifiers()     { c.Mods = nil }
-func (c *Func) ResetModifiers()         { c.Mods = nil }
-func (a *StandardType) ResetModifiers() {}
-func (a *Aliased) ResetModifiers()      { a.Mods = nil }
-func (t *Tuple) ResetModifiers()        {}
-func (e *Event) ResetModifiers()        { e.Mods = nil }
+func (g *Generic) SetModifiers(m *Modifiers)      { g.Mods = m }
+func (a *Array) SetModifiers(m *Modifiers)        { a.Mods = m }
+func (m *Map) SetModifiers(a *Modifiers)          { m.Mods = a }
+func (c *Class) SetModifiers(m *Modifiers)        { c.Mods = m }
+func (e *Enum) SetModifiers(m *Modifiers)         { e.Mods = m }
+func (i *Interface) SetModifiers(m *Modifiers)    { i.Mods = m }
+func (c *Contract) SetModifiers(m *Modifiers)     { c.Mods = m }
+func (c *NumericType) SetModifiers(m *Modifiers)  { c.Mods = m }
+func (c *BooleanType) SetModifiers(m *Modifiers)  { c.Mods = m }
+func (c *VoidType) SetModifiers(m *Modifiers)     { c.Mods = m }
+func (c *Func) SetModifiers(m *Modifiers)         { c.Mods = m }
+func (a *StandardType) SetModifiers(m *Modifiers) {}
+func (a *Aliased) SetModifiers(m *Modifiers)      { a.Mods = m }
+func (t *Tuple) SetModifiers(m *Modifiers)        {}
+func (e *Event) SetModifiers(m *Modifiers)        { e.Mods = m }

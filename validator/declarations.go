@@ -192,6 +192,8 @@ func (v *Validator) validateVarDeclaration(node *ast.ExplicitVarDeclarationNode)
 	v.validateModifiers(ast.ExplicitVarDeclaration, node.Modifiers.Modifiers)
 
 	typ := v.validateType(node.DeclaredType)
+	typ.SetModifiers(&node.Modifiers)
+
 	for _, id := range node.Identifiers {
 		v.declareContextualVar(id, typ)
 		//fmt.Printf("Declared: %s as %s\n", id, WriteType(typ))
@@ -552,6 +554,7 @@ func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationN
 		Generics: generics,
 		Supers:   supers,
 		Funcs:    funcs,
+		Mods:     &node.Modifiers,
 	}
 
 	node.Resolved = interfaceType
@@ -601,6 +604,7 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 		Generics: generics,
 		Params:   typing.NewTuple(params...),
 		Results:  typing.NewTuple(results...),
+		Mods:     &node.Modifiers,
 	}
 
 	node.Resolved = funcType
@@ -662,6 +666,7 @@ func (v *Validator) validateEventDeclaration(node *ast.EventDeclarationNode) {
 		Name:       node.Identifier,
 		Generics:   generics,
 		Parameters: typing.NewTuple(params...),
+		Mods:       &node.Modifiers,
 	}
 	node.Resolved = eventType
 	v.declareContextualVar(node.Identifier, eventType)

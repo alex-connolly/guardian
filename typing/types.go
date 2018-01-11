@@ -24,7 +24,7 @@ type Type interface {
 	implements(Type) bool
 	Size() uint
 	Modifiers() *Modifiers
-	ResetModifiers()
+	SetModifiers(*Modifiers)
 	MakeStatic()
 	Static() bool
 }

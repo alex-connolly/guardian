@@ -477,7 +477,7 @@ func (v *Validator) isCurrentContextOrSubclass(context typing.Type) bool {
 
 func (v *Validator) checkVisible(context, property typing.Type, name string) {
 	fmt.Println("checking visibility")
-	if property != nil && property.Modifiers() != nil {
+	if property.Modifiers() != nil {
 		fmt.Println("here")
 		if property.Modifiers().HasModifier("private") {
 			if !v.isCurrentContext(context) {

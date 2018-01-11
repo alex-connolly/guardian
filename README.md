@@ -24,7 +24,7 @@ These aims should be considered not only in the design and implementation langua
 
 ## Contracts
 
-In simple terms, contracts may be understood a. There are numerous parallels between . In Guardian, contracts are analogous to top-level classes, within which any number.
+
 
 ## Packaging and Version Declarations
 
@@ -143,9 +143,9 @@ Many languages (such as Go) only provide for randomised map iteration. Clearly, 
 ```go
 myMap["hi"] = 2
 myMap["bye"] = 3
-count := 0
-sum := 0
-for k, v := range myMap {
+count = 0
+sum = 0
+for k, v in myMap {
     sum += v * count
     count++
 }
