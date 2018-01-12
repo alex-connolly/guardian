@@ -382,15 +382,11 @@ func (v *Validator) determineType(t typing.Type, exp ast.ExpressionNode) typing.
 	return typing.Invalid()
 }
 
-func Static(t typing.Type) bool {
-	return t.Modifiers() != nil && t.Modifiers().HasModifier("static")
-}
-
 func (v *Validator) resolveContextualReference(context typing.Type, exp ast.ExpressionNode) typing.Type {
 	// check if context is subscriptable
 	if name, ok := getIdentifier(exp); ok {
 		if t, ok := v.getTypeProperty(context, name); ok {
-			if Static(context) && Static(t) {
+			if typing.HasModifier(context, "static") && !typing.HasModifier(t, "static") {
 				v.addError(errInvalidStaticReference)
 			}
 			return v.determineType(typing.ResolveUnderlying(t), exp)

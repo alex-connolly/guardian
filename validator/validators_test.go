@@ -26,7 +26,7 @@ func TestTypeValidateInvalid(t *testing.T) {
 	scope, _ := parser.ParseString(`
             var b Cat
             type Dog int
-        `)
+    `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	le := scope.Declarations.Length()
 	goutil.AssertNow(t, le == 2, fmt.Sprintf("wrong decl length: %d", le))

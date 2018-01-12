@@ -1,8 +1,6 @@
 package validator
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/typing"
 
 	"github.com/end-r/guardian/ast"
@@ -88,10 +86,11 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 		// length of left tuple should always equal length of left
 		// this is because tuples are not first class types
 		// cannot assign to tuple expressions
-		if len(node.Left) == len(leftTuple.Types) {
+		if len(node.Left) == len(rightTuple.Types) {
 			for i, left := range node.Left {
 				if leftTuple.Types[i] == typing.Unknown() {
 					if id, ok := left.(*ast.IdentifierNode); ok {
+
 						id.Resolved = rightTuple.Types[i]
 						if id.Name != "_" {
 							//fmt.Printf("Declaring %s as %s\n", id.Name, typing.WriteType(rightTuple.Types[i]))
@@ -141,7 +140,6 @@ func (v *Validator) validateCaseStatement(switchType typing.Type, clause *ast.Ca
 }
 
 func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
-	fmt.Println("return")
 	for c := v.scope; c != nil; c = c.parent {
 		if c.context != nil {
 			switch a := c.context.(type) {
