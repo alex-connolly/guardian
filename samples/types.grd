@@ -1,6 +1,7 @@
+package standard version 0.0.1
 
-main(){
+func main(){
     x = 5 // type = int
-    y = float(x) // type = float
+    y = x as float // type = float
     y += 5 // type = float
 }

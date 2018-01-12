@@ -1,28 +1,32 @@
+package standard version 0.0.1
+
 
 contract tokenRecipient {
-    func receiveApproval(token, from address value uint256, extra bytes)
+    func receiveApproval(token, from address, value uint256, extra bytes)
 }
 
 contract Token {
 
     /* Public variables of the token */
-    export name string
-    export symbol string
-    export decimals uint8
-    export totalSupply uint256
+    var (
+        name string
+        symbol string
+        decimals uint8
+        totalSupply uint256
+    )
 
     /* This creates an array with all balances */
-    export balances map[address]uint256
-    export allowance map[address]map[address]uint256
+    var balances map[address]uint256
+    var allowance map[address]map[address]uint256
 
     /* This generates a public event on the blockchain that will notify clients */
-    event Transfer(from address indexed, to address indexed, value uint256)
+    event Transfer(indexed from, to address, value uint256)
 
     /* This notifies clients about the amount burnt */
-    event Burn(from address indexed, value uint256);
+    event Burn(from address indexed, value uint256)
 
     /* Initializes contract with initial supply tokens to the creator of the contract */
-    constructor(initial uint256, name string, symbol string, uint8 decimals){
+    constructor(initial uint256, name string, symbol string, decimals uint8){
         this.balances[call.caller] = initial    // Give the creator all initial tokens
         this.totalSupply = initial              // Update total supply
         this.name = name                        // Set the name for display purposes
@@ -43,7 +47,7 @@ contract Token {
     /// @notice Send `value` tokens to `to` from your account
     /// @param to The address of the recipient
     /// @param value the amount to send
-    export func transfer(to address, value uint256) {
+    external func transfer(to address, value uint256) {
         transfer(call.caller, to, value);
     }
 
@@ -51,7 +55,7 @@ contract Token {
     /// @param from The address of the sender
     /// @param to The address of the recipient
     /// @param value the amount to send
-    export func transferFrom(to, from address, value uint256) bool {
+    external func transferFrom(to, from address, value uint256) bool {
         require (value < allowance[from][call.caller])     // Check allowance
         allowance[from][call.caller] -= value
         transfer(from, to, value)
@@ -61,7 +65,7 @@ contract Token {
     /// @notice Allows `spender` to spend no more than `value` tokens in your behalf
     /// @param spender The address authorized to spend
     /// @param value the max amount they can spend
-    export func approve(spender address, value uint256) bool {
+    external func approve(spender address, value uint256) bool {
         allowance[call.caller][spender] = value
         return true
     }
@@ -70,7 +74,7 @@ contract Token {
     /// @param spender The address authorized to spend
     /// @param value the max amount they can spend
     /// @param extraData some extra information to send to the approved contract
-    export func approveAndCall(spender address, value uint256, extra bytes) bool {
+    external func approveAndCall(spender address, value uint256, extra bytes) bool {
         tokenRecipient spender = tokenRecipient(spender);
         if (approve(spender, value)) {
             spender.receiveApproval(call.caller, call.caller, value, extra);
@@ -80,7 +84,7 @@ contract Token {
 
     /// @notice Remove `value` tokens from the system irreversibly
     /// @param value the amount of money to burn
-    export func burn(value uint256) bool {
+    external func burn(value uint256) bool {
         require(balances[call.caller] > value);            // Check if the sender has enough
         balances[call.caller] -= value;                      // Subtract from the sender
         totalSupply -= value;                                // Updates totalSupply
@@ -88,7 +92,7 @@ contract Token {
         return true;
     }
 
-    export func burnFrom(address from, value uint256) bool {
+    external func burnFrom(address from, value uint256) bool {
         require(balances[from] >= value);                // Check if the targeted balance is enough
         require(value <= allowance[from][call.caller]);    // Check allowance
         this.balances[from] -= value;                         // Subtract from the targeted balance

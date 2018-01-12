@@ -1,4 +1,4 @@
-package guardian version 0.0.1
+package standard version 0.0.1
 
 contract WithdrawalContract {
 
@@ -11,7 +11,7 @@ contract WithdrawalContract {
         this.maxSent = call.value
     }
 
-    becomeRichest() bool {
+    func becomeRichest() bool {
         if call.value > maxSent {
             pendingWithdrawals[richest] += call.value
             richest = call.caller
@@ -21,8 +21,8 @@ contract WithdrawalContract {
         return false
     }
 
-    withdraw() {
-        amount := pendingWithdrawals[call.caller]
+    func withdraw() {
+        amount = pendingWithdrawals[call.caller]
         pendingWithdrawals[call.caller] = 0
         transfer(call.caller, amount)
     }

@@ -1,5 +1,0 @@
-package maths @ 0.0.1
-
-func Sub(int a, b) int {
-    return a - b
-}

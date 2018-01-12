@@ -1,13 +1,9 @@
+package standard version 0.0.1
 
-main(){
-
-    // loop over a range (inclusive, exclusive)
-    for i in 0...5 {
-
-    }
+func main(){
 
     // jumps of two
-    for i := 0; i < 50; i+=2 {
+    for i = 0; i < 50; i+=2 {
 
     }
 
@@ -17,15 +13,18 @@ main(){
     }
 
     // iterate through an array
-    for a in {"Hello", "World"} {
+    x = []string{"Hello", "World"}
+    for a in x {
 
     }
 
-    for k, v in {"Hi":5, "You":6} {
+    y = map[string]int{"Hi":5, "You":6}
+    for k, v in y {
 
     }
 
-    for i, a in {"Hello", "World"} {
+    z = []string{"Hello", "World"}
+    for i, a in z {
 
     }
 

@@ -1,20 +1,21 @@
+package standard version 0.0.1
 
 contract Adder {
 
-    x, y int
+    var x, y int
 
     constructor(x, y int){
         this.x, this.y = x, y
     }
 
-    add() int {
-        r := x + y;
-        if r < x && r < y {
+    func add() int {
+        r = x + y;
+        if r < x and r < y {
             terminate("Addition has overflowed")
         }
     }
 
-    terminate(err string){
+    func terminate(err string){
         io.Printf("%s", err)
     }
 }

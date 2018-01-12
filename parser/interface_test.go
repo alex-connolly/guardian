@@ -22,7 +22,7 @@ func TestParseStringDeclaration(t *testing.T) {
 }
 
 func TestParseFile(t *testing.T) {
-	ParseFile("tests/empty.grd")
+	ParseFile("../samples/tests/empty.grd")
 }
 
 func TestParseType(t *testing.T) {

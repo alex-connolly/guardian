@@ -1,5 +1,6 @@
+package standard version 0.0.1
 
-main(){
+func main(){
 
     string_switch("house")
 
@@ -9,21 +10,18 @@ main(){
 
 }
 
-string_switch(string x){
+func string_switch(x string){
     switch x {
-        case "house" {
-            break
-        }
-        case "rat" {
-            break
-        }
-        case "me" {
-            break
-        }
+    case "house":
+        break
+    case "rat":
+        break
+    case "me":
+        break
     }
 }
 
-empty_switch(int x){
+func empty_switch(x int){
     switch {
     case x > 5:
         break
@@ -32,7 +30,7 @@ empty_switch(int x){
     }
 }
 
-exclusive_switch(int x){
+func exclusive_switch(x int){
     exclusive switch {
     case x > 5:
         x++
@@ -42,15 +40,4 @@ exclusive_switch(int x){
         x = 4
     }
     // only one case statement will be executed
-}
-
-<T> type_switch(T var1){
-    switch typeof var1 {
-    case string:
-
-        break
-    case int:
-
-        break
-    }
 }

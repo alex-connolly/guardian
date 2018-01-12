@@ -1,4 +1,4 @@
-guardian @ 0.0.1
+package standard version 0.0.1
 
 contract StateMachine {
 
@@ -7,7 +7,7 @@ contract StateMachine {
         RevealBids,
         AnotherStage,
         AreWeDoneYet,
-        Finished
+        Finished,
     }
 
     var (
@@ -16,15 +16,15 @@ contract StateMachine {
         creationTime = now()
     )
 
-    requireStage(s Stage) {
+    func requireStage(s Stage) {
         require(stage == s);
     }
 
-    nextStage() {
+    func nextStage() {
         stage++
     }
 
-    timedTransitions() {
+    func timedTransitions() {
         exclusive switch stage {
             case Stage.AcceptingBlindedBids:
                 if now() >= creationTime + 10 * time.Day {
@@ -37,29 +37,29 @@ contract StateMachine {
         }
     }
 
-    bid(){
+    func bid(){
         timedTransitions()
         requireStage(Stage.AcceptingBlindedBids)
     }
 
-    reveal(){
+    func reveal(){
         timedTransitions()
         requireStage(Stage.RevealBids)
     }
 
-    g(){
+    func g(){
         timedTransitions()
         requireStage(Stage.AnotherStage)
         nextStage()
     }
 
-    h(){
+    func h(){
         timedTransitions()
         requireStage(Stage.AreWeDoneYet)
         nextStage()
     }
 
-    i(){
+    func i(){
         timedTransitions()
         requireStage(Stage.Finished)
     }

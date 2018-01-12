@@ -417,14 +417,18 @@ func (p *Parser) parseSliceExpression(expr ast.ExpressionNode,
 
 func (p *Parser) parseIdentifierExpression() *ast.IdentifierNode {
 	n := new(ast.IdentifierNode)
+	n.Begin = p.current().Start
 	n.Name = p.parseIdentifier()
+	n.Final = p.current().End
 	return n
 }
 
 func (p *Parser) parseLiteral() *ast.LiteralNode {
 	n := new(ast.LiteralNode)
+	n.Begin = p.current().Start
 	n.LiteralType = p.current().Type
 	n.Data = p.current().String()
+	n.Final = p.current().End
 	p.next()
 	return n
 }
@@ -432,7 +436,7 @@ func (p *Parser) parseLiteral() *ast.LiteralNode {
 func (p *Parser) parseCompositeLiteral() *ast.CompositeLiteralNode {
 	n := new(ast.CompositeLiteralNode)
 	// expr must be a reference or identifier node
-	n.TypeName = p.parseIdentifier()
+	n.TypeName = p.parsePlainType()
 
 	p.parseRequired(token.OpenBrace)
 	for p.parseOptional(token.NewLine) {

@@ -22,6 +22,16 @@ func ValidateExpression(vm VM, text string) (ast.ExpressionNode, util.Errors) {
 	return expr, v.errs
 }
 
+// ValidateFile ...
+func ValidateFile(vm VM, name string) (*ast.ScopeNode, util.Errors) {
+	a, errs := parser.ParseFile(name)
+	if errs != nil {
+		return a, errs
+	}
+	es := Validate(a, vm)
+	return a, es
+}
+
 // ValidateString ...
 func ValidateString(vm VM, text string) (*ast.ScopeNode, util.Errors) {
 	a, errs := parser.ParseString(text)
