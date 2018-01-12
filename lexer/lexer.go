@@ -10,16 +10,16 @@ func (l *Lexer) Bytes() []byte {
 	return l.buffer
 }
 
-func (l *Lexer) Offset() int {
+func (l *Lexer) Offset() uint {
 	return l.byteOffset
 }
 
-func (l *Lexer) SetOffset(o int) {
+func (l *Lexer) SetOffset(o uint) {
 	l.byteOffset = o
 }
 
 func (l *Lexer) next() {
-	if l.byteOffset == len(l.buffer) {
+	if l.byteOffset == uint(len(l.buffer)) {
 		return
 	}
 	pt := token.NextProtoToken(l)

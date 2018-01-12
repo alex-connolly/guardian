@@ -134,7 +134,7 @@ func TestHasByte(t *testing.T) {
 	text := "interface"
 	l := new(Lexer)
 	l.buffer = []byte(text)
-	l.byteOffset = len(text)
+	l.byteOffset = uint(len(text))
 }
 
 func TestLexerExpVar(t *testing.T) {
