@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/typing"
 
 	"github.com/end-r/guardian/ast"
@@ -139,7 +141,7 @@ func (v *Validator) validateCaseStatement(switchType typing.Type, clause *ast.Ca
 }
 
 func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
-
+	fmt.Println("return")
 	for c := v.scope; c != nil; c = c.parent {
 		if c.context != nil {
 			switch a := c.context.(type) {
@@ -147,7 +149,7 @@ func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
 				results := a.Resolved.(*typing.Func).Results
 				returned := v.ExpressionTuple(node.Results)
 				if (results == nil || len(results.Types) == 0) && len(returned.Types) > 0 {
-					v.addError(errInvalidReturnFromVoid, typing.WriteType(returned))
+					v.addError(errInvalidReturnFromVoid, typing.WriteType(returned), a.Signature.Identifier)
 					return
 				}
 				if !typing.AssignableTo(results, returned, false) {

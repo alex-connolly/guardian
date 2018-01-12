@@ -789,3 +789,21 @@ func TestFuncDeclarationResults(t *testing.T) {
 	goutil.AssertLength(t, len(f.Signature.Parameters), 0)
 	goutil.AssertLength(t, len(f.Signature.Results), 0)
 }
+
+func TestParseFuncTypeNoResults(t *testing.T) {
+	p := createParser("woof()")
+	sig := p.parseFuncSignature()
+	goutil.AssertNow(t, sig != nil, "signature is nil")
+	goutil.AssertNow(t, sig.Identifier == "woof", "wrong identifier: "+sig.Identifier)
+	goutil.AssertNow(t, len(sig.Parameters) == 0, "wrong parameter length")
+	goutil.AssertNow(t, len(sig.Results) == 0, "wrong result length")
+}
+
+func TestParseFuncTypeEmptyBracketResults(t *testing.T) {
+	p := createParser("woof() ()")
+	sig := p.parseFuncSignature()
+	goutil.AssertNow(t, sig != nil, "signature is nil")
+	goutil.AssertNow(t, sig.Identifier == "woof", "wrong identifier: "+sig.Identifier)
+	goutil.AssertNow(t, len(sig.Parameters) == 0, "wrong parameter length")
+	goutil.AssertNow(t, len(sig.Results) == 0, "wrong result length")
+}

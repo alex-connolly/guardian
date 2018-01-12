@@ -596,5 +596,5 @@ func TestFuncDeclarationVoidSingleInvalidReturn(t *testing.T) {
 			return a
 		}
 	`)
-	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }

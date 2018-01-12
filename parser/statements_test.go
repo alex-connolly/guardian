@@ -796,3 +796,14 @@ func TestParseDecrement(t *testing.T) {
 	goutil.AssertNow(t, a != nil, "nil scope")
 	goutil.AssertLength(t, len(a.Sequence), 1)
 }
+
+func TestParseEmptyReturn(t *testing.T) {
+	a, errs := ParseString(`
+		return
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+	goutil.AssertNow(t, a != nil, "nil scope")
+	goutil.AssertLength(t, len(a.Sequence), 1)
+	r := a.Sequence[0].(*ast.ReturnStatementNode)
+	goutil.AssertLength(t, len(r.Results), 0)
+}

@@ -375,7 +375,11 @@ func (p *Parser) parseMapLiteral() *ast.MapLiteralNode {
 }
 
 func (p *Parser) parseExpressionList() (list []ast.ExpressionNode) {
-	list = append(list, p.parseExpression())
+	first := p.parseExpression()
+	if first == nil {
+		return list
+	}
+	list = append(list, first)
 	for p.parseOptional(token.Comma) {
 		p.ignoreNewLines()
 		list = append(list, p.parseExpression())

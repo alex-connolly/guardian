@@ -1,8 +1,9 @@
+package opt version 0.0.1
 
 contract Optimise {
 
     muPuzzle() {
-        iCount, uCount := 1, 0
+        iCount, uCount = 1, 0
         for iCount % 3 != 0 {
             exclusive switch random {
                 case 1: uCount++

@@ -377,7 +377,7 @@ func (p *Parser) parseFuncSignature() *ast.FuncTypeNode {
 	if p.parseOptional(token.OpenBracket) {
 		f.Results = p.parseFuncTypeParameters()
 		p.parseRequired(token.CloseBracket)
-	} else if !p.isNextToken(token.OpenBrace) {
+	} else if !p.isNextToken(token.OpenBrace, token.NewLine) && p.hasTokens(1) {
 		f.Results = p.parseFuncTypeParameters()
 	}
 
@@ -521,7 +521,7 @@ func (p *Parser) parseFuncTypeParameters() []ast.Node {
 				p.next()
 			}
 		}
-	} else {
+	} else if !p.isNextToken(token.CloseBracket) {
 		// must be types
 		t := p.parseType()
 		params = append(params, t)

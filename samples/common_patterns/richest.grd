@@ -1,10 +1,10 @@
-guardian @ 0.0.1
+package guardian version 0.0.1
 
 contract WithdrawalContract {
 
-    pendingWithdrawals map[Address]uint
-    richest Address
-    maxSent uint
+    var pendingWithdrawals map[address]uint
+    var richest address
+    var maxSent uint
 
     constructor(){
         this.richest = call.caller
@@ -24,6 +24,6 @@ contract WithdrawalContract {
     withdraw() {
         amount := pendingWithdrawals[call.caller]
         pendingWithdrawals[call.caller] = 0
-        call.caller.transfer(amount)
+        transfer(call.caller, amount)
     }
 }

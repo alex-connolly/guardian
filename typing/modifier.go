@@ -11,6 +11,13 @@ package typing
 
 */
 
+func HasModifier(t Type, mod string) bool {
+	if t.Modifiers() == nil {
+		return false
+	}
+	return t.Modifiers().HasModifier(mod)
+}
+
 func AddModifier(t Type, mod string) {
 	if t.Modifiers() == nil {
 		t.SetModifiers(new(Modifiers))

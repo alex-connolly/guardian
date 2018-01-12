@@ -21,7 +21,7 @@ contract StateMachine {
     }
 
     nextStage() {
-        stage = Stages(uint(stage) + 1)
+        stage++
     }
 
     timedTransitions() {
