@@ -7,16 +7,16 @@ import "strings"
 // Byterable ...
 type Byterable interface {
 	Bytes() []byte
-	Offset() int
-	SetOffset(int)
+	Offset() uint
+	SetOffset(uint)
 }
 
 func isEnd(b Byterable) bool {
-	return b.Offset() >= len(b.Bytes())
+	return b.Offset() >= uint(len(b.Bytes()))
 }
 
-func hasBytes(b Byterable, l int) bool {
-	return b.Offset()+l <= len(b.Bytes())
+func hasBytes(b Byterable, l uint) bool {
+	return b.Offset()+l <= uint(len(b.Bytes()))
 }
 
 func current(b Byterable) byte {
@@ -97,7 +97,7 @@ func distinctToken(name string, typ Type) ProtoToken {
 	return ProtoToken{
 		Name:    name,
 		Type:    typ,
-		Process: processFixed(len(name), typ),
+		Process: processFixed(uint(len(name)), typ),
 	}
 }
 
@@ -106,11 +106,11 @@ func fixedToken(name string, typ Type) ProtoToken {
 	return ProtoToken{
 		Name:    name,
 		Type:    typ,
-		Process: processFixed(len(name), typ),
+		Process: processFixed(uint(len(name)), typ),
 	}
 }
 
-func getNextString(b Byterable, len int) string {
+func getNextString(b Byterable, len uint) string {
 	return string(b.Bytes()[b.Offset() : b.Offset()+len])
 }
 
@@ -123,12 +123,12 @@ func NextProtoToken(b Byterable) *ProtoToken {
 		return &ProtoToken{Name: "integer", Type: Integer, Process: processInteger}
 	}
 
-	longest := 3 // longest fixed token
+	longest := uint(4) // longest fixed token + 1
 	available := longest
-	if available > len(b.Bytes())-b.Offset() {
-		available = len(b.Bytes()) - b.Offset()
+	if available > uint(len(b.Bytes()))-b.Offset() {
+		available = uint(len(b.Bytes())) - b.Offset()
 	}
-	for i := available; i >= 0; i-- {
+	for i := available; i > 0; i-- {
 		key := getNextString(b, i)
 		f, ok := fixed[key]
 		if ok {
@@ -426,11 +426,10 @@ func (t *Token) Finalise(b Byterable) {
 
 // Token ...
 type Token struct {
-	Type  Type
-	Proto *ProtoToken
-	Start int
-	End   int
-	Data  []byte
+	Type       Type
+	Proto      *ProtoToken
+	Start, End uint
+	Data       []byte
 }
 
 // String creates a new string from the Token's value

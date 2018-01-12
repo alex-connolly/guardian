@@ -70,45 +70,53 @@ var (
 )
 
 type MapTypeNode struct {
-	Variable bool
-	Key      Node
-	Value    Node
+	Begin, Final uint
+	Variable     bool
+	Key          Node
+	Value        Node
 }
 
-func (n *MapTypeNode) Type() NodeType { return MapType }
-
+func (n *MapTypeNode) Start() uint               { return n.Begin }
+func (n *MapTypeNode) End() uint                 { return n.Final }
+func (n *MapTypeNode) Type() NodeType            { return MapType }
 func (n *MapTypeNode) ResolvedType() typing.Type { return typing.Unknown() }
 
 type ArrayTypeNode struct {
-	Variable bool
-	Length   int
-	Value    Node
+	Begin, Final uint
+	Variable     bool
+	Length       int
+	Value        Node
 }
 
-func (n *ArrayTypeNode) Type() NodeType { return ArrayType }
-
+func (n *ArrayTypeNode) Start() uint               { return n.Begin }
+func (n *ArrayTypeNode) End() uint                 { return n.Final }
+func (n *ArrayTypeNode) Type() NodeType            { return ArrayType }
 func (n *ArrayTypeNode) ResolvedType() typing.Type { return typing.Unknown() }
 
 type PlainTypeNode struct {
-	Variable   bool
-	Parameters []Node
-	Names      []string
+	Begin, Final uint
+	Variable     bool
+	Parameters   []Node
+	Names        []string
 }
 
-func (n *PlainTypeNode) Type() NodeType { return PlainType }
-
+func (n *PlainTypeNode) Start() uint               { return n.Begin }
+func (n *PlainTypeNode) End() uint                 { return n.Final }
+func (n *PlainTypeNode) Type() NodeType            { return PlainType }
 func (n *PlainTypeNode) ResolvedType() typing.Type { return typing.Unknown() }
 
 type FuncTypeNode struct {
-	Variable   bool
-	Identifier string
-	Parameters []Node
-	Results    []Node
+	Begin, Final uint
+	Variable     bool
+	Identifier   string
+	Parameters   []Node
+	Results      []Node
 }
 
+func (n *FuncTypeNode) Start() uint               { return n.Begin }
+func (n *FuncTypeNode) End() uint                 { return n.Final }
 func (n *FuncTypeNode) ResolvedType() typing.Type { return typing.Unknown() }
-
-func (n *FuncTypeNode) Type() NodeType { return FuncType }
+func (n *FuncTypeNode) Type() NodeType            { return FuncType }
 
 func (t NodeType) isExpression() bool {
 	switch t {

@@ -142,7 +142,7 @@ func processString(b Byterable) Token {
 	return *t
 }
 
-func processFixed(len int, tkn Type) processorFunc {
+func processFixed(len uint, tkn Type) processorFunc {
 	return func(b Byterable) (t Token) {
 		// Start and End don't matter
 		t.Type = tkn

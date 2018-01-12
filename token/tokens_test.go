@@ -9,14 +9,14 @@ import (
 
 type bytecode struct {
 	bytes  []byte
-	offset int
+	offset uint
 }
 
-func (b *bytecode) Offset() int {
+func (b *bytecode) Offset() uint {
 	return b.offset
 }
 
-func (b *bytecode) SetOffset(o int) {
+func (b *bytecode) SetOffset(o uint) {
 	b.offset = o
 }
 
@@ -124,7 +124,7 @@ func TestNextTokenHexadecimal(t *testing.T) {
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "integer", fmt.Sprintf("wrong name: %s", p.Name))
 	tok := p.Process(b)
-	goutil.AssertLength(t, tok.End, len(byt))
+	goutil.AssertLength(t, int(tok.End), len(byt))
 }
 
 func TestNextTokenLongHexadecimal(t *testing.T) {
@@ -134,7 +134,7 @@ func TestNextTokenLongHexadecimal(t *testing.T) {
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "integer", fmt.Sprintf("wrong name: %s", p.Name))
 	tok := p.Process(b)
-	goutil.AssertLength(t, tok.End, len(byt))
+	goutil.AssertLength(t, int(tok.End), len(byt))
 }
 
 func TestNextTokenSingleZero(t *testing.T) {
@@ -144,7 +144,7 @@ func TestNextTokenSingleZero(t *testing.T) {
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "integer", fmt.Sprintf("wrong name: %s", p.Name))
 	tok := p.Process(b)
-	goutil.AssertLength(t, tok.End, len(byt))
+	goutil.AssertLength(t, int(tok.End), len(byt))
 }
 
 func TestNextTokenNegativeInt(t *testing.T) {
@@ -154,7 +154,7 @@ func TestNextTokenNegativeInt(t *testing.T) {
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "integer", fmt.Sprintf("wrong name: %s", p.Name))
 	tok := p.Process(b)
-	goutil.AssertLength(t, tok.End, len(byt))
+	goutil.AssertLength(t, int(tok.End), len(byt))
 }
 
 func TestNextTokenNegativeFloat(t *testing.T) {
@@ -164,5 +164,5 @@ func TestNextTokenNegativeFloat(t *testing.T) {
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "float", fmt.Sprintf("wrong name: %s", p.Name))
 	tok := p.Process(b)
-	goutil.AssertLength(t, tok.End, len(byt))
+	goutil.AssertLength(t, int(tok.End), len(byt))
 }
