@@ -15,7 +15,7 @@ func processIgnored(b Byterable) Token {
 }
 
 func processInteger(b Byterable) (t Token) {
-	t.Start = b.Location(b.Offset())
+	t.Start = b.Location()
 	end := b.Offset()
 	t.Type = Integer
 	if current(b) == '-' {
@@ -54,18 +54,18 @@ func processInteger(b Byterable) (t Token) {
 
 func processFloat(b Byterable) (t Token) {
 	// TODO: make this handle exponents
-	t.Start = b.Location(b.Offset())
+	t.Start = b.Location()
 	end := b.Offset()
 	t.Type = Float
 	decimalUsed := false
 	if current(b) == '-' {
-		t.End = b.Location(end)
+		t.End = b.Location()
 		next(b)
 	}
 	for '0' <= current(b) && current(b) <= '9' || current(b) == '.' {
 		if current(b) == '.' {
 			if decimalUsed {
-				t.End = b.Location(end)
+				t.End = b.Location()
 				return t
 			}
 			decimalUsed = true
@@ -73,18 +73,18 @@ func processFloat(b Byterable) (t Token) {
 		next(b)
 		end++
 		if isEnd(b) {
-			t.End = b.Location(end)
+			t.End = b.Location()
 			return t
 		}
 	}
-	t.End = b.Location(end)
+	t.End = b.Location()
 	return t
 }
 
 // TODO: handle errors etc
 func processCharacter(b Byterable) Token {
 	t := new(Token)
-	t.Start = b.Location(b.Offset())
+	t.Start = b.Location()
 	end := b.Offset()
 	t.Type = Character
 	b1 := next(b)
@@ -105,7 +105,7 @@ func processCharacter(b Byterable) Token {
 func processIdentifier(b Byterable) Token {
 
 	t := new(Token)
-	t.Start = b.Location(b.Offset())
+	t.Start = b.Location()
 	end := b.Offset()
 	t.Type = Identifier
 	/*if isEnd(b) {
@@ -127,7 +127,7 @@ func processString(b Byterable) Token {
 	// the Start - End is the value
 	// it DOES include the enclosing quotation marks
 	t := new(Token)
-	t.Start = b.Location(b.Offset())
+	t.Start = b.Location()
 	end := b.Offset()
 	t.Type = String
 	b1 := next(b)

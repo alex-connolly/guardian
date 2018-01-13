@@ -13,7 +13,7 @@ type Byterable interface {
 	Bytes() []byte
 	Offset() uint
 	SetOffset(uint)
-	Location(uint) util.Location
+	Location() util.Location
 }
 
 func isEnd(b Byterable) bool {

@@ -1,6 +1,8 @@
 package lexer
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/util"
@@ -16,6 +18,14 @@ func (l *Lexer) Offset() uint {
 
 func (l *Lexer) SetOffset(o uint) {
 	l.byteOffset = o
+}
+
+func (l *Lexer) Location() util.Location {
+	return util.Location{
+		Filename: "default.grd",
+		Offset:   l.byteOffset,
+		Line:     l.line,
+	}
 }
 
 func (l *Lexer) next() {
@@ -39,12 +49,12 @@ func (l *Lexer) next() {
 	l.next()
 }
 
-func (l *Lexer) error(msg string) {
+func (l *Lexer) addError(loc util.Location, err string, data ...interface{}) {
 	if l.errors == nil {
 		l.errors = make([]util.Error, 0)
 	}
 	l.errors = append(l.errors, util.Error{
-		LineNumber: l.line,
-		Message:    msg,
+		Location: loc,
+		Message:  fmt.Sprintf(err, data...),
 	})
 }

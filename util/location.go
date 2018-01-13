@@ -4,7 +4,7 @@ package util
 // not going to add the full thing for now
 type Location struct {
 	Filename string // filename, if any
-	Offset   int    // offset, starting at 0
-	Line     int    // line number, starting at 1
-	Column   int    // column number, starting at 1 (byte count)
+	Offset   uint   // offset, starting at 0
+	Line     uint   // line number, starting at 1
+	Column   uint   // column number, starting at 1 (byte count)
 }

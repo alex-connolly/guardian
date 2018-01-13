@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/end-r/guardian/util"
+
 	"github.com/end-r/goutil"
 )
 
@@ -22,6 +24,12 @@ func (b *bytecode) SetOffset(o uint) {
 
 func (b *bytecode) Bytes() []byte {
 	return b.bytes
+}
+
+func (b *bytecode) Location() util.Location {
+	return util.Location{
+		Offset: b.offset,
+	}
 }
 
 func TestNextTokenSingleFixed(t *testing.T) {
@@ -124,7 +132,7 @@ func TestNextTokenHexadecimal(t *testing.T) {
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "integer", fmt.Sprintf("wrong name: %s", p.Name))
 	tok := p.Process(b)
-	goutil.AssertLength(t, int(tok.End), len(byt))
+	goutil.AssertLength(t, int(tok.End.Offset), len(byt))
 }
 
 func TestNextTokenLongHexadecimal(t *testing.T) {
@@ -134,7 +142,7 @@ func TestNextTokenLongHexadecimal(t *testing.T) {
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "integer", fmt.Sprintf("wrong name: %s", p.Name))
 	tok := p.Process(b)
-	goutil.AssertLength(t, int(tok.End), len(byt))
+	goutil.AssertLength(t, int(tok.End.Offset), len(byt))
 }
 
 func TestNextTokenSingleZero(t *testing.T) {
@@ -144,7 +152,7 @@ func TestNextTokenSingleZero(t *testing.T) {
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "integer", fmt.Sprintf("wrong name: %s", p.Name))
 	tok := p.Process(b)
-	goutil.AssertLength(t, int(tok.End), len(byt))
+	goutil.AssertLength(t, int(tok.End.Offset), len(byt))
 }
 
 func TestNextTokenNegativeInt(t *testing.T) {
@@ -154,7 +162,7 @@ func TestNextTokenNegativeInt(t *testing.T) {
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "integer", fmt.Sprintf("wrong name: %s", p.Name))
 	tok := p.Process(b)
-	goutil.AssertLength(t, int(tok.End), len(byt))
+	goutil.AssertLength(t, int(tok.End.Offset), len(byt))
 }
 
 func TestNextTokenNegativeFloat(t *testing.T) {
@@ -164,5 +172,5 @@ func TestNextTokenNegativeFloat(t *testing.T) {
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "float", fmt.Sprintf("wrong name: %s", p.Name))
 	tok := p.Process(b)
-	goutil.AssertLength(t, int(tok.End), len(byt))
+	goutil.AssertLength(t, int(tok.End.Offset), len(byt))
 }

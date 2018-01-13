@@ -12,7 +12,7 @@ import (
 type Lexer struct {
 	buffer      []byte
 	byteOffset  uint
-	line        int
+	line        uint
 	column      int
 	tokens      []token.Token
 	tokenOffset int
