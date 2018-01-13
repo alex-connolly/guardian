@@ -1,6 +1,8 @@
 package ast
 
-import "github.com/end-r/guardian/typing"
+import (
+	"github.com/end-r/guardian/typing"
+)
 
 // NodeType denotes the type of node
 type NodeType int
@@ -70,51 +72,51 @@ var (
 )
 
 type MapTypeNode struct {
-	Begin, Final uint
+	Begin, Final util.Location
 	Variable     bool
 	Key          Node
 	Value        Node
 }
 
-func (n *MapTypeNode) Start() uint               { return n.Begin }
-func (n *MapTypeNode) End() uint                 { return n.Final }
+func (n *MapTypeNode) Start() util.Location      { return n.Begin }
+func (n *MapTypeNode) End() util.Location        { return n.Final }
 func (n *MapTypeNode) Type() NodeType            { return MapType }
 func (n *MapTypeNode) ResolvedType() typing.Type { return typing.Unknown() }
 
 type ArrayTypeNode struct {
-	Begin, Final uint
+	Begin, Final util.Location
 	Variable     bool
 	Length       int
 	Value        Node
 }
 
-func (n *ArrayTypeNode) Start() uint               { return n.Begin }
-func (n *ArrayTypeNode) End() uint                 { return n.Final }
+func (n *ArrayTypeNode) Start() util.Location      { return n.Begin }
+func (n *ArrayTypeNode) End() util.Location        { return n.Final }
 func (n *ArrayTypeNode) Type() NodeType            { return ArrayType }
 func (n *ArrayTypeNode) ResolvedType() typing.Type { return typing.Unknown() }
 
 type PlainTypeNode struct {
-	Begin, Final uint
+	Begin, Final util.Location
 	Variable     bool
 	Parameters   []Node
 	Names        []string
 }
 
-func (n *PlainTypeNode) Start() uint               { return n.Begin }
-func (n *PlainTypeNode) End() uint                 { return n.Final }
+func (n *PlainTypeNode) Start() util.Location      { return n.Begin }
+func (n *PlainTypeNode) End() util.Location        { return n.Final }
 func (n *PlainTypeNode) Type() NodeType            { return PlainType }
 func (n *PlainTypeNode) ResolvedType() typing.Type { return typing.Unknown() }
 
 type FuncTypeNode struct {
-	Begin, Final uint
+	Begin, Final util.Location
 	Variable     bool
 	Identifier   string
 	Parameters   []Node
 	Results      []Node
 }
 
-func (n *FuncTypeNode) Start() uint               { return n.Begin }
-func (n *FuncTypeNode) End() uint                 { return n.Final }
+func (n *FuncTypeNode) Start() util.Location      { return n.Begin }
+func (n *FuncTypeNode) End() util.Location        { return n.Final }
 func (n *FuncTypeNode) ResolvedType() typing.Type { return typing.Unknown() }
 func (n *FuncTypeNode) Type() NodeType            { return FuncType }
 

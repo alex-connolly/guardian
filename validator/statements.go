@@ -80,7 +80,7 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 
 	} else {
 		if !leftTuple.Compare(rightTuple) {
-			v.addError(errInvalidAssignment, typing.WriteType(leftTuple), typing.WriteType(rightTuple))
+			v.addError(node.Line, errInvalidAssignment, typing.WriteType(leftTuple), typing.WriteType(rightTuple))
 		}
 
 		// length of left tuple should always equal length of left
@@ -90,7 +90,6 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 			for i, left := range node.Left {
 				if leftTuple.Types[i] == typing.Unknown() {
 					if id, ok := left.(*ast.IdentifierNode); ok {
-
 						id.Resolved = rightTuple.Types[i]
 						if id.Name != "_" {
 							//fmt.Printf("Declaring %s as %s\n", id.Name, typing.WriteType(rightTuple.Types[i]))

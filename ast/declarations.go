@@ -7,7 +7,7 @@ import (
 )
 
 type TypeDeclarationNode struct {
-	Begin, Final uint
+	Begin, Final util.Location
 	Modifiers    typing.Modifiers
 	Identifier   string
 	Value        Node
@@ -16,12 +16,12 @@ type TypeDeclarationNode struct {
 }
 
 // Type ...
-func (n *TypeDeclarationNode) Type() NodeType { return TypeDeclaration }
-func (n *TypeDeclarationNode) Start() uint    { return n.Begin }
-func (n *TypeDeclarationNode) End() uint      { return n.Final }
+func (n *TypeDeclarationNode) Type() NodeType       { return TypeDeclaration }
+func (n *TypeDeclarationNode) Start() util.Location { return n.Begin }
+func (n *TypeDeclarationNode) End() util.Location   { return n.Final }
 
 type FuncDeclarationNode struct {
-	Begin, Final uint
+	Begin, Final util.Location
 	Signature    *FuncTypeNode
 	Body         *ScopeNode
 	Modifiers    typing.Modifiers
@@ -30,12 +30,12 @@ type FuncDeclarationNode struct {
 	Resolved     typing.Type
 }
 
-func (n *FuncDeclarationNode) Type() NodeType { return FuncDeclaration }
-func (n *FuncDeclarationNode) Start() uint    { return n.Begin }
-func (n *FuncDeclarationNode) End() uint      { return n.Final }
+func (n *FuncDeclarationNode) Type() NodeType       { return FuncDeclaration }
+func (n *FuncDeclarationNode) Start() util.Location { return n.Begin }
+func (n *FuncDeclarationNode) End() util.Location   { return n.Final }
 
 type ClassDeclarationNode struct {
-	Begin, Final uint
+	Begin, Final util.Location
 	Identifier   string
 	Modifiers    typing.Modifiers
 	Supers       []*PlainTypeNode
@@ -46,12 +46,12 @@ type ClassDeclarationNode struct {
 	Resolved     typing.Type
 }
 
-func (n *ClassDeclarationNode) Type() NodeType { return ClassDeclaration }
-func (n *ClassDeclarationNode) Start() uint    { return n.Begin }
-func (n *ClassDeclarationNode) End() uint      { return n.Final }
+func (n *ClassDeclarationNode) Type() NodeType       { return ClassDeclaration }
+func (n *ClassDeclarationNode) Start() util.Location { return n.Begin }
+func (n *ClassDeclarationNode) End() util.Location   { return n.Final }
 
 type InterfaceDeclarationNode struct {
-	Begin, Final uint
+	Begin, Final util.Location
 	Identifier   string
 	Modifiers    typing.Modifiers
 	Signatures   []*FuncTypeNode
@@ -60,12 +60,12 @@ type InterfaceDeclarationNode struct {
 	Resolved     typing.Type
 }
 
-func (n *InterfaceDeclarationNode) Type() NodeType { return InterfaceDeclaration }
-func (n *InterfaceDeclarationNode) Start() uint    { return n.Begin }
-func (n *InterfaceDeclarationNode) End() uint      { return n.Final }
+func (n *InterfaceDeclarationNode) Type() NodeType       { return InterfaceDeclaration }
+func (n *InterfaceDeclarationNode) Start() util.Location { return n.Begin }
+func (n *InterfaceDeclarationNode) End() util.Location   { return n.Final }
 
 type ContractDeclarationNode struct {
-	Begin, Final uint
+	Begin, Final util.Location
 	Identifier   string
 	Modifiers    typing.Modifiers
 	Supers       []*PlainTypeNode
@@ -75,12 +75,12 @@ type ContractDeclarationNode struct {
 	Resolved     typing.Type
 }
 
-func (n *ContractDeclarationNode) Type() NodeType { return ContractDeclaration }
-func (n *ContractDeclarationNode) Start() uint    { return n.Begin }
-func (n *ContractDeclarationNode) End() uint      { return n.Final }
+func (n *ContractDeclarationNode) Type() NodeType       { return ContractDeclaration }
+func (n *ContractDeclarationNode) Start() util.Location { return n.Begin }
+func (n *ContractDeclarationNode) End() util.Location   { return n.Final }
 
 type ExplicitVarDeclarationNode struct {
-	Begin, Final uint
+	Begin, Final util.Location
 	Modifiers    typing.Modifiers
 	Identifiers  []string
 	DeclaredType Node
@@ -89,12 +89,12 @@ type ExplicitVarDeclarationNode struct {
 	Value        ExpressionNode
 }
 
-func (n *ExplicitVarDeclarationNode) Type() NodeType { return ExplicitVarDeclaration }
-func (n *ExplicitVarDeclarationNode) Start() uint    { return n.Begin }
-func (n *ExplicitVarDeclarationNode) End() uint      { return n.Final }
+func (n *ExplicitVarDeclarationNode) Type() NodeType       { return ExplicitVarDeclaration }
+func (n *ExplicitVarDeclarationNode) Start() util.Location { return n.Begin }
+func (n *ExplicitVarDeclarationNode) End() util.Location   { return n.Final }
 
 type EventDeclarationNode struct {
-	Begin, Final uint
+	Begin, Final util.Location
 	Modifiers    typing.Modifiers
 	Identifier   string
 	Generics     []*GenericDeclarationNode
@@ -102,25 +102,25 @@ type EventDeclarationNode struct {
 	Resolved     typing.Type
 }
 
-func (n *EventDeclarationNode) Type() NodeType { return EventDeclaration }
-func (n *EventDeclarationNode) Start() uint    { return n.Begin }
-func (n *EventDeclarationNode) End() uint      { return n.Final }
+func (n *EventDeclarationNode) Type() NodeType       { return EventDeclaration }
+func (n *EventDeclarationNode) Start() util.Location { return n.Begin }
+func (n *EventDeclarationNode) End() util.Location   { return n.Final }
 
 // LifecycleDeclarationNode ...
 type LifecycleDeclarationNode struct {
-	Begin, Final uint
+	Begin, Final util.Location
 	Modifiers    typing.Modifiers
 	Category     token.Type
 	Parameters   []*ExplicitVarDeclarationNode
 	Body         *ScopeNode
 }
 
-func (n *LifecycleDeclarationNode) Type() NodeType { return LifecycleDeclaration }
-func (n *LifecycleDeclarationNode) Start() uint    { return n.Begin }
-func (n *LifecycleDeclarationNode) End() uint      { return n.Final }
+func (n *LifecycleDeclarationNode) Type() NodeType       { return LifecycleDeclaration }
+func (n *LifecycleDeclarationNode) Start() util.Location { return n.Begin }
+func (n *LifecycleDeclarationNode) End() util.Location   { return n.Final }
 
 type EnumDeclarationNode struct {
-	Begin, Final uint
+	Begin, Final util.Location
 	Identifier   string
 	Modifiers    typing.Modifiers
 	Inherits     []*PlainTypeNode
@@ -129,12 +129,12 @@ type EnumDeclarationNode struct {
 	Resolved typing.Type
 }
 
-func (n *EnumDeclarationNode) Type() NodeType { return EnumDeclaration }
-func (n *EnumDeclarationNode) Start() uint    { return n.Begin }
-func (n *EnumDeclarationNode) End() uint      { return n.Final }
+func (n *EnumDeclarationNode) Type() NodeType       { return EnumDeclaration }
+func (n *EnumDeclarationNode) Start() util.Location { return n.Begin }
+func (n *EnumDeclarationNode) End() util.Location   { return n.Final }
 
 type GenericDeclarationNode struct {
-	Begin, Final uint
+	Begin, Final util.Location
 	Identifier   string
 	Inherits     []*PlainTypeNode
 	Implements   []*PlainTypeNode

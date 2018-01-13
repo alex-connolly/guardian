@@ -15,26 +15,26 @@ func processIgnored(b Byterable) Token {
 }
 
 func processInteger(b Byterable) (t Token) {
-	t.Start = b.Offset()
-	t.End = b.Offset()
+	t.Start = b.Location(b.Offset())
+	end := b.Offset()
 	t.Type = Integer
 	if current(b) == '-' {
-		t.End++
+		end++
 		next(b)
 	}
 	if current(b) == '0' {
-		t.End++
+		end++
 		next(b)
 		if isEnd(b) {
 			return t
 		}
 		if current(b) == 'x' || current(b) == 'X' {
 			//hexadecimal
-			t.End++
+			end++
 			next(b)
 			for '0' <= current(b) && current(b) <= 'F' {
 				next(b)
-				t.End++
+				end++
 				if isEnd(b) {
 					return t
 				}
@@ -43,7 +43,7 @@ func processInteger(b Byterable) (t Token) {
 	} else {
 		for '0' <= current(b) && current(b) <= '9' {
 			next(b)
-			t.End++
+			end++
 			if isEnd(b) {
 				return t
 			}
@@ -54,63 +54,66 @@ func processInteger(b Byterable) (t Token) {
 
 func processFloat(b Byterable) (t Token) {
 	// TODO: make this handle exponents
-	t.Start = b.Offset()
-	t.End = b.Offset()
+	t.Start = b.Location(b.Offset())
+	end := b.Offset()
 	t.Type = Float
 	decimalUsed := false
 	if current(b) == '-' {
-		t.End++
+		t.End = b.Location(end)
 		next(b)
 	}
 	for '0' <= current(b) && current(b) <= '9' || current(b) == '.' {
 		if current(b) == '.' {
 			if decimalUsed {
+				t.End = b.Location(end)
 				return t
 			}
 			decimalUsed = true
 		}
 		next(b)
-		t.End++
+		end++
 		if isEnd(b) {
+			t.End = b.Location(end)
 			return t
 		}
 	}
+	t.End = b.Location(end)
 	return t
 }
 
 // TODO: handle errors etc
 func processCharacter(b Byterable) Token {
 	t := new(Token)
-	t.Start = b.Offset()
-	t.End = b.Offset()
+	t.Start = b.Location(b.Offset())
+	end := b.Offset()
 	t.Type = Character
 	b1 := next(b)
 	b2 := next(b)
 	for b1 != b2 {
-		t.End++
+		end++
 		b2 = next(b)
 		if isEnd(b) {
 			//b.error("Character literal not closed")
-			t.End += 2
+			end += 2
 			return *t
 		}
 	}
-	t.End += 2
+	end += 2
 	return *t
 }
 
 func processIdentifier(b Byterable) Token {
 
 	t := new(Token)
-	t.Start = b.Offset()
-	t.End = b.Offset()
+	t.Start = b.Location(b.Offset())
+	end := b.Offset()
 	t.Type = Identifier
 	/*if isEnd(b) {
 		return *t
 	}*/
 	for isIdentifier(b) {
 		//fmt.Printf("id: %c\n", b.Bytes()[b.Offset()])
-		t.End++
+		end++
 		next(b)
 		if isEnd(b) {
 			return *t
@@ -124,21 +127,21 @@ func processString(b Byterable) Token {
 	// the Start - End is the value
 	// it DOES include the enclosing quotation marks
 	t := new(Token)
-	t.Start = b.Offset()
-	t.End = b.Offset()
+	t.Start = b.Location(b.Offset())
+	end := b.Offset()
 	t.Type = String
 	b1 := next(b)
 	b2 := next(b)
 	for b1 != b2 {
-		t.End++
+		end++
 		b2 = next(b)
 		if isEnd(b) {
 			//b.error("String literal not closed")
-			t.End += 2
+			end += 2
 			return *t
 		}
 	}
-	t.End += 2
+	end += 2
 	return *t
 }
 

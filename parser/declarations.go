@@ -160,7 +160,7 @@ func (p *Parser) spliceTokens(types ...token.Type) {
 		p.tokens = append(p.tokens, token.Token{})
 		copy(p.tokens[p.index+1:], p.tokens[p.index:])
 		p.tokens[p.index] = token.Token{
-			Start: tok.Start + i + 1,
+			Start: tok.Start + uint(i+1),
 			Type:  t,
 		}
 	}

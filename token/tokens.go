@@ -1,6 +1,10 @@
 package token
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/end-r/guardian/util"
+)
 
 // TODO: make the token parser faster using a map or something
 
@@ -9,6 +13,7 @@ type Byterable interface {
 	Bytes() []byte
 	Offset() uint
 	SetOffset(uint)
+	Location(uint) util.Location
 }
 
 func isEnd(b Byterable) bool {
@@ -420,15 +425,15 @@ func (t Token) Name() string {
 
 // Finalise ...
 func (t *Token) Finalise(b Byterable) {
-	t.Data = make([]byte, t.End-t.Start)
-	copy(t.Data, b.Bytes()[t.Start:t.End])
+	t.Data = make([]byte, t.End.Offset-t.Start.Offset)
+	copy(t.Data, b.Bytes()[t.Start.Offset:t.End.Offset])
 }
 
 // Token ...
 type Token struct {
 	Type       Type
 	Proto      *ProtoToken
-	Start, End uint
+	Start, End util.Location
 	Data       []byte
 }
 

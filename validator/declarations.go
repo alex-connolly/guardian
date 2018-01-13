@@ -216,7 +216,7 @@ func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*
 				if c, ok := t.(*typing.Interface); ok {
 					interfaces = append(interfaces, c)
 				} else {
-					v.addError(errTypeRequired, makeName(ifc.Names), "interface")
+					v.addError(g.Start.Line, errTypeRequired, makeName(ifc.Names), "interface")
 				}
 			}
 		}

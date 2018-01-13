@@ -9,8 +9,8 @@ import (
 // Node interface for storage in AST
 type Node interface {
 	Type() NodeType
-	Start() uint
-	End() uint
+	Start() util.Location
+	End() util.Location
 }
 
 type ExpressionNode interface {
