@@ -1,4 +1,4 @@
-package token
+package util
 
 // modified version of token.Pos in golang --> don't reinvent the wheel
 // not going to add the full thing for now

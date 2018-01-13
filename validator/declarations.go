@@ -326,7 +326,7 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 			if c, ok := t.(*typing.Class); ok {
 				supers = append(supers, c)
 			} else {
-				v.addError(errTypeRequired, makeName(super.Names), "class")
+				v.addError(super.Start(), errTypeRequired, makeName(super.Names), "class")
 			}
 		}
 	}
@@ -338,7 +338,7 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 			if c, ok := t.(*typing.Interface); ok {
 				interfaces = append(interfaces, c)
 			} else {
-				v.addError(errTypeRequired, makeName(ifc.Names), "interface")
+				v.addError(ifc.Start(), errTypeRequired, makeName(ifc.Names), "interface")
 			}
 		}
 	}

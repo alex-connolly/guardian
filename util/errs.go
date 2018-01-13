@@ -4,8 +4,8 @@ import "fmt"
 
 // Error ...
 type Error struct {
-	LineNumber int
-	Message    string
+	Location Location
+	Message  string
 }
 
 // Errors ...
@@ -16,7 +16,7 @@ func (e Errors) Format() string {
 	whole := ""
 	whole += fmt.Sprintf("%d errors\n", len(e))
 	for _, err := range e {
-		whole += fmt.Sprintf("Line %d: %s\n", err.LineNumber, err.Message)
+		whole += fmt.Sprintf("%s at line %d: %s\n", err.Location.Filename, err.Location.Line, err.Message)
 	}
 	return whole
 }

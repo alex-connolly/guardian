@@ -1,9 +1,9 @@
 package ast
 
 import (
-	"github.com/end-r/guardian/typing"
-
 	"github.com/end-r/goutil"
+	"github.com/end-r/guardian/typing"
+	"github.com/end-r/guardian/util"
 )
 
 // Node interface for storage in AST
