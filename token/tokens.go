@@ -423,12 +423,6 @@ func (t Token) Name() string {
 	return t.Proto.Name
 }
 
-// Finalise ...
-func (t *Token) Finalise(b Byterable) {
-	t.Data = make([]byte, t.End.Offset-t.Start.Offset)
-	copy(t.Data, b.Bytes()[t.Start.Offset:t.End.Offset])
-}
-
 // Token ...
 type Token struct {
 	Type       Type

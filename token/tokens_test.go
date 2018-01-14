@@ -174,3 +174,24 @@ func TestNextTokenNegativeFloat(t *testing.T) {
 	tok := p.Process(b)
 	goutil.AssertLength(t, int(tok.End.Offset), len(byt))
 }
+
+func TestNextTokenSingleCharacter(t *testing.T) {
+	byt := []byte(`'a'`)
+	b := &bytecode{bytes: byt}
+	p := NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "character", fmt.Sprintf("wrong name: %s", p.Name))
+	tok := p.Process(b)
+	goutil.AssertLength(t, int(tok.End.Offset), len(byt))
+}
+
+func TestNextTokenSingleCharacterNewLine(t *testing.T) {
+	byt := []byte(`'a'
+		`)
+	b := &bytecode{bytes: byt}
+	p := NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "character", fmt.Sprintf("wrong name: %s", p.Name))
+	tok := p.Process(b)
+	goutil.AssertLength(t, int(tok.End.Offset), len("'a'"))
+}

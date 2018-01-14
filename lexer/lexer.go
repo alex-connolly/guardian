@@ -21,11 +21,21 @@ func (l *Lexer) SetOffset(o uint) {
 }
 
 func (l *Lexer) Location() util.Location {
+	return l.getCurrentLocation()
+}
+
+func (l *Lexer) getCurrentLocation() util.Location {
 	return util.Location{
 		Filename: "default.grd",
 		Offset:   l.byteOffset,
 		Line:     l.line,
 	}
+}
+
+func (l *Lexer) finalise(t token.Token) {
+	fmt.Printf("start: %d, end: %d\n", t.Start.Offset, t.End.Offset)
+	t.Data = make([]byte, t.End.Offset-t.Start.Offset)
+	copy(t.Data, l.buffer[t.Start.Offset:t.End.Offset])
 }
 
 func (l *Lexer) next() {
@@ -39,11 +49,11 @@ func (l *Lexer) next() {
 		if pt.Type == token.None {
 			l.byteOffset++
 		} else {
-			t.Finalise(l)
+			l.finalise(t)
 			l.tokens = append(l.tokens, t)
 		}
 	} else {
-		l.error("Unrecognised token.Token.")
+		l.addError(l.getCurrentLocation(), "Unrecognised token")
 		l.byteOffset++
 	}
 	l.next()

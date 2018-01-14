@@ -1,0 +1,24 @@
+package blitz version 0.0.1
+
+interface ERC20 {
+
+}
+
+contract BlitzToken {
+
+    enum Stages {
+        Presale, ICO, Finalised, Launched
+    }
+
+    constructor(owner address){
+
+    }
+
+    func requireOwner(){
+        require(msg.sender == owner)
+    }
+
+    func haltAuction(){
+        requireOwner()
+    }
+}

@@ -2,6 +2,7 @@ package ast
 
 import (
 	"github.com/end-r/guardian/typing"
+	"github.com/end-r/guardian/util"
 )
 
 // NodeType denotes the type of node
