@@ -42,19 +42,19 @@ func TestLexerAssignmentOperators(t *testing.T) {
 }
 
 func TestLexerLiterals(t *testing.T) {
-	tokens, _ := LexString(`x := "hello this is dog"`)
+	tokens, _ := LexString(`x = "hello this is dog"`)
 	goutil.Assert(t, len(tokens) == 3, "wrong number of tokens")
 	goutil.Assert(t, tokens[2].Type == token.String, "wrong string literal type")
 	goutil.Assert(t, tokens[2].TrimmedString() == "hello this is dog",
 		fmt.Sprintf("wrong string produced: %s", tokens[2].TrimmedString()))
-	tokens, _ = LexString(`x := 'a'`)
+	tokens, _ = LexString(`x = 'a'`)
 	goutil.Assert(t, len(tokens) == 3, "wrong number of tokens")
 	goutil.Assert(t, tokens[2].Type == token.Character, "wrong character literal type")
 	// test length
-	tokens, _ = LexString(`x := 6`)
+	tokens, _ = LexString(`x = 6`)
 	goutil.Assert(t, len(tokens) == 3, "wrong number of tokens")
 	goutil.Assert(t, tokens[2].Type == token.Integer, "wrong integer literal type")
-	tokens, _ = LexString(`x := 5.5`)
+	tokens, _ = LexString(`x = 5.5`)
 	goutil.Assert(t, len(tokens) == 3, "wrong number of tokens")
 }
 

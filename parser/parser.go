@@ -85,7 +85,7 @@ func (p *Parser) parseOptional(types ...token.Type) bool {
 // TODO: clarify what this actually returns
 func (p *Parser) parseRequired(types ...token.Type) token.Type {
 	if !p.hasTokens(1) {
-		p.addError(fmt.Sprintf(errRequiredType, listTypes(types), "nothing"))
+		p.addError(p.getCurrentLocation(), fmt.Sprintf(errRequiredType, listTypes(types), "nothing"))
 		// TODO: what should be returned here
 		return token.Invalid
 	}
@@ -102,7 +102,7 @@ func (p *Parser) parseRequired(types ...token.Type) token.Type {
 			return t
 		}
 	}
-	p.addError(fmt.Sprintf(errRequiredType, listTypes(types), p.current().Name()))
+	p.addError(p.getCurrentLocation(), fmt.Sprintf(errRequiredType, listTypes(types), p.current().Name()))
 	// correct return type
 	return token.Invalid
 }
@@ -132,11 +132,11 @@ func listTypes(types []token.Type) string {
 
 func (p *Parser) parseIdentifier() string {
 	if !p.hasTokens(1) {
-		p.addError(fmt.Sprintf(errRequiredType, "identifier", "nothing"))
+		p.addError(p.getCurrentLocation(), fmt.Sprintf(errRequiredType, "identifier", "nothing"))
 		return ""
 	}
 	if p.current().Type != token.Identifier {
-		p.addError(fmt.Sprintf(errRequiredType, "identifier", p.current().Name()))
+		p.addError(p.getCurrentLocation(), fmt.Sprintf(errRequiredType, "identifier", p.current().Name()))
 		return ""
 	}
 	s := p.current().String()
@@ -147,7 +147,7 @@ func (p *Parser) parseIdentifier() string {
 func (p *Parser) validate(t ast.NodeType) {
 	if p.scope != nil {
 		if !p.scope.IsValid(t) {
-			p.addError(errInvalidScopeDeclaration)
+			p.addError(p.getCurrentLocation(), errInvalidScopeDeclaration)
 		}
 	}
 }
@@ -196,7 +196,7 @@ func parseModifiers(p *Parser) {
 
 func parseGroup(p *Parser) {
 	if p.lastModifiers == nil {
-		p.addError(errEmptyGroup)
+		p.addError(p.getCurrentLocation(), errEmptyGroup)
 		p.next()
 	} else {
 		p.modifiers = append(p.modifiers, p.lastModifiers)
@@ -210,7 +210,7 @@ func parseGroup(p *Parser) {
 			}
 			p.parseNextConstruct()
 		}
-		p.addError(errUnclosedGroup)
+		p.addError(p.getCurrentLocation(), errUnclosedGroup)
 	}
 }
 
@@ -230,10 +230,10 @@ func (p *Parser) getModifiers() typing.Modifiers {
 	}
 }
 
-func (p *Parser) addError(message string) {
+func (p *Parser) addError(loc util.Location, message string) {
 	err := util.Error{
-		Message:    message,
-		LineNumber: p.line,
+		Message:  message,
+		Location: loc,
 	}
 	p.errs = append(p.errs, err)
 }
@@ -284,7 +284,7 @@ func (p *Parser) parseNextConstruct() {
 		if expr == nil {
 			*p = saved
 			//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.current().String())
-			p.addError(fmt.Sprintf("Unrecognised construct: %s", p.current().String()))
+			p.addError(p.getCurrentLocation(), fmt.Sprintf("Unrecognised construct: %s", p.current().String()))
 			p.next()
 		} else {
 			p.parsePossibleSequentialExpression(expr)
@@ -309,13 +309,13 @@ func (p *Parser) parsePossibleSequentialExpression(expr ast.ExpressionNode) {
 				break
 			default:
 				//fmt.Printf("dangling at index %d\n", p.index)
-				p.addError(errDanglingExpression)
+				p.addError(p.getCurrentLocation(), errDanglingExpression)
 				return
 			}
 		}
 	}
 	//fmt.Printf("dangling at index %d\n", p.index)
-	p.addError(errDanglingExpression)
+	p.addError(p.getCurrentLocation(), errDanglingExpression)
 }
 
 func (p *Parser) parseString() string {
@@ -334,14 +334,14 @@ func parseAnnotation(p *Parser) {
 	if !p.parseOptional(token.CloseBracket) {
 		var names []string
 		if !p.isNextToken(token.String) {
-			p.addError(errInvalidAnnotationParameter)
+			p.addError(p.getCurrentLocation(), errInvalidAnnotationParameter)
 			p.next()
 		} else {
 			names = append(names, p.parseString())
 		}
 		for p.parseOptional(token.Comma) {
 			if !p.isNextToken(token.String) {
-				p.addError(errInvalidAnnotationParameter)
+				p.addError(p.getCurrentLocation(), errInvalidAnnotationParameter)
 				p.next()
 			} else {
 				names = append(names, p.parseString())

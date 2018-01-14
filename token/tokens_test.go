@@ -118,11 +118,33 @@ func TestNextTokenString(t *testing.T) {
 	goutil.AssertNow(t, p.Name == "string", fmt.Sprintf("wrong name: %s", p.Name))
 }
 
-func TestNextTokenCharacter(t *testing.T) {
-	b := &bytecode{bytes: []byte(`'hi'`)}
+func TestNextTokenLongerString(t *testing.T) {
+	b := &bytecode{bytes: []byte(`"hello this is dog"`)}
 	p := NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
-	goutil.AssertNow(t, p.Name == "character", fmt.Sprintf("wrong name: %s", p.Name))
+	goutil.AssertNow(t, p.Name == "string", fmt.Sprintf("wrong name: %s", p.Name))
+}
+
+func TestNextTokenAssignment(t *testing.T) {
+	b := &bytecode{bytes: []byte(`x = "hello this is dog"`)}
+	p := NextProtoToken(b)
+	p.Process(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "identifier", fmt.Sprintf("1 wrong name: %s", p.Name))
+	// ignore
+	p = NextProtoToken(b)
+	p.Process(b)
+	p = NextProtoToken(b)
+	p.Process(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "=", fmt.Sprintf("2 wrong name: %s", p.Name))
+	// ignore
+	p = NextProtoToken(b)
+	p.Process(b)
+	p = NextProtoToken(b)
+	p.Process(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "string", fmt.Sprintf("3 wrong name: %s", p.Name))
 }
 
 func TestNextTokenHexadecimal(t *testing.T) {

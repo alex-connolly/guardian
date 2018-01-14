@@ -3,6 +3,8 @@ package parser
 import (
 	"strconv"
 
+	"github.com/end-r/guardian/util"
+
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/ast"
@@ -37,6 +39,10 @@ func parseInterfaceDeclaration(p *Parser) {
 
 }
 
+func (p *Parser) getCurrentLocation() util.Location {
+	return util.Location{}
+}
+
 func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
 
 	p.parseRequired(token.OpenBrace)
@@ -56,7 +62,7 @@ func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
 		if sig != nil {
 			sigs = append(sigs, sig)
 		} else {
-			p.addError(errInvalidInterfaceProperty)
+			p.addError(p.getCurrentLocation(), errInvalidInterfaceProperty)
 			//p.parseConstruct()
 			p.next()
 		}
@@ -85,7 +91,7 @@ func (p *Parser) parseEnumBody() []string {
 			if p.current().Type == token.Identifier {
 				enums = append(enums, p.parseIdentifier())
 			} else {
-				p.addError(errInvalidEnumProperty)
+				p.addError(p.getCurrentLocation(), errInvalidEnumProperty)
 			}
 		}
 
@@ -160,9 +166,11 @@ func (p *Parser) spliceTokens(types ...token.Type) {
 		p.tokens = append(p.tokens, token.Token{})
 		copy(p.tokens[p.index+1:], p.tokens[p.index:])
 		p.tokens[p.index] = token.Token{
-			Start: tok.Start + uint(i+1),
+			Start: tok.Start,
+			End:   tok.End,
 			Type:  t,
 		}
+		p.tokens[p.index].Start.Offset += 1 + uint(i)
 	}
 }
 
@@ -514,7 +522,7 @@ func (p *Parser) parseFuncTypeParameters() []ast.Node {
 			if p.isNamedParameter() {
 				params = append(params, p.parseVarDeclaration())
 			} else if p.isNextAType() {
-				p.addError(errMixedNamedParameters)
+				p.addError(p.getCurrentLocation(), errMixedNamedParameters)
 				p.parseType()
 			} else {
 				// TODO: add error
@@ -546,12 +554,12 @@ func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 		if p.nextTokens(token.Integer) {
 			i, err := strconv.ParseInt(p.current().String(), 10, 64)
 			if err != nil {
-				p.addError(errInvalidArraySize)
+				p.addError(p.getCurrentLocation(), errInvalidArraySize)
 			}
 			max = int(i)
 			p.next()
 		} else {
-			p.addError(errInvalidArraySize)
+			p.addError(p.getCurrentLocation(), errInvalidArraySize)
 			p.next()
 		}
 		p.parseRequired(token.CloseSquare)
@@ -600,7 +608,7 @@ func processVarDeclaration(constant bool) func(p *Parser) {
 		}
 
 		if e.IsConstant && e.Value == nil {
-			p.addError(errConstantWithoutValue)
+			p.addError(p.getCurrentLocation(), errConstantWithoutValue)
 		}
 
 		switch p.scope.Type() {

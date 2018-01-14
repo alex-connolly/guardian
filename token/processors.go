@@ -9,6 +9,7 @@ func processNewLine(b Byterable) Token {
 }
 
 func processIgnored(b Byterable) Token {
+	next(b)
 	return Token{
 		Type: None,
 	}
@@ -131,13 +132,9 @@ func processString(b Byterable) Token {
 			b2 = next(byt)
 			if isEnd(byt) {
 				//b.error("String literal not closed")
-				next(byt)
-				next(byt)
 				return *t
 			}
 		}
-		next(byt)
-		next(byt)
 		return *t
 	})
 

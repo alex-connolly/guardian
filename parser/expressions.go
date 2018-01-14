@@ -107,7 +107,7 @@ main:
 					continue main
 				} else {
 					if len(expStack) < 2 {
-						p.addError(errIncompleteExpression)
+						p.addError(p.getCurrentLocation(), errIncompleteExpression)
 						return nil
 					}
 					expStack = pushNode(expStack, op)
@@ -130,7 +130,7 @@ main:
 					} else {
 						opStack = opStack[:len(opStack)-1]
 						if len(expStack) < 2 {
-							p.addError(errIncompleteExpression)
+							p.addError(p.getCurrentLocation(), errIncompleteExpression)
 							return nil
 						}
 						expStack = pushNode(expStack, op)
@@ -160,7 +160,7 @@ main:
 func (p *Parser) finalise(expStack []ast.ExpressionNode, opStack []token.Type) ast.ExpressionNode {
 	for len(opStack) > 0 {
 		if len(expStack) < 2 {
-			p.addError(errIncompleteExpression)
+			p.addError(p.getCurrentLocation(), errIncompleteExpression)
 			return nil
 		}
 		n := ast.BinaryExpressionNode{}
@@ -185,7 +185,7 @@ func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 			// they resolve to unknown for now
 			return n.(ast.ExpressionNode)
 		}
-		p.addError(errInvalidTypeAfterCast)
+		p.addError(p.getCurrentLocation(), errInvalidTypeAfterCast)
 		return nil
 	}
 
@@ -418,8 +418,9 @@ func (p *Parser) parseSliceExpression(expr ast.ExpressionNode,
 func (p *Parser) parseIdentifierExpression() *ast.IdentifierNode {
 	n := new(ast.IdentifierNode)
 	n.Begin = p.current().Start
-	n.Name = p.parseIdentifier()
 	n.Final = p.current().End
+	n.Name = p.parseIdentifier()
+
 	return n
 }
 

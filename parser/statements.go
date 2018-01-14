@@ -37,7 +37,7 @@ func (p *Parser) parseOptionalAssignment() *ast.AssignmentStatementNode {
 
 func (p *Parser) parsePostAssignment(assigned []ast.ExpressionNode) ast.AssignmentStatementNode {
 	if len(assigned) > 1 {
-		p.addError(errInvalidIncDec)
+		p.addError(p.getCurrentLocation(), errInvalidIncDec)
 	}
 	b := &ast.BinaryExpressionNode{
 		Left: assigned[0],
@@ -333,7 +333,7 @@ func (p *Parser) parseSemver() semver.Version {
 	}
 	v, err := semver.Make(s)
 	if err != nil {
-		p.addError(fmt.Sprintf("Invalid semantic version %s", s))
+		p.addError(p.getCurrentLocation(), fmt.Sprintf("Invalid semantic version %s", s))
 	}
 	return v
 }
