@@ -121,8 +121,10 @@ func TestNextTokenString(t *testing.T) {
 func TestNextTokenLongerString(t *testing.T) {
 	b := &bytecode{bytes: []byte(`"hello this is dog"`)}
 	p := NextProtoToken(b)
+	tok := p.Process(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "string", fmt.Sprintf("wrong name: %s", p.Name))
+	goutil.AssertLength(t, int(tok.End.Offset), len(b.bytes))
 }
 
 func TestNextTokenAssignment(t *testing.T) {

@@ -26,7 +26,7 @@ func (l *Lexer) Location() util.Location {
 
 func (l *Lexer) getCurrentLocation() util.Location {
 	return util.Location{
-		Filename: "default.grd",
+		Filename: l.fileName,
 		Offset:   l.byteOffset,
 		Line:     l.line,
 	}

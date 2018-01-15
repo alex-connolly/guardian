@@ -17,11 +17,13 @@ type Lexer struct {
 	tokens      []token.Token
 	tokenOffset int
 	errors      util.Errors
+	fileName    string
 }
 
 // Lex ...
-func Lex(bytes []byte) (tokens []token.Token, errs util.Errors) {
+func Lex(name string, bytes []byte) (tokens []token.Token, errs util.Errors) {
 	l := new(Lexer)
+	l.fileName = name
 	l.byteOffset = 0
 	l.buffer = bytes
 	l.next()
@@ -36,10 +38,10 @@ func LexFile(path string) (tokens []token.Token, errs util.Errors) {
 			Message: "File does not exist",
 		})
 	}
-	return Lex(bytes)
+	return Lex(path, bytes)
 }
 
 // LexString lexes a string
 func LexString(str string) (tokens []token.Token, errs util.Errors) {
-	return Lex([]byte(str))
+	return Lex("input", []byte(str))
 }

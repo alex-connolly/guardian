@@ -178,3 +178,12 @@ func TestComplexFile(t *testing.T) {
 	_, errs := LexFile("tests/strings.grd")
 	goutil.AssertLength(t, len(errs), 0)
 }
+
+func TestInterfaceInheritance(t *testing.T) {
+	_, errs := LexString(`
+		interface Switchable{}
+		interface Deletable{}
+		interface Light inherits Switchable, Deletable {}
+	`)
+	goutil.AssertLength(t, len(errs), 0)
+}
