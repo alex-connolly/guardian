@@ -435,13 +435,14 @@ type Token struct {
 
 // String creates a new string from the Token's value
 // TODO: escaped characters?
-func (t Token) String() string {
-	return string(t.Data)
+func (t Token) String(b Byterable) string {
+	data := b.Bytes()[t.Start.Offset:t.End.Offset]
+	return string(data)
 }
 
 // TrimmedString ...
-func (t Token) TrimmedString() string {
-	s := t.String()
+func (t Token) TrimmedString(b Byterable) string {
+	s := t.String(b)
 	if strings.HasPrefix(s, "\"") {
 		s = strings.TrimPrefix(s, "\"")
 		s = strings.TrimSuffix(s, "\"")

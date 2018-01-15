@@ -32,12 +32,6 @@ func (l *Lexer) getCurrentLocation() util.Location {
 	}
 }
 
-func (l *Lexer) finalise(t token.Token) {
-	fmt.Printf("start: %d, end: %d\n", t.Start.Offset, t.End.Offset)
-	t.Data = make([]byte, t.End.Offset-t.Start.Offset)
-	copy(t.Data, l.buffer[t.Start.Offset:t.End.Offset])
-}
-
 func (l *Lexer) next() {
 	if l.byteOffset == uint(len(l.buffer)) {
 		return
@@ -49,7 +43,6 @@ func (l *Lexer) next() {
 		if pt.Type == token.None {
 			l.byteOffset++
 		} else {
-			l.finalise(t)
 			l.tokens = append(l.tokens, t)
 		}
 	} else {

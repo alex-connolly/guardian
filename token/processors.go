@@ -90,12 +90,12 @@ func processCharacter(b Byterable) Token {
 		b1 := next(byt)
 		b2 := next(byt)
 		for b1 != b2 {
+			b2 = next(byt)
 			if isEnd(byt) {
 				//b.error("Character literal not closed")
 				//next(byt)
 				return t
 			}
-			b2 = next(byt)
 		}
 		return t
 	})
@@ -129,12 +129,15 @@ func processString(b Byterable) Token {
 			return t
 		}
 		b2 := next(byt)
+		if !hasBytes(b, 1) {
+			return t
+		}
 		for b1 != b2 {
+			b2 = next(byt)
 			if isEnd(byt) {
 				//b.error("String literal not closed")
 				return t
 			}
-			b2 = next(byt)
 		}
 		return t
 	})
