@@ -103,16 +103,15 @@ func processCharacter(b Byterable) Token {
 }
 
 func processIdentifier(b Byterable) Token {
-
 	return markLimits(b, func(byt Byterable) (t Token) {
 		t.Start = byt.Location()
 		t.Type = Identifier
 		for isIdentifier(byt) {
+
+			next(byt)
 			if isEnd(byt) {
 				return t
 			}
-			next(byt)
-
 		}
 		return t
 	})

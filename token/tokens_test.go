@@ -219,3 +219,117 @@ func TestNextTokenSingleCharacterNewLine(t *testing.T) {
 	tok := p.Process(b)
 	goutil.AssertLength(t, int(tok.End.Offset), len("'a'"))
 }
+
+func TestNextTokenIdentifiers(t *testing.T) {
+	byt := []byte(`hi wowe ist me`)
+	b := &bytecode{bytes: byt}
+
+	p := NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "identifier", fmt.Sprintf("1 wrong name: %s", p.Name))
+	tok := p.Process(b)
+	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 2)
+
+	p = NextProtoToken(b)
+	p.Process(b)
+
+	p = NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "identifier", fmt.Sprintf("2 wrong name: %s", p.Name))
+	tok = p.Process(b)
+	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 4)
+
+	p = NextProtoToken(b)
+	p.Process(b)
+
+	p = NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "identifier", fmt.Sprintf("3 wrong name: %s", p.Name))
+	tok = p.Process(b)
+	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 3)
+
+	p = NextProtoToken(b)
+	p.Process(b)
+
+	p = NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "identifier", fmt.Sprintf("4 wrong name: %s", p.Name))
+	tok = p.Process(b)
+	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 2)
+}
+
+func TestNextTokenStrings(t *testing.T) {
+	byt := []byte(`"hi" "wowe" "ist" "me"`)
+	b := &bytecode{bytes: byt}
+
+	p := NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "string", fmt.Sprintf("1 wrong name: %s", p.Name))
+	tok := p.Process(b)
+	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 4)
+
+	p = NextProtoToken(b)
+	p.Process(b)
+
+	p = NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "string", fmt.Sprintf("2 wrong name: %s", p.Name))
+	tok = p.Process(b)
+	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 6)
+
+	p = NextProtoToken(b)
+	p.Process(b)
+
+	p = NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "string", fmt.Sprintf("3 wrong name: %s", p.Name))
+	tok = p.Process(b)
+	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 5)
+
+	p = NextProtoToken(b)
+	p.Process(b)
+
+	p = NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "string", fmt.Sprintf("4 wrong name: %s", p.Name))
+	tok = p.Process(b)
+	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 4)
+}
+
+func TestNextTokenInts(t *testing.T) {
+	byt := []byte(`0 1 2 3`)
+	b := &bytecode{bytes: byt}
+
+	p := NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "integer", fmt.Sprintf("1 wrong name: %s", p.Name))
+	tok := p.Process(b)
+	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 1)
+
+	p = NextProtoToken(b)
+	p.Process(b)
+
+	p = NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "integer", fmt.Sprintf("2 wrong name: %s", p.Name))
+	tok = p.Process(b)
+	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 1)
+
+	p = NextProtoToken(b)
+	p.Process(b)
+
+	p = NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "integer", fmt.Sprintf("3 wrong name: %s", p.Name))
+	tok = p.Process(b)
+	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 1)
+
+	p = NextProtoToken(b)
+	p.Process(b)
+
+	p = NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "integer", fmt.Sprintf("4 wrong name: %s", p.Name))
+	tok = p.Process(b)
+	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 1)
+}
