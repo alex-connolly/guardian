@@ -171,16 +171,12 @@ func TestNextTokenCharacterAssignment(t *testing.T) {
 	p.Process(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "identifier", fmt.Sprintf("1 wrong name: %s", p.Name))
-	// ignore
-	p = NextProtoToken(b)
-	p.Process(b)
+
 	p = NextProtoToken(b)
 	p.Process(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "=", fmt.Sprintf("2 wrong name: %s", p.Name))
-	// ignore
-	p = NextProtoToken(b)
-	p.Process(b)
+
 	p = NextProtoToken(b)
 	p.Process(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
@@ -193,16 +189,12 @@ func TestNextTokenAssignment(t *testing.T) {
 	p.Process(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "identifier", fmt.Sprintf("1 wrong name: %s", p.Name))
-	// ignore
-	p = NextProtoToken(b)
-	p.Process(b)
+
 	p = NextProtoToken(b)
 	p.Process(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "=", fmt.Sprintf("2 wrong name: %s", p.Name))
-	// ignore
-	p = NextProtoToken(b)
-	p.Process(b)
+
 	p = NextProtoToken(b)
 	p.Process(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
@@ -291,25 +283,16 @@ func TestNextTokenIdentifiers(t *testing.T) {
 	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 2)
 
 	p = NextProtoToken(b)
-	p.Process(b)
-
-	p = NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "identifier", fmt.Sprintf("2 wrong name: %s", p.Name))
 	tok = p.Process(b)
 	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 4)
 
 	p = NextProtoToken(b)
-	p.Process(b)
-
-	p = NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "identifier", fmt.Sprintf("3 wrong name: %s", p.Name))
 	tok = p.Process(b)
 	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 3)
-
-	p = NextProtoToken(b)
-	p.Process(b)
 
 	p = NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
@@ -329,25 +312,16 @@ func TestNextTokenStrings(t *testing.T) {
 	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 4)
 
 	p = NextProtoToken(b)
-	p.Process(b)
-
-	p = NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "string", fmt.Sprintf("2 wrong name: %s", p.Name))
 	tok = p.Process(b)
 	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 6)
 
 	p = NextProtoToken(b)
-	p.Process(b)
-
-	p = NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "string", fmt.Sprintf("3 wrong name: %s", p.Name))
 	tok = p.Process(b)
 	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 5)
-
-	p = NextProtoToken(b)
-	p.Process(b)
 
 	p = NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
@@ -367,25 +341,16 @@ func TestNextTokenInts(t *testing.T) {
 	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 1)
 
 	p = NextProtoToken(b)
-	p.Process(b)
-
-	p = NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "integer", fmt.Sprintf("2 wrong name: %s", p.Name))
 	tok = p.Process(b)
 	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 1)
 
 	p = NextProtoToken(b)
-	p.Process(b)
-
-	p = NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "integer", fmt.Sprintf("3 wrong name: %s", p.Name))
 	tok = p.Process(b)
 	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 1)
-
-	p = NextProtoToken(b)
-	p.Process(b)
 
 	p = NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
@@ -405,25 +370,16 @@ func TestNextTokenChars(t *testing.T) {
 	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 3)
 
 	p = NextProtoToken(b)
-	p.Process(b)
-
-	p = NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "character", fmt.Sprintf("2 wrong name: %s", p.Name))
 	tok = p.Process(b)
 	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 3)
 
 	p = NextProtoToken(b)
-	p.Process(b)
-
-	p = NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")
 	goutil.AssertNow(t, p.Name == "character", fmt.Sprintf("3 wrong name: %s", p.Name))
 	tok = p.Process(b)
 	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 3)
-
-	p = NextProtoToken(b)
-	p.Process(b)
 
 	p = NextProtoToken(b)
 	goutil.AssertNow(t, p != nil, "pt nil")

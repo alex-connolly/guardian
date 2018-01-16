@@ -122,6 +122,14 @@ func getNextString(b Byterable, len uint) string {
 // NextProtoToken ...
 func NextProtoToken(b Byterable) *ProtoToken {
 
+	if !hasBytes(b, 1) {
+		return nil
+	}
+
+	for isWhitespace(b) {
+		next(b)
+	}
+
 	if isFloat(b) {
 		return &ProtoToken{Name: "float", Type: Float, Process: processFloat}
 	} else if isInteger(b) {
@@ -160,8 +168,6 @@ func NextProtoToken(b Byterable) *ProtoToken {
 		return &ProtoToken{Name: "string", Type: String, Process: processString}
 	} else if isCharacter(b) {
 		return &ProtoToken{Name: "character", Type: Character, Process: processCharacter}
-	} else if isWhitespace(b) {
-		return &ProtoToken{Name: "ignored", Type: None, Process: processIgnored}
 	} else if isNewLine(b) {
 		return &ProtoToken{Name: "new line", Type: NewLine, Process: processNewLine}
 	}

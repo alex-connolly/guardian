@@ -10,7 +10,7 @@ import (
 
 func TestLexFileNonExistent(t *testing.T) {
 	l := LexFile("fake_file.grd")
-	goutil.Assert(t, l.Errors != nil, "should error")
+	goutil.AssertNow(t, l.Errors != nil, "should error")
 }
 
 func TestLexUnrecognisedToken(t *testing.T) {
@@ -19,40 +19,40 @@ func TestLexUnrecognisedToken(t *testing.T) {
 
 func TestLexerTokenLength(t *testing.T) {
 	l := LexString("hi this is me")
-	goutil.Assert(t, len(l.Tokens) == 4, "wrong number of tokens")
+	goutil.AssertNow(t, len(l.Tokens) == 4, "wrong number of tokens")
 }
 
 func TestLexerAssignmentOperators(t *testing.T) {
 	l := LexString("hi += 5")
-	goutil.Assert(t, len(l.Tokens) == 3, "wrong number of tokens")
-	goutil.Assert(t, l.Tokens[1].Type == token.AddAssign, "wrong operator type")
+	goutil.AssertNow(t, len(l.Tokens) == 5, "1 wrong number of tokens")
+	goutil.AssertNow(t, l.Tokens[1].Type == token.AddAssign, "wrong operator type")
 	l = LexString("hi -= 5")
-	goutil.Assert(t, len(l.Tokens) == 3, "wrong number of tokens")
-	goutil.Assert(t, l.Tokens[1].Type == token.SubAssign, "wrong operator type")
+	goutil.AssertNow(t, len(l.Tokens) == 5, "2 wrong number of tokens")
+	goutil.AssertNow(t, l.Tokens[1].Type == token.SubAssign, "wrong operator type")
 	l = LexString("hi *= 5")
-	goutil.Assert(t, len(l.Tokens) == 3, "wrong number of tokens")
-	goutil.Assert(t, l.Tokens[1].Type == token.MulAssign, "wrong operator type")
+	goutil.AssertNow(t, len(l.Tokens) == 3, "3 wrong number of tokens")
+	goutil.AssertNow(t, l.Tokens[1].Type == token.MulAssign, "wrong operator type")
 	l = LexString("hi /= 5")
-	goutil.Assert(t, len(l.Tokens) == 3, "wrong number of tokens")
-	goutil.Assert(t, l.Tokens[1].Type == token.DivAssign, "wrong operator type")
+	goutil.AssertNow(t, len(l.Tokens) == 3, "wrong number of tokens")
+	goutil.AssertNow(t, l.Tokens[1].Type == token.DivAssign, "wrong operator type")
 	l = LexString("hi %= 5")
-	goutil.Assert(t, len(l.Tokens) == 3, "wrong number of tokens")
-	goutil.Assert(t, l.Tokens[1].Type == token.ModAssign, "wrong operator type")
+	goutil.AssertNow(t, len(l.Tokens) == 3, "wrong number of tokens")
+	goutil.AssertNow(t, l.Tokens[1].Type == token.ModAssign, "wrong operator type")
 }
 
 func TestLexerLiterals(t *testing.T) {
 	l := LexString(`x = "hello we are dog"`)
-	goutil.Assert(t, len(l.Tokens) == 3, "wrong number of tokens")
-	goutil.Assert(t, l.Tokens[2].Type == token.String, "wrong string literal type")
+	goutil.AssertNow(t, len(l.Tokens) == 3, "wrong number of tokens")
+	goutil.AssertNow(t, l.Tokens[2].Type == token.String, "wrong string literal type")
 	l = LexString(`x = 'a'`)
-	goutil.Assert(t, len(l.Tokens) == 3, "wrong number of tokens")
-	goutil.Assert(t, l.Tokens[2].Type == token.Character, "wrong character literal type")
+	goutil.AssertNow(t, len(l.Tokens) == 3, "wrong number of tokens")
+	goutil.AssertNow(t, l.Tokens[2].Type == token.Character, "wrong character literal type")
 	// test length
 	l = LexString(`x = 6`)
-	goutil.Assert(t, len(l.Tokens) == 3, "wrong number of tokens")
-	goutil.Assert(t, l.Tokens[2].Type == token.Integer, "wrong integer literal type")
+	goutil.AssertNow(t, len(l.Tokens) == 3, "wrong number of tokens")
+	goutil.AssertNow(t, l.Tokens[2].Type == token.Integer, "wrong integer literal type")
 	l = LexString(`x = 5.5`)
-	goutil.Assert(t, len(l.Tokens) == 3, "wrong number of tokens")
+	goutil.AssertNow(t, len(l.Tokens) == 3, "wrong number of tokens")
 }
 
 func TestLexerFileConstants(t *testing.T) {
@@ -107,7 +107,7 @@ func TestLexerReference(t *testing.T) {
 
 func TestLexerError(t *testing.T) {
 	l := LexString("")
-	goutil.Assert(t, len(l.Errors) == 0, "error len should be zero")
+	goutil.AssertNow(t, len(l.Errors) == 0, "error len should be zero")
 }
 
 func TestLexerType(t *testing.T) {
