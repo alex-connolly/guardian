@@ -240,7 +240,6 @@ var distinct = map[string]ProtoToken{
 	"test":     distinctToken("test", Test),
 	"fallback": distinctToken("fallback", Fallback),
 	"version":  distinctToken("version", Version),
-	"this":     distinctToken("this", This),
 }
 
 var fixed = map[string]ProtoToken{
@@ -408,7 +407,6 @@ const (
 	Test
 	Fallback
 	Version
-	This
 )
 
 type processorFunc func(Byterable) Token

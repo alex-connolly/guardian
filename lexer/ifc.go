@@ -21,27 +21,31 @@ type Lexer struct {
 }
 
 // Lex ...
-func Lex(name string, bytes []byte) (tokens []token.Token, errs util.Errors) {
+func Lex(name string, bytes []byte) *Lexer {
 	l := new(Lexer)
 	l.fileName = name
 	l.byteOffset = 0
 	l.buffer = bytes
 	l.next()
-	return l.tokens, l.errors
+	return l
 }
 
 // LexFile ...
-func LexFile(path string) (tokens []token.Token, errs util.Errors) {
+func LexFile(path string) *Lexer {
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
-		return nil, append(errs, util.Error{
-			Message: "File does not exist",
-		})
+		l := new(Lexer)
+		l.errors = []util.Error{
+			util.Error{
+				Message: "File does not exist",
+			},
+		}
+		return l
 	}
 	return Lex(path, bytes)
 }
 
 // LexString lexes a string
-func LexString(str string) (tokens []token.Token, errs util.Errors) {
+func LexString(str string) *Lexer {
 	return Lex("input", []byte(str))
 }

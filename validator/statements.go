@@ -7,24 +7,30 @@ import (
 )
 
 func (v *Validator) validateStatement(node ast.Node) {
-	switch node.Type() {
-	case ast.AssignmentStatement:
-		v.validateAssignment(node.(*ast.AssignmentStatementNode))
+	switch n := node.(type) {
+	case ast.AssignmentStatementNode:
+		v.validateAssignment(n)
 		break
-	case ast.ForStatement:
-		v.validateForStatement(node.(*ast.ForStatementNode))
+	case ast.ForStatementNode:
+		v.validateForStatement(n)
 		break
-	case ast.IfStatement:
-		v.validateIfStatement(node.(*ast.IfStatementNode))
+	case ast.IfStatementNode:
+		v.validateIfStatement(n)
 		break
-	case ast.ReturnStatement:
-		v.validateReturnStatement(node.(*ast.ReturnStatementNode))
+	case ast.ReturnStatementNode:
+		v.validateReturnStatement(n)
 		break
-	case ast.SwitchStatement:
-		v.validateSwitchStatement(node.(*ast.SwitchStatementNode))
+	case ast.SwitchStatementNode:
+		v.validateSwitchStatement(n)
 		break
-	case ast.ForEachStatement:
-		v.validateForEachStatement(node.(*ast.ForEachStatementNode))
+	case ast.ForEachStatementNode:
+		v.validateForEachStatement(n)
+		break
+	case ast.ImportStatementNode:
+		v.validateImportStatement(n)
+		break
+	case ast.PackageStatementNode:
+		v.validatePackageStatement(n)
 		break
 	}
 }
@@ -206,4 +212,31 @@ func (v *Validator) validateForStatement(node *ast.ForStatementNode) {
 	}
 
 	v.validateScope(node, node.Block)
+}
+
+func (v *Validator) createPackageType(path string) *typing.Package {
+	scope, errs := ValidatePackage(path)
+	if errs != nil {
+		v.errs = append(v.errs, errs)
+	}
+	pkg := new(typing.Package)
+	pkg.Properties = v.scope.types
+	for k, v := range v.scope.variables {
+		pkg.Properties[k] = v
+	}
+	return pkg
+}
+
+func (v *Validator) validateImportStatement(node *ast.ImportStatementNode) {
+	if node.Alias != nil {
+		v.declareContextualType(node.Alias, v.createPackageType(node.Path))
+	} else {
+		v.declareContextualType("hi", v.createPackageType(node.Path))
+	}
+}
+
+func (v *Validator)
+
+func (v *Validator) validatePackageStatement(node *ast.PackageStatementNode) {
+
 }

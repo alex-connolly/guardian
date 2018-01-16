@@ -296,7 +296,7 @@ func parseImportStatement(p *Parser) {
 	if !p.isNextToken(token.String) {
 		// err
 	}
-	path = p.current().TrimmedString()
+	path = p.current().TrimmedString(p.lexer)
 
 	p.next()
 
@@ -328,7 +328,7 @@ func parsePackageStatement(p *Parser) {
 func (p *Parser) parseSemver() semver.Version {
 	s := ""
 	for p.hasTokens(1) && p.current().Type != token.NewLine {
-		s += p.current().String()
+		s += p.current().String(p.lexer)
 		p.next()
 	}
 	v, err := semver.Make(s)

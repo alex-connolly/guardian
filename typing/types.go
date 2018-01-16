@@ -233,3 +233,7 @@ type Event struct {
 	Generics   []*Generic
 	Parameters *Tuple
 }
+
+type Package struct {
+	Properties TypeMap
+}

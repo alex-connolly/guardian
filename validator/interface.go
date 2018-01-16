@@ -3,6 +3,8 @@ package validator
 import (
 	"fmt"
 
+	"github.com/end-r/guardian/lexer"
+
 	"github.com/end-r/guardian/parser"
 
 	"github.com/end-r/guardian/typing"
@@ -24,6 +26,16 @@ func ValidateExpression(vm VM, text string) (ast.ExpressionNode, util.Errors) {
 
 // ValidateFile ...
 func ValidateFile(vm VM, name string) (*ast.ScopeNode, util.Errors) {
+	a, errs := parser.ParseFile(name)
+	if errs != nil {
+		return a, errs
+	}
+	es := Validate(a, vm)
+	return a, es
+}
+
+// ValidatePackage ...
+func ValidatePackage(vm VM, path string) (*ast.ScopeNode, util.Errors) {
 	a, errs := parser.ParseFile(name)
 	if errs != nil {
 		return a, errs
@@ -117,6 +129,7 @@ type Validator struct {
 	primitives        map[string]typing.Type
 	builtinVariables  map[string]typing.Type
 	modifierGroups    []*ModifierGroup
+	lexer             *lexer.Lexer
 }
 
 // TypeScope ...

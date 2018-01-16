@@ -147,6 +147,46 @@ func TestNextTokenUnclosedStringEmpty(t *testing.T) {
 	goutil.AssertLength(t, int(tok.End.Offset), len(b.bytes))
 }
 
+func TestNextTokenUnclosedCharacter(t *testing.T) {
+	b := &bytecode{bytes: []byte(`'h`)}
+	p := NextProtoToken(b)
+	tok := p.Process(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "character", fmt.Sprintf("wrong name: %s", p.Name))
+	goutil.AssertLength(t, int(tok.End.Offset), len(b.bytes))
+}
+
+func TestNextTokenUnclosedCharacterEmpty(t *testing.T) {
+	b := &bytecode{bytes: []byte(`'`)}
+	p := NextProtoToken(b)
+	tok := p.Process(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "character", fmt.Sprintf("wrong name: %s", p.Name))
+	goutil.AssertLength(t, int(tok.End.Offset), len(b.bytes))
+}
+
+func TestNextTokenCharacterAssignment(t *testing.T) {
+	b := &bytecode{bytes: []byte(`x = 'a'`)}
+	p := NextProtoToken(b)
+	p.Process(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "identifier", fmt.Sprintf("1 wrong name: %s", p.Name))
+	// ignore
+	p = NextProtoToken(b)
+	p.Process(b)
+	p = NextProtoToken(b)
+	p.Process(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "=", fmt.Sprintf("2 wrong name: %s", p.Name))
+	// ignore
+	p = NextProtoToken(b)
+	p.Process(b)
+	p = NextProtoToken(b)
+	p.Process(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "character", fmt.Sprintf("3 wrong name: %s", p.Name))
+}
+
 func TestNextTokenAssignment(t *testing.T) {
 	b := &bytecode{bytes: []byte(`x = "hello this is dog"`)}
 	p := NextProtoToken(b)

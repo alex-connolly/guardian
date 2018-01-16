@@ -11,7 +11,7 @@ import (
 
 func TestHasTokens(t *testing.T) {
 	p := createParser("this is data")
-	goutil.Assert(t, len(p.tokens) == 3, "wrong length of tokens")
+	goutil.Assert(t, len(p.lexer.Tokens) == 3, "wrong length of tokens")
 	goutil.Assert(t, p.hasTokens(0), "should have 0 tokens")
 	goutil.Assert(t, p.hasTokens(1), "should have 1 tokens")
 	goutil.Assert(t, p.hasTokens(2), "should have 2 tokens")
@@ -56,14 +56,14 @@ func TestParseMultiLineComment(t *testing.T) {
 	p := createParser("/* this is a comment */")
 	goutil.AssertNow(t, p.index == 0, "should start at 0")
 	parseMultiLineComment(p)
-	goutil.AssertNow(t, p.index == len(p.tokens), "should finish at end")
+	goutil.AssertNow(t, p.index == len(p.lexer.Tokens), "should finish at end")
 
 	p = createParser(`/* this is a comment
 
 		*/`)
 	goutil.AssertNow(t, p.index == 0, "should start at 0")
 	parseMultiLineComment(p)
-	goutil.AssertNow(t, p.index == len(p.tokens), "should finish at 7 end")
+	goutil.AssertNow(t, p.index == len(p.lexer.Tokens), "should finish at 7 end")
 
 	p = createParser(`/* this is a comment
 		fadnlkdlf a,s ds'
@@ -85,7 +85,7 @@ func TestParseMultiLineComment(t *testing.T) {
 		*/`)
 	goutil.AssertNow(t, p.index == 0, "should start at 0")
 	parseMultiLineComment(p)
-	goutil.AssertNow(t, p.index == len(p.tokens), "should finish at end")
+	goutil.AssertNow(t, p.index == len(p.lexer.Tokens), "should finish at end")
 }
 
 func TestParseSimpleStringAnnotationValid(t *testing.T) {

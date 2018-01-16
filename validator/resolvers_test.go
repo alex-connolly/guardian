@@ -449,3 +449,38 @@ func TestTripleAliasedReferenceSliceResolution(t *testing.T) {
 	`)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
+
+func TestInvalidThis(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		this
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestValidThisClassConstructor(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		class Dog {
+
+			var name string
+
+			constructor(name string){
+				this.name = name
+			}
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestValidThisContractConstructor(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		contract Dog {
+
+			var name string
+
+			constructor(name string){
+				this.name = name
+			}
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}

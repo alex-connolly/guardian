@@ -190,7 +190,7 @@ func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 	}
 
 	var expr ast.ExpressionNode
-	//fmt.Printf("index: %d, tokens: %d\n", p.index, len(p.tokens))
+	//fmt.Printf("index: %d, tokens: %d\n", p.index, len(p.lexer.Tokens))
 	if p.hasTokens(1) {
 		expr = p.parsePrimaryComponent()
 	}
@@ -428,7 +428,7 @@ func (p *Parser) parseLiteral() *ast.LiteralNode {
 	n := new(ast.LiteralNode)
 	n.Begin = p.current().Start
 	n.LiteralType = p.current().Type
-	n.Data = p.current().String()
+	n.Data = p.current().String(p.lexer)
 	n.Final = p.current().End
 	p.next()
 	return n

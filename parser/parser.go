@@ -17,7 +17,6 @@ import (
 type Parser struct {
 	scope            *ast.ScopeNode
 	Expression       ast.ExpressionNode
-	tokens           []token.Token
 	modifiers        [][]string
 	lastModifiers    []string
 	annotations      []*typing.Annotation
@@ -26,13 +25,14 @@ type Parser struct {
 	line             int
 	simple           bool
 	seenCastOperator bool
+	lexer            *lexer.Lexer
 }
 
 func createParser(data string) *Parser {
 	p := new(Parser)
 	p.line = 1
 	p.seenCastOperator = false
-	p.tokens, _ = lexer.LexString(data)
+	p.lexer.l = lexer.LexString(data)
 	p.scope = &ast.ScopeNode{
 		ValidTypes: []ast.NodeType{
 			ast.InterfaceDeclaration, ast.ClassDeclaration,
@@ -51,7 +51,7 @@ func (p *Parser) next() {
 }
 
 func (p *Parser) token(offset int) token.Token {
-	return p.tokens[p.index+offset]
+	return p.lexer.Tokens[p.index+offset]
 }
 
 // index 0, tknlength 1
@@ -59,7 +59,7 @@ func (p *Parser) token(offset int) token.Token {
 // hasTokens(1) yes
 // hasTokens(2) no
 func (p *Parser) hasTokens(offset int) bool {
-	return p.index+offset <= len(p.tokens)
+	return p.index+offset <= len(p.lexer.Tokens)
 }
 
 func (p *Parser) parseOptional(types ...token.Type) bool {
@@ -139,7 +139,7 @@ func (p *Parser) parseIdentifier() string {
 		p.addError(p.getCurrentLocation(), fmt.Sprintf(errRequiredType, "identifier", p.current().Name()))
 		return ""
 	}
-	s := p.current().String()
+	s := p.current().String(p.lexer)
 	p.next()
 	return s
 }
@@ -283,8 +283,8 @@ func (p *Parser) parseNextConstruct() {
 		expr := p.parseExpression()
 		if expr == nil {
 			*p = saved
-			//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.current().String())
-			p.addError(p.getCurrentLocation(), fmt.Sprintf("Unrecognised construct: %s", p.current().String()))
+			//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.current().String(p.lexer))
+			p.addError(p.getCurrentLocation(), fmt.Sprintf("Unrecognised construct: %s", p.current().String(p.lexer)))
 			p.next()
 		} else {
 			p.parsePossibleSequentialExpression(expr)
@@ -319,7 +319,7 @@ func (p *Parser) parsePossibleSequentialExpression(expr ast.ExpressionNode) {
 }
 
 func (p *Parser) parseString() string {
-	s := p.current().TrimmedString()
+	s := p.current().TrimmedString(p.lexer)
 	p.next()
 	return s
 }

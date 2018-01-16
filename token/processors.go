@@ -88,7 +88,13 @@ func processCharacter(b Byterable) Token {
 	return markLimits(b, func(byt Byterable) (t Token) {
 		t.Type = Character
 		b1 := next(byt)
+		if !hasBytes(b, 1) {
+			return t
+		}
 		b2 := next(byt)
+		if !hasBytes(b, 1) {
+			return t
+		}
 		for b1 != b2 {
 			b2 = next(byt)
 			if isEnd(byt) {

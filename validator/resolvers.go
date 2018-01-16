@@ -108,8 +108,25 @@ func resolveKeyword(v *Validator, e ast.ExpressionNode) typing.Type {
 	return t
 }
 
+func (v *Validator) resolveThis() typing.Type {
+	for c := v.scope; c != nil; c = c.parent {
+		switch a := c.context.(type) {
+		case ast.ClassDeclarationNode:
+			return a.Resolved
+		case ast.ContractDeclarationNode:
+			return a.Resolved
+		}
+	}
+	v.addError(errInvalidThisContext)
+	return typing.Invalid()
+}
+
 func resolveIdentifier(v *Validator, e ast.ExpressionNode) typing.Type {
 	i := e.(*ast.IdentifierNode)
+
+	if i.Name == "this" {
+		return v.resolveThis()
+	}
 
 	// look up the identifier in scope
 	t := v.findVariable(i.Name)

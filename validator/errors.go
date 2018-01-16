@@ -39,6 +39,7 @@ const (
 	errInvalidReturnStatementOutsideFunc = "Return statement must be inside func"
 	errInvalidReturn                     = "Cannot return %s from function %s with return type %s"
 	errCancelledProperty                 = "Property %s on type %s has been cancelled"
-	errInvalidStaticReference            = "Invalid static reference "
+	errInvalidStaticReference            = "Invalid static reference to property%s "
 	errInvalidReturnFromVoid             = "Cannot return %s from void function %s"
+	errInvalidThisContext                = "Cannot use 'this' keyword outside class/contract"
 )

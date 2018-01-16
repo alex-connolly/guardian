@@ -160,17 +160,17 @@ func (p *Parser) parsePlainType() *ast.PlainTypeNode {
 func (p *Parser) spliceTokens(types ...token.Type) {
 	// delete the token
 	tok := p.current()
-	p.tokens = append(p.tokens[:p.index], p.tokens[p.index+1:]...)
+	p.lexer.Tokens = append(p.lexer.Tokens[:p.index], p.lexer.Tokens[p.index+1:]...)
 	// insert new tokens with all those types
 	for i, t := range types {
-		p.tokens = append(p.tokens, token.Token{})
-		copy(p.tokens[p.index+1:], p.tokens[p.index:])
-		p.tokens[p.index] = token.Token{
+		p.lexer.Tokens = append(p.lexer.Tokens, token.Token{})
+		copy(p.lexer.Tokens[p.index+1:], p.lexer.Tokens[p.index:])
+		p.lexer.Tokens[p.index] = token.Token{
 			Start: tok.Start,
 			End:   tok.End,
 			Type:  t,
 		}
-		p.tokens[p.index].Start.Offset += 1 + uint(i)
+		p.lexer.Tokens[p.index].Start.Offset += 1 + uint(i)
 	}
 }
 
@@ -552,7 +552,7 @@ func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 
 	if !p.parseOptional(token.CloseSquare) {
 		if p.nextTokens(token.Integer) {
-			i, err := strconv.ParseInt(p.current().String(), 10, 64)
+			i, err := strconv.ParseInt(p.current().String(p.lexer), 10, 64)
 			if err != nil {
 				p.addError(p.getCurrentLocation(), errInvalidArraySize)
 			}

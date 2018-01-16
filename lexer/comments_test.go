@@ -7,7 +7,7 @@ import (
 )
 
 func TestComments(t *testing.T) {
-	tokens, _ := LexString(`
+	l := LexString(`
         // this
 
         /*
@@ -20,7 +20,7 @@ func TestComments(t *testing.T) {
         // comment
         */
     `)
-	checkTokens(t, tokens, []token.Type{
+	checkTokens(t, l.tokens, []token.Type{
 		token.NewLine,
 		token.LineComment, token.Identifier, token.NewLine,
 		token.NewLine,

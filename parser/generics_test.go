@@ -201,7 +201,7 @@ func TestParseGenericComplex(t *testing.T) {
 	gens := p.parseGenerics()
 	goutil.AssertNow(t, gens != nil, "nil generics")
 	goutil.AssertLength(t, len(gens), 3)
-	goutil.AssertNow(t, p.index == len(p.tokens), "wrong ending index")
+	goutil.AssertNow(t, p.index == len(p.lexer.Tokens), "wrong ending index")
 }
 
 func TestParseEventGenericSimpleMultiple(t *testing.T) {
