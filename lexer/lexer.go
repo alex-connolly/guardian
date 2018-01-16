@@ -43,7 +43,7 @@ func (l *Lexer) next() {
 		if pt.Type == token.None {
 			l.byteOffset++
 		} else {
-			l.tokens = append(l.tokens, t)
+			l.Tokens = append(l.Tokens, t)
 		}
 	} else {
 		l.addError(l.getCurrentLocation(), "Unrecognised token")
@@ -53,10 +53,10 @@ func (l *Lexer) next() {
 }
 
 func (l *Lexer) addError(loc util.Location, err string, data ...interface{}) {
-	if l.errors == nil {
-		l.errors = make([]util.Error, 0)
+	if l.Errors == nil {
+		l.Errors = make([]util.Error, 0)
 	}
-	l.errors = append(l.errors, util.Error{
+	l.Errors = append(l.Errors, util.Error{
 		Location: loc,
 		Message:  fmt.Sprintf(err, data...),
 	})

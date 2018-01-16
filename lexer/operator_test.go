@@ -8,36 +8,36 @@ import (
 
 func TestDistinguishKeywordsConst(t *testing.T) {
 	l := LexString("constant")
-	checkTokens(t, l.tokens, []token.Type{token.Identifier})
+	checkTokens(t, l.Tokens, []token.Type{token.Identifier})
 	l = LexString("const (")
-	checkTokens(t, l.tokens, []token.Type{token.Const, token.OpenBracket})
+	checkTokens(t, l.Tokens, []token.Type{token.Const, token.OpenBracket})
 	l = LexString("const(")
-	checkTokens(t, l.tokens, []token.Type{token.Const, token.OpenBracket})
+	checkTokens(t, l.Tokens, []token.Type{token.Const, token.OpenBracket})
 }
 
 func TestDistinguishKeywordsInt(t *testing.T) {
 	l := LexString("int")
-	checkTokens(t, l.tokens, []token.Type{token.Identifier})
+	checkTokens(t, l.Tokens, []token.Type{token.Identifier})
 	l = LexString("int (")
-	checkTokens(t, l.tokens, []token.Type{token.Identifier, token.OpenBracket})
+	checkTokens(t, l.Tokens, []token.Type{token.Identifier, token.OpenBracket})
 	l = LexString("int(")
-	checkTokens(t, l.tokens, []token.Type{token.Identifier, token.OpenBracket})
+	checkTokens(t, l.Tokens, []token.Type{token.Identifier, token.OpenBracket})
 }
 
 func TestDistinguishKeywordsInterface(t *testing.T) {
 	l := LexString("interface")
-	checkTokens(t, l.tokens, []token.Type{token.Interface})
+	checkTokens(t, l.Tokens, []token.Type{token.Interface})
 	l = LexString("interface (")
-	checkTokens(t, l.tokens, []token.Type{token.Interface, token.OpenBracket})
+	checkTokens(t, l.Tokens, []token.Type{token.Interface, token.OpenBracket})
 	l = LexString("interface(")
-	checkTokens(t, l.tokens, []token.Type{token.Interface, token.OpenBracket})
+	checkTokens(t, l.Tokens, []token.Type{token.Interface, token.OpenBracket})
 }
 
 func TestDistinguishDots(t *testing.T) {
 	l := LexString("...")
-	checkTokens(t, l.tokens, []token.Type{token.Ellipsis})
+	checkTokens(t, l.Tokens, []token.Type{token.Ellipsis})
 	l = LexString(".")
-	checkTokens(t, l.tokens, []token.Type{token.Dot})
+	checkTokens(t, l.Tokens, []token.Type{token.Dot})
 	l = LexString("....")
-	checkTokens(t, l.tokens, []token.Type{token.Ellipsis, token.Dot})
+	checkTokens(t, l.Tokens, []token.Type{token.Ellipsis, token.Dot})
 }

@@ -14,9 +14,9 @@ type Lexer struct {
 	byteOffset  uint
 	line        uint
 	column      int
-	tokens      []token.Token
+	Tokens      []token.Token
 	tokenOffset int
-	errors      util.Errors
+	Errors      util.Errors
 	fileName    string
 }
 
@@ -35,11 +35,7 @@ func LexFile(path string) *Lexer {
 	bytes, err := ioutil.ReadFile(path)
 	if err != nil {
 		l := new(Lexer)
-		l.errors = []util.Error{
-			util.Error{
-				Message: "File does not exist",
-			},
-		}
+		l.addError(util.Location{Filename: path, Line: 0, Offset: 0}, "File does not exist")
 		return l
 	}
 	return Lex(path, bytes)

@@ -20,7 +20,7 @@ func TestComments(t *testing.T) {
         // comment
         */
     `)
-	checkTokens(t, l.tokens, []token.Type{
+	checkTokens(t, l.Tokens, []token.Type{
 		token.NewLine,
 		token.LineComment, token.Identifier, token.NewLine,
 		token.NewLine,
