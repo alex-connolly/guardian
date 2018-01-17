@@ -387,3 +387,15 @@ func TestNextTokenChars(t *testing.T) {
 	tok = p.Process(b)
 	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 3)
 }
+
+func TestNextTokenNewLine(t *testing.T) {
+	byt := []byte(`
+		`)
+	b := &bytecode{bytes: byt}
+
+	p := NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "new line", fmt.Sprintf("1 wrong name: %s", p.Name))
+	tok := p.Process(b)
+	goutil.AssertLength(t, int(tok.End.Offset-tok.Start.Offset), 1)
+}

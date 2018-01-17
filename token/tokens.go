@@ -317,7 +317,6 @@ const (
 	Float
 	String
 	Character
-	Comment
 	New
 	Alias
 	At           // at

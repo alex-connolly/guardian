@@ -24,10 +24,10 @@ func TestLexerTokenLength(t *testing.T) {
 
 func TestLexerAssignmentOperators(t *testing.T) {
 	l := LexString("hi += 5")
-	goutil.AssertNow(t, len(l.Tokens) == 5, "1 wrong number of tokens")
+	goutil.AssertNow(t, len(l.Tokens) == 3, "1 wrong number of tokens")
 	goutil.AssertNow(t, l.Tokens[1].Type == token.AddAssign, "wrong operator type")
 	l = LexString("hi -= 5")
-	goutil.AssertNow(t, len(l.Tokens) == 5, "2 wrong number of tokens")
+	goutil.AssertNow(t, len(l.Tokens) == 3, "2 wrong number of tokens")
 	goutil.AssertNow(t, l.Tokens[1].Type == token.SubAssign, "wrong operator type")
 	l = LexString("hi *= 5")
 	goutil.AssertNow(t, len(l.Tokens) == 3, "3 wrong number of tokens")
@@ -182,5 +182,5 @@ func TestInterfaceInheritance(t *testing.T) {
 		interface Deletable{}
 		interface Light inherits Switchable, Deletable {}
 	`)
-	goutil.AssertLength(t, len(l.Errors), 0)
+	goutil.AssertNow(t, len(l.Errors) == 0, l.Errors.Format())
 }

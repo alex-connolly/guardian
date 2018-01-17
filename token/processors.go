@@ -1,18 +1,11 @@
 package token
 
 func processNewLine(b Byterable) Token {
-	//b.line++
-	next(b)
-	return Token{
-		Type: NewLine,
-	}
-}
-
-func processIgnored(b Byterable) Token {
-	next(b)
-	return Token{
-		Type: None,
-	}
+	return markLimits(b, func(byt Byterable) (t Token) {
+		next(b)
+		t.Type = NewLine
+		return t
+	})
 }
 
 func markLimits(b Byterable, f func(Byterable) Token) Token {

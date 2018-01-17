@@ -33,7 +33,7 @@ func (l *Lexer) getCurrentLocation() util.Location {
 }
 
 func (l *Lexer) next() {
-	if l.byteOffset == uint(len(l.buffer)) {
+	if l.byteOffset >= uint(len(l.buffer)) {
 		return
 	}
 	pt := token.NextProtoToken(l)
