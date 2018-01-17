@@ -177,8 +177,7 @@ func TestComplexFile(t *testing.T) {
 }
 
 func TestInterfaceInheritance(t *testing.T) {
-	l := LexString(`
-		interface Switchable{}
+	l := LexString(`interface Switchable{}
 		interface Deletable{}
 		interface Light inherits Switchable, Deletable {}
 	`)

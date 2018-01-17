@@ -45,3 +45,13 @@ func TestIsNumber(t *testing.T) {
 	b = &bytecode{bytes: byt}
 	goutil.Assert(t, isFloat(b), "negative float")
 }
+
+func TestIsWhitespace(t *testing.T) {
+	byt := []byte(` `)
+	b := &bytecode{bytes: byt}
+	goutil.Assert(t, isWhitespace(b), "space")
+
+	byt = []byte(`	`)
+	b = &bytecode{bytes: byt}
+	goutil.Assert(t, isWhitespace(b), "tab")
+}

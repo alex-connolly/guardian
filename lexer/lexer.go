@@ -32,9 +32,23 @@ func (l *Lexer) getCurrentLocation() util.Location {
 	}
 }
 
+func (l *Lexer) current() byte {
+	return l.Bytes()[l.Offset()]
+}
+
+func (l *Lexer) isWhitespace() bool {
+	return (l.current() == ' ') || (l.current() == '\t') || (l.current() == '\v') || (l.current() == '\f')
+}
+
 func (l *Lexer) next() {
 	if l.byteOffset >= uint(len(l.buffer)) {
 		return
+	}
+	for l.isWhitespace() {
+		l.byteOffset++
+		if l.byteOffset >= uint(len(l.buffer)) {
+			return
+		}
 	}
 	pt := token.NextProtoToken(l)
 	if pt != nil {
