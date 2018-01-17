@@ -15,6 +15,10 @@ func (g *Generic) write(b *bytes.Buffer) {
 	b.WriteString(g.Identifier)
 }
 
+func (p *Package) write(b *bytes.Buffer) {
+	b.WriteString(p.Name)
+}
+
 func (s *StandardType) write(b *bytes.Buffer) {
 	b.WriteString(s.name)
 }

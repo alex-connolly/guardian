@@ -235,5 +235,8 @@ type Event struct {
 }
 
 type Package struct {
-	Properties TypeMap
+	Mods      *Modifiers
+	Name      string
+	Types     TypeMap
+	Variables TypeMap
 }

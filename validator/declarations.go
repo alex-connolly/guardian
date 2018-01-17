@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/end-r/guardian/util"
+
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/typing"
@@ -29,43 +31,43 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 	// start the validating process for another node
 	typ := v.getNamedType(node.Names...)
 	if typ == typing.Unknown() {
-		typ = v.getDeclarationNode(node.Names)
+		typ = v.getDeclarationNode(node.Start(), node.Names)
 	}
 	// validate parameters if necessary
 	switch a := typ.(type) {
 	case *typing.Class:
 		if len(node.Parameters) != len(a.Generics) {
-			v.addError(errWrongParameterLength)
+			v.addError(node.Start(), errWrongParameterLength)
 		}
 		for i, p := range node.Parameters {
 			if !a.Generics[i].Accepts(v.validateType(p)) {
-				v.addError(errInvalidParameter)
+				v.addError(node.Parameters[i].Start(), errInvalidParameter)
 			}
 		}
 		break
 	case *typing.Interface:
 		if len(node.Parameters) != len(a.Generics) {
-			v.addError(errWrongParameterLength)
+			v.addError(node.Start(), errWrongParameterLength)
 		}
 		for i, p := range node.Parameters {
 			if !a.Generics[i].Accepts(v.validateType(p)) {
-				v.addError(errInvalidParameter)
+				v.addError(node.Parameters[i].Start(), errInvalidParameter)
 			}
 		}
 		break
 	case *typing.Contract:
 		if len(node.Parameters) != len(a.Generics) {
-			v.addError(errWrongParameterLength)
+			v.addError(node.Start(), errWrongParameterLength)
 		}
 		for i, p := range node.Parameters {
 			if !a.Generics[i].Accepts(v.validateType(p)) {
-				v.addError(errInvalidParameter)
+				v.addError(node.Parameters[i].Start(), errInvalidParameter)
 			}
 		}
 		break
 	default:
 		if len(node.Parameters) > 0 {
-			v.addError(errCannotParametrizeType)
+			v.addError(node.Start(), errCannotParametrizeType)
 		}
 		break
 	}
@@ -159,7 +161,7 @@ func (v *Validator) validateDeclaration(node ast.Node) {
 
 }
 
-func (v *Validator) getDeclarationNode(names []string) typing.Type {
+func (v *Validator) getDeclarationNode(loc util.Location, names []string) typing.Type {
 	if v.isParsingBuiltins {
 		if v.builtinScope != nil {
 			decl := v.builtinScope.GetDeclaration(names[0])
@@ -176,20 +178,20 @@ func (v *Validator) getDeclarationNode(names []string) typing.Type {
 			}
 		}
 	}
-	return v.requireValidType(names)
+	return v.requireValidType(loc, names)
 }
 
-func (v *Validator) requireValidType(names []string) typing.Type {
+func (v *Validator) requireValidType(loc util.Location, names []string) typing.Type {
 	typ := v.getNamedType(names...)
 	if typ == typing.Unknown() {
-		v.addError(errTypeNotVisible, makeName(names))
+		v.addError(loc, errTypeNotVisible, makeName(names))
 	}
 	return typ
 }
 
 func (v *Validator) validateVarDeclaration(node *ast.ExplicitVarDeclarationNode) {
 
-	v.validateModifiers(ast.ExplicitVarDeclaration, node.Modifiers.Modifiers)
+	v.validateModifiers(node, node.Modifiers.Modifiers)
 
 	typ := v.validateType(node.DeclaredType)
 	typ.SetModifiers(&node.Modifiers)
@@ -216,7 +218,7 @@ func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*
 				if c, ok := t.(*typing.Interface); ok {
 					interfaces = append(interfaces, c)
 				} else {
-					v.addError(g.Start.Line, errTypeRequired, makeName(ifc.Names), "interface")
+					v.addError(ifc.Start(), errTypeRequired, makeName(ifc.Names), "interface")
 				}
 			}
 		}
@@ -235,26 +237,26 @@ func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*
 	}
 
 	for _, g := range genericTypes {
-		v.validateGenericInherits(g.Inherits)
+		v.validateGenericInherits(generics, g.Inherits)
 	}
 	return genericTypes
 }
 
-func (v *Validator) validateGenericInherits(types []typing.Type) {
+func (v *Validator) validateGenericInherits(generics []*ast.GenericDeclarationNode, types []typing.Type) {
 	var typ typing.Type
 	for i, t := range types {
 		switch t.(type) {
 		case *typing.Contract, *typing.Class, *typing.Enum, *typing.Interface:
 			break
 		default:
-			v.addError(errInvalidInheritance, typing.WriteType(t))
+			v.addError(generics[i].Begin, errInvalidInheritance, typing.WriteType(t))
 			break
 		}
 		if i == 0 {
 			typ = t
 		} else {
 			if reflect.TypeOf(typing.ResolveUnderlying(t)) != reflect.TypeOf(typing.ResolveUnderlying(typ)) {
-				v.addError(errIncompatibleInheritance, typing.WriteType(typ), typing.WriteType(t))
+				v.addError(generics[i].Begin, errIncompatibleInheritance, typing.WriteType(typ), typing.WriteType(t))
 			}
 		}
 	}
@@ -313,7 +315,7 @@ func (v *Validator) validateEnumsCancellation(parent *typing.Enum, enums []*typi
 
 func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 
-	v.validateModifiers(ast.ClassDeclaration, node.Modifiers.Modifiers)
+	v.validateModifiers(node, node.Modifiers.Modifiers)
 
 	v.validateAnnotations(ast.ClassDeclaration, node.Modifiers.Annotations)
 
@@ -361,7 +363,7 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 	classType.Properties = properties
 	classType.Lifecycles = lifecycles
 
-	v.validateClassInterfaces(classType)
+	v.validateClassInterfaces(node, classType)
 
 	v.declareContextualType(node.Identifier, classType)
 
@@ -369,7 +371,7 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 
 func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
 
-	v.validateModifiers(ast.EnumDeclaration, node.Modifiers.Modifiers)
+	v.validateModifiers(node, node.Modifiers.Modifiers)
 
 	v.validateAnnotations(ast.EnumDeclaration, node.Modifiers.Annotations)
 
@@ -379,7 +381,7 @@ func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
 		if c, ok := t.(*typing.Enum); ok {
 			supers = append(supers, c)
 		} else {
-			v.addError(errTypeRequired, makeName(super.Names), "enum")
+			v.addError(super.Start(), errTypeRequired, makeName(super.Names), "enum")
 		}
 	}
 
@@ -401,7 +403,7 @@ func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
 
 func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNode) {
 
-	v.validateModifiers(ast.ContractDeclaration, node.Modifiers.Modifiers)
+	v.validateModifiers(node, node.Modifiers.Modifiers)
 
 	v.validateAnnotations(ast.ContractDeclaration, node.Modifiers.Annotations)
 
@@ -412,7 +414,7 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 			if c, ok := t.(*typing.Contract); ok {
 				supers = append(supers, c)
 			} else {
-				v.addError(errTypeRequired, makeName(super.Names), "contract")
+				v.addError(super.Start(), errTypeRequired, makeName(super.Names), "contract")
 			}
 		}
 	}
@@ -424,7 +426,7 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 			if c, ok := t.(*typing.Interface); ok {
 				interfaces = append(interfaces, c)
 			} else {
-				v.addError(errTypeRequired, makeName(ifc.Names), "interface")
+				v.addError(ifc.Start(), errTypeRequired, makeName(ifc.Names), "interface")
 			}
 		}
 	}
@@ -450,20 +452,20 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 	contractType.Properties = properties
 	contractType.Lifecycles = lifecycles
 
-	v.validateContractInterfaces(contractType)
+	v.validateContractInterfaces(node, contractType)
 
 	v.declareContextualType(node.Identifier, contractType)
 }
 
-func (v *Validator) validateContractInterfaces(contract *typing.Contract) {
-	for _, i := range contract.Interfaces {
-		v.validateContractInterface(contract, i)
+func (v *Validator) validateContractInterfaces(node *ast.ContractDeclarationNode, contract *typing.Contract) {
+	for i, ifc := range contract.Interfaces {
+		v.validateContractInterface(node.Interfaces[i], contract, ifc)
 	}
 }
 
-func (v *Validator) validateClassInterfaces(class *typing.Class) {
-	for _, i := range class.Interfaces {
-		v.validateClassInterface(class, i)
+func (v *Validator) validateClassInterfaces(node *ast.ClassDeclarationNode, class *typing.Class) {
+	for i, ifc := range class.Interfaces {
+		v.validateClassInterface(node.Interfaces[i], class, ifc)
 	}
 }
 
@@ -497,31 +499,31 @@ func hasClassFunction(class *typing.Class, name string, funcType *typing.Func) b
 	return false
 }
 
-func (v *Validator) validateContractInterface(contract *typing.Contract, ifc *typing.Interface) {
+func (v *Validator) validateContractInterface(dec *ast.PlainTypeNode, contract *typing.Contract, ifc *typing.Interface) {
 	for f, t := range ifc.Funcs {
 		if !hasContractFunction(contract, f, t) {
-			v.addError(errUnimplementedInterface, contract.Name, ifc.Name, typing.WriteType(t))
+			v.addError(dec.Start(), errUnimplementedInterface, contract.Name, ifc.Name, typing.WriteType(t))
 		}
 	}
 	for _, super := range ifc.Supers {
-		v.validateContractInterface(contract, super)
+		v.validateContractInterface(dec, contract, super)
 	}
 }
 
-func (v *Validator) validateClassInterface(class *typing.Class, ifc *typing.Interface) {
+func (v *Validator) validateClassInterface(dec *ast.PlainTypeNode, class *typing.Class, ifc *typing.Interface) {
 	for f, t := range ifc.Funcs {
 		if !hasClassFunction(class, f, t) {
-			v.addError(errUnimplementedInterface, class.Name, ifc.Name, typing.WriteType(t))
+			v.addError(dec.Start(), errUnimplementedInterface, class.Name, ifc.Name, typing.WriteType(t))
 		}
 	}
 	for _, super := range ifc.Supers {
-		v.validateClassInterface(class, super)
+		v.validateClassInterface(dec, class, super)
 	}
 }
 
 func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationNode) {
 
-	v.validateModifiers(ast.InterfaceDeclaration, node.Modifiers.Modifiers)
+	v.validateModifiers(node, node.Modifiers.Modifiers)
 
 	v.validateAnnotations(ast.InterfaceDeclaration, node.Modifiers.Annotations)
 
@@ -532,7 +534,7 @@ func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationN
 			if c, ok := t.(*typing.Interface); ok {
 				supers = append(supers, c)
 			} else {
-				v.addError(errTypeRequired, makeName(super.Names), "interface")
+				v.addError(super.Start(), errTypeRequired, makeName(super.Names), "interface")
 			}
 		}
 	}
@@ -543,7 +545,7 @@ func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationN
 		if ok {
 			funcs[function.Identifier] = f
 		} else {
-			v.addError(errInvalidFuncType)
+			v.addError(function.Start(), errInvalidFuncType)
 		}
 	}
 
@@ -577,7 +579,7 @@ func (v *Validator) declareContextualVar(name string, typ typing.Type) {
 
 func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
-	v.validateModifiers(ast.FuncDeclaration, node.Modifiers.Modifiers)
+	v.validateModifiers(node, node.Modifiers.Modifiers)
 
 	v.validateAnnotations(ast.FuncDeclaration, node.Modifiers.Annotations)
 
@@ -617,7 +619,7 @@ func (v *Validator) validateAnnotations(typ ast.NodeType, annotations []*typing.
 	// doesn't do anything yet?
 }
 
-func (v *Validator) validateModifiers(typ ast.NodeType, modifiers []string) {
+func (v *Validator) validateModifiers(node ast.Node, modifiers []string) {
 	for _, mg := range v.modifierGroups {
 		mg.reset()
 	}
@@ -625,35 +627,35 @@ func (v *Validator) validateModifiers(typ ast.NodeType, modifiers []string) {
 		for _, mg := range v.modifierGroups {
 			if mg.has(mod) {
 				if len(mg.selected) == mg.Maximum {
-					v.addError(errMutuallyExclusiveModifiers)
+					v.addError(node.Start(), errMutuallyExclusiveModifiers)
 				}
 				mg.selected = append(mg.selected, mod)
 			}
 		}
 	}
 	for _, mg := range v.modifierGroups {
-		if mg.requiredOn(typ) {
+		if mg.requiredOn(node.Type()) {
 			if mg.selected == nil {
-				v.addError(errRequiredModifier, mg.Name)
+				v.addError(node.Start(), errRequiredModifier, mg.Name)
 			}
 		}
 	}
 }
 
-func (v *Validator) processModifier(n, c token.Type) token.Type {
+func (v *Validator) processModifier(node ast.Node, n, c token.Type) token.Type {
 	if c == -1 {
 		return n
 	} else if n == c {
-		v.addError(errDuplicateModifiers)
+		v.addError(node.Start(), errDuplicateModifiers)
 	} else {
-		v.addError(errMutuallyExclusiveModifiers)
+		v.addError(node.Start(), errMutuallyExclusiveModifiers)
 	}
 	return c
 }
 
 func (v *Validator) validateEventDeclaration(node *ast.EventDeclarationNode) {
 
-	v.validateModifiers(ast.EventDeclaration, node.Modifiers.Modifiers)
+	v.validateModifiers(node, node.Modifiers.Modifiers)
 
 	var params []typing.Type
 	for _, n := range node.Parameters {
@@ -682,7 +684,7 @@ func (v *Validator) declareContextualType(name string, typ typing.Type) {
 
 func (v *Validator) validateTypeDeclaration(node *ast.TypeDeclarationNode) {
 
-	v.validateModifiers(ast.TypeDeclaration, node.Modifiers.Modifiers)
+	v.validateModifiers(node, node.Modifiers.Modifiers)
 
 	typ := v.validateType(node.Value)
 	node.Resolved = typ

@@ -8,28 +8,28 @@ import (
 
 func (v *Validator) validateStatement(node ast.Node) {
 	switch n := node.(type) {
-	case ast.AssignmentStatementNode:
+	case *ast.AssignmentStatementNode:
 		v.validateAssignment(n)
 		break
-	case ast.ForStatementNode:
+	case *ast.ForStatementNode:
 		v.validateForStatement(n)
 		break
-	case ast.IfStatementNode:
+	case *ast.IfStatementNode:
 		v.validateIfStatement(n)
 		break
-	case ast.ReturnStatementNode:
+	case *ast.ReturnStatementNode:
 		v.validateReturnStatement(n)
 		break
-	case ast.SwitchStatementNode:
+	case *ast.SwitchStatementNode:
 		v.validateSwitchStatement(n)
 		break
-	case ast.ForEachStatementNode:
+	case *ast.ForEachStatementNode:
 		v.validateForEachStatement(n)
 		break
-	case ast.ImportStatementNode:
+	case *ast.ImportStatementNode:
 		v.validateImportStatement(n)
 		return
-	case ast.PackageStatementNode:
+	case *ast.PackageStatementNode:
 		v.validatePackageStatement(n)
 		return
 	}
@@ -49,13 +49,13 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 
 	for _, l := range node.Left {
 		if l == nil {
-			v.addError(errUnknown)
+			v.addError(node.Start(), errUnknown)
 			return
 		} else {
 			switch l.Type() {
 			case ast.CallExpression, ast.Literal, ast.MapLiteral,
 				ast.ArrayLiteral, ast.SliceExpression, ast.FuncLiteral:
-				v.addError(errInvalidExpressionLeft)
+				v.addError(l.Start(), errInvalidExpressionLeft)
 			}
 		}
 	}
@@ -66,7 +66,7 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 		right := rightTuple.Types[0]
 		for _, left := range leftTuple.Types {
 			if !typing.AssignableTo(right, left, true) {
-				v.addError(errInvalidAssignment, typing.WriteType(left), typing.WriteType(right))
+				v.addError(node.Left[0].Start(), errInvalidAssignment, typing.WriteType(left), typing.WriteType(right))
 			}
 		}
 
@@ -87,7 +87,7 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 
 	} else {
 		if !leftTuple.Compare(rightTuple) {
-			v.addError(node.Line, errInvalidAssignment, typing.WriteType(leftTuple), typing.WriteType(rightTuple))
+			v.addError(node.Left[0].Start(), errInvalidAssignment, typing.WriteType(leftTuple), typing.WriteType(rightTuple))
 		}
 
 		// length of left tuple should always equal length of left
@@ -117,7 +117,7 @@ func (v *Validator) validateIfStatement(node *ast.IfStatementNode) {
 
 	for _, cond := range node.Conditions {
 		// condition must be of type bool
-		v.requireType(typing.Boolean(), v.resolveExpression(cond.Condition))
+		v.requireType(cond.Condition.Start(), typing.Boolean(), v.resolveExpression(cond.Condition))
 		v.validateScope(node, cond.Body)
 	}
 
@@ -140,7 +140,7 @@ func (v *Validator) validateSwitchStatement(node *ast.SwitchStatementNode) {
 
 func (v *Validator) validateCaseStatement(switchType typing.Type, clause *ast.CaseStatementNode) {
 	for _, expr := range clause.Expressions {
-		v.requireType(switchType, v.resolveExpression(expr))
+		v.requireType(expr.Start(), switchType, v.resolveExpression(expr))
 	}
 	v.validateScope(clause, clause.Block)
 }
@@ -153,17 +153,17 @@ func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
 				results := a.Resolved.(*typing.Func).Results
 				returned := v.ExpressionTuple(node.Results)
 				if (results == nil || len(results.Types) == 0) && len(returned.Types) > 0 {
-					v.addError(errInvalidReturnFromVoid, typing.WriteType(returned), a.Signature.Identifier)
+					v.addError(node.Start(), errInvalidReturnFromVoid, typing.WriteType(returned), a.Signature.Identifier)
 					return
 				}
 				if !typing.AssignableTo(results, returned, false) {
-					v.addError(errInvalidReturn, typing.WriteType(returned), a.Signature.Identifier, typing.WriteType(results))
+					v.addError(node.Start(), errInvalidReturn, typing.WriteType(returned), a.Signature.Identifier, typing.WriteType(results))
 				}
 				return
 			}
 		}
 	}
-	v.addError(errInvalidReturnStatementOutsideFunc)
+	v.addError(node.Start(), errInvalidReturnStatementOutsideFunc)
 }
 
 func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
@@ -175,7 +175,7 @@ func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
 		// maps must handle k, v in MAP
 		req = 2
 		if len(node.Variables) != req {
-			v.addError(errInvalidForEachVariables, len(node.Variables), req)
+			v.addError(node.Begin, errInvalidForEachVariables, len(node.Variables), req)
 		} else {
 			v.declareContextualVar(node.Variables[0], a.Key)
 			v.declareContextualVar(node.Variables[1], a.Value)
@@ -185,14 +185,14 @@ func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
 		// arrays must handle i, v in ARRAY
 		req = 2
 		if len(node.Variables) != req {
-			v.addError(errInvalidForEachVariables, len(node.Variables), req)
+			v.addError(node.Start(), errInvalidForEachVariables, len(node.Variables), req)
 		} else {
 			v.declareContextualVar(node.Variables[0], v.LargestNumericType(false))
 			v.declareContextualVar(node.Variables[1], a.Value)
 		}
 		break
 	default:
-		v.addError(errInvalidForEachType, typing.WriteType(gen))
+		v.addError(node.Start(), errInvalidForEachType, typing.WriteType(gen))
 	}
 
 }
@@ -205,7 +205,7 @@ func (v *Validator) validateForStatement(node *ast.ForStatementNode) {
 	}
 
 	// cond statement must be a boolean
-	v.requireType(typing.Boolean(), v.resolveExpression(node.Cond))
+	v.requireType(node.Cond.Start(), typing.Boolean(), v.resolveExpression(node.Cond))
 
 	// post statement must be valid
 	if node.Post != nil {
@@ -216,9 +216,9 @@ func (v *Validator) validateForStatement(node *ast.ForStatementNode) {
 }
 
 func (v *Validator) createPackageType(path string) *typing.Package {
-	scope, errs := ValidatePackage(path)
+	scope, errs := ValidatePackage(v.vm, path)
 	if errs != nil {
-		v.errs = append(v.errs, errs)
+		v.errs = append(v.errs, errs...)
 	}
 	pkg := new(typing.Package)
 	pkg.Properties = v.scope.types
@@ -232,7 +232,7 @@ func (v *Validator) validateImportStatement(node *ast.ImportStatementNode) {
 	if v.finishedImports {
 		v.addError(node.Start(), errFinishedImports)
 	}
-	if node.Alias != nil {
+	if node.Alias != "" {
 		v.declareContextualType(node.Alias, v.createPackageType(node.Path))
 	} else {
 		v.declareContextualType("hi", v.createPackageType(node.Path))

@@ -631,7 +631,7 @@ func TestImportStatementPath(t *testing.T) {
 }
 
 func TestImportStatementAlias(t *testing.T) {
-	p := createParser(`import d "dog"`)
+	p := createParser(`import "dog" as d`)
 	goutil.Assert(t, isImportStatement(p), "should detect import statement")
 	parseImportStatement(p)
 
@@ -811,8 +811,8 @@ func TestParseEmptyReturn(t *testing.T) {
 func TestImportGroup(t *testing.T) {
 	_, errs := ParseString(`
 		import (
-			"dog"
-			"cat"
+			"dog" as d
+			"cat" as c
 		)
 	`)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())

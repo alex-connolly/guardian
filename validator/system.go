@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"github.com/end-r/guardian/util"
+
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/typing"
@@ -8,15 +10,15 @@ import (
 	"github.com/end-r/guardian/ast"
 )
 
-func (v *Validator) requireVisibleType(names ...string) typing.Type {
+func (v *Validator) requireVisibleType(loc util.Location, names ...string) typing.Type {
 	typ := v.getNamedType(names...)
 	if typ == typing.Unknown() {
-		v.addError(errTypeNotVisible, makeName(names))
+		v.addError(loc, errTypeNotVisible, makeName(names))
 	}
 	return typ
 }
 
-func (v *Validator) findVariable(name string) typing.Type {
+func (v *Validator) findVariable(exp ast.ExpressionNode, name string) typing.Type {
 	if v.builtinVariables != nil {
 		if typ, ok := v.builtinVariables[name]; ok {
 			return typ
@@ -27,25 +29,25 @@ func (v *Validator) findVariable(name string) typing.Type {
 			// check parents
 			switch c := scope.context.(type) {
 			case *ast.ClassDeclarationNode:
-				t, _ := v.getTypeProperty(c.Resolved, name)
+				t, _ := v.getTypeProperty(exp, c.Resolved, name)
 				if t != nil && t != typing.Unknown() {
 					return t
 				}
 				break
 			case *ast.EnumDeclarationNode:
-				t, _ := v.getTypeProperty(c.Resolved, name)
+				t, _ := v.getTypeProperty(exp, c.Resolved, name)
 				if t != nil && t != typing.Unknown() {
 					return t
 				}
 				break
 			case *ast.InterfaceDeclarationNode:
-				t, _ := v.getTypeProperty(c.Resolved, name)
+				t, _ := v.getTypeProperty(exp, c.Resolved, name)
 				if t != nil && t != typing.Unknown() {
 					return t
 				}
 				break
 			case *ast.ContractDeclarationNode:
-				t, _ := v.getTypeProperty(c.Resolved, name)
+				t, _ := v.getTypeProperty(exp, c.Resolved, name)
 				if t != nil && t != typing.Unknown() {
 					return t
 				}
@@ -138,9 +140,9 @@ func (v *Validator) getNamedType(names ...string) typing.Type {
 	return typing.Unknown()
 }
 
-func (v *Validator) requireType(expected, actual typing.Type) bool {
+func (v *Validator) requireType(loc util.Location, expected, actual typing.Type) bool {
 	if typing.ResolveUnderlying(expected) != typing.ResolveUnderlying(actual) {
-		v.addError(errRequiredType, typing.WriteType(expected), typing.WriteType(actual))
+		v.addError(loc, errRequiredType, typing.WriteType(expected), typing.WriteType(actual))
 		return false
 	}
 	return true

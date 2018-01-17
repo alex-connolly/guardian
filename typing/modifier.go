@@ -41,6 +41,7 @@ func (a *StandardType) Modifiers() *Modifiers { return a.Mods }
 func (a *Aliased) Modifiers() *Modifiers      { return a.Mods }
 func (t *Tuple) Modifiers() *Modifiers        { return t.Mods }
 func (e *Event) Modifiers() *Modifiers        { return e.Mods }
+func (p *Package) Modifiers() *Modifiers      { return p.Mods }
 
 func (g *Generic) SetModifiers(m *Modifiers)      { g.Mods = m }
 func (a *Array) SetModifiers(m *Modifiers)        { a.Mods = m }
@@ -57,3 +58,4 @@ func (a *StandardType) SetModifiers(m *Modifiers) { a.Mods = m }
 func (a *Aliased) SetModifiers(m *Modifiers)      { a.Mods = m }
 func (t *Tuple) SetModifiers(m *Modifiers)        { t.Mods = m }
 func (e *Event) SetModifiers(m *Modifiers)        { e.Mods = m }
+func (p *Package) SetModifiers(m *Modifiers)      { p.Mods = m }

@@ -17,6 +17,10 @@ func (m *Map) Size() uint {
 	return 0
 }
 
+func (p *Package) Size() uint {
+	return 0
+}
+
 func (c *Class) Size() uint {
 	s := uint(0)
 	for _, v := range c.Properties {

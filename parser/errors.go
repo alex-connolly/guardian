@@ -15,4 +15,5 @@ const (
 	errInvalidIncDec              = "Cannot increment or decrement in this context"
 	errInvalidTypeAfterCast       = "Expected type after cast operator"
 	errIncompleteExpression       = "Incomplete expression"
+	errInvalidImportPath          = "Invalid import path: %s"
 )

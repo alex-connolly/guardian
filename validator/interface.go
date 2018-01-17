@@ -26,9 +26,9 @@ func ValidateExpression(vm VM, text string) (ast.ExpressionNode, util.Errors) {
 }
 
 // ValidateFile ...
-func ValidateFile(vm VM, packageScope *ast.ScopeNode, name string) (*ast.ScopeNode, util.Errors) {
+func ValidateFile(vm VM, packageScope *TypeScope, name string) (*ast.ScopeNode, util.Errors) {
 	if !isGuardianFile(name) {
-		e := make(util.Errors)
+		e := make(util.Errors, 0)
 		e = append(e, util.Error{
 			Location: util.Location{
 				Filename: name,
@@ -45,7 +45,7 @@ func ValidateFile(vm VM, packageScope *ast.ScopeNode, name string) (*ast.ScopeNo
 }
 
 // ValidatePackage ...
-func ValidatePackage(vm VM, path string) (TypeScope, util.Errors) {
+func ValidatePackage(vm VM, path string) (*TypeScope, util.Errors) {
 	// open directory
 	// for all files in directory
 	// 1. enforce that they are from the s
@@ -61,7 +61,7 @@ func ValidatePackage(vm VM, path string) (TypeScope, util.Errors) {
 	for _, name := range list {
 		if isGuardianFile(name) {
 			_, es := ValidateFile(vm, pkgScope, name)
-			errors = append(errors, es)
+			errors = append(errors, es...)
 		}
 	}
 	return pkgScope, errors
@@ -74,17 +74,18 @@ func isGuardianFile(name string) bool {
 // ValidateString ...
 func ValidateString(vm VM, text string) (*ast.ScopeNode, util.Errors) {
 	a, errs := parser.ParseString(text)
-	ts := &TypeScope{parent: nil, scope: scope}
+	ts := &TypeScope{parent: nil, scope: a}
 	es := Validate(a, ts, vm)
 	es = append(es, errs...)
 	return a, es
 }
 
 // Validate ...
-func Validate(scope *ast.ScopeNode, typeScope *TypeScope, typevm VM) util.Errors {
+func Validate(scope *ast.ScopeNode, typeScope *TypeScope, vm VM) util.Errors {
 	v := new(Validator)
 
 	v.scope = typeScope
+	v.vm = vm
 
 	v.importVM(vm)
 
@@ -129,12 +130,12 @@ func (v *Validator) validateDeclarations(scope *ast.ScopeNode) {
 	}
 }
 
-func (v *Validator) validateSequence(scope *ast.ScopeNode, inFile bool) {
-	/*if inFile {
-		if len(scope.Sequence) == 0 || scope.Sequence.Type() != ast.PackageStatement {
-			v.addError(util.Location{Filename: v.fileName}, errInvalid, data)
+func (v *Validator) validateSequence(scope *ast.ScopeNode) {
+	if v.inFile {
+		if len(scope.Sequence) == 0 || scope.Sequence[0].Type() != ast.PackageStatement {
+			v.addError(util.Location{Filename: ""}, errNoPackageStatement)
 		}
-	}*/
+	}
 	for _, node := range scope.Sequence {
 		v.validate(node)
 	}
@@ -150,6 +151,8 @@ func (v *Validator) validate(node ast.Node) {
 
 // Validator ...
 type Validator struct {
+	inFile            bool
+	packageName       string
 	context           typing.Type
 	builtinScope      *ast.ScopeNode
 	scope             *TypeScope
@@ -161,6 +164,9 @@ type Validator struct {
 	builtinVariables  map[string]typing.Type
 	modifierGroups    []*ModifierGroup
 	finishedImports   bool
+	// for passing to imported files
+	// don't access properties through this
+	vm VM
 }
 
 // TypeScope ...

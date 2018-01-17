@@ -285,27 +285,30 @@ func parseSwitchStatement(p *Parser) {
 
 func parseImportStatement(p *Parser) {
 
-	p.parseRequired(token.Import)
+	p.parseGroupable(token.Import, func(arg2 *Parser) {
+		var alias, path string
 
-	var alias, path string
+		if p.isNextToken(token.String) {
+			path = p.current().TrimmedString(p.lexer)
+		} else {
+			p.addError(p.current().Start, fmt.Sprintf(errInvalidImportPath, p.current().String(p.lexer)))
+		}
 
-	if p.isNextToken(token.Identifier) {
-		alias = p.parseIdentifier()
-	}
+		p.next()
 
-	if !p.isNextToken(token.String) {
-		// err
-	}
-	path = p.current().TrimmedString(p.lexer)
+		if p.parseOptional(token.As) {
 
-	p.next()
+			alias = p.parseIdentifier()
+		}
+		p.ignoreNewLines()
 
-	node := ast.ImportStatementNode{
-		Alias: alias,
-		Path:  path,
-	}
+		node := ast.ImportStatementNode{
+			Alias: alias,
+			Path:  path,
+		}
 
-	p.scope.AddSequential(&node)
+		p.scope.AddSequential(&node)
+	})
 }
 
 func parsePackageStatement(p *Parser) {

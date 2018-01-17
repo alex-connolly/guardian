@@ -34,7 +34,7 @@ func (v *Validator) validateKeywordNode(kw *ast.KeywordNode) {
 				return
 			}
 		}
-		v.addError(errInvalidConstructorCall, typing.WriteType(a), typing.WriteType(args))
+		v.addError(kw.Start(), errInvalidConstructorCall, typing.WriteType(a), typing.WriteType(args))
 		break
 	case *typing.Contract:
 		constructors := a.Lifecycles[token.Constructor]
@@ -47,7 +47,7 @@ func (v *Validator) validateKeywordNode(kw *ast.KeywordNode) {
 				return
 			}
 		}
-		v.addError(errInvalidConstructorCall, typing.WriteType(a), typing.WriteType(args))
+		v.addError(kw.Start(), errInvalidConstructorCall, typing.WriteType(a), typing.WriteType(args))
 		break
 	}
 }
@@ -58,11 +58,11 @@ func (v *Validator) validateCallExpression(call *ast.CallExpressionNode) {
 	switch a := exprType.(type) {
 	case *typing.Func:
 		if !typing.AssignableTo(a.Params, args, false) {
-			v.addError(errInvalidFuncCall, typing.WriteType(args), typing.WriteType(a))
+			v.addError(call.Start(), errInvalidFuncCall, typing.WriteType(args), typing.WriteType(a))
 		}
 		break
 	default:
-		v.addError(errInvalidCall, typing.WriteType(exprType))
+		v.addError(call.Start(), errInvalidCall, typing.WriteType(exprType))
 	}
 
 }

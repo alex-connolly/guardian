@@ -117,6 +117,14 @@ func (e *Event) Compare(t Type) bool {
 	}
 }
 
+func (p *Package) Compare(t Type) bool {
+	if other, ok := ResolveUnderlying(t).(*Package); !ok {
+		return false
+	} else {
+		return p.Name == other.Name
+	}
+}
+
 func (nt *NumericType) Compare(t Type) bool {
 	if other, ok := ResolveUnderlying(t).(*NumericType); !ok {
 		return false

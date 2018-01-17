@@ -45,6 +45,7 @@ func (i *Interface) implements(t Type) bool    { return false }
 func (e *Enum) implements(t Type) bool         { return false }
 func (e *Event) implements(t Type) bool        { return false }
 func (g *Generic) implements(t Type) bool      { return false }
+func (g *Package) implements(t Type) bool      { return false }
 
 func (n *NumericType) implements(t Type) bool { return false }
 func (n *BooleanType) implements(t Type) bool { return false }

@@ -42,6 +42,7 @@ const (
 	errInvalidStaticReference            = "Invalid static reference to property%s "
 	errInvalidReturnFromVoid             = "Cannot return %s from void function %s"
 	errInvalidThisContext                = "Cannot use 'this' keyword outside class/contract"
+	errNoPackageStatement                = "File must declare package at top"
 	errInvalidPackageName                = "Invalid package name: %s"
 	errDuplicatePackageName              = "Duplicate package declaration: %s, already %s"
 	errFinishedImports                   = "Imports must be under package statement"

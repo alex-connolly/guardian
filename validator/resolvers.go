@@ -88,7 +88,7 @@ func (v *Validator) resolveExpression(e ast.ExpressionNode) typing.Type {
 	}
 	r, ok := resolvers[e.Type()]
 	if !ok {
-		v.addError(errUnknownExpressionType)
+		v.addError(e.Start(), errUnknownExpressionType)
 		return typing.Invalid()
 	}
 	return r(v, e)
@@ -108,16 +108,16 @@ func resolveKeyword(v *Validator, e ast.ExpressionNode) typing.Type {
 	return t
 }
 
-func (v *Validator) resolveThis() typing.Type {
+func (v *Validator) resolveThis(node *ast.IdentifierNode) typing.Type {
 	for c := v.scope; c != nil; c = c.parent {
 		switch a := c.context.(type) {
-		case ast.ClassDeclarationNode:
+		case *ast.ClassDeclarationNode:
 			return a.Resolved
-		case ast.ContractDeclarationNode:
+		case *ast.ContractDeclarationNode:
 			return a.Resolved
 		}
 	}
-	v.addError(errInvalidThisContext)
+	v.addError(node.Start(), errInvalidThisContext)
 	return typing.Invalid()
 }
 
@@ -125,11 +125,11 @@ func resolveIdentifier(v *Validator, e ast.ExpressionNode) typing.Type {
 	i := e.(*ast.IdentifierNode)
 
 	if i.Name == "this" {
-		return v.resolveThis()
+		return v.resolveThis(i)
 	}
 
 	// look up the identifier in scope
-	t := v.findVariable(i.Name)
+	t := v.findVariable(i, i.Name)
 	if t == typing.Unknown() {
 		t = v.getNamedType(i.Name)
 		if t != nil {
@@ -167,9 +167,9 @@ func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Ty
 
 func resolveCompositeLiteral(v *Validator, e ast.ExpressionNode) typing.Type {
 	c := e.(*ast.CompositeLiteralNode)
-	c.Resolved = v.getNamedType(c.TypeName)
+	c.Resolved = v.getNamedType(c.TypeName.Names...)
 	if c.Resolved == typing.Unknown() {
-		c.Resolved = v.getDeclarationNode([]string{c.TypeName})
+		c.Resolved = v.getDeclarationNode(e.Start(), c.TypeName.Names)
 	}
 	return c.Resolved
 }
@@ -322,7 +322,7 @@ func resolveCallExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 		c.Resolved = ctwo
 		return c.Resolved
 	}
-	v.addError(errCallExpressionNoFunc, typing.WriteType(call))
+	v.addError(e.Start(), errCallExpressionNoFunc, typing.WriteType(call))
 	c.Resolved = typing.Invalid()
 	return c.Resolved
 
@@ -393,7 +393,7 @@ func (v *Validator) determineType(t typing.Type, exp ast.ExpressionNode) typing.
 			break
 		}
 	default:
-		v.addError(errInvalidReference)
+		v.addError(exp.Start(), errInvalidReference)
 		return typing.Invalid()
 	}
 	return typing.Invalid()
@@ -402,20 +402,20 @@ func (v *Validator) determineType(t typing.Type, exp ast.ExpressionNode) typing.
 func (v *Validator) resolveContextualReference(context typing.Type, exp ast.ExpressionNode) typing.Type {
 	// check if context is subscriptable
 	if name, ok := getIdentifier(exp); ok {
-		if t, ok := v.getTypeProperty(context, name); ok {
+		if t, ok := v.getTypeProperty(exp, context, name); ok {
 			if typing.HasModifier(context, "static") && !typing.HasModifier(t, "static") {
-				v.addError(errInvalidStaticReference)
+				v.addError(exp.Start(), errInvalidStaticReference)
 			}
 			return v.determineType(typing.ResolveUnderlying(t), exp)
 		} else {
 			if context == nil {
 				fmt.Println("NIL CONTEXT")
 			} else {
-				v.addError(errPropertyNotFound, typing.WriteType(context), name)
+				v.addError(exp.Start(), errPropertyNotFound, typing.WriteType(context), name)
 			}
 		}
 	} else {
-		v.addError(errUnnamedReference)
+		v.addError(exp.Start(), errUnnamedReference)
 	}
 	return typing.Invalid()
 }
@@ -451,16 +451,17 @@ func getIdentifier(exp ast.ExpressionNode) (string, bool) {
 	}
 }
 
-func (v *Validator) getPropertiesType(t typing.Type, names []string) (resolved typing.Type) {
+/*
+func (v *Validator) getPropertiesType(expt typing.Type, names []string) (resolved typing.Type) {
 	var working bool
 	for _, name := range names {
 		if !working {
 			break
 		}
-		t, working = v.getTypeProperty(t, name)
+		t, working = v.getTypeProperty(exp, t, name)
 	}
 	return t
-}
+}*/
 
 func (v *Validator) isCurrentContext(context typing.Type) bool {
 	for c := v.scope; c != nil; c = c.parent {
@@ -520,73 +521,73 @@ func (v *Validator) isCurrentContextOrSubclass(context typing.Type) bool {
 	return false
 }
 
-func (v *Validator) checkVisible(context, property typing.Type, name string) {
+func (v *Validator) checkVisible(node ast.Node, context, property typing.Type, name string) {
 	if property.Modifiers() != nil {
 		if property.Modifiers().HasModifier("private") {
 			if !v.isCurrentContext(context) {
-				v.addError(errInvalidAccess, name, "private")
+				v.addError(node.Start(), errInvalidAccess, name, "private")
 			}
 		} else if property.Modifiers().HasModifier("protected") {
 			if !v.isCurrentContextOrSubclass(context) {
-				v.addError(errInvalidAccess, name, "protected")
+				v.addError(node.Start(), errInvalidAccess, name, "protected")
 			}
 		}
 	}
 }
 
-func (v *Validator) getClassProperty(class *typing.Class, name string) (typing.Type, bool) {
+func (v *Validator) getClassProperty(exp ast.ExpressionNode, class *typing.Class, name string) (typing.Type, bool) {
 	for k, _ := range class.Cancelled {
 		if k == name {
-			v.addError(errCancelledProperty, name, class.Name)
+			v.addError(exp.Start(), errCancelledProperty, name, class.Name)
 			return typing.Unknown(), false
 		}
 	}
 	if p, has := class.Properties[name]; has {
-		v.checkVisible(class, p, name)
+		v.checkVisible(exp, class, p, name)
 		return p, has
 	}
 	for _, super := range class.Supers {
-		if c, ok := v.getClassProperty(super, name); ok {
+		if c, ok := v.getClassProperty(exp, super, name); ok {
 			return c, ok
 		}
 	}
 	return nil, false
 }
 
-func (v *Validator) getContractProperty(contract *typing.Contract, name string) (typing.Type, bool) {
+func (v *Validator) getContractProperty(exp ast.ExpressionNode, contract *typing.Contract, name string) (typing.Type, bool) {
 
 	for k, _ := range contract.Cancelled {
 		if k == name {
-			v.addError(errCancelledProperty, name, contract.Name)
+			v.addError(exp.Start(), errCancelledProperty, name, contract.Name)
 			return typing.Unknown(), false
 		}
 	}
 
 	if p, has := contract.Properties[name]; has {
-		v.checkVisible(contract, p, name)
+		v.checkVisible(exp, contract, p, name)
 		return p, has
 	}
 	for _, super := range contract.Supers {
-		if c, ok := v.getContractProperty(super, name); ok {
+		if c, ok := v.getContractProperty(exp, super, name); ok {
 			return c, ok
 		}
 	}
 	return nil, false
 }
 
-func (v *Validator) getPackageProperty(pkg *typing.Package, name string) (typing.Type, bool) {
+func (v *Validator) getPackageProperty(exp ast.ExpressionNode, pkg *typing.Package, name string) (typing.Type, bool) {
 	if p, has := pkg.Properties[name]; has {
-		v.checkVisible(contract, p, name)
+		v.checkVisible(exp, pkg, p, name)
 		return p, has
 	}
 	return nil, false
 }
 
-func (v *Validator) getInterfaceProperty(ifc *typing.Interface, name string) (typing.Type, bool) {
+func (v *Validator) getInterfaceProperty(exp ast.ExpressionNode, ifc *typing.Interface, name string) (typing.Type, bool) {
 
 	for k, _ := range ifc.Cancelled {
 		if k == name {
-			v.addError(errCancelledProperty, name, ifc.Name)
+			v.addError(exp.Start(), errCancelledProperty, name, ifc.Name)
 			return typing.Unknown(), false
 		}
 	}
@@ -596,17 +597,17 @@ func (v *Validator) getInterfaceProperty(ifc *typing.Interface, name string) (ty
 	}
 
 	for _, super := range ifc.Supers {
-		if c, ok := v.getInterfaceProperty(super, name); ok {
+		if c, ok := v.getInterfaceProperty(exp, super, name); ok {
 			return c, ok
 		}
 	}
 	return nil, false
 }
 
-func (v *Validator) getEnumProperty(c *typing.Enum, name string) (typing.Type, bool) {
+func (v *Validator) getEnumProperty(exp ast.ExpressionNode, c *typing.Enum, name string) (typing.Type, bool) {
 	for k, _ := range c.Cancelled {
 		if k == name {
-			v.addError(errCancelledProperty, name, c.Name)
+			v.addError(exp.Start(), errCancelledProperty, name, c.Name)
 			t := typing.Unknown()
 			typing.AddModifier(t, "static")
 			return t, true
@@ -622,14 +623,14 @@ func (v *Validator) getEnumProperty(c *typing.Enum, name string) (typing.Type, b
 		}
 	}
 	for _, s := range c.Supers {
-		if a, ok := v.getEnumProperty(s, name); ok {
+		if a, ok := v.getEnumProperty(exp, s, name); ok {
 			return a, ok
 		}
 	}
 	return typing.Invalid(), false
 }
 
-func (v *Validator) getTypeProperty(t typing.Type, name string) (typing.Type, bool) {
+func (v *Validator) getTypeProperty(exp ast.ExpressionNode, t typing.Type, name string) (typing.Type, bool) {
 	if t == nil {
 		// TODO: do something?
 		return typing.Invalid(), false
@@ -637,24 +638,24 @@ func (v *Validator) getTypeProperty(t typing.Type, name string) (typing.Type, bo
 	// only classes, interfaces, contracts and enums are subscriptable
 	switch c := typing.ResolveUnderlying(t).(type) {
 	case *typing.Class:
-		return v.getClassProperty(c, name)
+		return v.getClassProperty(exp, c, name)
 	case *typing.Contract:
-		return v.getContractProperty(c, name)
+		return v.getContractProperty(exp, c, name)
 	case *typing.Interface:
-		return v.getInterfaceProperty(c, name)
+		return v.getInterfaceProperty(exp, c, name)
 	case *typing.Enum:
-		return v.getEnumProperty(c, name)
+		return v.getEnumProperty(exp, c, name)
 	case *typing.Package:
-		return v.getPackageProperty(c, name)
+		return v.getPackageProperty(exp, c, name)
 	case *typing.Tuple:
 		if len(c.Types) == 1 {
-			return v.getTypeProperty(c.Types[0], name)
+			return v.getTypeProperty(exp, c.Types[0], name)
 		} else {
-			v.addError(errMultipleTypesInSingleValueContext)
+			v.addError(exp.Start(), errMultipleTypesInSingleValueContext)
 		}
 		break
 	default:
-		v.addError(errInvalidSubscriptable, typing.WriteType(c))
+		v.addError(exp.Start(), errInvalidSubscriptable, typing.WriteType(c))
 		break
 	}
 	return typing.Invalid(), false

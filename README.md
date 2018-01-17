@@ -24,7 +24,25 @@ These aims should be considered not only in the design and implementation langua
 
 ## Contracts
 
+A very simple Guardian contract is presented below:
 
+```go
+contract Greeter {
+
+    var name string
+
+    external func getName() string {
+        return name
+    }
+
+    external func setName(n string) {
+        this.name = n
+    }
+
+}
+```
+
+In Guardian, there is no need for library contracts - top-level functions can be imported directly from  packages.
 
 ## Packaging and Version Declarations
 
@@ -33,7 +51,7 @@ Guardian uses go-style packaging and importing, so that related constructs can b
 In order for future versions of Guardian to include potentially backwards-incompatible changes, each Guardian file must include a version declaration appended to the package declaration:
 
 ```go
-package calculator version 0.0.1
+package calculator guardian 0.0.1
 ```
 
 ## Importing packages
@@ -43,6 +61,18 @@ Guardian packages may be imported using the following syntax:
 ```go
 
 import "guard"
+
+import (
+    "a"
+    "b"
+    "c"
+)
+
+import (
+    "d" as dalias
+    "e" as ealias
+    "f" as falias
+)
 
 contract Watcher {
 
@@ -126,8 +156,8 @@ Generics can be specified using Java syntax:
 // this will be checked at compile time
 contract Purchase<T is Sellable> {
 
-    item T
-    quantity int
+    var item T
+    var quantity int
 
     constructor(item T, quantity int){
         this.item = item

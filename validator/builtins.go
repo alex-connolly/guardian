@@ -75,7 +75,7 @@ func CastOperator(v *Validator, types []typing.Type, exprs []ast.ExpressionNode)
 	left := types[0]
 	t := v.validateType(exprs[1])
 	if t == typing.Unknown() || t == typing.Invalid() || t == nil {
-		v.addError(errImpossibleCastToNonType)
+		v.addError(exprs[1].Start(), errImpossibleCastToNonType)
 		return left
 	}
 
@@ -99,7 +99,7 @@ func CastOperator(v *Validator, types []typing.Type, exprs []ast.ExpressionNode)
 				}
 			}
 		}
-		v.addError(errImpossibleCast, typing.WriteType(left), typing.WriteType(t))
+		v.addError(exprs[1].Start(), errImpossibleCast, typing.WriteType(left), typing.WriteType(t))
 		return t
 	}
 	return t
