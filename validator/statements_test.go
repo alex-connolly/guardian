@@ -408,3 +408,29 @@ func TestDanglingReturn(t *testing.T) {
 	`)
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
+
+func TestDuplicatePackageStatement(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		package dog version 0.0.1
+		package car version 0.0.1
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestImportBeforePackage(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		import "dog"
+		package car version 0.0.1
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestDividedImports(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		package car varsion 0.0.1
+		import "dog"
+		x = 1
+		import "cat"
+	`)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}

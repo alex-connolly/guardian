@@ -32,7 +32,7 @@ func createParser(data string) *Parser {
 	p := new(Parser)
 	p.line = 1
 	p.seenCastOperator = false
-	p.lexer.l = lexer.LexString(data)
+	p.lexer = lexer.LexString(data)
 	p.scope = &ast.ScopeNode{
 		ValidTypes: []ast.NodeType{
 			ast.InterfaceDeclaration, ast.ClassDeclaration,

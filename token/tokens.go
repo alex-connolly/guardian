@@ -126,8 +126,12 @@ func NextProtoToken(b Byterable) *ProtoToken {
 		return nil
 	}
 
-	for isWhitespace(b) {
+	for hasBytes(b, 1) && isWhitespace(b) {
 		next(b)
+	}
+
+	if !hasBytes(b, 1) {
+		return nil
 	}
 
 	if isFloat(b) {

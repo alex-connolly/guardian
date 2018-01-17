@@ -413,7 +413,6 @@ func (v *Validator) resolveContextualReference(context typing.Type, exp ast.Expr
 			} else {
 				v.addError(errPropertyNotFound, typing.WriteType(context), name)
 			}
-
 		}
 	} else {
 		v.addError(errUnnamedReference)
@@ -575,6 +574,14 @@ func (v *Validator) getContractProperty(contract *typing.Contract, name string) 
 	return nil, false
 }
 
+func (v *Validator) getPackageProperty(pkg *typing.Package, name string) (typing.Type, bool) {
+	if p, has := pkg.Properties[name]; has {
+		v.checkVisible(contract, p, name)
+		return p, has
+	}
+	return nil, false
+}
+
 func (v *Validator) getInterfaceProperty(ifc *typing.Interface, name string) (typing.Type, bool) {
 
 	for k, _ := range ifc.Cancelled {
@@ -637,6 +644,8 @@ func (v *Validator) getTypeProperty(t typing.Type, name string) (typing.Type, bo
 		return v.getInterfaceProperty(c, name)
 	case *typing.Enum:
 		return v.getEnumProperty(c, name)
+	case *typing.Package:
+		return v.getPackageProperty(c, name)
 	case *typing.Tuple:
 		if len(c.Types) == 1 {
 			return v.getTypeProperty(c.Types[0], name)

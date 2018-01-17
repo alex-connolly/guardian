@@ -807,3 +807,13 @@ func TestParseEmptyReturn(t *testing.T) {
 	r := a.Sequence[0].(*ast.ReturnStatementNode)
 	goutil.AssertLength(t, len(r.Results), 0)
 }
+
+func TestImportGroup(t *testing.T) {
+	_, errs := ParseString(`
+		import (
+			"dog"
+			"cat"
+		)
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}

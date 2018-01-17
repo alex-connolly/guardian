@@ -28,11 +28,12 @@ func (v *Validator) validateStatement(node ast.Node) {
 		break
 	case ast.ImportStatementNode:
 		v.validateImportStatement(n)
-		break
+		return
 	case ast.PackageStatementNode:
 		v.validatePackageStatement(n)
-		break
+		return
 	}
+	v.finishedImports = true
 }
 
 func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
@@ -228,6 +229,9 @@ func (v *Validator) createPackageType(path string) *typing.Package {
 }
 
 func (v *Validator) validateImportStatement(node *ast.ImportStatementNode) {
+	if v.finishedImports {
+		v.addError(node.Start(), errFinishedImports)
+	}
 	if node.Alias != nil {
 		v.declareContextualType(node.Alias, v.createPackageType(node.Path))
 	} else {
@@ -235,8 +239,14 @@ func (v *Validator) validateImportStatement(node *ast.ImportStatementNode) {
 	}
 }
 
-func (v *Validator)
-
 func (v *Validator) validatePackageStatement(node *ast.PackageStatementNode) {
-
+	if node.Name == "" {
+		v.addError(node.Start(), errInvalidPackageName, node.Name)
+		return
+	}
+	if v.packageName == "" {
+		v.packageName = node.Name
+	} else {
+		v.addError(node.Start(), errDuplicatePackageName, node.Name, v.packageName)
+	}
 }

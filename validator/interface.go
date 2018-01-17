@@ -2,8 +2,9 @@ package validator
 
 import (
 	"fmt"
-
-	"github.com/end-r/guardian/lexer"
+	"log"
+	"os"
+	"strings"
 
 	"github.com/end-r/guardian/parser"
 
@@ -25,40 +26,65 @@ func ValidateExpression(vm VM, text string) (ast.ExpressionNode, util.Errors) {
 }
 
 // ValidateFile ...
-func ValidateFile(vm VM, name string) (*ast.ScopeNode, util.Errors) {
+func ValidateFile(vm VM, packageScope *ast.ScopeNode, name string) (*ast.ScopeNode, util.Errors) {
+	if !isGuardianFile(name) {
+		e := make(util.Errors)
+		e = append(e, util.Error{
+			Location: util.Location{
+				Filename: name,
+			},
+			Message: "Not a guardian file",
+		})
+	}
 	a, errs := parser.ParseFile(name)
 	if errs != nil {
 		return a, errs
 	}
-	es := Validate(a, vm)
+	es := Validate(a, packageScope, vm)
 	return a, es
 }
 
 // ValidatePackage ...
-func ValidatePackage(vm VM, path string) (*ast.ScopeNode, util.Errors) {
-	a, errs := parser.ParseFile(name)
-	if errs != nil {
-		return a, errs
+func ValidatePackage(vm VM, path string) (TypeScope, util.Errors) {
+	// open directory
+	// for all files in directory
+	// 1. enforce that they are from the s
+	file, err := os.Open(path)
+	if err != nil {
+		log.Fatalf("failed opening directory: %s", err)
 	}
-	es := Validate(a, vm)
-	return a, es
+	defer file.Close()
+
+	list, _ := file.Readdirnames(0) // 0 to read all files and folders
+	var pkgScope *TypeScope
+	var errors util.Errors
+	for _, name := range list {
+		if isGuardianFile(name) {
+			_, es := ValidateFile(vm, pkgScope, name)
+			errors = append(errors, es)
+		}
+	}
+	return pkgScope, errors
+}
+
+func isGuardianFile(name string) bool {
+	return strings.HasSuffix(name, ".grd")
 }
 
 // ValidateString ...
 func ValidateString(vm VM, text string) (*ast.ScopeNode, util.Errors) {
 	a, errs := parser.ParseString(text)
-	es := Validate(a, vm)
+	ts := &TypeScope{parent: nil, scope: scope}
+	es := Validate(a, ts, vm)
 	es = append(es, errs...)
 	return a, es
 }
 
 // Validate ...
-func Validate(scope *ast.ScopeNode, vm VM) util.Errors {
+func Validate(scope *ast.ScopeNode, typeScope *TypeScope, typevm VM) util.Errors {
 	v := new(Validator)
-	v.scope = &TypeScope{
-		parent: nil,
-		scope:  scope,
-	}
+
+	v.scope = typeScope
 
 	v.importVM(vm)
 
@@ -103,7 +129,12 @@ func (v *Validator) validateDeclarations(scope *ast.ScopeNode) {
 	}
 }
 
-func (v *Validator) validateSequence(scope *ast.ScopeNode) {
+func (v *Validator) validateSequence(scope *ast.ScopeNode, inFile bool) {
+	/*if inFile {
+		if len(scope.Sequence) == 0 || scope.Sequence.Type() != ast.PackageStatement {
+			v.addError(util.Location{Filename: v.fileName}, errInvalid, data)
+		}
+	}*/
 	for _, node := range scope.Sequence {
 		v.validate(node)
 	}
@@ -129,7 +160,7 @@ type Validator struct {
 	primitives        map[string]typing.Type
 	builtinVariables  map[string]typing.Type
 	modifierGroups    []*ModifierGroup
-	lexer             *lexer.Lexer
+	finishedImports   bool
 }
 
 // TypeScope ...

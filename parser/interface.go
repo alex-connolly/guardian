@@ -9,36 +9,36 @@ import (
 )
 
 // Parse ...
-func Parse(tokens []token.Token, errs util.Errors) (*ast.ScopeNode, util.Errors) {
+func Parse(lexer *lexer.Lexer) (*ast.ScopeNode, util.Errors) {
 	p := new(Parser)
-	p.lexer.Tokens = tokens
+	if lexer.Errors != nil {
+		return nil, lexer.Errors
+	}
+	p.lexer = lexer
 	p.line = 1
 	p.seenCastOperator = false
 	p.parseScope([]token.Type{token.CloseBrace}, ast.ContractDeclaration)
-	if errs != nil {
-		p.errs = append(p.errs, errs...)
-	}
 	return p.scope, p.errs
 }
 
 // ParseExpression ...
 func ParseExpression(expr string) ast.ExpressionNode {
 	p := new(Parser)
-	p.lexer.l = lexer.LexString(expr)
+	p.lexer = lexer.LexString(expr)
 	return p.parseExpression()
 }
 
 // ParseType ...
 func ParseType(t string) ast.Node {
 	p := new(Parser)
-	p.lexer.l = lexer.LexString(t)
+	p.lexer = lexer.LexString(t)
 	return p.parseType()
 }
 
 // ParseFile ...
 func ParseFile(path string) (scope *ast.ScopeNode, errs util.Errors) {
-	tokens, es := lexer.LexFile(path)
-	return Parse(tokens, es)
+	l := lexer.LexFile(path)
+	return Parse(l)
 }
 
 // ParseString ...
@@ -48,6 +48,6 @@ func ParseString(data string) (scope *ast.ScopeNode, errs util.Errors) {
 
 // ParseBytes ...
 func ParseBytes(data []byte) (scope *ast.ScopeNode, errs util.Errors) {
-	tokens, es := lexer.Lex("input", data)
-	return Parse(tokens, es)
+	lexer := lexer.Lex("input", data)
+	return Parse(lexer)
 }
