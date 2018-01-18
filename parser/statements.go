@@ -3,6 +3,8 @@ package parser
 import (
 	"fmt"
 
+	"github.com/end-r/guardian/util"
+
 	"github.com/end-r/guardian/token"
 
 	"github.com/blang/semver"
@@ -11,8 +13,12 @@ import (
 
 func parseReturnStatement(p *Parser) {
 
+	start := p.getCurrentTokenLocation()
+
 	p.parseRequired(token.Return)
 	node := ast.ReturnStatementNode{
+		Begin:   start,
+		Final:   p.getLastTokenLocation(),
 		Results: p.parseExpressionList(),
 	}
 	p.scope.AddSequential(&node)
@@ -35,13 +41,16 @@ func (p *Parser) parseOptionalAssignment() *ast.AssignmentStatementNode {
 	return nil
 }
 
-func (p *Parser) parsePostAssignment(assigned []ast.ExpressionNode) ast.AssignmentStatementNode {
+func (p *Parser) parsePostAssignment(start util.Location, assigned []ast.ExpressionNode) ast.AssignmentStatementNode {
+
 	if len(assigned) > 1 {
 		p.addError(p.getCurrentLocation(), errInvalidIncDec)
 	}
 	b := &ast.BinaryExpressionNode{
 		Left: assigned[0],
 		Right: &ast.LiteralNode{
+			Begin:       p.getCurrentTokenLocation(),
+			Final:       p.getLastTokenLocation(),
 			LiteralType: token.Integer,
 			Data:        "1",
 		},
@@ -52,6 +61,8 @@ func (p *Parser) parsePostAssignment(assigned []ast.ExpressionNode) ast.Assignme
 		b.Operator = token.Sub
 	}
 	return ast.AssignmentStatementNode{
+		Begin: start,
+		Final: p.getLastTokenLocation(),
 		Left:  assigned,
 		Right: []ast.ExpressionNode{b},
 	}
@@ -73,6 +84,8 @@ var assigns = map[token.Type]token.Type{
 
 func (p *Parser) parseAssignment(expressionParser func(p *Parser) ast.ExpressionNode) ast.AssignmentStatementNode {
 
+	start := p.getCurrentTokenLocation()
+
 	var assigned []ast.ExpressionNode
 	assigned = append(assigned, expressionParser(p))
 	for p.parseOptional(token.Comma) {
@@ -81,7 +94,7 @@ func (p *Parser) parseAssignment(expressionParser func(p *Parser) ast.Expression
 
 	switch p.current().Type {
 	case token.Increment, token.Decrement:
-		return p.parsePostAssignment(assigned)
+		return p.parsePostAssignment(start, assigned)
 	case token.Assign:
 		p.next()
 		var to []ast.ExpressionNode
@@ -91,6 +104,8 @@ func (p *Parser) parseAssignment(expressionParser func(p *Parser) ast.Expression
 		}
 
 		return ast.AssignmentStatementNode{
+			Begin: start,
+			Final: p.getLastTokenLocation(),
 			Left:  assigned,
 			Right: to,
 		}
@@ -104,6 +119,8 @@ func (p *Parser) parseAssignment(expressionParser func(p *Parser) ast.Expression
 				to = append(to, expressionParser(p))
 			}
 			return ast.AssignmentStatementNode{
+				Begin:    start,
+				Final:    p.getLastTokenLocation(),
 				Left:     assigned,
 				Right:    to,
 				Operator: a,
@@ -124,6 +141,8 @@ func (p *Parser) parseFullAssignment() ast.AssignmentStatementNode {
 
 func parseIfStatement(p *Parser) {
 
+	start := p.getCurrentTokenLocation()
+
 	p.parseRequired(token.If)
 
 	// parse init expr, can be nil
@@ -131,21 +150,28 @@ func parseIfStatement(p *Parser) {
 
 	var conditions []*ast.ConditionNode
 
+	condStart := p.getCurrentTokenLocation()
+
 	// parse initial if condition, required
 	cond := p.parseSimpleExpression()
 
 	body := p.parseBracesScope()
 
 	conditions = append(conditions, &ast.ConditionNode{
+		Begin:     condStart,
+		Final:     p.getLastTokenLocation(),
 		Condition: cond,
 		Body:      body,
 	})
 
 	// parse elif cases
 	for p.parseOptional(token.ElseIf) {
+		condStart := p.getCurrentTokenLocation()
 		condition := p.parseSimpleExpression()
 		body := p.parseBracesScope()
 		conditions = append(conditions, &ast.ConditionNode{
+			Begin:     condStart,
+			Final:     p.getLastTokenLocation(),
 			Condition: condition,
 			Body:      body,
 		})
@@ -158,6 +184,8 @@ func parseIfStatement(p *Parser) {
 	}
 
 	node := ast.IfStatementNode{
+		Begin:      start,
+		Final:      p.getLastTokenLocation(),
 		Init:       init,
 		Conditions: conditions,
 		Else:       elseBlock,
@@ -172,6 +200,8 @@ func parseIfStatement(p *Parser) {
 }
 
 func parseForStatement(p *Parser) {
+
+	start := p.getCurrentTokenLocation()
 
 	p.parseRequired(token.For)
 
@@ -196,6 +226,8 @@ func parseForStatement(p *Parser) {
 	body := p.parseBracesScope()
 
 	node := ast.ForStatementNode{
+		Begin: start,
+		Final: p.getLastTokenLocation(),
 		Init:  init,
 		Cond:  cond,
 		Post:  post,
@@ -213,6 +245,8 @@ func parseForStatement(p *Parser) {
 
 func parseForEachStatement(p *Parser) {
 
+	start := p.getCurrentTokenLocation()
+
 	p.parseRequired(token.For)
 
 	vars := p.parseIdentifierList()
@@ -224,6 +258,8 @@ func parseForEachStatement(p *Parser) {
 	body := p.parseBracesScope()
 
 	node := ast.ForEachStatementNode{
+		Begin:     start,
+		Final:     p.getLastTokenLocation(),
 		Variables: vars,
 		Producer:  producer,
 		Block:     body,
@@ -235,12 +271,16 @@ func parseForEachStatement(p *Parser) {
 func parseFlowStatement(p *Parser) {
 	node := ast.FlowStatementNode{
 		Token: p.current().Type,
+		Begin: p.getCurrentTokenLocation(),
+		Final: p.getLastTokenLocation(),
 	}
 	p.next()
 	p.scope.AddSequential(&node)
 }
 
 func parseCaseStatement(p *Parser) {
+
+	start := p.getCurrentTokenLocation()
 
 	p.parseRequired(token.Case)
 
@@ -255,6 +295,8 @@ func parseCaseStatement(p *Parser) {
 	}
 
 	node := ast.CaseStatementNode{
+		Begin:       start,
+		Final:       p.getLastTokenLocation(),
 		Expressions: exprs,
 		Block:       p.scope,
 	}
@@ -263,6 +305,8 @@ func parseCaseStatement(p *Parser) {
 }
 
 func parseSwitchStatement(p *Parser) {
+
+	start := p.getCurrentTokenLocation()
 
 	exclusive := p.parseOptional(token.Exclusive)
 
@@ -274,6 +318,8 @@ func parseSwitchStatement(p *Parser) {
 	cases := p.parseBracesScope(ast.CaseStatement)
 
 	node := ast.SwitchStatementNode{
+		Begin:       start,
+		Final:       p.getLastTokenLocation(),
 		IsExclusive: exclusive,
 		Target:      target,
 		Cases:       cases,
@@ -286,6 +332,8 @@ func parseSwitchStatement(p *Parser) {
 func parseImportStatement(p *Parser) {
 
 	p.parseGroupable(token.Import, func(arg2 *Parser) {
+
+		start := p.getCurrentTokenLocation()
 		var alias, path string
 
 		if p.isNextToken(token.String) {
@@ -297,12 +345,13 @@ func parseImportStatement(p *Parser) {
 		p.next()
 
 		if p.parseOptional(token.As) {
-
 			alias = p.parseIdentifier()
 		}
 		p.ignoreNewLines()
 
 		node := ast.ImportStatementNode{
+			Begin: start,
+			Final: p.getLastTokenLocation(),
 			Alias: alias,
 			Path:  path,
 		}
@@ -312,6 +361,9 @@ func parseImportStatement(p *Parser) {
 }
 
 func parsePackageStatement(p *Parser) {
+
+	start := p.getCurrentTokenLocation()
+
 	p.parseRequired(token.Package)
 
 	name := p.parseIdentifier()
@@ -321,6 +373,8 @@ func parsePackageStatement(p *Parser) {
 	version := p.parseSemver()
 
 	node := ast.PackageStatementNode{
+		Begin:   start,
+		Final:   p.getLastTokenLocation(),
 		Name:    name,
 		Version: version,
 	}

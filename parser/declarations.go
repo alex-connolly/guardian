@@ -14,6 +14,8 @@ func parseInterfaceDeclaration(p *Parser) {
 
 	p.parseGroupable(token.Interface, func(p *Parser) {
 
+		start := p.getCurrentTokenLocation()
+
 		identifier := p.parseIdentifier()
 
 		generics := p.parsePossibleGenerics()
@@ -27,6 +29,8 @@ func parseInterfaceDeclaration(p *Parser) {
 		signatures := p.parseInterfaceSignatures()
 
 		node := ast.InterfaceDeclarationNode{
+			Begin:      start,
+			Final:      p.getLastTokenLocation(),
 			Identifier: identifier,
 			Generics:   generics,
 			Supers:     inherits,
@@ -106,6 +110,8 @@ func parseEnumDeclaration(p *Parser) {
 
 	p.parseGroupable(token.Enum, func(p *Parser) {
 
+		start := p.getCurrentTokenLocation()
+
 		identifier := p.parseIdentifier()
 
 		var inherits []*ast.PlainTypeNode
@@ -117,6 +123,8 @@ func parseEnumDeclaration(p *Parser) {
 		enums := p.parseEnumBody()
 
 		node := ast.EnumDeclarationNode{
+			Begin:      start,
+			Final:      p.getLastTokenLocation(),
 			Modifiers:  p.getModifiers(),
 			Identifier: identifier,
 			Inherits:   inherits,
@@ -186,6 +194,8 @@ func (p *Parser) parsePlainTypeList() []*ast.PlainTypeNode {
 
 func parseClassBody(p *Parser) {
 
+	start := p.getCurrentTokenLocation()
+
 	identifier := p.parseIdentifier()
 
 	generics := p.parsePossibleGenerics()
@@ -208,6 +218,8 @@ func parseClassBody(p *Parser) {
 	body := p.parseBracesScope()
 
 	node := ast.ClassDeclarationNode{
+		Begin:      start,
+		Final:      p.getLastTokenLocation(),
 		Identifier: identifier,
 		Generics:   generics,
 		Supers:     inherits,
@@ -224,6 +236,7 @@ func parseClassDeclaration(p *Parser) {
 }
 
 func parseContractBody(p *Parser) {
+	start := p.current().Start
 	identifier := p.parseIdentifier()
 
 	generics := p.parsePossibleGenerics()
@@ -254,6 +267,8 @@ func parseContractBody(p *Parser) {
 	body := p.parseBracesScope(valids...)
 
 	node := ast.ContractDeclarationNode{
+		Begin:      start,
+		Final:      p.getLastTokenLocation(),
 		Identifier: identifier,
 		Generics:   generics,
 		Supers:     inherits,
@@ -309,12 +324,15 @@ func (p *Parser) parseType() ast.Node {
 
 func (p *Parser) parseVarDeclaration() *ast.ExplicitVarDeclarationNode {
 	var names []string
+	start := p.current().Start
 	names = append(names, p.parseIdentifier())
 	for p.parseOptional(token.Comma) {
 		names = append(names, p.parseIdentifier())
 	}
 	dType := p.parseType()
 	e := &ast.ExplicitVarDeclarationNode{
+		Begin:        start,
+		Final:        p.getLastTokenLocation(),
 		Modifiers:    p.getModifiers(),
 		DeclaredType: dType,
 		Identifiers:  names,
@@ -394,6 +412,8 @@ func (p *Parser) parseFuncSignature() *ast.FuncTypeNode {
 
 func parseFuncDeclaration(p *Parser) {
 
+	start := p.getCurrentTokenLocation()
+
 	p.parseRequired(token.Func)
 
 	generics := p.parsePossibleGenerics()
@@ -403,6 +423,8 @@ func parseFuncDeclaration(p *Parser) {
 	body := p.parseBracesScope(ast.ExplicitVarDeclaration, ast.FuncDeclaration)
 
 	node := ast.FuncDeclarationNode{
+		Begin:     start,
+		Final:     p.getLastTokenLocation(),
 		Signature: signature,
 		Generics:  generics,
 		Modifiers: p.getModifiers(),
@@ -416,6 +438,8 @@ func parseFuncDeclaration(p *Parser) {
 
 func parseLifecycleDeclaration(p *Parser) {
 
+	start := p.getCurrentTokenLocation()
+
 	category := p.parseRequired(token.GetLifecycles()...)
 
 	params := p.parseParameters()
@@ -423,6 +447,8 @@ func parseLifecycleDeclaration(p *Parser) {
 	body := p.parseBracesScope(ast.ExplicitVarDeclaration, ast.FuncDeclaration)
 
 	node := ast.LifecycleDeclarationNode{
+		Begin:      start,
+		Final:      p.getLastTokenLocation(),
 		Modifiers:  p.getModifiers(),
 		Category:   category,
 		Parameters: params,
@@ -439,11 +465,15 @@ func parseLifecycleDeclaration(p *Parser) {
 func parseTypeDeclaration(p *Parser) {
 
 	p.parseGroupable(token.KWType, func(p *Parser) {
+
+		start := p.getCurrentTokenLocation()
 		identifier := p.parseIdentifier()
 
 		value := p.parseType()
 
 		n := ast.TypeDeclarationNode{
+			Begin:      start,
+			Final:      p.getLastTokenLocation(),
 			Modifiers:  p.getModifiers(),
 			Identifier: identifier,
 			Value:      value,
@@ -454,6 +484,8 @@ func parseTypeDeclaration(p *Parser) {
 }
 
 func (p *Parser) parseMapType() *ast.MapTypeNode {
+
+	start := p.getCurrentTokenLocation()
 
 	variable := p.parseOptional(token.Ellipsis)
 
@@ -467,6 +499,8 @@ func (p *Parser) parseMapType() *ast.MapTypeNode {
 	value := p.parseType()
 
 	mapType := ast.MapTypeNode{
+		Begin:    start,
+		Final:    p.getLastTokenLocation(),
 		Key:      key,
 		Value:    value,
 		Variable: variable,
@@ -478,6 +512,8 @@ func (p *Parser) parseMapType() *ast.MapTypeNode {
 func (p *Parser) parseFuncType() *ast.FuncTypeNode {
 
 	f := ast.FuncTypeNode{}
+
+	f.Begin = p.getCurrentTokenLocation()
 
 	f.Variable = p.parseOptional(token.Ellipsis)
 
@@ -495,6 +531,8 @@ func (p *Parser) parseFuncType() *ast.FuncTypeNode {
 	} else {
 		f.Results = p.parseFuncTypeParameters()
 	}
+
+	f.Final = p.getLastTokenLocation()
 
 	return &f
 }
@@ -544,6 +582,8 @@ func (p *Parser) parseFuncTypeParameters() []ast.Node {
 
 func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 
+	start := p.getCurrentTokenLocation()
+
 	variable := p.parseOptional(token.Ellipsis)
 
 	p.parseRequired(token.OpenSquare)
@@ -568,6 +608,8 @@ func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 	typ := p.parseType()
 
 	return &ast.ArrayTypeNode{
+		Begin:    start,
+		Final:    p.getLastTokenLocation(),
 		Value:    typ,
 		Variable: variable,
 		Length:   max,
@@ -576,6 +618,7 @@ func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 
 func (p *Parser) parseOptionallyTypedVarDeclaration() *ast.ExplicitVarDeclarationNode {
 	// can be a simple list of identifiers
+
 	var names []string
 	names = append(names, p.parseIdentifier())
 	for p.parseOptional(token.Comma) {
@@ -599,13 +642,19 @@ func (p *Parser) parseOptionallyTypedVarDeclaration() *ast.ExplicitVarDeclaratio
 
 func processVarDeclaration(constant bool) func(p *Parser) {
 	return func(p *Parser) {
+		start := p.getCurrentTokenLocation()
+
 		e := p.parseOptionallyTypedVarDeclaration()
+
+		e.Begin = start
 
 		e.IsConstant = constant
 
 		if p.parseOptional(token.Assign) {
 			e.Value = p.parseExpression()
 		}
+
+		e.Final = p.getLastTokenLocation()
 
 		if e.IsConstant && e.Value == nil {
 			p.addError(p.getCurrentLocation(), errConstantWithoutValue)
@@ -633,6 +682,8 @@ func parseExplicitVarDeclaration(p *Parser) {
 }
 
 func parseEventDeclaration(p *Parser) {
+
+	start := p.getCurrentTokenLocation()
 	p.parseRequired(token.Event)
 
 	generics := p.parsePossibleGenerics()
@@ -642,6 +693,8 @@ func parseEventDeclaration(p *Parser) {
 	var types = p.parseParameters()
 
 	node := ast.EventDeclarationNode{
+		Begin:      start,
+		Final:      p.getLastTokenLocation(),
 		Modifiers:  p.getModifiers(),
 		Identifier: name,
 		Generics:   generics,

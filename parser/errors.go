@@ -6,7 +6,7 @@ const (
 	errMixedNamedParameters       = "Mixed named and unnamed parameters"
 	errInvalidArraySize           = "Invalid array size"
 	errEmptyGroup                 = "Group declaration must apply modifiers"
-	errDanglingExpression         = "Dangling expression"
+	errDanglingExpression         = "Expression evaluated but not used"
 	errConstantWithoutValue       = "Constants must have a value"
 	errUnclosedGroup              = "Unclosed group not allowed"
 	errInvalidScopeDeclaration    = "Invalid declaration in scope"

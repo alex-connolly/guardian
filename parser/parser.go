@@ -130,6 +130,22 @@ func listTypes(types []token.Type) string {
 	return s[:len(s)-1]
 }
 
+func (p *Parser) getLastTokenLocation() util.Location {
+	if p.index >= len(p.lexer.Tokens) {
+		// return end of last available token
+		return p.lexer.Tokens[len(p.lexer.Tokens)-1].End
+	}
+	return p.token(-1).End
+}
+
+func (p *Parser) getCurrentTokenLocation() util.Location {
+	if p.index >= len(p.lexer.Tokens) {
+		// return start of last available token
+		return p.lexer.Tokens[len(p.lexer.Tokens)-1].Start
+	}
+	return p.current().Start
+}
+
 func (p *Parser) parseIdentifier() string {
 	if !p.hasTokens(1) {
 		p.addError(p.getCurrentLocation(), fmt.Sprintf(errRequiredType, "identifier", "nothing"))

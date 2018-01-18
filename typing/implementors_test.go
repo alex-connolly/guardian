@@ -12,7 +12,7 @@ func TestClassImplementsTypeValid(t *testing.T) {
             item = Light{}
         }
     `)
-	errs := Validate(scope, NewTestVM())
+	errs := Validate(scope, nil, NewTestVM())
 	le := scope.Declarations.Length()
 	goutil.AssertNow(t, le == 4, fmt.Sprintf("wrong decl length: %d", le))
 	goutil.Assert(t, len(errs) == 0, errs.Format())
@@ -30,7 +30,7 @@ func TestClassImplementsMultipleTypesValid(t *testing.T) {
             item = Light{}
         }
     `)
-	errs := Validate(scope, NewTestVM())
+	errs := Validate(scope, nil, NewTestVM())
 	goutil.Assert(t, len(errs) == 0, errs.Format())
 }
 
@@ -45,7 +45,7 @@ func TestClassImplementsInvalid(t *testing.T) {
             item = Light{}
         }
     `)
-	errs := Validate(scope, NewTestVM())
+	errs := Validate(scope, nil, NewTestVM())
 	goutil.Assert(t, len(errs) == 1, errs.Format())
 }
 
@@ -61,7 +61,7 @@ func TestClassImplementsTypeValidInterfaceInheritance(t *testing.T) {
             item = Light{}
         }
     `)
-	errs := Validate(scope, NewTestVM())
+	errs := Validate(scope, nil, NewTestVM())
 	goutil.Assert(t, len(errs) == 0, errs.Format())
 }
 
@@ -79,7 +79,7 @@ func TestClassImplementsTypeValidClassAndInterfaceInheritance(t *testing.T) {
             item = Light{}
         }
     `)
-	errs := Validate(scope, NewTestVM())
+	errs := Validate(scope, nil, NewTestVM())
 	goutil.Assert(t, len(errs) == 0, errs.Format())
 }
 */

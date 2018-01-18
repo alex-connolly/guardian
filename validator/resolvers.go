@@ -576,7 +576,7 @@ func (v *Validator) getContractProperty(exp ast.ExpressionNode, contract *typing
 }
 
 func (v *Validator) getPackageProperty(exp ast.ExpressionNode, pkg *typing.Package, name string) (typing.Type, bool) {
-	if p, has := pkg.Properties[name]; has {
+	if p, has := pkg.Variables[name]; has {
 		v.checkVisible(exp, pkg, p, name)
 		return p, has
 	}

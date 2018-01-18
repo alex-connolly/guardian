@@ -167,6 +167,8 @@ func (p *Parser) finalise(expStack []ast.ExpressionNode, opStack []token.Type) a
 		n.Right, expStack = expStack[len(expStack)-1], expStack[:len(expStack)-1]
 		n.Left, expStack = expStack[len(expStack)-1], expStack[:len(expStack)-1]
 		n.Operator, opStack = opStack[len(opStack)-1], opStack[:len(opStack)-1]
+		n.Begin = n.Right.Start()
+		n.Final = n.Left.End()
 		expStack = append(expStack, &n)
 	}
 	if len(expStack) == 0 {
@@ -263,17 +265,21 @@ func (p *Parser) isCompositeLiteral() bool {
 
 func (p *Parser) parsePrefixUnaryExpression() *ast.UnaryExpressionNode {
 	n := new(ast.UnaryExpressionNode)
+	n.Begin = p.getCurrentTokenLocation()
 	n.Operator = p.current().Type
 	p.next()
 	n.Operand = p.parseExpression()
+	n.Final = p.getLastTokenLocation()
 	return n
 }
 
 func (p *Parser) parseReference(expr ast.ExpressionNode) *ast.ReferenceNode {
 	n := new(ast.ReferenceNode)
+	n.Begin = p.getCurrentTokenLocation()
 	p.parseRequired(token.Dot)
 	n.Parent = expr
 	n.Reference = p.parseExpressionComponent()
+	n.Final = p.getLastTokenLocation()
 	return n
 }
 
@@ -288,6 +294,7 @@ func (p *Parser) parseIdentifierList() []string {
 
 func (p *Parser) parseKeywordExpression() *ast.KeywordNode {
 	n := new(ast.KeywordNode)
+	n.Begin = p.getCurrentTokenLocation()
 	n.Keyword = p.parseRequired(token.New)
 	n.TypeNode = p.parseType()
 	p.parseRequired(token.OpenBracket)
@@ -297,11 +304,13 @@ func (p *Parser) parseKeywordExpression() *ast.KeywordNode {
 		p.ignoreNewLines()
 		p.parseRequired(token.CloseBracket)
 	}
+	n.Final = p.getLastTokenLocation()
 	return n
 }
 
 func (p *Parser) parseCallExpression(expr ast.ExpressionNode) *ast.CallExpressionNode {
 	n := new(ast.CallExpressionNode)
+	n.Begin = expr.Start()
 	n.Call = expr
 	p.parseRequired(token.OpenBracket)
 	if !p.parseOptional(token.CloseBracket) {
@@ -310,12 +319,14 @@ func (p *Parser) parseCallExpression(expr ast.ExpressionNode) *ast.CallExpressio
 		p.ignoreNewLines()
 		p.parseRequired(token.CloseBracket)
 	}
+	n.Final = p.getLastTokenLocation()
 	return n
 }
 
 func (p *Parser) parseArrayLiteral() *ast.ArrayLiteralNode {
 
 	n := new(ast.ArrayLiteralNode)
+	n.Begin = p.getCurrentLocation()
 	// [string:3]{"Dog", "Cat", ""}
 
 	n.Signature = p.parseArrayType()
@@ -328,11 +339,14 @@ func (p *Parser) parseArrayLiteral() *ast.ArrayLiteralNode {
 		p.ignoreNewLines()
 		p.parseRequired(token.CloseBrace)
 	}
+	n.Final = p.getLastTokenLocation()
 	return n
 }
 
 func (p *Parser) parseFuncLiteral() *ast.FuncLiteralNode {
 	n := new(ast.FuncLiteralNode)
+
+	n.Begin = p.getCurrentLocation()
 
 	p.parseRequired(token.Func)
 
@@ -341,11 +355,13 @@ func (p *Parser) parseFuncLiteral() *ast.FuncLiteralNode {
 	n.Results = p.parseResults()
 
 	n.Scope = p.parseBracesScope()
+	n.Final = p.getLastTokenLocation()
 	return n
 }
 
 func (p *Parser) parseMapLiteral() *ast.MapLiteralNode {
 	n := new(ast.MapLiteralNode)
+	n.Begin = p.getCurrentLocation()
 	n.Signature = p.parseMapType()
 
 	p.parseRequired(token.OpenBrace)
@@ -371,6 +387,7 @@ func (p *Parser) parseMapLiteral() *ast.MapLiteralNode {
 		p.ignoreNewLines()
 		p.parseRequired(token.CloseBrace)
 	}
+	n.Final = p.getLastTokenLocation()
 	return n
 }
 
@@ -389,6 +406,7 @@ func (p *Parser) parseExpressionList() (list []ast.ExpressionNode) {
 
 func (p *Parser) parseIndexExpression(expr ast.ExpressionNode) ast.ExpressionNode {
 	n := ast.IndexExpressionNode{}
+	n.Begin = expr.Start()
 	p.parseRequired(token.OpenSquare)
 	if p.parseOptional(token.Colon) {
 		return p.parseSliceExpression(expr, nil)
@@ -400,43 +418,46 @@ func (p *Parser) parseIndexExpression(expr ast.ExpressionNode) ast.ExpressionNod
 	p.parseRequired(token.CloseSquare)
 	n.Expression = expr
 	n.Index = index
+	n.Final = p.getLastTokenLocation()
 	return &n
 }
 
 func (p *Parser) parseSliceExpression(expr ast.ExpressionNode,
 	first ast.ExpressionNode) *ast.SliceExpressionNode {
 	n := ast.SliceExpressionNode{}
+	n.Begin = p.getCurrentTokenLocation()
 	n.Expression = expr
 	n.Low = first
 	if !p.parseOptional(token.CloseSquare) {
 		n.High = p.parseExpression()
 		p.parseRequired(token.CloseSquare)
 	}
+	n.Final = p.getLastTokenLocation()
 	return &n
 }
 
 func (p *Parser) parseIdentifierExpression() *ast.IdentifierNode {
 	n := new(ast.IdentifierNode)
-	n.Begin = p.current().Start
-	n.Final = p.current().End
+	n.Begin = p.getCurrentTokenLocation()
 	n.Name = p.parseIdentifier()
-
+	n.Final = p.getLastTokenLocation()
 	return n
 }
 
 func (p *Parser) parseLiteral() *ast.LiteralNode {
 	n := new(ast.LiteralNode)
-	n.Begin = p.current().Start
+	n.Begin = p.getCurrentTokenLocation()
 	n.LiteralType = p.current().Type
-	n.Data = p.current().String(p.lexer)
-	n.Final = p.current().End
+	n.Data = p.current().TrimmedString(p.lexer)
 	p.next()
+	n.Final = p.getLastTokenLocation()
 	return n
 }
 
 func (p *Parser) parseCompositeLiteral() *ast.CompositeLiteralNode {
 	n := new(ast.CompositeLiteralNode)
 	// expr must be a reference or identifier node
+	n.Begin = p.getCurrentTokenLocation()
 	n.TypeName = p.parsePlainType()
 
 	p.parseRequired(token.OpenBrace)
@@ -465,5 +486,6 @@ func (p *Parser) parseCompositeLiteral() *ast.CompositeLiteralNode {
 		p.parseOptional(token.NewLine)
 		p.parseRequired(token.CloseBrace)
 	}
+	n.Final = p.getLastTokenLocation()
 	return n
 }

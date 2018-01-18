@@ -221,10 +221,8 @@ func (v *Validator) createPackageType(path string) *typing.Package {
 		v.errs = append(v.errs, errs...)
 	}
 	pkg := new(typing.Package)
-	pkg.Properties = v.scope.types
-	for k, v := range v.scope.variables {
-		pkg.Properties[k] = v
-	}
+	pkg.Variables = scope.variables
+	pkg.Types = scope.types
 	return pkg
 }
 

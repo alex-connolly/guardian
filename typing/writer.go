@@ -58,6 +58,7 @@ func (m *Map) write(b *bytes.Buffer) {
 
 func (f *Func) write(b *bytes.Buffer) {
 	b.WriteString("func")
+	b.WriteString(f.Name)
 	f.Params.write(b)
 	f.Results.write(b)
 }

@@ -3,7 +3,7 @@ package standard version 0.0.1
 contract BasicIterator {
 
     var creator address
-    var integers uint8[10]
+    var integers [10]uint8
 
     constructor(){
         creator = call.caller
