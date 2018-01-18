@@ -139,10 +139,12 @@ main:
 
 				opStack = append(opStack, current)
 			} else {
+				saved := *p
 				expr := p.parseExpressionComponent()
 
 				// if it isn't an expression
 				if expr == nil {
+					*p = saved
 					return p.finalise(expStack, opStack)
 				}
 				expStack = append(expStack, expr)

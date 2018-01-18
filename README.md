@@ -79,6 +79,10 @@ contract Watcher {
     doThing(){
         // this is a function from the guard package
         guard.watch()
+        // this is a function from the 'a' package
+        a.sayHi()
+        // this is an event from the 'e' package
+        ealias.LogEvent()
     }
 }
 

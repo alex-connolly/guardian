@@ -61,6 +61,10 @@ func (v *Validator) validateCallExpression(call *ast.CallExpressionNode) {
 			v.addError(call.Start(), errInvalidFuncCall, typing.WriteType(args), typing.WriteType(a))
 		}
 		break
+	case *typing.Event:
+		if !typing.AssignableTo(a.Parameters, args, false) {
+			v.addError(call.Start(), errInvalidFuncCall, typing.WriteType(args), typing.WriteType(a))
+		}
 	default:
 		v.addError(call.Start(), errInvalidCall, typing.WriteType(exprType))
 	}

@@ -135,6 +135,7 @@ func isAssignmentStatement(p *Parser) bool {
 			// assume these will be expressions
 			p.parseExpression()
 		}
+
 		return p.isNextTokenAssignment()
 	})
 }
@@ -160,7 +161,8 @@ func isSimpleAssignmentStatement(p *Parser) bool {
 			// assume these will be expressions
 			p.parseSimpleExpression()
 		}
-		return p.isNextTokenAssignment()
+		t := p.isNextTokenAssignment()
+		return t
 	})
 
 }

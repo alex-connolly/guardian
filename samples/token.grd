@@ -1,6 +1,5 @@
 package standard version 0.0.1
 
-
 contract tokenRecipient {
     func receiveApproval(token, from address, value uint256, extra bytes)
 }
@@ -23,7 +22,7 @@ contract Token {
     event Transfer(indexed from, to address, value uint256)
 
     /* This notifies clients about the amount burnt */
-    event Burn(from address indexed, value uint256)
+    event Burn(indexed from address, value uint256)
 
     /* Initializes contract with initial supply tokens to the creator of the contract */
     constructor(initial uint256, name string, symbol string, decimals uint8){

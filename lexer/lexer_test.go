@@ -183,3 +183,12 @@ func TestInterfaceInheritance(t *testing.T) {
 	`)
 	goutil.AssertNow(t, len(l.Errors) == 0, l.Errors.Format())
 }
+
+func TestAddAssign(t *testing.T) {
+	l := LexString(`y += 5`)
+	checkTokens(t, l.Tokens, []token.Type{
+		token.Identifier,
+		token.AddAssign,
+		token.Integer,
+	})
+}

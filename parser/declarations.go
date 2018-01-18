@@ -89,11 +89,13 @@ func (p *Parser) parseEnumBody() []string {
 		first := p.parseIdentifier()
 		enums = append(enums, first)
 		for p.parseOptional(token.Comma) {
-
 			p.ignoreNewLines()
 
 			if p.current().Type == token.Identifier {
 				enums = append(enums, p.parseIdentifier())
+			} else if p.current().Type == token.CloseBrace {
+				p.parseRequired(token.CloseBrace)
+				return enums
 			} else {
 				p.addError(p.getCurrentLocation(), errInvalidEnumProperty)
 			}

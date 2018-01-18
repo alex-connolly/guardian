@@ -72,3 +72,58 @@ func TestGroupsContract(t *testing.T) {
 	goutil.Assert(t, p != nil, "parser should not be nil")
 	goutil.Assert(t, errs == nil, errs.Format())
 }
+
+func TestSampleClass(t *testing.T) {
+	_, errs := ParseFile("../samples/class.grd")
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestSampleContract(t *testing.T) {
+	_, errs := ParseFile("../samples/contracts.grd")
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestSampleLoops(t *testing.T) {
+	_, errs := ParseFile("../samples/loops.grd")
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestSampleSwitching(t *testing.T) {
+	_, errs := ParseFile("../samples/switching.grd")
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestSampleTypes(t *testing.T) {
+	_, errs := ParseFile("../samples/types.grd")
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestSampleIterator(t *testing.T) {
+	_, errs := ParseFile("../samples/iterator.grd")
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestSampleToken(t *testing.T) {
+	_, errs := ParseFile("../samples/token.grd")
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestSampleKV(t *testing.T) {
+	_, errs := ParseFile("../samples/kv.grd")
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestSampleAccessRestriction(t *testing.T) {
+	_, errs := ParseFile("../samples/common_patterns/access_restriction.grd")
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestSampleRichest(t *testing.T) {
+	_, errs := ParseFile("../samples/common_patterns/richest.grd")
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestSampleStateMachine(t *testing.T) {
+	_, errs := ParseFile("../samples/common_patterns/state_machine.grd")
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}

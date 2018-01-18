@@ -58,6 +58,9 @@ func (l *Lexer) next() {
 			l.byteOffset++
 		} else {
 			l.Tokens = append(l.Tokens, t)
+			if pt.Type == token.NewLine {
+				l.line++
+			}
 		}
 	} else {
 		l.addError(l.getCurrentLocation(), "Unrecognised token")

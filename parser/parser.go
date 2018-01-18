@@ -72,7 +72,9 @@ func (p *Parser) parseOptional(types ...token.Type) bool {
 			return true
 		}
 	}
-	p.ignoreComments()
+	if !p.hasTokens(1) {
+		return false
+	}
 	for _, t := range types {
 		if p.current().Type == t {
 			p.next()
@@ -313,6 +315,7 @@ func (p *Parser) parsePossibleSequentialExpression(expr ast.ExpressionNode) {
 	case ast.CallExpression:
 		//fmt.Println("call")
 		p.scope.AddSequential(expr)
+		p.parseOptional(token.Semicolon)
 		return
 	case ast.Reference:
 		for r := expr; r != nil; {

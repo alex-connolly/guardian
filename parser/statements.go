@@ -60,6 +60,7 @@ func (p *Parser) parsePostAssignment(start util.Location, assigned []ast.Express
 	} else if p.parseOptional(token.Decrement) {
 		b.Operator = token.Sub
 	}
+	p.parseOptional(token.Semicolon)
 	return ast.AssignmentStatementNode{
 		Begin: start,
 		Final: p.getLastTokenLocation(),
@@ -83,7 +84,6 @@ var assigns = map[token.Type]token.Type{
 }
 
 func (p *Parser) parseAssignment(expressionParser func(p *Parser) ast.ExpressionNode) ast.AssignmentStatementNode {
-
 	start := p.getCurrentTokenLocation()
 
 	var assigned []ast.ExpressionNode
@@ -96,13 +96,13 @@ func (p *Parser) parseAssignment(expressionParser func(p *Parser) ast.Expression
 	case token.Increment, token.Decrement:
 		return p.parsePostAssignment(start, assigned)
 	case token.Assign:
-		p.next()
+		p.parseRequired(token.Assign)
 		var to []ast.ExpressionNode
+
 		to = append(to, expressionParser(p))
 		for p.parseOptional(token.Comma) {
 			to = append(to, expressionParser(p))
 		}
-
 		return ast.AssignmentStatementNode{
 			Begin: start,
 			Final: p.getLastTokenLocation(),
@@ -118,6 +118,7 @@ func (p *Parser) parseAssignment(expressionParser func(p *Parser) ast.Expression
 			for p.parseOptional(token.Comma) {
 				to = append(to, expressionParser(p))
 			}
+			p.parseOptional(token.Semicolon)
 			return ast.AssignmentStatementNode{
 				Begin:    start,
 				Final:    p.getLastTokenLocation(),

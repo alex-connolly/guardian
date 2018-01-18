@@ -5,8 +5,8 @@ contract AccessRestriction {
     // phase, where `msg.sender` is the account
     // creating this contract.
     var (
-        Owner = call.caller
-        CreationTime = now
+        owner = msg.sender
+        creationTime = now
     )
 
     // Modifiers can be used to change
