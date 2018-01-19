@@ -3,8 +3,6 @@ package parser
 import (
 	"fmt"
 
-	"github.com/end-r/guardian/util"
-
 	"github.com/end-r/guardian/token"
 
 	"github.com/blang/semver"
@@ -41,8 +39,7 @@ func (p *Parser) parseOptionalAssignment() *ast.AssignmentStatementNode {
 	return nil
 }
 
-func (p *Parser) parsePostAssignment(start util.Location, assigned []ast.ExpressionNode) ast.AssignmentStatementNode {
-
+func (p *Parser) parsePostAssignment(assigned []ast.ExpressionNode) ast.AssignmentStatementNode {
 	if len(assigned) > 1 {
 		p.addError(p.getCurrentTokenLocation(), errInvalidIncDec)
 	}
@@ -62,7 +59,7 @@ func (p *Parser) parsePostAssignment(start util.Location, assigned []ast.Express
 	}
 	p.parseOptional(token.Semicolon)
 	return ast.AssignmentStatementNode{
-		Begin: start,
+		Begin: assigned[0].Start(),
 		Final: p.getLastTokenLocation(),
 		Left:  assigned,
 		Right: []ast.ExpressionNode{b},
@@ -83,18 +80,10 @@ var assigns = map[token.Type]token.Type{
 	token.ShrAssign: token.Shr,
 }
 
-func (p *Parser) parseAssignment(expressionParser func(p *Parser) ast.ExpressionNode) ast.AssignmentStatementNode {
-	start := p.getCurrentTokenLocation()
-
-	var assigned []ast.ExpressionNode
-	assigned = append(assigned, expressionParser(p))
-	for p.parseOptional(token.Comma) {
-		assigned = append(assigned, expressionParser(p))
-	}
-
+func (p *Parser) parseAssignmentOf(assigned []ast.ExpressionNode, expressionParser func(p *Parser) ast.ExpressionNode) ast.AssignmentStatementNode {
 	switch p.current().Type {
 	case token.Increment, token.Decrement:
-		return p.parsePostAssignment(start, assigned)
+		return p.parsePostAssignment(assigned)
 	case token.Assign:
 		p.parseRequired(token.Assign)
 		var to []ast.ExpressionNode
@@ -103,8 +92,9 @@ func (p *Parser) parseAssignment(expressionParser func(p *Parser) ast.Expression
 		for p.parseOptional(token.Comma) {
 			to = append(to, expressionParser(p))
 		}
+		p.parseOptional(token.Semicolon)
 		return ast.AssignmentStatementNode{
-			Begin: start,
+			Begin: assigned[0].Start(),
 			Final: p.getLastTokenLocation(),
 			Left:  assigned,
 			Right: to,
@@ -120,7 +110,7 @@ func (p *Parser) parseAssignment(expressionParser func(p *Parser) ast.Expression
 			}
 			p.parseOptional(token.Semicolon)
 			return ast.AssignmentStatementNode{
-				Begin:    start,
+				Begin:    assigned[0].Start(),
 				Final:    p.getLastTokenLocation(),
 				Left:     assigned,
 				Right:    to,
@@ -130,6 +120,17 @@ func (p *Parser) parseAssignment(expressionParser func(p *Parser) ast.Expression
 		break
 	}
 	return ast.AssignmentStatementNode{}
+}
+
+func (p *Parser) parseAssignment(expressionParser func(p *Parser) ast.ExpressionNode) ast.AssignmentStatementNode {
+
+	var assigned []ast.ExpressionNode
+	assigned = append(assigned, expressionParser(p))
+	for p.parseOptional(token.Comma) {
+		assigned = append(assigned, expressionParser(p))
+	}
+
+	return p.parseAssignmentOf(assigned, expressionParser)
 }
 
 func (p *Parser) parseSimpleAssignment() ast.AssignmentStatementNode {

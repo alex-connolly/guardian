@@ -336,15 +336,89 @@ func (p *Parser) parseVarDeclaration() *ast.ExplicitVarDeclarationNode {
 	return e
 }
 
+func (p *Parser) parseIndividualParameter() *ast.ExplicitVarDeclarationNode {
+	// TODO: is there an easier way of doing this
+
+	start := p.getCurrentTokenLocation()
+
+	// a, b, c string
+	// indexed a string, b string
+	// indexed a string,
+	// NOTE: cannot declared multiple ids with the same params
+	// indexed a, b string ==> TWO SEPARATE TYPES
+
+	// indexed a string, b int
+	// indexed, a string
+	// indexed, a string, b int
+	var possibleMods, names []string
+	var dType ast.Node
+	possibleMods = append(possibleMods, p.parseIdentifier())
+	for p.isNextToken(token.Identifier) {
+		possibleMods = append(possibleMods, p.parseIdentifier())
+	}
+	switch {
+	case p.isNextToken(token.Comma):
+		// last one was a type: x string,
+		// or a var: a, b string
+		if len(possibleMods) == 1 {
+			names = append(names, possibleMods[0])
+			p.parseRequired(token.Comma)
+
+			names = append(names, p.parseIdentifier())
+			for p.parseOptional(token.Comma) {
+				names = append(names, p.parseIdentifier())
+			}
+			possibleMods = nil
+		} else {
+			names = possibleMods[1:]
+			possibleMods = possibleMods[:len(possibleMods)-2]
+			p.index -= 1
+		}
+		dType = p.parseType()
+		break
+	case p.isNextToken(token.CloseBracket, token.Dot):
+
+		if len(possibleMods) < 2 {
+
+		} else {
+			// last was a type/start of a type
+			// one before that was a parameter name
+			names = append(names, possibleMods[len(possibleMods)-1])
+			possibleMods = possibleMods[:len(possibleMods)-2]
+			p.index -= 1
+			dType = p.parseType()
+		}
+		break
+	default:
+		// reached a type - can't have been a comma so last must have been var
+		names = append(names, possibleMods[len(possibleMods)-1])
+		possibleMods = possibleMods[:len(possibleMods)-1]
+		dType = p.parseType()
+		break
+	}
+	mods := p.getModifiers()
+	for _, m := range possibleMods {
+		mods.AddModifier(m)
+	}
+	e := &ast.ExplicitVarDeclarationNode{
+		Begin:        start,
+		Final:        p.getLastTokenLocation(),
+		Modifiers:    mods,
+		DeclaredType: dType,
+		Identifiers:  names,
+	}
+	return e
+}
+
 func (p *Parser) parseParameters() []*ast.ExplicitVarDeclarationNode {
 	var params []*ast.ExplicitVarDeclarationNode
 	p.parseRequired(token.OpenBracket)
 	p.ignoreNewLines()
 	if !p.parseOptional(token.CloseBracket) {
-		params = append(params, p.parseVarDeclaration())
+		params = append(params, p.parseIndividualParameter())
 		for p.parseOptional(token.Comma) {
 			p.ignoreNewLines()
-			params = append(params, p.parseVarDeclaration())
+			params = append(params, p.parseIndividualParameter())
 		}
 		p.ignoreNewLines()
 		p.parseRequired(token.CloseBracket)

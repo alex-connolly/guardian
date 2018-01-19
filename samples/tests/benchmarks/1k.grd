@@ -1,4 +1,4 @@
-package benchmarks version 0.0.1
+package benchmarks guardian 0.0.1
 
 contract OneKVarDecls {
 

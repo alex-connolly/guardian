@@ -1,15 +1,11 @@
 contract EventsContract {
 
     event EventOne()
-    event EventTwo(string)
-    event EventThree(string, string)
     event EventFour(a, b string)
     event EventFive(a string, b string)
 
     func basic(){
         EventOne()
-        EventTwo("hi")
-        EventThree("hi", "bye")
         EventFour("hi", "bye")
         EventFive("hi", "bye")
     }

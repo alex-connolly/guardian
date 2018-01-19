@@ -411,8 +411,8 @@ func TestDanglingReturn(t *testing.T) {
 
 func TestDuplicatePackageStatement(t *testing.T) {
 	_, errs := ValidateString(NewTestVM(), `
-		package dog version 0.0.1
-		package car version 0.0.1
+		package dog guardian 0.0.1
+		package car guardian 0.0.1
 	`)
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
@@ -420,7 +420,7 @@ func TestDuplicatePackageStatement(t *testing.T) {
 func TestImportBeforePackage(t *testing.T) {
 	_, errs := ValidateString(NewTestVM(), `
 		import "dog"
-		package car version 0.0.1
+		package car guardian 0.0.1
 	`)
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }

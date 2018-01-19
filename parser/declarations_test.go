@@ -807,3 +807,100 @@ func TestParseFuncTypeEmptyBracketResults(t *testing.T) {
 	goutil.AssertNow(t, len(sig.Parameters) == 0, "wrong parameter length")
 	goutil.AssertNow(t, len(sig.Results) == 0, "wrong result length")
 }
+
+func TestParseEventParameterSimple(t *testing.T) {
+	p := createParser(`event Notification(a, b string)`)
+	goutil.Assert(t, isEventDeclaration(p), "should detect event decl")
+	parseEventDeclaration(p)
+	n := p.scope.NextDeclaration()
+	goutil.AssertNow(t, n.Type() == ast.EventDeclaration, "wrong node type")
+	e := n.(*ast.EventDeclarationNode)
+	goutil.AssertNow(t, len(e.Parameters) == 1, "wrong param length")
+	one := e.Parameters[0]
+	goutil.AssertLength(t, len(one.Modifiers.Modifiers), 0)
+	goutil.AssertLength(t, len(one.Identifiers), 2)
+}
+
+func TestParseEventParametersSimple(t *testing.T) {
+	p := createParser(`event Notification(a, b string, c int)`)
+	goutil.Assert(t, isEventDeclaration(p), "should detect event decl")
+	parseEventDeclaration(p)
+	n := p.scope.NextDeclaration()
+	goutil.AssertNow(t, n.Type() == ast.EventDeclaration, "wrong node type")
+	e := n.(*ast.EventDeclarationNode)
+	goutil.AssertNow(t, len(e.Parameters) == 2, "wrong param length")
+	one := e.Parameters[0]
+	goutil.AssertLength(t, len(one.Modifiers.Modifiers), 0)
+	goutil.AssertLength(t, len(one.Identifiers), 2)
+	two := e.Parameters[1]
+	goutil.AssertLength(t, len(two.Modifiers.Modifiers), 0)
+	goutil.AssertLength(t, len(two.Identifiers), 1)
+}
+
+func TestParseEventParameterSingleModifier(t *testing.T) {
+	p := createParser(`event Notification(indexed a string)`)
+	goutil.Assert(t, isEventDeclaration(p), "should detect event decl")
+	parseEventDeclaration(p)
+	n := p.scope.NextDeclaration()
+	goutil.AssertNow(t, n.Type() == ast.EventDeclaration, "wrong node type")
+	e := n.(*ast.EventDeclarationNode)
+	goutil.AssertNow(t, len(e.Parameters) == 1, "wrong param length")
+	one := e.Parameters[0]
+	goutil.AssertLength(t, len(one.Modifiers.Modifiers), 1)
+}
+
+func TestParseEventParameterDoubleModifier(t *testing.T) {
+	p := createParser(`event Notification(indexed indexed a string)`)
+	goutil.Assert(t, isEventDeclaration(p), "should detect event decl")
+	parseEventDeclaration(p)
+	n := p.scope.NextDeclaration()
+	goutil.AssertNow(t, n.Type() == ast.EventDeclaration, "wrong node type")
+	e := n.(*ast.EventDeclarationNode)
+	goutil.AssertNow(t, len(e.Parameters) == 1, "wrong param length")
+	one := e.Parameters[0]
+	goutil.AssertLength(t, len(one.Modifiers.Modifiers), 2)
+}
+
+func TestParseEventParametersSingleModifier(t *testing.T) {
+	p := createParser(`event Notification(indexed a string, b, c string)`)
+	goutil.Assert(t, isEventDeclaration(p), "should detect event decl")
+	parseEventDeclaration(p)
+	n := p.scope.NextDeclaration()
+	goutil.AssertNow(t, n.Type() == ast.EventDeclaration, "wrong node type")
+	e := n.(*ast.EventDeclarationNode)
+	goutil.AssertNow(t, len(e.Parameters) == 2, "wrong param length")
+	one := e.Parameters[0]
+	goutil.AssertLength(t, len(one.Modifiers.Modifiers), 1)
+	two := e.Parameters[1]
+	goutil.AssertLength(t, len(two.Modifiers.Modifiers), 0)
+	goutil.AssertLength(t, len(two.Identifiers), 2)
+}
+
+func TestParseEventParametersDoubleModifier(t *testing.T) {
+	p := createParser(`event Notification(indexed indexed a string, indexed b string)`)
+	goutil.Assert(t, isEventDeclaration(p), "should detect event decl")
+	parseEventDeclaration(p)
+	n := p.scope.NextDeclaration()
+	goutil.AssertNow(t, n.Type() == ast.EventDeclaration, "wrong node type")
+	e := n.(*ast.EventDeclarationNode)
+	goutil.AssertNow(t, len(e.Parameters) == 2, "wrong param length")
+	one := e.Parameters[0]
+	goutil.AssertLength(t, len(one.Modifiers.Modifiers), 2)
+	two := e.Parameters[1]
+	goutil.AssertLength(t, len(two.Modifiers.Modifiers), 1)
+}
+
+func TestParseFullProblematicFunc(t *testing.T) {
+	_, errs := ParseString(`
+		external func burnFrom(from address, value uint256) bool {
+			require(balances[from] >= value);                // Check if the targeted balance is enough
+			require(value <= allowance[from][call.caller])   // Check allowance
+			this.balances[from] -= value;                         // Subtract from the targeted balance
+			this.allowance[from][call.caller] -= value;             // Subtract from the sender's allowance
+			this.totalSupply -= value;                              // Update totalSupply
+			Burn(from, value);
+			return true;
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}

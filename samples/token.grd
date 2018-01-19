@@ -19,10 +19,10 @@ contract Token {
     var allowance map[address]map[address]uint256
 
     /* This generates a public event on the blockchain that will notify clients */
-    event Transfer(indexed from, to address, value uint256)
+    event Transfer(from, to address, value uint256)
 
     /* This notifies clients about the amount burnt */
-    event Burn(indexed from address, value uint256)
+    event Burn(from address, value uint256)
 
     /* Initializes contract with initial supply tokens to the creator of the contract */
     constructor(initial uint256, name string, symbol string, decimals uint8){
@@ -91,11 +91,11 @@ contract Token {
         return true;
     }
 
-    external func burnFrom(from address , value uint256) bool {
+    external func burnFrom(from address, value uint256) bool {
         require(balances[from] >= value);                // Check if the targeted balance is enough
-        require(value <= allowance[from][call.caller]);    // Check allowance
-        this.balances[from] -= value;                         // Subtract from the targeted balance
-        this.allowance[from][call.caller] -= value;             // Subtract from the sender's allowance
+        require(value <= allowance[from][call.caller])   // Check allowance
+        //this.balances[from] -= value;                         // Subtract from the targeted balance
+        //this.allowance[from][call.caller] -= value;             // Subtract from the sender's allowance
         this.totalSupply -= value;                              // Update totalSupply
         Burn(from, value);
         return true;

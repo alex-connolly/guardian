@@ -185,7 +185,7 @@ func parseNewLine(p *Parser) {
 func parseSingleLineComment(p *Parser) {
 	p.parseRequired(token.LineComment)
 	for p.hasTokens(1) {
-		if p.current().Type != token.NewLine {
+		if !p.isNextToken(token.NewLine) {
 			p.next()
 		} else {
 			parseNewLine(p)
@@ -198,11 +198,12 @@ func parseSingleLineComment(p *Parser) {
 
 func parseMultiLineComment(p *Parser) {
 	p.parseRequired(token.CommentOpen)
-	for p.hasTokens(1) && p.current().Type != token.CommentClose {
-		if p.current().Type == token.NewLine {
-			p.line++
+	for p.hasTokens(1) && !p.isNextToken(token.CommentClose) {
+		if p.isNextToken(token.NewLine) {
+			parseNewLine(p)
+		} else {
+			p.next()
 		}
-		p.next()
 	}
 	p.parseOptional(token.CommentClose)
 }
@@ -318,30 +319,45 @@ func (p *Parser) parseNextConstruct() {
 }
 
 func (p *Parser) parsePossibleSequentialExpression(expr ast.ExpressionNode) {
-	switch expr.Type() {
-	case ast.CallExpression:
-		//fmt.Println("call")
-		p.scope.AddSequential(expr)
-		p.parseOptional(token.Semicolon)
-		return
-	case ast.Reference:
-		for r := expr; r != nil; {
-			switch t := r.(type) {
-			case *ast.CallExpressionNode:
-				p.scope.AddSequential(expr)
-				return
-			case *ast.ReferenceNode:
-				r = t.Reference
-				break
-			default:
-				//fmt.Printf("dangling at index %d\n", p.index)
-				p.addError(p.getCurrentTokenLocation(), errDanglingExpression)
-				return
+	// short circuits
+	if p.isNextToken(token.Comma) {
+		exprs := []ast.ExpressionNode{expr}
+		for p.parseOptional(token.Comma) {
+			exprs = append(exprs, p.parseExpression())
+		}
+		if p.isNextTokenAssignment() {
+			p.parseAssignmentOf(exprs, parseExpression)
+		} else {
+			//TODO: add error
+		}
+	} else if p.isNextTokenAssignment() {
+		p.parseAssignmentOf([]ast.ExpressionNode{expr}, parseExpression)
+	} else {
+		// just a simple expression
+		switch expr.Type() {
+		case ast.CallExpression:
+			p.scope.AddSequential(expr)
+			p.parseOptional(token.Semicolon)
+			return
+		case ast.Reference:
+			for r := expr; r != nil; {
+				switch t := r.(type) {
+				case *ast.CallExpressionNode:
+					p.scope.AddSequential(expr)
+					p.parseOptional(token.Semicolon)
+					return
+				case *ast.ReferenceNode:
+					r = t.Reference
+					break
+				default:
+					//fmt.Printf("dangling at index %d\n", p.index)
+					p.addError(p.getCurrentTokenLocation(), errDanglingExpression)
+					return
+				}
 			}
 		}
+		p.addError(p.getCurrentTokenLocation(), errDanglingExpression)
 	}
-	//fmt.Printf("dangling at index %d\n", p.index)
-	p.addError(p.getCurrentTokenLocation(), errDanglingExpression)
 }
 
 func (p *Parser) parseString() string {

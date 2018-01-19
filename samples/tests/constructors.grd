@@ -5,7 +5,7 @@ contract Basic {
     }
 
     constructor(id uint64){
-
+        
     }
 
     constructor(){
