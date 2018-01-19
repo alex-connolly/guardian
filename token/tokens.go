@@ -134,6 +134,12 @@ func NextProtoToken(b Byterable) *ProtoToken {
 		return nil
 	}
 
+	if isLineComment(b) {
+		return &ProtoToken{Name: "line comment", Type: Ignored, Process: processLineComment}
+	} else if isCommentOpen(b) {
+		return &ProtoToken{Name: "multiline comment", Type: Ignored, Process: processMultilineComment}
+	}
+
 	if isFloat(b) {
 		return &ProtoToken{Name: "float", Type: Float, Process: processFloat}
 	} else if isInteger(b) {
@@ -253,10 +259,7 @@ var distinct = map[string]ProtoToken{
 }
 
 var fixed = map[string]ProtoToken{
-	":":  fixedToken(":", Colon),
-	"/*": fixedToken("/*", CommentOpen),
-	"*/": fixedToken("*/", CommentClose),
-	"//": fixedToken("//", LineComment),
+	":": fixedToken(":", Colon),
 
 	"+=":  fixedToken("+=", AddAssign),
 	"++":  fixedToken("++", Increment),
@@ -416,6 +419,7 @@ const (
 	Test
 	Fallback
 	Guardian
+	Ignored
 )
 
 type processorFunc func(Byterable) Token
@@ -434,10 +438,11 @@ func (t Token) Name() string {
 
 // Token ...
 type Token struct {
-	Type       Type
-	Proto      *ProtoToken
-	Start, End util.Location
-	Data       []byte
+	Type          Type
+	Proto         *ProtoToken
+	Start, End    util.Location
+	Data          []byte
+	LineIncrement int
 }
 
 // String creates a new string from the Token's value

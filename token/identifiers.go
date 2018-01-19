@@ -99,6 +99,27 @@ func isNewLine(b Byterable) bool {
 	return (current(b) == '\n')
 }
 
+func isCommentClose(b Byterable) bool {
+	if hasBytes(b, 2) {
+		return current(b) == '*' && b.Bytes()[b.Offset()+1] == '/'
+	}
+	return false
+}
+
+func isCommentOpen(b Byterable) bool {
+	if hasBytes(b, 2) {
+		return current(b) == '/' && b.Bytes()[b.Offset()+1] == '*'
+	}
+	return false
+}
+
+func isLineComment(b Byterable) bool {
+	if hasBytes(b, 2) {
+		return current(b) == '/' && b.Bytes()[b.Offset()+1] == '/'
+	}
+	return false
+}
+
 func isCharacter(b Byterable) bool {
 	return (current(b) == '\'')
 }

@@ -97,7 +97,6 @@ func (p *Parser) parseRequired(types ...token.Type) token.Type {
 			return t
 		}
 	}
-	p.ignoreComments()
 	for _, t := range types {
 		if p.isNextToken(t) {
 			p.next()
@@ -193,7 +192,7 @@ func parseSingleLineComment(p *Parser) {
 		}
 
 	}
-
+	fmt.Println("no new line?")
 }
 
 func parseMultiLineComment(p *Parser) {
@@ -282,11 +281,9 @@ func (p *Parser) parseScope(terminators []token.Type, valids ...ast.NodeType) *a
 	scope.Parent = p.scope
 	p.scope = scope
 	for p.hasTokens(1) {
-		for _, t := range terminators {
-			if p.current().Type == t {
-				p.scope = scope.Parent
-				return scope
-			}
+		if p.isNextToken(terminators...) {
+			p.scope = scope.Parent
+			return scope
 		}
 		p.parseNextConstruct()
 	}
@@ -297,13 +294,14 @@ func (p *Parser) parseNextConstruct() {
 	found := false
 	for _, c := range getPrimaryConstructs() {
 		if c.is(p) {
-			//fmt.Printf("FOUND: %s at index %d on line %d\n", c.name, p.index, p.line)
+			fmt.Printf("FOUND: %s at index %d on line %d\n", c.name, p.index, p.line)
 			c.parse(p)
 			found = true
 			break
 		}
 	}
 	if !found {
+		fmt.Println("hi")
 		// try interpreting it as an expression
 		saved := *p
 		expr := p.parseExpression()
@@ -313,6 +311,7 @@ func (p *Parser) parseNextConstruct() {
 			p.addError(p.getCurrentTokenLocation(), fmt.Sprintf("Unrecognised construct: %s", p.current().String(p.lexer)))
 			p.next()
 		} else {
+			fmt.Printf("nn: index %d on line %d\n", p.index, p.line)
 			p.parsePossibleSequentialExpression(expr)
 		}
 	}
@@ -326,12 +325,16 @@ func (p *Parser) parsePossibleSequentialExpression(expr ast.ExpressionNode) {
 			exprs = append(exprs, p.parseExpression())
 		}
 		if p.isNextTokenAssignment() {
-			p.parseAssignmentOf(exprs, parseExpression)
+			p.scope.AddSequential(p.parseAssignmentOf(exprs, parseExpression))
+			fmt.Println("assign")
+			p.parseOptional(token.Semicolon)
 		} else {
 			//TODO: add error
 		}
 	} else if p.isNextTokenAssignment() {
-		p.parseAssignmentOf([]ast.ExpressionNode{expr}, parseExpression)
+		fmt.Println("assign")
+		p.scope.AddSequential(p.parseAssignmentOf([]ast.ExpressionNode{expr}, parseExpression))
+		p.parseOptional(token.Semicolon)
 	} else {
 		// just a simple expression
 		switch expr.Type() {

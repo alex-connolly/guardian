@@ -123,23 +123,6 @@ func isIfStatement(p *Parser) bool {
 	return p.isNextToken(token.If)
 }
 
-func isAssignmentStatement(p *Parser) bool {
-	return p.preserveState(func(p *Parser) bool {
-		/*for p.parseOptional(token.GetModifiers()...) {
-		}*/
-		expr := p.parseExpression()
-		if expr == nil {
-			return false
-		}
-		for p.parseOptional(token.Comma) {
-			// assume these will be expressions
-			p.parseExpression()
-		}
-
-		return p.isNextTokenAssignment()
-	})
-}
-
 // performs operations and then returns the parser to its initial state
 func (p *Parser) preserveState(a func(p *Parser) bool) bool {
 	saved := *p

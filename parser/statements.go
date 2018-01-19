@@ -25,7 +25,7 @@ func parseReturnStatement(p *Parser) {
 
 func parseAssignmentStatement(p *Parser) {
 	node := p.parseFullAssignment()
-	p.scope.AddSequential(&node)
+	p.scope.AddSequential(node)
 	p.parseOptional(token.Semicolon)
 }
 
@@ -34,12 +34,12 @@ func (p *Parser) parseOptionalAssignment() *ast.AssignmentStatementNode {
 	if isSimpleAssignmentStatement(p) {
 		assigned := p.parseSimpleAssignment()
 		p.parseOptional(token.Semicolon)
-		return &assigned
+		return assigned
 	}
 	return nil
 }
 
-func (p *Parser) parsePostAssignment(assigned []ast.ExpressionNode) ast.AssignmentStatementNode {
+func (p *Parser) parsePostAssignment(assigned []ast.ExpressionNode) *ast.AssignmentStatementNode {
 	if len(assigned) > 1 {
 		p.addError(p.getCurrentTokenLocation(), errInvalidIncDec)
 	}
@@ -58,7 +58,7 @@ func (p *Parser) parsePostAssignment(assigned []ast.ExpressionNode) ast.Assignme
 		b.Operator = token.Sub
 	}
 	p.parseOptional(token.Semicolon)
-	return ast.AssignmentStatementNode{
+	return &ast.AssignmentStatementNode{
 		Begin: assigned[0].Start(),
 		Final: p.getLastTokenLocation(),
 		Left:  assigned,
@@ -80,7 +80,7 @@ var assigns = map[token.Type]token.Type{
 	token.ShrAssign: token.Shr,
 }
 
-func (p *Parser) parseAssignmentOf(assigned []ast.ExpressionNode, expressionParser func(p *Parser) ast.ExpressionNode) ast.AssignmentStatementNode {
+func (p *Parser) parseAssignmentOf(assigned []ast.ExpressionNode, expressionParser func(p *Parser) ast.ExpressionNode) *ast.AssignmentStatementNode {
 	switch p.current().Type {
 	case token.Increment, token.Decrement:
 		return p.parsePostAssignment(assigned)
@@ -93,7 +93,7 @@ func (p *Parser) parseAssignmentOf(assigned []ast.ExpressionNode, expressionPars
 			to = append(to, expressionParser(p))
 		}
 		p.parseOptional(token.Semicolon)
-		return ast.AssignmentStatementNode{
+		return &ast.AssignmentStatementNode{
 			Begin: assigned[0].Start(),
 			Final: p.getLastTokenLocation(),
 			Left:  assigned,
@@ -109,7 +109,7 @@ func (p *Parser) parseAssignmentOf(assigned []ast.ExpressionNode, expressionPars
 				to = append(to, expressionParser(p))
 			}
 			p.parseOptional(token.Semicolon)
-			return ast.AssignmentStatementNode{
+			return &ast.AssignmentStatementNode{
 				Begin:    assigned[0].Start(),
 				Final:    p.getLastTokenLocation(),
 				Left:     assigned,
@@ -119,10 +119,10 @@ func (p *Parser) parseAssignmentOf(assigned []ast.ExpressionNode, expressionPars
 		}
 		break
 	}
-	return ast.AssignmentStatementNode{}
+	return nil
 }
 
-func (p *Parser) parseAssignment(expressionParser func(p *Parser) ast.ExpressionNode) ast.AssignmentStatementNode {
+func (p *Parser) parseAssignment(expressionParser func(p *Parser) ast.ExpressionNode) *ast.AssignmentStatementNode {
 
 	var assigned []ast.ExpressionNode
 	assigned = append(assigned, expressionParser(p))
@@ -133,11 +133,11 @@ func (p *Parser) parseAssignment(expressionParser func(p *Parser) ast.Expression
 	return p.parseAssignmentOf(assigned, expressionParser)
 }
 
-func (p *Parser) parseSimpleAssignment() ast.AssignmentStatementNode {
+func (p *Parser) parseSimpleAssignment() *ast.AssignmentStatementNode {
 	return p.parseAssignment(parseSimpleExpression)
 }
 
-func (p *Parser) parseFullAssignment() ast.AssignmentStatementNode {
+func (p *Parser) parseFullAssignment() *ast.AssignmentStatementNode {
 	return p.parseAssignment(parseExpression)
 }
 

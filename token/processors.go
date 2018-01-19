@@ -101,12 +101,45 @@ func processCharacter(b Byterable) Token {
 
 }
 
+func processLineComment(b Byterable) Token {
+	return markLimits(b, func(byt Byterable) (t Token) {
+		t.Type = Ignored
+		t.LineIncrement = 1
+		next(byt)
+		for hasBytes(b, 1) {
+			if isNewLine(b) {
+				next(b)
+				return t
+			}
+			next(b)
+		}
+		return t
+	})
+}
+
+func processMultilineComment(b Byterable) Token {
+	return markLimits(b, func(byt Byterable) (t Token) {
+		t.Type = Ignored
+		next(byt)
+		next(byt)
+		for hasBytes(b, 1) {
+			if isNewLine(b) {
+				t.LineIncrement++
+			} else if isCommentClose(b) {
+				next(b)
+				next(b)
+				return t
+			}
+			next(b)
+		}
+		return t
+	})
+}
+
 func processIdentifier(b Byterable) Token {
 	return markLimits(b, func(byt Byterable) (t Token) {
-		t.Start = byt.Location()
 		t.Type = Identifier
 		for isIdentifier(byt) {
-
 			next(byt)
 			if isEnd(byt) {
 				return t

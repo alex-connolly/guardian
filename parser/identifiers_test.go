@@ -133,54 +133,6 @@ func TestIsEventDeclaration(t *testing.T) {
 	goutil.Assert(t, isEventDeclaration(p), "multiple event not recognised")
 }
 
-func TestIsAssignmentEdgeCases(t *testing.T) {
-	p := createParser("5")
-	goutil.Assert(t, !isAssignmentStatement(p), "expression should not be recognised")
-	p = createParser("")
-	goutil.Assert(t, !isAssignmentStatement(p), "blank statement should not be recognised")
-	p = createParser("{}")
-	goutil.Assert(t, !isAssignmentStatement(p), "braces should not be recognised")
-	p = createParser("{")
-	goutil.Assert(t, !isAssignmentStatement(p), "open brace should not be recognised")
-	p = createParser("}")
-	goutil.Assert(t, !isAssignmentStatement(p), "close brace should not be recognised")
-}
-
-func TestIsAssignmentStatementReferenceLiteral(t *testing.T) {
-	p := createParser("x = 5")
-	goutil.Assert(t, isAssignmentStatement(p), "simple assignment not recognised")
-	p = createParser("x, y = 5")
-	goutil.Assert(t, isAssignmentStatement(p), "multiple left assignment not recognised")
-	p = createParser("x, y = 5, 3")
-	goutil.Assert(t, isAssignmentStatement(p), "multiple l/r not recognised")
-	p = createParser("x := 5")
-	goutil.Assert(t, isAssignmentStatement(p), "simple definition not recognised")
-	p = createParser("x > 5")
-	goutil.Assert(t, !isAssignmentStatement(p), "comparison should not be recognised")
-
-	goutil.Assert(t, len(p.errs) == 0, "should be no errs before cmplx")
-	p = createParser("proposals[p].voteCount > winningVoteCount")
-	goutil.Assert(t, !isAssignmentStatement(p), "complex comparison should not be recognised")
-	goutil.Assert(t, len(p.errs) == 0, "should be no errs after cmplx")
-
-	p = createParser(`proposals[p].voteCount > winningVoteCount {
-
-		}`)
-	goutil.Assert(t, len(p.errs) == 0, "should be no errs")
-	goutil.Assert(t, !isAssignmentStatement(p), "complex comparison + braces should not be recognised")
-	goutil.Assert(t, len(p.errs) == 0, "should be no errs after")
-	p = createParser(`winningVoteCount = proposals[p].voteCount`)
-	goutil.Assert(t, isAssignmentStatement(p), "complex to should be recognised")
-}
-
-func TestIsAssignmentStatementIncrementDecrement(t *testing.T) {
-	p := createParser("x++")
-	goutil.Assert(t, isAssignmentStatement(p), "simple increment not recognised")
-	p = createParser("y--")
-	goutil.Assert(t, isAssignmentStatement(p), "simple decrement not recognised")
-
-}
-
 func TestIsNextAssignmentStatement(t *testing.T) {
 	p := createParser("++")
 	goutil.Assert(t, p.isNextTokenAssignment(), "simple increment not recognised")

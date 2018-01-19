@@ -893,13 +893,7 @@ func TestParseEventParametersDoubleModifier(t *testing.T) {
 func TestParseFullProblematicFunc(t *testing.T) {
 	_, errs := ParseString(`
 		external func burnFrom(from address, value uint256) bool {
-			require(balances[from] >= value);                // Check if the targeted balance is enough
-			require(value <= allowance[from][call.caller])   // Check allowance
-			this.balances[from] -= value;                         // Subtract from the targeted balance
-			this.allowance[from][call.caller] -= value;             // Subtract from the sender's allowance
-			this.totalSupply -= value;                              // Update totalSupply
-			Burn(from, value);
-			return true;
+			this.allowance[from][call.caller] -= value;     // Subtract from the sender's allowance
 		}
 	`)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
