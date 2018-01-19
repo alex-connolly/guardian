@@ -249,7 +249,7 @@ var distinct = map[string]ProtoToken{
 
 	"test":     distinctToken("test", Test),
 	"fallback": distinctToken("fallback", Fallback),
-	"version":  distinctToken("version", Version),
+	"guardian": distinctToken("guardian", Guardian),
 }
 
 var fixed = map[string]ProtoToken{
@@ -415,7 +415,7 @@ const (
 	CommentClose
 	Test
 	Fallback
-	Version
+	Guardian
 )
 
 type processorFunc func(Byterable) Token

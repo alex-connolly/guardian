@@ -44,7 +44,7 @@ func (p *Parser) parseOptionalAssignment() *ast.AssignmentStatementNode {
 func (p *Parser) parsePostAssignment(start util.Location, assigned []ast.ExpressionNode) ast.AssignmentStatementNode {
 
 	if len(assigned) > 1 {
-		p.addError(p.getCurrentLocation(), errInvalidIncDec)
+		p.addError(p.getCurrentTokenLocation(), errInvalidIncDec)
 	}
 	b := &ast.BinaryExpressionNode{
 		Left: assigned[0],
@@ -313,7 +313,6 @@ func parseSwitchStatement(p *Parser) {
 
 	p.parseRequired(token.Switch)
 
-	// TODO: currently only works with identifier
 	target := p.parseSimpleExpression()
 
 	cases := p.parseBracesScope(ast.CaseStatement)
@@ -369,7 +368,7 @@ func parsePackageStatement(p *Parser) {
 
 	name := p.parseIdentifier()
 
-	p.parseRequired(token.Version)
+	p.parseRequired(token.Guardian)
 
 	version := p.parseSemver()
 
@@ -391,7 +390,7 @@ func (p *Parser) parseSemver() semver.Version {
 	}
 	v, err := semver.Make(s)
 	if err != nil {
-		p.addError(p.getCurrentLocation(), fmt.Sprintf("Invalid semantic version %s", s))
+		p.addError(p.getCurrentTokenLocation(), fmt.Sprintf("Invalid semantic version %s", s))
 	}
 	return v
 }

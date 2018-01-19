@@ -87,7 +87,7 @@ func (p *Parser) parseOptional(types ...token.Type) bool {
 // TODO: clarify what this actually returns
 func (p *Parser) parseRequired(types ...token.Type) token.Type {
 	if !p.hasTokens(1) {
-		p.addError(p.getCurrentLocation(), fmt.Sprintf(errRequiredType, listTypes(types), "nothing"))
+		p.addError(p.getLastTokenLocation(), fmt.Sprintf(errRequiredType, listTypes(types), "nothing"))
 		// TODO: what should be returned here
 		return token.Invalid
 	}
@@ -104,7 +104,7 @@ func (p *Parser) parseRequired(types ...token.Type) token.Type {
 			return t
 		}
 	}
-	p.addError(p.getCurrentLocation(), fmt.Sprintf(errRequiredType, listTypes(types), p.current().Name()))
+	p.addError(p.getCurrentTokenLocation(), fmt.Sprintf(errRequiredType, listTypes(types), p.current().Name()))
 	// correct return type
 	return token.Invalid
 }
@@ -133,6 +133,13 @@ func listTypes(types []token.Type) string {
 }
 
 func (p *Parser) getLastTokenLocation() util.Location {
+	if len(p.lexer.Tokens) == 0 {
+		return util.Location{
+			Filename: "file_name",
+			Line:     0,
+			Offset:   0,
+		}
+	}
 	if p.index >= len(p.lexer.Tokens) {
 		// return end of last available token
 		return p.lexer.Tokens[len(p.lexer.Tokens)-1].End
@@ -150,11 +157,11 @@ func (p *Parser) getCurrentTokenLocation() util.Location {
 
 func (p *Parser) parseIdentifier() string {
 	if !p.hasTokens(1) {
-		p.addError(p.getCurrentLocation(), fmt.Sprintf(errRequiredType, "identifier", "nothing"))
+		p.addError(p.getLastTokenLocation(), fmt.Sprintf(errRequiredType, "identifier", "nothing"))
 		return ""
 	}
 	if p.current().Type != token.Identifier {
-		p.addError(p.getCurrentLocation(), fmt.Sprintf(errRequiredType, "identifier", p.current().Name()))
+		p.addError(p.getCurrentTokenLocation(), fmt.Sprintf(errRequiredType, "identifier", p.current().Name()))
 		return ""
 	}
 	s := p.current().String(p.lexer)
@@ -165,7 +172,7 @@ func (p *Parser) parseIdentifier() string {
 func (p *Parser) validate(t ast.NodeType) {
 	if p.scope != nil {
 		if !p.scope.IsValid(t) {
-			p.addError(p.getCurrentLocation(), errInvalidScopeDeclaration)
+			p.addError(p.getCurrentTokenLocation(), errInvalidScopeDeclaration)
 		}
 	}
 }
@@ -214,7 +221,7 @@ func parseModifiers(p *Parser) {
 
 func parseGroup(p *Parser) {
 	if p.lastModifiers == nil {
-		p.addError(p.getCurrentLocation(), errEmptyGroup)
+		p.addError(p.getCurrentTokenLocation(), errEmptyGroup)
 		p.next()
 	} else {
 		p.modifiers = append(p.modifiers, p.lastModifiers)
@@ -228,7 +235,7 @@ func parseGroup(p *Parser) {
 			}
 			p.parseNextConstruct()
 		}
-		p.addError(p.getCurrentLocation(), errUnclosedGroup)
+		p.addError(p.getCurrentTokenLocation(), errUnclosedGroup)
 	}
 }
 
@@ -302,7 +309,7 @@ func (p *Parser) parseNextConstruct() {
 		if expr == nil {
 			*p = saved
 			//fmt.Printf("Unrecognised construct at index %d: %s\n", p.index, p.current().String(p.lexer))
-			p.addError(p.getCurrentLocation(), fmt.Sprintf("Unrecognised construct: %s", p.current().String(p.lexer)))
+			p.addError(p.getCurrentTokenLocation(), fmt.Sprintf("Unrecognised construct: %s", p.current().String(p.lexer)))
 			p.next()
 		} else {
 			p.parsePossibleSequentialExpression(expr)
@@ -328,13 +335,13 @@ func (p *Parser) parsePossibleSequentialExpression(expr ast.ExpressionNode) {
 				break
 			default:
 				//fmt.Printf("dangling at index %d\n", p.index)
-				p.addError(p.getCurrentLocation(), errDanglingExpression)
+				p.addError(p.getCurrentTokenLocation(), errDanglingExpression)
 				return
 			}
 		}
 	}
 	//fmt.Printf("dangling at index %d\n", p.index)
-	p.addError(p.getCurrentLocation(), errDanglingExpression)
+	p.addError(p.getCurrentTokenLocation(), errDanglingExpression)
 }
 
 func (p *Parser) parseString() string {
@@ -353,14 +360,14 @@ func parseAnnotation(p *Parser) {
 	if !p.parseOptional(token.CloseBracket) {
 		var names []string
 		if !p.isNextToken(token.String) {
-			p.addError(p.getCurrentLocation(), errInvalidAnnotationParameter)
+			p.addError(p.getCurrentTokenLocation(), errInvalidAnnotationParameter)
 			p.next()
 		} else {
 			names = append(names, p.parseString())
 		}
 		for p.parseOptional(token.Comma) {
 			if !p.isNextToken(token.String) {
-				p.addError(p.getCurrentLocation(), errInvalidAnnotationParameter)
+				p.addError(p.getCurrentTokenLocation(), errInvalidAnnotationParameter)
 				p.next()
 			} else {
 				names = append(names, p.parseString())

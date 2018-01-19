@@ -1,8 +1,8 @@
-package standard version 0.0.1
-
+package sample guardian 0.0.1
+/*
 contract tokenRecipient {
     func receiveApproval(token, from address, value uint256, extra bytes)
-}
+}*/
 
 contract Token {
 
@@ -74,9 +74,9 @@ contract Token {
     /// @param value the max amount they can spend
     /// @param extraData some extra information to send to the approved contract
     external func approveAndCall(spender address, value uint256, extra bytes) bool {
-        tokenRecipient spender = tokenRecipient(spender);
-        if (approve(spender, value)) {
-            spender.receiveApproval(call.caller, call.caller, value, extra);
+        s = spender as tokenRecipient;
+        if approve(spender, value) {
+            s.receiveApproval(call.caller, call.caller, value, extra);
             return true;
         }
     }
@@ -91,7 +91,7 @@ contract Token {
         return true;
     }
 
-    external func burnFrom(address from, value uint256) bool {
+    external func burnFrom(from address , value uint256) bool {
         require(balances[from] >= value);                // Check if the targeted balance is enough
         require(value <= allowance[from][call.caller]);    // Check allowance
         this.balances[from] -= value;                         // Subtract from the targeted balance

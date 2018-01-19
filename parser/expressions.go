@@ -107,7 +107,7 @@ main:
 					continue main
 				} else {
 					if len(expStack) < 2 {
-						p.addError(p.getCurrentLocation(), errIncompleteExpression)
+						p.addError(p.getCurrentTokenLocation(), errIncompleteExpression)
 						return nil
 					}
 					expStack = pushNode(expStack, op)
@@ -130,7 +130,7 @@ main:
 					} else {
 						opStack = opStack[:len(opStack)-1]
 						if len(expStack) < 2 {
-							p.addError(p.getCurrentLocation(), errIncompleteExpression)
+							p.addError(p.getCurrentTokenLocation(), errIncompleteExpression)
 							return nil
 						}
 						expStack = pushNode(expStack, op)
@@ -162,7 +162,7 @@ main:
 func (p *Parser) finalise(expStack []ast.ExpressionNode, opStack []token.Type) ast.ExpressionNode {
 	for len(opStack) > 0 {
 		if len(expStack) < 2 {
-			p.addError(p.getCurrentLocation(), errIncompleteExpression)
+			p.addError(p.getCurrentTokenLocation(), errIncompleteExpression)
 			return nil
 		}
 		n := ast.BinaryExpressionNode{}
@@ -189,7 +189,7 @@ func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 			// they resolve to unknown for now
 			return n.(ast.ExpressionNode)
 		}
-		p.addError(p.getCurrentLocation(), errInvalidTypeAfterCast)
+		p.addError(p.getCurrentTokenLocation(), errInvalidTypeAfterCast)
 		return nil
 	}
 
@@ -328,7 +328,7 @@ func (p *Parser) parseCallExpression(expr ast.ExpressionNode) *ast.CallExpressio
 func (p *Parser) parseArrayLiteral() *ast.ArrayLiteralNode {
 
 	n := new(ast.ArrayLiteralNode)
-	n.Begin = p.getCurrentLocation()
+	n.Begin = p.getCurrentTokenLocation()
 	// [string:3]{"Dog", "Cat", ""}
 
 	n.Signature = p.parseArrayType()
@@ -348,7 +348,7 @@ func (p *Parser) parseArrayLiteral() *ast.ArrayLiteralNode {
 func (p *Parser) parseFuncLiteral() *ast.FuncLiteralNode {
 	n := new(ast.FuncLiteralNode)
 
-	n.Begin = p.getCurrentLocation()
+	n.Begin = p.getCurrentTokenLocation()
 
 	p.parseRequired(token.Func)
 
@@ -363,7 +363,7 @@ func (p *Parser) parseFuncLiteral() *ast.FuncLiteralNode {
 
 func (p *Parser) parseMapLiteral() *ast.MapLiteralNode {
 	n := new(ast.MapLiteralNode)
-	n.Begin = p.getCurrentLocation()
+	n.Begin = p.getCurrentTokenLocation()
 	n.Signature = p.parseMapType()
 
 	p.parseRequired(token.OpenBrace)

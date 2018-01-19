@@ -1,7 +1,7 @@
-package standard version 0.0.1
+package sample guardian 0.0.1
 
 contract NameService {
 
-    
+
 
 }

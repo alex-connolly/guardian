@@ -1,4 +1,4 @@
-package standard version 0.0.1
+package standard guardian 0.0.1
 
 contract AccessRestriction {
     // These will be assigned at the construction
@@ -45,7 +45,7 @@ contract AccessRestriction {
     // This was dangerous before Solidity version 0.4.0,
     // where it was possible to skip the part after `_;`.
     func costs(amount uint){
-        require(call.value) >= amount
+        require(call.value >= amount)
     }
 
     func forceOwnerChange(newOwner address){

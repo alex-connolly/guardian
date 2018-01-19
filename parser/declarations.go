@@ -3,8 +3,6 @@ package parser
 import (
 	"strconv"
 
-	"github.com/end-r/guardian/util"
-
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/ast"
@@ -43,10 +41,6 @@ func parseInterfaceDeclaration(p *Parser) {
 
 }
 
-func (p *Parser) getCurrentLocation() util.Location {
-	return util.Location{}
-}
-
 func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
 
 	p.parseRequired(token.OpenBrace)
@@ -66,7 +60,7 @@ func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
 		if sig != nil {
 			sigs = append(sigs, sig)
 		} else {
-			p.addError(p.getCurrentLocation(), errInvalidInterfaceProperty)
+			p.addError(p.getCurrentTokenLocation(), errInvalidInterfaceProperty)
 			//p.parseConstruct()
 			p.next()
 		}
@@ -97,7 +91,7 @@ func (p *Parser) parseEnumBody() []string {
 				p.parseRequired(token.CloseBrace)
 				return enums
 			} else {
-				p.addError(p.getCurrentLocation(), errInvalidEnumProperty)
+				p.addError(p.getCurrentTokenLocation(), errInvalidEnumProperty)
 			}
 		}
 
@@ -562,7 +556,7 @@ func (p *Parser) parseFuncTypeParameters() []ast.Node {
 			if p.isNamedParameter() {
 				params = append(params, p.parseVarDeclaration())
 			} else if p.isNextAType() {
-				p.addError(p.getCurrentLocation(), errMixedNamedParameters)
+				p.addError(p.getCurrentTokenLocation(), errMixedNamedParameters)
 				p.parseType()
 			} else {
 				// TODO: add error
@@ -596,12 +590,12 @@ func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 		if p.nextTokens(token.Integer) {
 			i, err := strconv.ParseInt(p.current().String(p.lexer), 10, 64)
 			if err != nil {
-				p.addError(p.getCurrentLocation(), errInvalidArraySize)
+				p.addError(p.getCurrentTokenLocation(), errInvalidArraySize)
 			}
 			max = int(i)
 			p.next()
 		} else {
-			p.addError(p.getCurrentLocation(), errInvalidArraySize)
+			p.addError(p.getCurrentTokenLocation(), errInvalidArraySize)
 			p.next()
 		}
 		p.parseRequired(token.CloseSquare)
@@ -659,7 +653,7 @@ func processVarDeclaration(constant bool) func(p *Parser) {
 		e.Final = p.getLastTokenLocation()
 
 		if e.IsConstant && e.Value == nil {
-			p.addError(p.getCurrentLocation(), errConstantWithoutValue)
+			p.addError(p.getCurrentTokenLocation(), errConstantWithoutValue)
 		}
 
 		switch p.scope.Type() {

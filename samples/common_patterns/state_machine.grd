@@ -1,4 +1,4 @@
-package standard version 0.0.1
+package standard guardian 0.0.1
 
 contract StateMachine {
 
