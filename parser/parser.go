@@ -108,16 +108,6 @@ func (p *Parser) parseRequired(types ...token.Type) token.Type {
 	return token.Invalid
 }
 
-func (p *Parser) ignoreComments() {
-	for p.isNextToken(token.LineComment, token.CommentOpen) {
-		if p.isNextToken(token.LineComment) {
-			parseSingleLineComment(p)
-		} else if p.isNextToken(token.CommentOpen) {
-			parseMultiLineComment(p)
-		}
-	}
-}
-
 func listTypes(types []token.Type) string {
 	if len(types) == 1 {
 		return types[0].Name()
@@ -179,32 +169,6 @@ func (p *Parser) validate(t ast.NodeType) {
 func parseNewLine(p *Parser) {
 	p.line++
 	p.next()
-}
-
-func parseSingleLineComment(p *Parser) {
-	p.parseRequired(token.LineComment)
-	for p.hasTokens(1) {
-		if !p.isNextToken(token.NewLine) {
-			p.next()
-		} else {
-			parseNewLine(p)
-			return
-		}
-
-	}
-	fmt.Println("no new line?")
-}
-
-func parseMultiLineComment(p *Parser) {
-	p.parseRequired(token.CommentOpen)
-	for p.hasTokens(1) && !p.isNextToken(token.CommentClose) {
-		if p.isNextToken(token.NewLine) {
-			parseNewLine(p)
-		} else {
-			p.next()
-		}
-	}
-	p.parseOptional(token.CommentClose)
 }
 
 func (p *Parser) parseModifierList() []string {

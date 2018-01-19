@@ -262,6 +262,18 @@ func TestNextTokenLineComment(t *testing.T) {
 	goutil.AssertNow(t, tok.LineIncrement == 1, "wrong line increment")
 }
 
+func TestNextTokenLineCommentNewLineEnd(t *testing.T) {
+	byt := []byte(`// hi alex this is's me
+`)
+	b := &bytecode{bytes: byt}
+	p := NextProtoToken(b)
+	goutil.AssertNow(t, p != nil, "pt nil")
+	goutil.AssertNow(t, p.Name == "line comment", fmt.Sprintf("wrong name: %s", p.Name))
+	tok := p.Process(b)
+	goutil.AssertLength(t, int(tok.End.Offset), len(byt))
+	goutil.AssertNow(t, tok.LineIncrement == 1, "wrong line increment")
+}
+
 func TestNextTokenSingleLineMultiComment(t *testing.T) {
 	byt := []byte(`/* hi alex this is's me */`)
 	b := &bytecode{bytes: byt}

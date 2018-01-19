@@ -192,3 +192,33 @@ func TestAddAssign(t *testing.T) {
 		token.Integer,
 	})
 }
+
+func TestLineComment(t *testing.T) {
+	l := LexString(`// aa `)
+	checkTokens(t, l.Tokens, []token.Type{})
+}
+
+func TestLineCommentAndMore(t *testing.T) {
+	l := LexString(`// aa
+		func`)
+	checkTokens(t, l.Tokens, []token.Type{token.Func})
+}
+
+func TestMultilineSingleLineComment(t *testing.T) {
+	l := LexString(`/* aa */`)
+	checkTokens(t, l.Tokens, []token.Type{})
+}
+
+func TestMultilineComment(t *testing.T) {
+	l := LexString(`/* a
+
+		a */`)
+	checkTokens(t, l.Tokens, []token.Type{})
+}
+
+func TestMultilineCommentAndMore(t *testing.T) {
+	l := LexString(`/* a
+
+		a */func`)
+	checkTokens(t, l.Tokens, []token.Type{token.Func})
+}

@@ -3,6 +3,7 @@ package token
 func processNewLine(b Byterable) Token {
 	return markLimits(b, func(byt Byterable) (t Token) {
 		next(b)
+		t.LineIncrement = 1
 		t.Type = NewLine
 		return t
 	})

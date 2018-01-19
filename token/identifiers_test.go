@@ -55,3 +55,13 @@ func TestIsWhitespace(t *testing.T) {
 	b = &bytecode{bytes: byt}
 	goutil.Assert(t, isWhitespace(b), "tab")
 }
+
+func TestIsAssignment(t *testing.T) {
+	a := Assign
+	goutil.AssertNow(t, a.IsAssignment(), "assign not assignment")
+}
+
+func TestIsDeclaration(t *testing.T) {
+	a := Event
+	goutil.AssertNow(t, a.IsDeclaration(), "event not decl")
+}

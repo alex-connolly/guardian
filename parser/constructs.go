@@ -9,8 +9,6 @@ type construct struct {
 func getPrimaryConstructs() []construct {
 
 	standards := []construct{
-		construct{"single line comment", isSingleLineComment, parseSingleLineComment},
-		construct{"multi line comment", isMultiLineComment, parseMultiLineComment},
 		construct{"modifiers", isModifier, parseModifiers},
 		construct{"annotations", isAnnotation, parseAnnotation},
 		construct{"group", isGroup, parseGroup},

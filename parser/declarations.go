@@ -284,13 +284,9 @@ func (p *Parser) parseGroupable(id token.Type, declarator func(*Parser)) {
 	p.parseRequired(id)
 	if p.parseOptional(token.OpenBracket) {
 		for !p.parseOptional(token.CloseBracket) {
-			p.ignoreComments()
 			p.ignoreNewLines()
-			p.ignoreComments()
 			declarator(p)
-			p.ignoreComments()
 			p.ignoreNewLines()
-			p.ignoreComments()
 		}
 	} else {
 		declarator(p)

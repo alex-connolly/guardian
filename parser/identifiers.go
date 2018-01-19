@@ -160,14 +160,6 @@ func isFlowStatement(p *Parser) bool {
 	return p.isNextToken(token.Break, token.Continue)
 }
 
-func isSingleLineComment(p *Parser) bool {
-	return p.isNextToken(token.LineComment)
-}
-
-func isMultiLineComment(p *Parser) bool {
-	return p.isNextToken(token.CommentOpen)
-}
-
 func isSwitchStatement(p *Parser) bool {
 	ex := p.nextTokens(token.Exclusive, token.Switch)
 	dir := p.nextTokens(token.Switch)

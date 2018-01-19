@@ -81,7 +81,7 @@ func GetBinaryOperators() []Type {
 // GetDeclarations ...
 func GetDeclarations() []Type {
 	return []Type{
-		Class, Interface, Enum, KWType, Contract, Func,
+		Class, Interface, Enum, KWType, Contract, Func, Event,
 	}
 }
 

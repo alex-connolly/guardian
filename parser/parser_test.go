@@ -39,55 +39,6 @@ func TestParserNumDeclarations(t *testing.T) {
 	goutil.AssertNow(t, le == 2, fmt.Sprintf("wrong decl length: %d", le))
 }
 
-func TestParseSingleLineComment(t *testing.T) {
-	p := createParser("// this is a comment")
-	goutil.AssertNow(t, p.index == 0, "should start at 0")
-	parseSingleLineComment(p)
-	goutil.AssertNow(t, p.index == 5, "should finish at 5")
-
-	p = createParser(`// this is a comment
-		`)
-	goutil.AssertNow(t, p.index == 0, "should start at 0")
-	parseSingleLineComment(p)
-	goutil.AssertNow(t, p.index == 6, "should finish at 6")
-}
-
-func TestParseMultiLineComment(t *testing.T) {
-	p := createParser("/* this is a comment */")
-	goutil.AssertNow(t, p.index == 0, "should start at 0")
-	parseMultiLineComment(p)
-	goutil.AssertNow(t, p.index == len(p.lexer.Tokens), "should finish at end")
-
-	p = createParser(`/* this is a comment
-
-		*/`)
-	goutil.AssertNow(t, p.index == 0, "should start at 0")
-	parseMultiLineComment(p)
-	goutil.AssertNow(t, p.index == len(p.lexer.Tokens), "should finish at 7 end")
-
-	p = createParser(`/* this is a comment
-		fadnlkdlf a,s ds'
-
-
-		d'sad
-		sd
-		ss
-
-		dsdd
-		a
-
-		dsd
-		s
-		d
-		class Dog {
-			name string
-		}
-		*/`)
-	goutil.AssertNow(t, p.index == 0, "should start at 0")
-	parseMultiLineComment(p)
-	goutil.AssertNow(t, p.index == len(p.lexer.Tokens), "should finish at end")
-}
-
 func TestParseSimpleStringAnnotationValid(t *testing.T) {
 	_, errs := ParseString(`@Builtin("hello")`)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())

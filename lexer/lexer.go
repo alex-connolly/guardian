@@ -56,12 +56,12 @@ func (l *Lexer) next() {
 		t.Proto = pt
 		if pt.Type == token.None {
 			l.byteOffset++
+		} else if pt.Type == token.Ignored {
+
 		} else {
 			l.Tokens = append(l.Tokens, t)
-			if pt.Type == token.NewLine {
-				l.line++
-			}
 		}
+		l.line += uint(t.LineIncrement)
 	} else {
 		l.addError(l.getCurrentLocation(), "Unrecognised token")
 		l.byteOffset++
