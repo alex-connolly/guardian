@@ -7,14 +7,14 @@ contract WithdrawalContract {
     var maxSent uint
 
     constructor(){
-        this.richest = call.caller
+        this.richest = msg.sender
         this.maxSent = call.value
     }
 
     func becomeRichest() bool {
         if call.value > maxSent {
             pendingWithdrawals[richest] += call.value
-            richest = call.caller
+            richest = msg.sender
             maxSent = call.value
             return true
         }
@@ -22,8 +22,8 @@ contract WithdrawalContract {
     }
 
     func withdraw() {
-        amount = pendingWithdrawals[call.caller]
-        pendingWithdrawals[call.caller] = 0
-        transfer(call.caller, amount)
+        amount = pendingWithdrawals[msg.sender]
+        pendingWithdrawals[msg.sender] = 0
+        transfer(msg.sender, amount)
     }
 }

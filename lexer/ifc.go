@@ -25,6 +25,7 @@ func Lex(name string, bytes []byte) *Lexer {
 	l := new(Lexer)
 	l.fileName = name
 	l.byteOffset = 0
+	l.line = 1
 	l.buffer = bytes
 	l.next()
 	return l

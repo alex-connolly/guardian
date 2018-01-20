@@ -87,6 +87,7 @@ func pushNode(stack []ast.ExpressionNode, op token.Type) []ast.ExpressionNode {
 
 func (p *Parser) parseExpression() ast.ExpressionNode {
 	p.seenCastOperator = false
+	lastWasExpression := false
 	var opStack []token.Type
 	var expStack []ast.ExpressionNode
 	var current token.Type
@@ -117,6 +118,7 @@ main:
 			return p.finalise(expStack, opStack)
 		default:
 			if o1, ok := operators[current]; ok {
+				lastWasExpression = false
 				if current == token.As || current == token.Is {
 					p.seenCastOperator = true
 				}
@@ -139,21 +141,24 @@ main:
 
 				opStack = append(opStack, current)
 			} else {
+				if lastWasExpression {
+					p.addError(p.getCurrentTokenLocation(), "message")
+					return p.finalise(expStack, opStack)
+				}
 				saved := *p
 				expr := p.parseExpressionComponent()
-
 				// if it isn't an expression
 				if expr == nil {
 					*p = saved
 					return p.finalise(expStack, opStack)
 				}
+				lastWasExpression = true
 				expStack = append(expStack, expr)
 			}
 			break
 		}
 	}
 	if len(expStack) == 0 {
-
 		return nil
 	}
 	return p.finalise(expStack, opStack)
@@ -198,7 +203,7 @@ func (p *Parser) parseExpressionComponent() ast.ExpressionNode {
 	if p.hasTokens(1) {
 		expr = p.parsePrimaryComponent()
 	}
-	// parse composite expxressions
+	// parse composite expressions
 	var done bool
 	for p.hasTokens(1) && expr != nil && !done {
 		expr, done = p.parseSecondaryComponent(expr)

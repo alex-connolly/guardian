@@ -6,7 +6,7 @@ contract BasicIterator {
     var integers [10]uint8
 
     constructor(){
-        creator = call.caller
+        creator = msg.sender
         x = 0
         for x < len(integers) {
             integers[x] = x
@@ -22,7 +22,7 @@ contract BasicIterator {
     }
 
     func kill(){
-        if call.caller == creator {
+        if msg.sender == creator {
             selfDestruct(creator)
         }
     }

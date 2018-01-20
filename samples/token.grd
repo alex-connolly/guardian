@@ -26,7 +26,7 @@ contract Token {
 
     /* Initializes contract with initial supply tokens to the creator of the contract */
     constructor(initial uint256, name string, symbol string, decimals uint8){
-        this.balances[call.caller] = initial    // Give the creator all initial tokens
+        this.balances[call.caller] = initial   
         this.totalSupply = initial              // Update total supply
         this.name = name                        // Set the name for display purposes
         this.symbol = symbol                    // Set the symbol for display purposes

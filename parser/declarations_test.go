@@ -893,7 +893,7 @@ func TestParseEventParametersDoubleModifier(t *testing.T) {
 func TestParseFullProblematicFunc(t *testing.T) {
 	_, errs := ParseString(`
 		external func burnFrom(from address, value uint256) bool {
-			this.allowance[from][call.caller] -= value;     // Subtract from the sender's allowance
+			this.allowance[from][msg.sender] -= value;     // Subtract from the sender's allowance
 		}
 	`)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())

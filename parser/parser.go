@@ -63,6 +63,9 @@ func (p *Parser) hasTokens(offset int) bool {
 }
 
 func (p *Parser) parseOptional(types ...token.Type) bool {
+	if p.isNextToken(token.Ignored) {
+		p.next()
+	}
 	if !p.hasTokens(1) {
 		return false
 	}
@@ -86,6 +89,9 @@ func (p *Parser) parseOptional(types ...token.Type) bool {
 
 // TODO: clarify what this actually returns
 func (p *Parser) parseRequired(types ...token.Type) token.Type {
+	if p.isNextToken(token.Ignored) {
+		p.next()
+	}
 	if !p.hasTokens(1) {
 		p.addError(p.getLastTokenLocation(), fmt.Sprintf(errRequiredType, listTypes(types), "nothing"))
 		// TODO: what should be returned here
@@ -258,14 +264,13 @@ func (p *Parser) parseNextConstruct() {
 	found := false
 	for _, c := range getPrimaryConstructs() {
 		if c.is(p) {
-			fmt.Printf("FOUND: %s at index %d on line %d\n", c.name, p.index, p.line)
+			//fmt.Printf("FOUND: %s at index %d on line %d\n", c.name, p.index, p.line)
 			c.parse(p)
 			found = true
 			break
 		}
 	}
 	if !found {
-		fmt.Println("hi")
 		// try interpreting it as an expression
 		saved := *p
 		expr := p.parseExpression()
@@ -275,7 +280,7 @@ func (p *Parser) parseNextConstruct() {
 			p.addError(p.getCurrentTokenLocation(), fmt.Sprintf("Unrecognised construct: %s", p.current().String(p.lexer)))
 			p.next()
 		} else {
-			fmt.Printf("nn: index %d on line %d\n", p.index, p.line)
+			//fmt.Printf("nn: index %d on line %d\n", p.index, p.line)
 			p.parsePossibleSequentialExpression(expr)
 		}
 	}
@@ -290,13 +295,11 @@ func (p *Parser) parsePossibleSequentialExpression(expr ast.ExpressionNode) {
 		}
 		if p.isNextTokenAssignment() {
 			p.scope.AddSequential(p.parseAssignmentOf(exprs, parseExpression))
-			fmt.Println("assign")
 			p.parseOptional(token.Semicolon)
 		} else {
-			//TODO: add error
+			p.addError(exprs[0].Start(), errDanglingExpression)
 		}
 	} else if p.isNextTokenAssignment() {
-		fmt.Println("assign")
 		p.scope.AddSequential(p.parseAssignmentOf([]ast.ExpressionNode{expr}, parseExpression))
 		p.parseOptional(token.Semicolon)
 	} else {

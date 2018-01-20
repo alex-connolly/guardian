@@ -769,3 +769,20 @@ func TestImportGroup(t *testing.T) {
 	`)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
+
+func TestStrangeAssignmentSameLine(t *testing.T) {
+	_, errs := ParseString(`x = 7  y = 6`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestStrangeAssignmentWithLineComment(t *testing.T) {
+	_, errs := ParseString(`x = 7 // hi
+		y = 6`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestStrangeAssignmentWithMultilineComment(t *testing.T) {
+	_, errs := ParseString(`x = 7 /* hi */
+		y = 6`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
