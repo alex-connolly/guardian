@@ -33,5 +33,5 @@ func TestParseClassNoCloseBrace(t *testing.T) {
 
 func TestParseVarNoVarStatement(t *testing.T) {
 	_, errs := ParseString(`name string`)
-	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+	goutil.AssertNow(t, len(errs) > 0, errs.Format())
 }

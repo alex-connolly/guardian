@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/ast"
@@ -157,7 +159,8 @@ main:
 					return p.finalise(expStack, opStack)
 				} else {
 					if lastWasExpression {
-						p.addError(p.getCurrentTokenLocation(), "message")
+						*p = saved
+						p.addError(p.getCurrentTokenLocation(), fmt.Sprintf(errConsecutiveExpression))
 						return p.finalise(expStack, opStack)
 					}
 				}

@@ -167,7 +167,7 @@ func isSwitchStatement(p *Parser) bool {
 }
 
 func isIgnored(p *Parser) bool {
-	return p.isNextToken(token.Ignored)
+	return p.isNextToken(token.LineComment, token.MultilineComment)
 }
 
 func isReturnStatement(p *Parser) bool {

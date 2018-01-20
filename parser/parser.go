@@ -63,15 +63,13 @@ func (p *Parser) hasTokens(offset int) bool {
 }
 
 func parseIgnored(p *Parser) {
-	for p.isNextToken(token.Ignored) {
+	for p.isNextToken(token.LineComment, token.MultilineComment) {
 		p.next()
 	}
 }
 
 func (p *Parser) parseOptional(types ...token.Type) bool {
-	if p.isNextToken(token.Ignored) {
-		p.next()
-	}
+	parseIgnored(p)
 	if !p.hasTokens(1) {
 		return false
 	}
@@ -95,9 +93,7 @@ func (p *Parser) parseOptional(types ...token.Type) bool {
 
 // TODO: clarify what this actually returns
 func (p *Parser) parseRequired(types ...token.Type) token.Type {
-	if p.isNextToken(token.Ignored) {
-		p.next()
-	}
+	parseIgnored(p)
 	if !p.hasTokens(1) {
 		p.addError(p.getLastTokenLocation(), fmt.Sprintf(errRequiredType, listTypes(types), "nothing"))
 		// TODO: what should be returned here
@@ -157,9 +153,7 @@ func (p *Parser) getCurrentTokenLocation() util.Location {
 }
 
 func (p *Parser) parseIdentifier() string {
-	if p.isNextToken(token.Ignored) {
-		p.next()
-	}
+	parseIgnored(p)
 	if !p.hasTokens(1) {
 		p.addError(p.getLastTokenLocation(), fmt.Sprintf(errRequiredType, "identifier", "nothing"))
 		return ""

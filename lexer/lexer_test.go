@@ -195,32 +195,32 @@ func TestAddAssign(t *testing.T) {
 
 func TestLineComment(t *testing.T) {
 	l := LexString(`// aa `)
-	checkTokens(t, l.Tokens, []token.Type{token.Ignored})
+	checkTokens(t, l.Tokens, []token.Type{token.LineComment})
 }
 
 func TestLineCommentAndMore(t *testing.T) {
 	l := LexString(`// aa
 		func`)
-	checkTokens(t, l.Tokens, []token.Type{token.Ignored, token.Func})
+	checkTokens(t, l.Tokens, []token.Type{token.LineComment, token.Func})
 }
 
 func TestMultilineSingleLineComment(t *testing.T) {
 	l := LexString(`/* aa */`)
-	checkTokens(t, l.Tokens, []token.Type{token.Ignored})
+	checkTokens(t, l.Tokens, []token.Type{token.MultilineComment})
 }
 
 func TestMultilineComment(t *testing.T) {
 	l := LexString(`/* a
 
 		a */`)
-	checkTokens(t, l.Tokens, []token.Type{token.Ignored})
+	checkTokens(t, l.Tokens, []token.Type{token.MultilineComment})
 }
 
 func TestMultilineCommentAndMore(t *testing.T) {
 	l := LexString(`/* a
 
 		a */func`)
-	checkTokens(t, l.Tokens, []token.Type{token.Ignored, token.Func})
+	checkTokens(t, l.Tokens, []token.Type{token.MultilineComment, token.Func})
 }
 
 func TestAssigns(t *testing.T) {
@@ -228,5 +228,14 @@ func TestAssigns(t *testing.T) {
 	checkTokens(t, l.Tokens, []token.Type{
 		token.Identifier, token.Assign, token.Integer,
 		token.Identifier, token.Assign, token.Integer,
+	})
+}
+
+func TestAnd(t *testing.T) {
+	l := LexString(`!fake and deposit >= value`)
+	checkTokens(t, l.Tokens, []token.Type{
+		token.Not, token.Identifier,
+		token.LogicalAnd,
+		token.Identifier, token.Geq, token.Identifier,
 	})
 }

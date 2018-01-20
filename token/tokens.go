@@ -135,9 +135,9 @@ func NextProtoToken(b Byterable) *ProtoToken {
 	}
 
 	if isLineComment(b) {
-		return &ProtoToken{Name: "line comment", Type: Ignored, Process: processLineComment}
+		return &ProtoToken{Name: "line comment", Type: LineComment, Process: processLineComment}
 	} else if isCommentOpen(b) {
-		return &ProtoToken{Name: "multiline comment", Type: Ignored, Process: processMultilineComment}
+		return &ProtoToken{Name: "multiline comment", Type: MultilineComment, Process: processMultilineComment}
 	}
 
 	if isFloat(b) {
@@ -205,6 +205,10 @@ func (typ Type) Name() string {
 }
 
 var distinct = map[string]ProtoToken{
+
+	"and": distinctToken("and", LogicalAnd),
+	"or":  distinctToken("or", LogicalOr),
+
 	"new":       distinctToken("new", New),
 	"contract":  distinctToken("contract", Contract),
 	"class":     distinctToken("class", Class),

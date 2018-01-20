@@ -16,4 +16,5 @@ const (
 	errInvalidTypeAfterCast       = "Expected type after cast operator"
 	errIncompleteExpression       = "Incomplete expression"
 	errInvalidImportPath          = "Invalid import path: %s"
+	errConsecutiveExpression      = "No terminator or operator after expression: found %s"
 )
