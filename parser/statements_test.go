@@ -772,7 +772,7 @@ func TestImportGroup(t *testing.T) {
 
 func TestStrangeAssignmentSameLine(t *testing.T) {
 	_, errs := ParseString(`x = 7  y = 6`)
-	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
 
 func TestStrangeAssignmentWithLineComment(t *testing.T) {

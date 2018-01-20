@@ -166,6 +166,10 @@ func isSwitchStatement(p *Parser) bool {
 	return ex || dir
 }
 
+func isIgnored(p *Parser) bool {
+	return p.isNextToken(token.Ignored)
+}
+
 func isReturnStatement(p *Parser) bool {
 	return p.isNextToken(token.Return)
 }

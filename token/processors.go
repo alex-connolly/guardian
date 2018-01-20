@@ -104,7 +104,7 @@ func processCharacter(b Byterable) Token {
 
 func processLineComment(b Byterable) Token {
 	return markLimits(b, func(byt Byterable) (t Token) {
-		t.Type = Ignored
+		t.Type = LineComment
 		t.LineIncrement = 1
 		next(byt)
 		for hasBytes(b, 1) {
@@ -120,7 +120,7 @@ func processLineComment(b Byterable) Token {
 
 func processMultilineComment(b Byterable) Token {
 	return markLimits(b, func(byt Byterable) (t Token) {
-		t.Type = Ignored
+		t.Type = MultilineComment
 		next(byt)
 		next(byt)
 		for hasBytes(b, 1) {

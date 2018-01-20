@@ -414,8 +414,7 @@ const (
 	False
 	NewLine
 	LineComment
-	CommentOpen
-	CommentClose
+	MultilineComment
 	Test
 	Fallback
 	Guardian

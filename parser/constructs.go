@@ -9,6 +9,7 @@ type construct struct {
 func getPrimaryConstructs() []construct {
 
 	standards := []construct{
+		construct{"ignored", isIgnored, parseIgnored},
 		construct{"modifiers", isModifier, parseModifiers},
 		construct{"annotations", isAnnotation, parseAnnotation},
 		construct{"group", isGroup, parseGroup},

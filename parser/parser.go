@@ -62,6 +62,12 @@ func (p *Parser) hasTokens(offset int) bool {
 	return p.index+offset <= len(p.lexer.Tokens)
 }
 
+func parseIgnored(p *Parser) {
+	for p.isNextToken(token.Ignored) {
+		p.next()
+	}
+}
+
 func (p *Parser) parseOptional(types ...token.Type) bool {
 	if p.isNextToken(token.Ignored) {
 		p.next()
@@ -151,6 +157,9 @@ func (p *Parser) getCurrentTokenLocation() util.Location {
 }
 
 func (p *Parser) parseIdentifier() string {
+	if p.isNextToken(token.Ignored) {
+		p.next()
+	}
 	if !p.hasTokens(1) {
 		p.addError(p.getLastTokenLocation(), fmt.Sprintf(errRequiredType, "identifier", "nothing"))
 		return ""

@@ -95,8 +95,15 @@ main:
 	for p.hasTokens(1) {
 		current = p.current().Type
 		switch current {
-		case token.OpenBracket:
+		case token.LineComment:
+			return p.finalise(expStack, opStack)
+		case token.MultilineComment:
 			p.next()
+			break
+		case token.Semicolon, token.NewLine, token.Comma:
+			return p.finalise(expStack, opStack)
+		case token.OpenBracket:
+			p.parseRequired(token.OpenBracket)
 			opStack = append(opStack, current)
 			break
 		case token.CloseBracket:
@@ -117,6 +124,7 @@ main:
 			// unmatched parens
 			return p.finalise(expStack, opStack)
 		default:
+			parseIgnored(p)
 			if o1, ok := operators[current]; ok {
 				lastWasExpression = false
 				if current == token.As || current == token.Is {
@@ -141,16 +149,17 @@ main:
 
 				opStack = append(opStack, current)
 			} else {
-				if lastWasExpression {
-					p.addError(p.getCurrentTokenLocation(), "message")
-					return p.finalise(expStack, opStack)
-				}
 				saved := *p
 				expr := p.parseExpressionComponent()
 				// if it isn't an expression
 				if expr == nil {
 					*p = saved
 					return p.finalise(expStack, opStack)
+				} else {
+					if lastWasExpression {
+						p.addError(p.getCurrentTokenLocation(), "message")
+						return p.finalise(expStack, opStack)
+					}
 				}
 				lastWasExpression = true
 				expStack = append(expStack, expr)
