@@ -434,3 +434,10 @@ func TestDividedImports(t *testing.T) {
 	`)
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
+
+func TestLastSlash(t *testing.T) {
+	path := "dog/a"
+	goutil.AssertNow(t, trimPath(path) == "a", "wrong path")
+	path = "x/dog/a"
+	goutil.AssertNow(t, trimPath(path) == "a", "wrong path")
+}

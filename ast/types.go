@@ -18,6 +18,7 @@ const (
 	TypeDeclaration
 	EventDeclaration
 	ExplicitVarDeclaration
+	GenericDeclaration
 	ArrayType
 	MapType
 	FuncType
@@ -32,7 +33,6 @@ const (
 	Keyword
 	BinaryExpression
 	UnaryExpression
-	GenericExpression
 	SliceExpression
 	IndexExpression
 	CallExpression
@@ -68,7 +68,7 @@ var (
 
 	AllExpressions = []NodeType{
 		UnaryExpression, BinaryExpression, SliceExpression, CallExpression, IndexExpression,
-		GenericExpression, MapLiteral, ArrayLiteral, CompositeLiteral, Literal, Reference,
+		MapLiteral, ArrayLiteral, CompositeLiteral, Literal, Reference,
 	}
 )
 
@@ -124,7 +124,7 @@ func (n *FuncTypeNode) Type() NodeType            { return FuncType }
 func (t NodeType) isExpression() bool {
 	switch t {
 	case UnaryExpression, BinaryExpression, SliceExpression, CallExpression, IndexExpression,
-		GenericExpression, MapLiteral, ArrayLiteral, CompositeLiteral, Literal, Reference:
+		MapLiteral, ArrayLiteral, CompositeLiteral, Literal, Reference:
 		return true
 	}
 	return false

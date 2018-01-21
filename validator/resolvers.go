@@ -108,24 +108,25 @@ func resolveKeyword(v *Validator, e ast.ExpressionNode) typing.Type {
 	return t
 }
 
-func (v *Validator) resolveThis(node *ast.IdentifierNode) typing.Type {
+func (v *Validator) resolveThis(node *ast.IdentifierNode) (typing.Type, map[string]typing.Type) {
 	for c := v.scope; c != nil; c = c.parent {
 		switch a := c.context.(type) {
 		case *ast.ClassDeclarationNode:
-			return a.Resolved
+			return a.Resolved, c.variables
 		case *ast.ContractDeclarationNode:
-			return a.Resolved
+			return a.Resolved, c.variables
 		}
 	}
 	v.addError(node.Start(), errInvalidThisContext)
-	return typing.Invalid()
+	return typing.Invalid(), nil
 }
 
 func resolveIdentifier(v *Validator, e ast.ExpressionNode) typing.Type {
 	i := e.(*ast.IdentifierNode)
 
 	if i.Name == "this" {
-		return v.resolveThis(i)
+		t, _ := v.resolveThis(i)
+		return t
 	}
 
 	// look up the identifier in scope
@@ -365,11 +366,11 @@ func resolveUnaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	return operandType
 }
 
-func (v *Validator) determineType(t typing.Type, exp ast.ExpressionNode) typing.Type {
+func (v *Validator) determineType(t typing.Type, parent, exp ast.ExpressionNode) typing.Type {
 	switch a := exp.(type) {
 	case *ast.ReferenceNode:
-		t = v.determineType(t, a.Parent)
-		return v.resolveContextualReference(t, a.Reference)
+		t = v.determineType(t, parent, a.Parent)
+		return v.resolveContextualReference(t, parent, a.Reference)
 	case *ast.IdentifierNode:
 		return t
 	case *ast.CallExpressionNode:
@@ -399,14 +400,14 @@ func (v *Validator) determineType(t typing.Type, exp ast.ExpressionNode) typing.
 	return typing.Invalid()
 }
 
-func (v *Validator) resolveContextualReference(context typing.Type, exp ast.ExpressionNode) typing.Type {
-	// check if context is subscriptable
+func (v *Validator) resolveContextualReference(context typing.Type, parent, exp ast.ExpressionNode) typing.Type {
+
 	if name, ok := getIdentifier(exp); ok {
-		if t, ok := v.getTypeProperty(exp, context, name); ok {
+		if t, ok := v.getTypeProperty(parent, exp, context, name); ok {
 			if typing.HasModifier(context, "static") && !typing.HasModifier(t, "static") {
 				v.addError(exp.Start(), errInvalidStaticReference)
 			}
-			return v.determineType(typing.ResolveUnderlying(t), exp)
+			return v.determineType(typing.ResolveUnderlying(t), parent, exp)
 		} else {
 			if context == nil {
 				fmt.Println("NIL CONTEXT")
@@ -424,7 +425,7 @@ func resolveReference(v *Validator, e ast.ExpressionNode) typing.Type {
 	// must be reference
 	m := e.(*ast.ReferenceNode)
 	context := v.resolveExpression(m.Parent)
-	t := v.resolveContextualReference(context, m.Reference)
+	t := v.resolveContextualReference(context, m.Parent, m.Reference)
 	m.Resolved = t
 	return m.Resolved
 }
@@ -630,7 +631,23 @@ func (v *Validator) getEnumProperty(exp ast.ExpressionNode, c *typing.Enum, name
 	return typing.Invalid(), false
 }
 
-func (v *Validator) getTypeProperty(exp ast.ExpressionNode, t typing.Type, name string) (typing.Type, bool) {
+func (v *Validator) checkThisProperty(parent ast.ExpressionNode, name string) (typing.Type, bool) {
+	if parent != nil {
+		switch p := parent.(type) {
+		case *ast.IdentifierNode:
+			if p.Name == "this" {
+				fmt.Println("here")
+				_, vars := v.resolveThis(p)
+				if t, ok := vars[name]; ok {
+					return t, ok
+				}
+			}
+		}
+	}
+	return typing.Invalid(), false
+}
+
+func (v *Validator) getTypeProperty(parent, exp ast.ExpressionNode, t typing.Type, name string) (typing.Type, bool) {
 	if t == nil {
 		// TODO: do something?
 		return typing.Invalid(), false
@@ -638,9 +655,19 @@ func (v *Validator) getTypeProperty(exp ast.ExpressionNode, t typing.Type, name 
 	// only classes, interfaces, contracts and enums are subscriptable
 	switch c := typing.ResolveUnderlying(t).(type) {
 	case *typing.Class:
-		return v.getClassProperty(exp, c, name)
+		t, ok := v.getClassProperty(exp, c, name)
+		if !ok {
+			return v.checkThisProperty(parent, name)
+		} else {
+			return t, ok
+		}
 	case *typing.Contract:
-		return v.getContractProperty(exp, c, name)
+		t, ok := v.getContractProperty(exp, c, name)
+		if !ok {
+			return v.checkThisProperty(parent, name)
+		} else {
+			return t, ok
+		}
 	case *typing.Interface:
 		return v.getInterfaceProperty(exp, c, name)
 	case *typing.Enum:
@@ -649,7 +676,7 @@ func (v *Validator) getTypeProperty(exp ast.ExpressionNode, t typing.Type, name 
 		return v.getPackageProperty(exp, c, name)
 	case *typing.Tuple:
 		if len(c.Types) == 1 {
-			return v.getTypeProperty(exp, c.Types[0], name)
+			return v.getTypeProperty(parent, exp, c.Types[0], name)
 		} else {
 			v.addError(exp.Start(), errMultipleTypesInSingleValueContext)
 		}
@@ -658,5 +685,6 @@ func (v *Validator) getTypeProperty(exp ast.ExpressionNode, t typing.Type, name 
 		v.addError(exp.Start(), errInvalidSubscriptable, typing.WriteType(c))
 		break
 	}
+
 	return typing.Invalid(), false
 }

@@ -34,6 +34,8 @@ func (p *Parser) parseGeneric() *ast.GenericDeclarationNode {
 
 	g := new(ast.GenericDeclarationNode)
 
+	g.Begin = p.getCurrentTokenLocation()
+
 	g.Identifier = p.parseIdentifier()
 	g.Implements = make([]*ast.PlainTypeNode, 0)
 	g.Inherits = make([]*ast.PlainTypeNode, 0)
@@ -49,5 +51,8 @@ func (p *Parser) parseGeneric() *ast.GenericDeclarationNode {
 			g.Inherits = p.parsePlainTypeList()
 		}
 	}
+
+	g.Final = p.getCurrentTokenLocation()
+
 	return g
 }

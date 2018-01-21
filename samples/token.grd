@@ -26,7 +26,7 @@ contract Token {
 
     /* Initializes contract with initial supply tokens to the creator of the contract */
     constructor(initial uint256, name string, symbol string, decimals uint8){
-        this.balances[call.caller] = initial   
+        this.balances[msg.sender] = initial    // Give the creator all initial tokens
         this.totalSupply = initial              // Update total supply
         this.name = name                        // Set the name for display purposes
         this.symbol = symbol                    // Set the symbol for display purposes
@@ -47,7 +47,7 @@ contract Token {
     /// @param to The address of the recipient
     /// @param value the amount to send
     external func transfer(to address, value uint256) {
-        transfer(call.caller, to, value);
+        transfer(msg.sender, to, value);
     }
 
     /// @notice Send `value` tokens to `to` in behalf of `from`
@@ -55,8 +55,8 @@ contract Token {
     /// @param to The address of the recipient
     /// @param value the amount to send
     external func transferFrom(to, from address, value uint256) bool {
-        require (value < allowance[from][call.caller])     // Check allowance
-        allowance[from][call.caller] -= value
+        require (value < allowance[from][msg.sender])     // Check allowance
+        allowance[from][msg.sender] -= value
         transfer(from, to, value)
         return true;
     }
@@ -65,7 +65,7 @@ contract Token {
     /// @param spender The address authorized to spend
     /// @param value the max amount they can spend
     external func approve(spender address, value uint256) bool {
-        allowance[call.caller][spender] = value
+        allowance[msg.sender][spender] = value
         return true
     }
 
@@ -76,7 +76,7 @@ contract Token {
     external func approveAndCall(spender address, value uint256, extra bytes) bool {
         s = spender as tokenRecipient;
         if approve(spender, value) {
-            s.receiveApproval(call.caller, call.caller, value, extra);
+            s.receiveApproval(msg.sender, msg.sender, value, extra);
             return true;
         }
     }
@@ -84,18 +84,18 @@ contract Token {
     /// @notice Remove `value` tokens from the system irreversibly
     /// @param value the amount of money to burn
     external func burn(value uint256) bool {
-        require(balances[call.caller] > value);            // Check if the sender has enough
-        balances[call.caller] -= value;                      // Subtract from the sender
+        require(balances[msg.sender] > value);            // Check if the sender has enough
+        balances[msg.sender] -= value;                      // Subtract from the sender
         totalSupply -= value;                                // Updates totalSupply
-        Burn(call.caller, value);
+        Burn(msg.sender, value);
         return true;
     }
 
     external func burnFrom(from address, value uint256) bool {
         require(balances[from] >= value);                // Check if the targeted balance is enough
-        require(value <= allowance[from][call.caller])   // Check allowance
+        require(value <= allowance[from][msg.sender])   // Check allowance
         //this.balances[from] -= value;                         // Subtract from the targeted balance
-        //this.allowance[from][call.caller] -= value;             // Subtract from the sender's allowance
+        //this.allowance[from][msg.sender] -= value;             // Subtract from the sender's allowance
         this.totalSupply -= value;                              // Update totalSupply
         Burn(from, value);
         return true;

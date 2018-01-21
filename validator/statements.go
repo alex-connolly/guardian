@@ -78,7 +78,7 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 					id.Resolved.SetModifiers(nil)
 					ignored := "_"
 					if id.Name != ignored {
-						v.declareContextualVar(id.Name, id.Resolved)
+						v.declareContextualVar(id.Start(), id.Name, id.Resolved)
 					}
 
 				}
@@ -100,7 +100,7 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 						id.Resolved = rightTuple.Types[i]
 						if id.Name != "_" {
 							//fmt.Printf("Declaring %s as %s\n", id.Name, typing.WriteType(rightTuple.Types[i]))
-							v.declareContextualVar(id.Name, rightTuple.Types[i])
+							v.declareContextualVar(id.Start(), id.Name, rightTuple.Types[i])
 						}
 					}
 				}
@@ -177,8 +177,8 @@ func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
 		if len(node.Variables) != req {
 			v.addError(node.Begin, errInvalidForEachVariables, len(node.Variables), req)
 		} else {
-			v.declareContextualVar(node.Variables[0], a.Key)
-			v.declareContextualVar(node.Variables[1], a.Value)
+			v.declareContextualVar(node.Start(), node.Variables[0], a.Key)
+			v.declareContextualVar(node.Start(), node.Variables[1], a.Value)
 		}
 		break
 	case *typing.Array:
@@ -187,8 +187,8 @@ func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
 		if len(node.Variables) != req {
 			v.addError(node.Start(), errInvalidForEachVariables, len(node.Variables), req)
 		} else {
-			v.declareContextualVar(node.Variables[0], v.LargestNumericType(false))
-			v.declareContextualVar(node.Variables[1], a.Value)
+			v.declareContextualVar(node.Start(), node.Variables[0], v.LargestNumericType(false))
+			v.declareContextualVar(node.Start(), node.Variables[1], a.Value)
 		}
 		break
 	default:
@@ -226,14 +226,24 @@ func (v *Validator) createPackageType(path string) *typing.Package {
 	return pkg
 }
 
+func trimPath(n string) string {
+	lastSlash := 0
+	for i := 0; i < len(n); i++ {
+		if n[i] == '/' {
+			lastSlash = i
+		}
+	}
+	return n[lastSlash:]
+}
+
 func (v *Validator) validateImportStatement(node *ast.ImportStatementNode) {
 	if v.finishedImports {
 		v.addError(node.Start(), errFinishedImports)
 	}
 	if node.Alias != "" {
-		v.declareContextualType(node.Alias, v.createPackageType(node.Path))
+		v.declareContextualType(node.Start(), node.Alias, v.createPackageType(node.Path))
 	} else {
-		v.declareContextualType("hi", v.createPackageType(node.Path))
+		v.declareContextualType(node.Start(), trimPath(node.Path), v.createPackageType(node.Path))
 	}
 }
 

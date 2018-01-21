@@ -139,3 +139,7 @@ type GenericDeclarationNode struct {
 	Inherits     []*PlainTypeNode
 	Implements   []*PlainTypeNode
 }
+
+func (n *GenericDeclarationNode) Type() NodeType       { return GenericDeclaration }
+func (n *GenericDeclarationNode) Start() util.Location { return n.Begin }
+func (n *GenericDeclarationNode) End() util.Location   { return n.Final }

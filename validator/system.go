@@ -29,25 +29,25 @@ func (v *Validator) findVariable(exp ast.ExpressionNode, name string) typing.Typ
 			// check parents
 			switch c := scope.context.(type) {
 			case *ast.ClassDeclarationNode:
-				t, _ := v.getTypeProperty(exp, c.Resolved, name)
+				t, _ := v.getTypeProperty(nil, exp, c.Resolved, name)
 				if t != nil && t != typing.Unknown() {
 					return t
 				}
 				break
 			case *ast.EnumDeclarationNode:
-				t, _ := v.getTypeProperty(exp, c.Resolved, name)
+				t, _ := v.getTypeProperty(nil, exp, c.Resolved, name)
 				if t != nil && t != typing.Unknown() {
 					return t
 				}
 				break
 			case *ast.InterfaceDeclarationNode:
-				t, _ := v.getTypeProperty(exp, c.Resolved, name)
+				t, _ := v.getTypeProperty(nil, exp, c.Resolved, name)
 				if t != nil && t != typing.Unknown() {
 					return t
 				}
 				break
 			case *ast.ContractDeclarationNode:
-				t, _ := v.getTypeProperty(exp, c.Resolved, name)
+				t, _ := v.getTypeProperty(nil, exp, c.Resolved, name)
 				if t != nil && t != typing.Unknown() {
 					return t
 				}
@@ -76,25 +76,45 @@ func (v *Validator) findVariable(exp ast.ExpressionNode, name string) typing.Typ
 }
 
 // DeclareVarOfType ...
-func (v *Validator) DeclareVarOfType(name string, t typing.Type) {
+func (v *Validator) DeclareVarOfType(loc util.Location, name string, t typing.Type) {
 	if v.scope.variables == nil {
 		v.scope.variables = make(map[string]typing.Type)
+	}
+	_, ok := v.scope.variables[name]
+	if ok {
+		v.addError(loc, errDuplicateVarDeclaration, name)
 	}
 	v.scope.variables[name] = t
 }
 
 // DeclareBuiltinOfType ...
-func (v *Validator) DeclareBuiltinOfType(name string, t typing.Type) {
+func (v *Validator) DeclareBuiltinOfType(loc util.Location, name string, t typing.Type) {
 	if v.builtinVariables == nil {
 		v.builtinVariables = make(map[string]typing.Type)
 	}
 	v.builtinVariables[name] = t
 }
 
+// DeclareBuiltinType ...
+func (v *Validator) DeclareBuiltinType(loc util.Location, name string, t typing.Type) {
+	if v.primitives == nil {
+		v.primitives = make(map[string]typing.Type)
+	}
+	_, ok := v.primitives[name]
+	if ok {
+		v.addError(loc, errDuplicateTypeDeclaration, name)
+	}
+	v.primitives[name] = t
+}
+
 // DeclareType ...
-func (v *Validator) DeclareType(name string, t typing.Type) {
+func (v *Validator) DeclareType(loc util.Location, name string, t typing.Type) {
 	if v.scope.types == nil {
 		v.scope.types = make(map[string]typing.Type)
+	}
+	_, ok := v.scope.types[name]
+	if ok {
+		v.addError(loc, errDuplicateTypeDeclaration, name)
 	}
 	v.scope.types[name] = t
 }
@@ -104,14 +124,6 @@ func (v *Validator) declareLifecycle(tk token.Type, l typing.Lifecycle) {
 		v.scope.lifecycles = typing.LifecycleMap{}
 	}
 	v.scope.lifecycles[tk] = append(v.scope.lifecycles[tk], l)
-}
-
-// DeclareBuiltinType ...
-func (v *Validator) DeclareBuiltinType(name string, t typing.Type) {
-	if v.primitives == nil {
-		v.primitives = make(map[string]typing.Type)
-	}
-	v.primitives[name] = t
 }
 
 func (v *Validator) getNamedType(names ...string) typing.Type {

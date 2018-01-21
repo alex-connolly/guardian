@@ -46,4 +46,6 @@ const (
 	errInvalidPackageName                = "Invalid package name: %s"
 	errDuplicatePackageName              = "Duplicate package declaration: %s, already %s"
 	errFinishedImports                   = "Imports must be under package statement"
+	errDuplicateVarDeclaration           = "Duplicate var declaration %s"
+	errDuplicateTypeDeclaration          = "Duplicate type declaration %s"
 )

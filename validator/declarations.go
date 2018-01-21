@@ -197,7 +197,7 @@ func (v *Validator) validateVarDeclaration(node *ast.ExplicitVarDeclarationNode)
 	typ.SetModifiers(&node.Modifiers)
 
 	for _, id := range node.Identifiers {
-		v.declareContextualVar(id, typ)
+		v.declareContextualVar(node.Start(), id, typ)
 		//fmt.Printf("Declared: %s as %s\n", id, WriteType(typ))
 	}
 	node.Resolved = typ
@@ -209,7 +209,7 @@ func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*
 
 		g := new(typing.Generic)
 
-		v.declareContextualType(node.Identifier, g)
+		v.declareContextualType(node.Start(), node.Identifier, g)
 
 		var interfaces []*typing.Interface
 		for _, ifc := range node.Implements {
@@ -365,7 +365,7 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 
 	v.validateClassInterfaces(node, classType)
 
-	v.declareContextualType(node.Identifier, classType)
+	v.declareContextualType(node.Start(), node.Identifier, classType)
 
 }
 
@@ -398,7 +398,7 @@ func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
 
 	node.Resolved = enumType
 
-	v.declareContextualType(node.Identifier, enumType)
+	v.declareContextualType(node.Start(), node.Identifier, enumType)
 }
 
 func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNode) {
@@ -454,7 +454,7 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 
 	v.validateContractInterfaces(node, contractType)
 
-	v.declareContextualType(node.Identifier, contractType)
+	v.declareContextualType(node.Start(), node.Identifier, contractType)
 }
 
 func (v *Validator) validateContractInterfaces(node *ast.ContractDeclarationNode, contract *typing.Contract) {
@@ -561,7 +561,7 @@ func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationN
 
 	node.Resolved = interfaceType
 
-	v.declareContextualType(node.Identifier, interfaceType)
+	v.declareContextualType(node.Start(), node.Identifier, interfaceType)
 
 }
 
@@ -569,11 +569,11 @@ func (v *Validator) validateContextualType(node ast.Node) typing.Type {
 	return v.validateType(node)
 }
 
-func (v *Validator) declareContextualVar(name string, typ typing.Type) {
+func (v *Validator) declareContextualVar(loc util.Location, name string, typ typing.Type) {
 	if v.scope == nil {
-		v.DeclareBuiltinOfType(name, typ)
+		v.DeclareBuiltinOfType(loc, name, typ)
 	} else {
-		v.DeclareVarOfType(name, typ)
+		v.DeclareVarOfType(loc, name, typ)
 	}
 }
 
@@ -610,7 +610,7 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 	}
 
 	node.Resolved = funcType
-	v.declareContextualVar(node.Signature.Identifier, funcType)
+	v.declareContextualVar(node.Signature.Start(), node.Signature.Identifier, funcType)
 	v.validateScope(node, node.Body)
 
 }
@@ -671,14 +671,14 @@ func (v *Validator) validateEventDeclaration(node *ast.EventDeclarationNode) {
 		Mods:       &node.Modifiers,
 	}
 	node.Resolved = eventType
-	v.declareContextualVar(node.Identifier, eventType)
+	v.declareContextualVar(node.Start(), node.Identifier, eventType)
 }
 
-func (v *Validator) declareContextualType(name string, typ typing.Type) {
+func (v *Validator) declareContextualType(loc util.Location, name string, typ typing.Type) {
 	if v.isParsingBuiltins {
-		v.DeclareBuiltinType(name, typ)
+		v.DeclareBuiltinType(loc, name, typ)
 	} else {
-		v.DeclareType(name, typ)
+		v.DeclareType(loc, name, typ)
 	}
 }
 
@@ -688,7 +688,7 @@ func (v *Validator) validateTypeDeclaration(node *ast.TypeDeclarationNode) {
 
 	typ := v.validateType(node.Value)
 	node.Resolved = typ
-	v.declareContextualType(node.Identifier, typ)
+	v.declareContextualType(node.Start(), node.Identifier, typ)
 }
 
 func (v *Validator) validateLifecycleDeclaration(node *ast.LifecycleDeclarationNode) {
@@ -697,7 +697,7 @@ func (v *Validator) validateLifecycleDeclaration(node *ast.LifecycleDeclarationN
 	for _, p := range node.Parameters {
 		typ := v.validateType(p.DeclaredType)
 		for _, i := range p.Identifiers {
-			v.declareContextualVar(i, typ)
+			v.declareContextualVar(p.Start(), i, typ)
 			types = append(types, typ)
 		}
 	}
