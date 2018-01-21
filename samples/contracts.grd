@@ -4,12 +4,12 @@ contract Adder {
 
     var x, y int
 
-    constructor(x, y int){
-        this.x, this.y = x, y
+    constructor(xa, ya int){
+        this.x, this.y = xa, ya
     }
 
     func add() int {
-        r = x + y;
+        r = x + y
         if r < x and r < y {
             terminate("Addition has overflowed")
         }

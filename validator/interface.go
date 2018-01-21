@@ -197,7 +197,8 @@ func (v *Validator) parseBuiltins() {
 	if v.builtinScope != nil {
 		v.isParsingBuiltins = true
 		if v.builtinScope.Declarations != nil {
-			for _, i := range v.builtinScope.Declarations.Map() {
+			// order shouldn't matter
+			for _, i := range v.builtinScope.Declarations.Array() {
 				v.validateDeclaration(i.(ast.Node))
 			}
 		}

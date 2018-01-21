@@ -587,10 +587,10 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 	for _, node := range node.Signature.Parameters {
 		// todo: check here?
 		p := node.(*ast.ExplicitVarDeclarationNode)
-		for _ = range p.Identifiers {
+		for _, id := range p.Identifiers {
 			typ := v.validateContextualType(p.DeclaredType)
 			//TODO: declare this later
-			//v.DeclareVarOfType(i, typ)
+			v.DeclareVarOfType(p.Start(), id, typ)
 			params = append(params, typ)
 		}
 	}

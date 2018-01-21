@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/util"
 
 	"github.com/end-r/guardian/token"
@@ -11,14 +13,20 @@ import (
 )
 
 func (v *Validator) requireVisibleType(loc util.Location, names ...string) typing.Type {
-	typ := v.getNamedType(names...)
+	typ := v.getNamedType(names[0])
 	if typ == typing.Unknown() {
 		v.addError(loc, errTypeNotVisible, makeName(names))
+	}
+	for _, n := range names[0:] {
+		typ, ok := v.getTypeType(loc, typ, n)
+		if !ok {
+			break
+		}
 	}
 	return typ
 }
 
-func (v *Validator) findVariable(exp ast.ExpressionNode, name string) typing.Type {
+func (v *Validator) findVariable(loc util.Location, name string) typing.Type {
 	if v.builtinVariables != nil {
 		if typ, ok := v.builtinVariables[name]; ok {
 			return typ
@@ -29,26 +37,23 @@ func (v *Validator) findVariable(exp ast.ExpressionNode, name string) typing.Typ
 			// check parents
 			switch c := scope.context.(type) {
 			case *ast.ClassDeclarationNode:
-				t, _ := v.getTypeProperty(nil, exp, c.Resolved, name)
-				if t != nil && t != typing.Unknown() {
+				if t, ok := c.Resolved.(*typing.Class).Properties[name]; ok {
 					return t
 				}
 				break
 			case *ast.EnumDeclarationNode:
-				t, _ := v.getTypeProperty(nil, exp, c.Resolved, name)
-				if t != nil && t != typing.Unknown() {
+				t, ok := v.getEnumProperty(loc, c, name)
+				if ok {
 					return t
 				}
 				break
 			case *ast.InterfaceDeclarationNode:
-				t, _ := v.getTypeProperty(nil, exp, c.Resolved, name)
-				if t != nil && t != typing.Unknown() {
+				if t, ok := c.Resolved.(*typing.Interface).Funcs[name]; ok {
 					return t
 				}
 				break
 			case *ast.ContractDeclarationNode:
-				t, _ := v.getTypeProperty(nil, exp, c.Resolved, name)
-				if t != nil && t != typing.Unknown() {
+				if t, ok := c.Resolved.(*typing.Contract).Properties[name]; ok {
 					return t
 				}
 				break
@@ -80,11 +85,12 @@ func (v *Validator) DeclareVarOfType(loc util.Location, name string, t typing.Ty
 	if v.scope.variables == nil {
 		v.scope.variables = make(map[string]typing.Type)
 	}
-	_, ok := v.scope.variables[name]
-	if ok {
+	if v.findVariable(loc, name) != typing.Unknown() {
 		v.addError(loc, errDuplicateVarDeclaration, name)
+	} else {
+		fmt.Println("declaring", name)
+		v.scope.variables[name] = t
 	}
-	v.scope.variables[name] = t
 }
 
 // DeclareBuiltinOfType ...
@@ -92,7 +98,11 @@ func (v *Validator) DeclareBuiltinOfType(loc util.Location, name string, t typin
 	if v.builtinVariables == nil {
 		v.builtinVariables = make(map[string]typing.Type)
 	}
-	v.builtinVariables[name] = t
+	if v.findVariable(loc, name) != typing.Unknown() {
+		v.addError(loc, errDuplicateVarDeclaration, name)
+	} else {
+		v.builtinVariables[name] = t
+	}
 }
 
 // DeclareBuiltinType ...
@@ -100,11 +110,11 @@ func (v *Validator) DeclareBuiltinType(loc util.Location, name string, t typing.
 	if v.primitives == nil {
 		v.primitives = make(map[string]typing.Type)
 	}
-	_, ok := v.primitives[name]
-	if ok {
+	if v.getNamedType(name) != typing.Unknown() {
 		v.addError(loc, errDuplicateTypeDeclaration, name)
+	} else {
+		v.primitives[name] = t
 	}
-	v.primitives[name] = t
 }
 
 // DeclareType ...
@@ -112,27 +122,24 @@ func (v *Validator) DeclareType(loc util.Location, name string, t typing.Type) {
 	if v.scope.types == nil {
 		v.scope.types = make(map[string]typing.Type)
 	}
-	_, ok := v.scope.types[name]
-	if ok {
+	if v.getNamedType(name) != typing.Unknown() {
 		v.addError(loc, errDuplicateTypeDeclaration, name)
+	} else {
+		v.scope.types[name] = t
 	}
-	v.scope.types[name] = t
 }
 
 func (v *Validator) declareLifecycle(tk token.Type, l typing.Lifecycle) {
 	if v.scope.lifecycles == nil {
-		v.scope.lifecycles = typing.LifecycleMap{}
+		v.scope.lifecycles = make(typing.LifecycleMap)
 	}
 	v.scope.lifecycles[tk] = append(v.scope.lifecycles[tk], l)
 }
 
-func (v *Validator) getNamedType(names ...string) typing.Type {
-	search := names[0]
+func (v *Validator) getNamedType(search string) typing.Type {
 	if v.primitives != nil {
 		for k, typ := range v.primitives {
 			if k == search {
-				// found top level type
-				//return v.getPropertiesType(typ, names[1:])
 				return typ
 			}
 		}
@@ -141,8 +148,6 @@ func (v *Validator) getNamedType(names ...string) typing.Type {
 		if s.types != nil {
 			for k, typ := range s.types {
 				if k == search {
-					// found top level type
-					//return v.getPropertiesType(typ, names[1:])
 					return typ
 				}
 			}
