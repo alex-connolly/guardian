@@ -1,8 +1,6 @@
 package validator
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/util"
 
 	"github.com/end-r/guardian/token"
@@ -12,18 +10,47 @@ import (
 	"github.com/end-r/guardian/ast"
 )
 
-func (v *Validator) requireVisibleType(loc util.Location, names ...string) typing.Type {
-	typ := v.getNamedType(names[0])
-	if typ == typing.Unknown() {
-		v.addError(loc, errTypeNotVisible, makeName(names))
-	}
-	for _, n := range names[0:] {
-		typ, ok := v.getTypeType(loc, typ, n)
-		if !ok {
-			break
+func (v *Validator) isVarVisible(name string) bool {
+	if v.builtinVariables != nil {
+		if _, ok := v.builtinVariables[name]; ok {
+			return true
 		}
 	}
-	return typ
+	for scope := v.scope; scope != nil; scope = scope.parent {
+		if scope.context != nil {
+			// check parents
+			switch c := scope.context.(type) {
+			case *ast.ClassDeclarationNode:
+				if _, ok := c.Resolved.(*typing.Class).Properties[name]; ok {
+					return true
+				}
+				break
+			case *ast.EnumDeclarationNode:
+				for _, e := range c.Resolved.(*typing.Enum).Items {
+					if e == name {
+						return true
+					}
+				}
+				break
+			case *ast.InterfaceDeclarationNode:
+				if _, ok := c.Resolved.(*typing.Interface).Funcs[name]; ok {
+					return true
+				}
+				break
+			case *ast.ContractDeclarationNode:
+				if _, ok := c.Resolved.(*typing.Contract).Properties[name]; ok {
+					return true
+				}
+				break
+			}
+		}
+		if scope.variables != nil {
+			if _, ok := scope.variables[name]; ok {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func (v *Validator) findVariable(loc util.Location, name string) typing.Type {
@@ -42,8 +69,7 @@ func (v *Validator) findVariable(loc util.Location, name string) typing.Type {
 				}
 				break
 			case *ast.EnumDeclarationNode:
-				t, ok := v.getEnumProperty(loc, c, name)
-				if ok {
+				if t, ok := v.getEnumProperty(loc, c.Resolved.(*typing.Enum), name); ok {
 					return t
 				}
 				break
@@ -85,10 +111,9 @@ func (v *Validator) DeclareVarOfType(loc util.Location, name string, t typing.Ty
 	if v.scope.variables == nil {
 		v.scope.variables = make(map[string]typing.Type)
 	}
-	if v.findVariable(loc, name) != typing.Unknown() {
+	if v.isVarVisible(name) {
 		v.addError(loc, errDuplicateVarDeclaration, name)
 	} else {
-		fmt.Println("declaring", name)
 		v.scope.variables[name] = t
 	}
 }
@@ -98,7 +123,7 @@ func (v *Validator) DeclareBuiltinOfType(loc util.Location, name string, t typin
 	if v.builtinVariables == nil {
 		v.builtinVariables = make(map[string]typing.Type)
 	}
-	if v.findVariable(loc, name) != typing.Unknown() {
+	if v.isVarVisible(name) {
 		v.addError(loc, errDuplicateVarDeclaration, name)
 	} else {
 		v.builtinVariables[name] = t
@@ -113,6 +138,7 @@ func (v *Validator) DeclareBuiltinType(loc util.Location, name string, t typing.
 	if v.getNamedType(name) != typing.Unknown() {
 		v.addError(loc, errDuplicateTypeDeclaration, name)
 	} else {
+		//fmt.Println("declaring builtin type", name)
 		v.primitives[name] = t
 	}
 }
@@ -125,6 +151,7 @@ func (v *Validator) DeclareType(loc util.Location, name string, t typing.Type) {
 	if v.getNamedType(name) != typing.Unknown() {
 		v.addError(loc, errDuplicateTypeDeclaration, name)
 	} else {
+		//	fmt.Println("declaring type", name)
 		v.scope.types[name] = t
 	}
 }

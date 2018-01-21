@@ -48,4 +48,5 @@ const (
 	errFinishedImports                   = "Imports must be under package statement"
 	errDuplicateVarDeclaration           = "Duplicate var declaration %s"
 	errDuplicateTypeDeclaration          = "Duplicate type declaration %s"
+	errInvalidTypeType                   = "Type %s does not have sub-type %s"
 )

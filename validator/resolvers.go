@@ -28,7 +28,20 @@ func (v *Validator) resolveType(node ast.Node) typing.Type {
 }
 
 func (v *Validator) resolvePlainType(node *ast.PlainTypeNode) typing.Type {
-	return v.getNamedType(node.Names...)
+	typ := v.getNamedType(node.Names[0])
+	if typ == typing.Unknown() {
+		v.addError(node.Start(), errTypeNotVisible, makeName(node.Names))
+	}
+	for _, n := range node.Names[0:] {
+
+		t, ok := v.getTypeType(node.Start(), typ, n)
+		if !ok {
+			v.addError(node.Start(), errInvalidTypeType, typing.WriteType(typ), n)
+			break
+		}
+		typ = t
+	}
+	return typ
 }
 
 func (v *Validator) resolveArrayType(node *ast.ArrayTypeNode) *typing.Array {
@@ -162,7 +175,7 @@ func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Ty
 
 func resolveCompositeLiteral(v *Validator, e ast.ExpressionNode) typing.Type {
 	c := e.(*ast.CompositeLiteralNode)
-	c.Resolved = v.getNamedType(c.TypeName.Names...)
+	c.Resolved = v.resolvePlainType(c.TypeName)
 	if c.Resolved == typing.Unknown() {
 		c.Resolved = v.getDeclarationNode(e.Start(), c.TypeName.Names)
 	}
@@ -520,11 +533,11 @@ func (v *Validator) checkVisible(loc util.Location, context, property typing.Typ
 	if property.Modifiers() != nil {
 		if property.Modifiers().HasModifier("private") {
 			if !v.isCurrentContext(context) {
-				v.addError(loc, errInvalidAccess, name, "private")
+				v.addError(loc, errInvalidAccess, name, "private", typing.WriteType(property))
 			}
 		} else if property.Modifiers().HasModifier("protected") {
 			if !v.isCurrentContextOrSubclass(context) {
-				v.addError(loc, errInvalidAccess, name, "protected")
+				v.addError(loc, errInvalidAccess, name, "protected", typing.WriteType(property))
 			}
 		}
 	}

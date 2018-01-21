@@ -199,6 +199,7 @@ func (v *Validator) parseBuiltins() {
 		if v.builtinScope.Declarations != nil {
 			// order shouldn't matter
 			for _, i := range v.builtinScope.Declarations.Array() {
+
 				v.validateDeclaration(i.(ast.Node))
 			}
 		}

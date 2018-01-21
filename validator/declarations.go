@@ -29,7 +29,7 @@ func (v *Validator) validateType(destination ast.Node) typing.Type {
 
 func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 	// start the validating process for another node
-	typ := v.getNamedType(node.Names...)
+	typ := v.getNamedType(node.Names[0])
 	if typ == typing.Unknown() {
 		typ = v.getDeclarationNode(node.Start(), node.Names)
 	}
@@ -129,28 +129,44 @@ func (v *Validator) validateFuncType(node *ast.FuncTypeNode) typing.Type {
 func (v *Validator) validateDeclaration(node ast.Node) {
 	switch n := node.(type) {
 	case *ast.ClassDeclarationNode:
-		v.validateClassDeclaration(n)
+		if n.Resolved == nil {
+			v.validateClassDeclaration(n)
+		}
 		break
 	case *ast.ContractDeclarationNode:
-		v.validateContractDeclaration(n)
+		if n.Resolved == nil {
+			v.validateContractDeclaration(n)
+		}
 		break
 	case *ast.EnumDeclarationNode:
-		v.validateEnumDeclaration(n)
+		if n.Resolved == nil {
+			v.validateEnumDeclaration(n)
+		}
 		break
 	case *ast.FuncDeclarationNode:
-		v.validateFuncDeclaration(n)
+		if n.Resolved == nil {
+			v.validateFuncDeclaration(n)
+		}
 		break
 	case *ast.InterfaceDeclarationNode:
-		v.validateInterfaceDeclaration(n)
+		if n.Resolved == nil {
+			v.validateInterfaceDeclaration(n)
+		}
 		break
 	case *ast.ExplicitVarDeclarationNode:
-		v.validateVarDeclaration(n)
+		if n.Resolved == nil {
+			v.validateVarDeclaration(n)
+		}
 		break
 	case *ast.EventDeclarationNode:
-		v.validateEventDeclaration(n)
+		if n.Resolved == nil {
+			v.validateEventDeclaration(n)
+		}
 		break
 	case *ast.TypeDeclarationNode:
-		v.validateTypeDeclaration(n)
+		if n.Resolved == nil {
+			v.validateTypeDeclaration(n)
+		}
 		break
 	case *ast.LifecycleDeclarationNode:
 		v.validateLifecycleDeclaration(n)
@@ -182,10 +198,11 @@ func (v *Validator) getDeclarationNode(loc util.Location, names []string) typing
 }
 
 func (v *Validator) requireValidType(loc util.Location, names []string) typing.Type {
-	typ := v.getNamedType(names...)
+	typ := v.getNamedType(names[0])
 	if typ == typing.Unknown() {
 		v.addError(loc, errTypeNotVisible, makeName(names))
 	}
+
 	return typ
 }
 
@@ -366,7 +383,6 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 	v.validateClassInterfaces(node, classType)
 
 	v.declareContextualType(node.Start(), node.Identifier, classType)
-
 }
 
 func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
@@ -570,7 +586,7 @@ func (v *Validator) validateContextualType(node ast.Node) typing.Type {
 }
 
 func (v *Validator) declareContextualVar(loc util.Location, name string, typ typing.Type) {
-	if v.scope == nil {
+	if v.isParsingBuiltins {
 		v.DeclareBuiltinOfType(loc, name, typ)
 	} else {
 		v.DeclareVarOfType(loc, name, typ)

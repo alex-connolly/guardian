@@ -134,6 +134,8 @@ func parseEnumDeclaration(p *Parser) {
 
 func (p *Parser) parsePlainType() *ast.PlainTypeNode {
 
+	start := p.getCurrentTokenLocation()
+
 	variable := p.parseOptional(token.Ellipsis)
 
 	var names []string
@@ -155,6 +157,8 @@ func (p *Parser) parsePlainType() *ast.PlainTypeNode {
 	}
 
 	return &ast.PlainTypeNode{
+		Begin:      start,
+		Final:      p.getLastTokenLocation(),
 		Names:      names,
 		Parameters: params,
 		Variable:   variable,
@@ -579,7 +583,7 @@ func (p *Parser) parseMapType() *ast.MapTypeNode {
 
 func (p *Parser) parseFuncType() *ast.FuncTypeNode {
 
-	f := ast.FuncTypeNode{}
+	f := new(ast.FuncTypeNode)
 
 	f.Begin = p.getCurrentTokenLocation()
 
@@ -602,7 +606,7 @@ func (p *Parser) parseFuncType() *ast.FuncTypeNode {
 
 	f.Final = p.getLastTokenLocation()
 
-	return &f
+	return f
 }
 
 func (p *Parser) isNamedParameter() bool {
