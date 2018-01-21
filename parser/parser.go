@@ -267,8 +267,9 @@ func (p *Parser) parseNextConstruct() {
 	found := false
 	for _, c := range getPrimaryConstructs() {
 		if c.is(p) {
-			//fmt.Printf("FOUND: %s at index %d on line %d\n", c.name, p.index, p.line)
+			//fmt.Printf("FOUND: %s at index %d on line %d\n", c.name, p.getCurrentTokenLocation().Offset, p.getCurrentTokenLocation().Line)
 			c.parse(p)
+			p.parseOptional(token.Semicolon)
 			found = true
 			break
 		}

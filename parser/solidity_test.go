@@ -80,3 +80,27 @@ func TestParseGoldTxFeePool(t *testing.T) {
 	goutil.Assert(t, p != nil, "parser should not be nil")
 	goutil.Assert(t, errs == nil, errs.Format())
 }
+
+func TestParseParityBadgeReg(t *testing.T) {
+	p, errs := ParseFile("../samples/parity/badge_reg.grd")
+	goutil.Assert(t, p != nil, "parser should not be nil")
+	goutil.Assert(t, errs == nil, errs.Format())
+}
+
+func TestParseParityCertifier(t *testing.T) {
+	p, errs := ParseFile("../samples/parity/certifier.grd")
+	goutil.Assert(t, p != nil, "parser should not be nil")
+	goutil.Assert(t, errs == nil, errs.Format())
+}
+
+func TestParseParityGithubHint(t *testing.T) {
+	p, errs := ParseFile("../samples/parity/github_hint.grd")
+	goutil.Assert(t, p != nil, "parser should not be nil")
+	goutil.Assert(t, errs == nil, errs.Format())
+}
+
+func TestParseParityBounty(t *testing.T) {
+	p, errs := ParseFile("../samples/parity/bounty.grd")
+	goutil.Assert(t, p != nil, "parser should not be nil")
+	goutil.Assert(t, errs == nil, errs.Format())
+}

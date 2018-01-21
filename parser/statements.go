@@ -20,13 +20,6 @@ func parseReturnStatement(p *Parser) {
 		Results: p.parseExpressionList(),
 	}
 	p.scope.AddSequential(&node)
-	p.parseOptional(token.Semicolon)
-}
-
-func parseAssignmentStatement(p *Parser) {
-	node := p.parseFullAssignment()
-	p.scope.AddSequential(node)
-	p.parseOptional(token.Semicolon)
 }
 
 func (p *Parser) parseOptionalAssignment() *ast.AssignmentStatementNode {
@@ -385,11 +378,11 @@ func parsePackageStatement(p *Parser) {
 
 func (p *Parser) parseSemver() semver.Version {
 	s := ""
-	for p.hasTokens(1) && p.current().Type != token.NewLine {
+	for p.hasTokens(1) && !p.isNextToken(token.NewLine, token.Semicolon) {
 		s += p.current().String(p.lexer)
 		p.next()
 	}
-	v, err := semver.Make(s)
+	v, err := semver.Parse(s)
 	if err != nil {
 		p.addError(p.getCurrentTokenLocation(), fmt.Sprintf("Invalid semantic version %s", s))
 	}

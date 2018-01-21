@@ -1,0 +1,139 @@
+//! The Bounty contract.
+//!
+//! Copyright 2016 Gavin Wood, Parity Technologies Ltd.
+//!
+//! Licensed under the Apache License, Version 2.0 (the "License");
+//! you may not use this file except in compliance with the License.
+//! You may obtain a copy of the License at
+//!
+//!     http://www.apache.org/licenses/LICENSE-2.0
+//!
+//! Unless required by applicable law or agreed to in writing, software
+//! distributed under the License is distributed on an "AS IS" BASIS,
+//! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//! See the License for the specific language governing permissions and
+//! limitations under the License.
+
+package parity guardian ^0.4.6;
+
+/// Bounty contract to pay out when an address is compromised. Allows for a
+/// referee to cancel the claim for arbitrary reasons; we assume that the
+/// referee is trustworthy.
+contract Bounty {
+
+    /// Simple constant to denote no active claim.
+    const NO_CLAIM = 0 as address
+
+
+	// State
+    var (
+        /// The owner of this contract - they alone can claim the funds.
+        owner address
+        /// The referee of this contract - they alone can block the claimant.
+        referee address
+        /// The claimant's address - when the owner claims, this is when the funds go.
+    	/// If no claim is in progress, this is equal to NO_CLAIM.
+    	claimant address = NO_CLAIM
+    	/// The current claim's payday. Meaningless when claimant == NO_CLAIM.
+    	payday uint32 = 0
+    	/// The amounts deposited by each creditor.
+    	balance map[address]uint
+    )
+
+    func isOwner() bool {
+        return msg.sender == owner
+    }
+
+    func isReferee() bool {
+        return msg.sender == referee
+    }
+
+    func isClaimant() bool {
+        return msg.sender == claimant
+    }
+
+    func withAtLeast(x uint) bool {
+        return balance[msg.sender] >= x
+    }
+
+    func isClaim() bool {
+        return claimant != NO_CLAIM
+    }
+
+    func afterPayday() bool {
+        return uint32(now()) > payday
+    }
+
+	// Events
+	/// Deposit made of `wei(value)` into the bounty pot by `who`.
+	event Deposit(indexed who address, value uint);
+	/// Withdrawal from the bounty pot by `who` for the amount of `wei(value)`.
+	event Withdrawal(indexed who address, value uint);
+	/// Claim made to pay `who` the bounty pot.
+	event Claim(indexed who address);
+	/// Claim of `who` for `wei(amount)` was paid from the bounty pot.
+	event Payout(indexed who address, amount uint );
+	/// Claim of `who` for `wei(amount)` was cancelled.
+	event Cancelation(indexed who address, amount uint );
+
+	/// Construct a new bounty contract with `referee` acting as the referee.
+    constructor(ref address) {
+        this.referee = ref
+        this.owner = msg.sender
+    }
+
+	/// Add `wei(msg.value)` into the balance of `msg.sender`'s account.
+    fallback() {
+        Deposit(msg.sender, msg.value);
+		balance[msg.sender] += msg.value;
+    }
+
+	/// Withdraw `wei(_amount)` from the balance of `msg.sender`'s account.
+    func withdraw(amount uint) {
+        if !withAtLeast(amount) or !whenNoClaim() {
+            return
+        }
+        Withdrawal(msg.sender, amount);
+		balance[msg.sender] -= amount;
+        if send(msg.sender, amount) {
+            throw()
+        }
+    }
+
+	/// Begin claim process; register `_claimant` as the beneficiary and the
+	/// pay-day as 7 days from `time(now)`.
+    func claim(claimant address) {
+        if !isOwner() or !whenNoClaim() {
+            return
+        }
+        Claim(claimant);
+		payday = uint32(now) // + 7 days
+		claimant = _claimant;
+
+    }
+
+	/// Finalise claim process with a payout; pays all funds into to `claimant`
+	/// and suicides.
+    func payout() {
+        if !isClaimant() or !afterPayday() {
+            return
+        }
+        Payout(claimant, this.balance);
+        if !send(claimant, this.balance) {
+            throw()
+        }
+		selfDestruct(0)
+    }
+
+
+	/// Cancel the claim by `claimant`.
+    func cancel() {
+        if !isReferee() or !whenClaim() {
+            return
+        }
+        Cancelation(claimant, this.balance)
+		payday = 0
+		claimant = NO_CLAIM
+    }
+
+}

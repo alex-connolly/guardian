@@ -1,0 +1,168 @@
+//! The badge-registry contract.
+//!
+//! Copyright 2016 Gavin Wood, Parity Technologies Ltd.
+//!
+//! Licensed under the Apache License, Version 2.0 (the "License");
+//! you may not use this file except in compliance with the License.
+//! You may obtain a copy of the License at
+//!
+//!     http://www.apache.org/licenses/LICENSE-2.0
+//!
+//! Unless required by applicable law or agreed to in writing, software
+//! distributed under the License is distributed on an "AS IS" BASIS,
+//! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//! See the License for the specific language governing permissions and
+//! limitations under the License.
+
+package parity guardian ^0.4.17
+
+import "owned"
+
+contract BadgeReg is Owned {
+
+    class Badge {
+        var addr address
+        var name bytes32
+        var owner address
+        var meta map[bytes32]bytes32
+    }
+
+    func isFeePaid() bool {
+        if msg.value < fee {
+            return false
+        }
+        return true
+    }
+
+    func isAddressFree(addr address) {
+        if mapFromAddress[addr] != 0 {
+            return false
+        }
+        return true
+    }
+
+    func isNameFree(name bytes32) bool {
+        if mapFromName[name] != 0 {
+            return false
+        }
+        return true
+    }
+
+    func hasName(name bytes32){
+        return !isNameFree(name)
+    }
+
+    func isBadgeOwner(id uint) bool {
+        if badges[id].owner != msg.sender {
+            return false
+        }
+        return true
+    }
+
+	event Registered(indexed name bytes32, indexed id uint, address addr);
+	event Unregistered(indexed name bytes32, indexed id uint);
+	event MetaChanged(indexed id uint, indexed key bytes32, value bytes32);
+	event AddressChanged(indexed id uint, addr address);
+
+    func register(addr address, name bytes32) bool {
+        return registerAs(addr, name, msg.sender)
+    }
+
+    func registerAs(addr address, name bytes32, owner address) bool {
+        if !isFeePaid() or !isAddressFree(addr) or !isNameFree(name){
+            return false
+        }
+        badges.push(Badge{
+            adddr: addr,
+            name: name,
+            owner: owner
+        });
+		mapFromAddress[addr] = len(badges)
+		mapFromName[name] = len(badges)
+		Registered(name, len(badges) - 1, addr);
+		return true
+    }
+
+    external func unregister(id uint) {
+        if !isOwner(){
+            return
+        }
+        Unregistered(badges[id].name, id)
+        delete(mapFromAddress, badges[id].address)
+        delete(mapFromName, badges[id].name)
+        delete(badges, id)
+    }
+
+    external func setFee(fee uint) {
+        if !isOwner(){
+            return
+        }
+        this.fee = fee
+    }
+
+    external func badgeCount() uint {
+        return len(badges)
+    }
+
+
+    external func badge(id uint) (addr address, name bytes32, owner address) {
+        t = badges[id];
+		addr = t.addr;
+		name = t.name;
+		owner = t.owner;
+        return
+    }
+
+    external func fromAddress(addr address) (id uint, name bytes32, owner address){
+        id = mapFromAddress[addr] - 1;
+		t = badges[id];
+		name = t.name;
+		owner = t.owner;
+        return
+    }
+
+    external func fromName(name bytes32) (id uint, name bytes32, owner address){
+        id = mapFromName[_name] - 1;
+        t = badges[id];
+        addr = t.addr;
+        owner = t.owner;
+    }
+
+    external func meta(id uint, key bytes32) bytes32 {
+        return badges[id].meta[key]
+    }
+
+    external func setAddress(id uint, newAddr address) {
+        if !isBadgeOwner(id) or !isAddressFree(newAddr) {
+            return
+        }
+        oldAddr = badges[id].addr;
+		badges[id].addr = newAddr;
+		mapFromAddress[oldAddr] = 0;
+		mapFromAddress[newAddr] = id;
+		AddressChanged(id, newAddr);
+    }
+
+    external func setMeta(id uint, key bytes32, value bytes32) {
+        if !isBadgeOwner(id) {
+            return
+        }
+        badges[id].meta[key] = value;
+        MetaChanged(id, key, value);
+    }
+
+	external func drain(){
+        if !isOwner() {
+            return
+        }
+        transfer(msg.sender, this.balance)
+    }
+
+	var (
+        mapFromAddress map[address]uint
+        mapFromName map[bytes32]uint
+        badges []Badge
+        fee uint = 1 * ether
+    )
+
+}

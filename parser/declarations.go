@@ -285,7 +285,9 @@ func (p *Parser) parseGroupable(id token.Type, declarator func(*Parser)) {
 	if p.parseOptional(token.OpenBracket) {
 		for !p.parseOptional(token.CloseBracket) {
 			p.ignoreNewLines()
+			parseIgnored(p)
 			declarator(p)
+			parseIgnored(p)
 			p.ignoreNewLines()
 		}
 	} else {
@@ -739,7 +741,6 @@ func processVarDeclaration(constant bool) func(p *Parser) {
 }
 
 func parseExplicitVarDeclaration(p *Parser) {
-
 	if p.isNextToken(token.Var) {
 		p.parseGroupable(token.Var, processVarDeclaration(false))
 	} else {
