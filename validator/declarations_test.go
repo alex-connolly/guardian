@@ -410,7 +410,7 @@ func TestContractImplementationInvalidWrongMethodParameters(t *testing.T) {
 			woof()
 		}
 		contract Mastiff is Dog {
-			func woof(msg string){
+			func woof(m string){
 
 			}
 		}
@@ -424,7 +424,7 @@ func TestClassImplementationInvalidWrongMethodParameters(t *testing.T) {
 			woof()
 		}
 		class Mastiff is Dog {
-			func woof(msg string){
+			func woof(m string){
 
 			}
 		}

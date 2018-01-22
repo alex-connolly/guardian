@@ -898,3 +898,25 @@ func TestParseFullProblematicFunc(t *testing.T) {
 	`)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
+
+func TestParseLifecycleParameters(t *testing.T) {
+	a, errs := ParseString(`
+		constructor(age int8){
+
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+	goutil.AssertNow(t, a != nil, "a is nil")
+	n := a.Declarations.Next().(*ast.LifecycleDeclarationNode)
+	goutil.AssertNow(t, len(n.Parameters) == 1, "wrong param length")
+	goutil.AssertNow(t, len(n.Parameters[0].Identifiers) == 1, "wrong id length")
+	goutil.AssertNow(t, n.Parameters[0].Identifiers[0] == "age", fmt.Sprintf("wrong param name: %s", n.Parameters[0].Identifiers[0]))
+}
+
+func TestParseParameterIdentifiers(t *testing.T) {
+	p := createParser(`(age int8)`)
+	params := p.parseParameters()
+	goutil.AssertNow(t, len(params) == 1, "wrong param length")
+	goutil.AssertNow(t, len(params[0].Identifiers) == 1, "wrong id length")
+	goutil.AssertNow(t, params[0].Identifiers[0] == "age", fmt.Sprintf("wrong param name: %s", params[0].Identifiers[0]))
+}

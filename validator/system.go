@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/util"
 
 	"github.com/end-r/guardian/token"
@@ -114,6 +116,7 @@ func (v *Validator) DeclareVarOfType(loc util.Location, name string, t typing.Ty
 	if v.isVarVisible(name) {
 		v.addError(loc, errDuplicateVarDeclaration, name)
 	} else {
+		fmt.Println("declaring", name, "as", typing.WriteType(t))
 		v.scope.variables[name] = t
 	}
 }

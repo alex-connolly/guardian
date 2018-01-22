@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"github.com/end-r/guardian/util"
+
 	"github.com/end-r/guardian/typing"
 
 	"github.com/end-r/guardian/ast"
@@ -109,20 +111,91 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 	}
 }
 
+func (v *Validator) validateAssignmentWithoutDeclaring(node *ast.AssignmentStatementNode) (types typing.TypeMap, locations map[string]util.Location) {
+	types = make(typing.TypeMap)
+	for _, r := range node.Right {
+		v.validateExpression(r)
+	}
+
+	for _, l := range node.Left {
+		if l == nil {
+			v.addError(node.Start(), errUnknown)
+			return
+		} else {
+			switch l.Type() {
+			case ast.CallExpression, ast.Literal, ast.MapLiteral,
+				ast.ArrayLiteral, ast.SliceExpression, ast.FuncLiteral:
+				v.addError(l.Start(), errInvalidExpressionLeft)
+			}
+		}
+	}
+
+	leftTuple := v.ExpressionTuple(node.Left)
+	rightTuple := v.ExpressionTuple(node.Right)
+	if len(leftTuple.Types) > len(rightTuple.Types) && len(rightTuple.Types) == 1 {
+		right := rightTuple.Types[0]
+		for _, left := range leftTuple.Types {
+			if !typing.AssignableTo(right, left, true) {
+				v.addError(node.Left[0].Start(), errInvalidAssignment, typing.WriteType(left), typing.WriteType(right))
+			}
+		}
+
+		for i, left := range node.Left {
+			if leftTuple.Types[i] == typing.Unknown() {
+				if id, ok := left.(*ast.IdentifierNode); ok {
+					ty := rightTuple.Types[0]
+					id.Resolved = ty
+					id.Resolved.SetModifiers(nil)
+					ignored := "_"
+					if id.Name != ignored {
+						types[id.Name] = id.Resolved
+						locations[id.Name] = left.Start()
+					}
+
+				}
+			}
+		}
+
+	} else {
+		if !leftTuple.Compare(rightTuple) {
+			v.addError(node.Left[0].Start(), errInvalidAssignment, typing.WriteType(leftTuple), typing.WriteType(rightTuple))
+		}
+
+		// length of left tuple should always equal length of left
+		// this is because tuples are not first class types
+		// cannot assign to tuple expressions
+		if len(node.Left) == len(rightTuple.Types) {
+			for i, left := range node.Left {
+				if leftTuple.Types[i] == typing.Unknown() {
+					if id, ok := left.(*ast.IdentifierNode); ok {
+						id.Resolved = rightTuple.Types[i]
+						if id.Name != "_" {
+							v.declareContextualVar(id.Start(), id.Name, rightTuple.Types[i])
+						}
+					}
+				}
+			}
+		}
+	}
+	return types, locations
+}
+
 func (v *Validator) validateIfStatement(node *ast.IfStatementNode) {
 
+	var types typing.TypeMap
+	var locs map[string]util.Location
 	if node.Init != nil {
-		v.validateStatement(node.Init)
+		types, locs = v.validateAssignmentWithoutDeclaring(node.Init.(*ast.AssignmentStatementNode))
 	}
 
 	for _, cond := range node.Conditions {
 		// condition must be of type bool
 		v.requireType(cond.Condition.Start(), typing.Boolean(), v.resolveExpression(cond.Condition))
-		v.validateScope(node, cond.Body)
+		v.validateScope(node, cond.Body, types, locs)
 	}
 
 	if node.Else != nil {
-		v.validateScope(node, node.Else)
+		v.validateScope(node, node.Else, types, locs)
 	}
 }
 
@@ -142,7 +215,7 @@ func (v *Validator) validateCaseStatement(switchType typing.Type, clause *ast.Ca
 	for _, expr := range clause.Expressions {
 		v.requireType(expr.Start(), switchType, v.resolveExpression(expr))
 	}
-	v.validateScope(clause, clause.Block)
+	v.validateScope(clause, clause.Block, nil, nil)
 }
 
 func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
@@ -168,6 +241,8 @@ func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
 
 func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
 	// get type of
+	vars := make(typing.TypeMap)
+	locs := make(map[string]util.Location)
 	gen := v.resolveExpression(node.Producer)
 	var req int
 	switch a := gen.(type) {
@@ -177,8 +252,10 @@ func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
 		if len(node.Variables) != req {
 			v.addError(node.Begin, errInvalidForEachVariables, len(node.Variables), req)
 		} else {
-			v.declareContextualVar(node.Start(), node.Variables[0], a.Key)
-			v.declareContextualVar(node.Start(), node.Variables[1], a.Value)
+			vars[node.Variables[0]] = a.Key
+			locs[node.Variables[0]] = node.Start()
+			vars[node.Variables[1]] = a.Value
+			locs[node.Variables[1]] = node.Start()
 		}
 		break
 	case *typing.Array:
@@ -187,21 +264,27 @@ func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
 		if len(node.Variables) != req {
 			v.addError(node.Start(), errInvalidForEachVariables, len(node.Variables), req)
 		} else {
-			v.declareContextualVar(node.Start(), node.Variables[0], v.LargestNumericType(false))
-			v.declareContextualVar(node.Start(), node.Variables[1], a.Value)
+			vars[node.Variables[0]] = v.LargestNumericType(false)
+			locs[node.Variables[0]] = node.Start()
+			vars[node.Variables[1]] = a.Value
+			locs[node.Variables[1]] = node.Start()
 		}
 		break
 	default:
 		v.addError(node.Start(), errInvalidForEachType, typing.WriteType(gen))
 	}
 
+	v.validateScope(node, node.Block, vars, locs)
+
 }
 
 func (v *Validator) validateForStatement(node *ast.ForStatementNode) {
-	// init statement must be valid
-	// if it exists
+
+	var vars typing.TypeMap
+	var locs map[string]util.Location
+
 	if node.Init != nil {
-		v.validateAssignment(node.Init)
+		vars, locs = v.validateAssignmentWithoutDeclaring(node.Init)
 	}
 
 	// cond statement must be a boolean
@@ -212,7 +295,7 @@ func (v *Validator) validateForStatement(node *ast.ForStatementNode) {
 		v.validateStatement(node.Post)
 	}
 
-	v.validateScope(node, node.Block)
+	v.validateScope(node, node.Block, vars, locs)
 }
 
 func (v *Validator) createPackageType(path string) *typing.Package {

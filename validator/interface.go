@@ -91,17 +91,22 @@ func Validate(scope *ast.ScopeNode, typeScope *TypeScope, vm VM) util.Errors {
 
 	v.isParsingBuiltins = false
 
-	v.validateScope(nil, scope)
+	v.validateScope(nil, scope, nil, nil)
 
 	return v.errs
 }
 
-func (v *Validator) validateScope(context ast.Node, scope *ast.ScopeNode) (types map[string]typing.Type, properties map[string]typing.Type, lifecycles typing.LifecycleMap) {
+func (v *Validator) validateScope(context ast.Node, scope *ast.ScopeNode,
+	toDeclare typing.TypeMap, atLocs map[string]util.Location) (types map[string]typing.Type, properties map[string]typing.Type, lifecycles typing.LifecycleMap) {
 
 	ts := &TypeScope{
 		context: context,
 		parent:  v.scope,
 		scope:   scope,
+	}
+
+	for k, val := range toDeclare {
+		v.declareContextualVar(atLocs[k], k, val)
 	}
 
 	v.scope = ts

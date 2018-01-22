@@ -7,8 +7,9 @@ interface Noisy {
 abstract class Animal is Noisy {
 
     func getName() string {
-
+        return ""
     }
+
 
 }
 
@@ -35,8 +36,8 @@ class Pupper inherits Dog {
 }
 
 func main(){
-    d = Dog("Cookie")
+    d = new Dog("Cookie")
     io.Printf("%s: %s", d.getName(), d.makeNoise())
-    p = Pupper("Biscuit")
+    p = new Pupper("Biscuit")
     io.Printf("%s: %s", p.getName(), p.makeNoise())
 }

@@ -385,7 +385,7 @@ func (p *Parser) parseIndividualParameter() *ast.ExplicitVarDeclarationNode {
 		} else {
 			// last was a type/start of a type
 			// one before that was a parameter name
-			names = append(names, possibleMods[len(possibleMods)-1])
+			names = append(names, possibleMods[len(possibleMods)-2])
 			possibleMods = possibleMods[:len(possibleMods)-2]
 			p.index -= 1
 			dType = p.parseType()

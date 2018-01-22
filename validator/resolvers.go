@@ -32,7 +32,7 @@ func (v *Validator) resolvePlainType(node *ast.PlainTypeNode) typing.Type {
 	if typ == typing.Unknown() {
 		v.addError(node.Start(), errTypeNotVisible, makeName(node.Names))
 	}
-	for _, n := range node.Names[0:] {
+	for _, n := range node.Names[1:] {
 
 		t, ok := v.getTypeType(node.Start(), typ, n)
 		if !ok {

@@ -40,8 +40,9 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 			v.addError(node.Start(), errWrongParameterLength)
 		}
 		for i, p := range node.Parameters {
-			if !a.Generics[i].Accepts(v.validateType(p)) {
-				v.addError(node.Parameters[i].Start(), errInvalidParameter)
+			t := v.validateType(p)
+			if !a.Generics[i].Accepts(t) {
+				v.addError(node.Parameters[i].Start(), errInvalidParameter, typing.WriteType(t))
 			}
 		}
 		break
@@ -50,8 +51,9 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 			v.addError(node.Start(), errWrongParameterLength)
 		}
 		for i, p := range node.Parameters {
-			if !a.Generics[i].Accepts(v.validateType(p)) {
-				v.addError(node.Parameters[i].Start(), errInvalidParameter)
+			t := v.validateType(p)
+			if !a.Generics[i].Accepts(t) {
+				v.addError(node.Parameters[i].Start(), errInvalidParameter, typing.WriteType(t))
 			}
 		}
 		break
@@ -374,7 +376,7 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 
 	v.validateClassesCancellation(classType, supers)
 
-	types, properties, lifecycles := v.validateScope(node, node.Body)
+	types, properties, lifecycles := v.validateScope(node, node.Body, nil, nil)
 
 	classType.Types = types
 	classType.Properties = properties
@@ -462,7 +464,7 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 
 	v.validateContractsCancellation(contractType, supers)
 
-	types, properties, lifecycles := v.validateScope(node, node.Body)
+	types, properties, lifecycles := v.validateScope(node, node.Body, nil, nil)
 
 	contractType.Types = types
 	contractType.Properties = properties
@@ -627,7 +629,7 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
 	node.Resolved = funcType
 	v.declareContextualVar(node.Signature.Start(), node.Signature.Identifier, funcType)
-	v.validateScope(node, node.Body)
+	v.validateScope(node, node.Body, nil, nil)
 
 }
 
@@ -708,16 +710,20 @@ func (v *Validator) validateTypeDeclaration(node *ast.TypeDeclarationNode) {
 }
 
 func (v *Validator) validateLifecycleDeclaration(node *ast.LifecycleDeclarationNode) {
+
+	toDeclare := make(typing.TypeMap)
+	atLocs := make(map[string]util.Location)
 	// TODO: enforce location
 	var types []typing.Type
 	for _, p := range node.Parameters {
 		typ := v.validateType(p.DeclaredType)
 		for _, i := range p.Identifiers {
-			v.declareContextualVar(p.Start(), i, typ)
+			toDeclare[i] = typ
+			atLocs[i] = p.Start()
 			types = append(types, typ)
 		}
 	}
-	v.validateScope(node, node.Body)
+	v.validateScope(node, node.Body, toDeclare, atLocs)
 	l := typing.Lifecycle{
 		Type:       node.Category,
 		Parameters: types,

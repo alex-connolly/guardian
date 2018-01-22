@@ -14,7 +14,7 @@ func main(){
 
     // iterate through an array
     x = []string{"Hello", "World"}
-    for a in x {
+    for _, a in x {
 
     }
 
