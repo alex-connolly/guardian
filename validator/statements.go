@@ -151,11 +151,9 @@ func (v *Validator) validateAssignmentWithoutDeclaring(node *ast.AssignmentState
 						types[id.Name] = id.Resolved
 						locations[id.Name] = left.Start()
 					}
-
 				}
 			}
 		}
-
 	} else {
 		if !leftTuple.Compare(rightTuple) {
 			v.addError(node.Left[0].Start(), errInvalidAssignment, typing.WriteType(leftTuple), typing.WriteType(rightTuple))

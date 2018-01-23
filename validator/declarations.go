@@ -182,7 +182,7 @@ func (v *Validator) validateDeclaration(node ast.Node) {
 func (v *Validator) getDeclarationNode(loc util.Location, names []string) typing.Type {
 	if v.isParsingBuiltins {
 		if v.builtinScope != nil {
-			decl := v.builtinScope.GetDeclaration(names[0])
+			decl := v.builtinAST.GetDeclaration(names[0])
 			if decl != nil {
 				v.validateDeclaration(decl)
 			}
@@ -587,15 +587,10 @@ func (v *Validator) validateContextualType(node ast.Node) typing.Type {
 	return v.validateType(node)
 }
 
-func (v *Validator) declareContextualVar(loc util.Location, name string, typ typing.Type) {
-	if v.isParsingBuiltins {
-		v.DeclareBuiltinOfType(loc, name, typ)
-	} else {
-		v.DeclareVarOfType(loc, name, typ)
-	}
-}
-
 func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
+
+	toDeclare := make(typing.TypeMap)
+	atLocs := make(map[string]util.Location)
 
 	v.validateModifiers(node, node.Modifiers.Modifiers)
 
@@ -607,8 +602,8 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 		p := node.(*ast.ExplicitVarDeclarationNode)
 		for _, id := range p.Identifiers {
 			typ := v.validateContextualType(p.DeclaredType)
-			//TODO: declare this later
-			v.DeclareVarOfType(p.Start(), id, typ)
+			toDeclare[id] = typ
+			atLocs[id] = p.Start()
 			params = append(params, typ)
 		}
 	}
@@ -629,7 +624,7 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
 	node.Resolved = funcType
 	v.declareContextualVar(node.Signature.Start(), node.Signature.Identifier, funcType)
-	v.validateScope(node, node.Body, nil, nil)
+	v.validateScope(node, node.Body, toDeclare, atLocs)
 
 }
 
@@ -690,14 +685,6 @@ func (v *Validator) validateEventDeclaration(node *ast.EventDeclarationNode) {
 	}
 	node.Resolved = eventType
 	v.declareContextualVar(node.Start(), node.Identifier, eventType)
-}
-
-func (v *Validator) declareContextualType(loc util.Location, name string, typ typing.Type) {
-	if v.isParsingBuiltins {
-		v.DeclareBuiltinType(loc, name, typ)
-	} else {
-		v.DeclareType(loc, name, typ)
-	}
 }
 
 func (v *Validator) validateTypeDeclaration(node *ast.TypeDeclarationNode) {

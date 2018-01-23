@@ -1,8 +1,6 @@
 package validator
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/util"
 
 	"github.com/end-r/guardian/token"
@@ -12,150 +10,75 @@ import (
 	"github.com/end-r/guardian/ast"
 )
 
-func (v *Validator) isVarVisible(name string) bool {
-	if v.builtinVariables != nil {
-		if _, ok := v.builtinVariables[name]; ok {
-			return true
-		}
-	}
-	for scope := v.scope; scope != nil; scope = scope.parent {
-		if scope.context != nil {
-			// check parents
-			switch c := scope.context.(type) {
-			case *ast.ClassDeclarationNode:
-				if _, ok := c.Resolved.(*typing.Class).Properties[name]; ok {
-					return true
-				}
-				break
-			case *ast.EnumDeclarationNode:
-				for _, e := range c.Resolved.(*typing.Enum).Items {
-					if e == name {
-						return true
-					}
-				}
-				break
-			case *ast.InterfaceDeclarationNode:
-				if _, ok := c.Resolved.(*typing.Interface).Funcs[name]; ok {
-					return true
-				}
-				break
-			case *ast.ContractDeclarationNode:
-				if _, ok := c.Resolved.(*typing.Contract).Properties[name]; ok {
-					return true
-				}
-				break
-			}
-		}
-		if scope.variables != nil {
-			if _, ok := scope.variables[name]; ok {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-func (v *Validator) findVariable(loc util.Location, name string) typing.Type {
-	if v.builtinVariables != nil {
-		if typ, ok := v.builtinVariables[name]; ok {
-			return typ
-		}
-	}
-	for scope := v.scope; scope != nil; scope = scope.parent {
+func isVisible(ts *TypeScope, name string) (typing.Type, bool) {
+	for scope := ts; scope != nil; scope = scope.parent {
 		if scope.context != nil {
 			// check parents
 			switch c := scope.context.(type) {
 			case *ast.ClassDeclarationNode:
 				if t, ok := c.Resolved.(*typing.Class).Properties[name]; ok {
-					return t
-				}
-				break
-			case *ast.EnumDeclarationNode:
-				if t, ok := v.getEnumProperty(loc, c.Resolved.(*typing.Enum), name); ok {
-					return t
-				}
-				break
-			case *ast.InterfaceDeclarationNode:
-				if t, ok := c.Resolved.(*typing.Interface).Funcs[name]; ok {
-					return t
+					return t, true
 				}
 				break
 			case *ast.ContractDeclarationNode:
 				if t, ok := c.Resolved.(*typing.Contract).Properties[name]; ok {
-					return t
+					return t, true
 				}
 				break
 			}
 		}
 		if scope.variables != nil {
-			if typ, ok := scope.variables[name]; ok {
-				return typ
+			if t, ok := scope.variables[name]; ok {
+				return t, true
 			}
 		}
-		if scope.scope != nil {
-			if a := scope.scope.GetDeclaration(name); a != nil {
-				saved := v.scope
-				v.scope = scope
-				v.validateDeclaration(a)
-				v.scope = saved
-				if t, ok := scope.variables[name]; ok {
-					return t
-				}
-			}
+	}
+	return typing.Unknown(), false
+}
+
+func (v *Validator) isVarVisible(name string) (typing.Type, bool) {
+	if t, ok := isVisible(v.scope, name); ok {
+		return t, ok
+	}
+	if t, ok := isVisible(v.builtinScope, name); ok {
+		return t, ok
+	}
+	return typing.Unknown(), false
+}
+
+func (v *Validator) declareContextualVar(loc util.Location, name string, typ typing.Type) {
+	if _, ok := v.isVarVisible(name); ok {
+		v.addError(loc, errDuplicateVarDeclaration, name)
+		return
+	}
+	if v.isParsingBuiltins {
+		if v.builtinScope.variables == nil {
+			v.builtinScope.variables = make(typing.TypeMap)
 		}
-
-	}
-	return typing.Unknown()
-}
-
-// DeclareVarOfType ...
-func (v *Validator) DeclareVarOfType(loc util.Location, name string, t typing.Type) {
-	if v.scope.variables == nil {
-		v.scope.variables = make(map[string]typing.Type)
-	}
-	if v.isVarVisible(name) {
-		v.addError(loc, errDuplicateVarDeclaration, name)
+		v.builtinScope.variables[name] = typ
 	} else {
-		fmt.Println("declaring", name, "as", typing.WriteType(t))
-		v.scope.variables[name] = t
+		if v.scope.variables == nil {
+			v.scope.variables = make(typing.TypeMap)
+		}
+		v.scope.variables[name] = typ
 	}
 }
 
-// DeclareBuiltinOfType ...
-func (v *Validator) DeclareBuiltinOfType(loc util.Location, name string, t typing.Type) {
-	if v.builtinVariables == nil {
-		v.builtinVariables = make(map[string]typing.Type)
-	}
-	if v.isVarVisible(name) {
-		v.addError(loc, errDuplicateVarDeclaration, name)
-	} else {
-		v.builtinVariables[name] = t
-	}
-}
-
-// DeclareBuiltinType ...
-func (v *Validator) DeclareBuiltinType(loc util.Location, name string, t typing.Type) {
-	if v.primitives == nil {
-		v.primitives = make(map[string]typing.Type)
-	}
+func (v *Validator) declareContextualType(loc util.Location, name string, typ typing.Type) {
 	if v.getNamedType(name) != typing.Unknown() {
 		v.addError(loc, errDuplicateTypeDeclaration, name)
-	} else {
-		//fmt.Println("declaring builtin type", name)
-		v.primitives[name] = t
+		return
 	}
-}
-
-// DeclareType ...
-func (v *Validator) DeclareType(loc util.Location, name string, t typing.Type) {
-	if v.scope.types == nil {
-		v.scope.types = make(map[string]typing.Type)
-	}
-	if v.getNamedType(name) != typing.Unknown() {
-		v.addError(loc, errDuplicateTypeDeclaration, name)
+	if v.isParsingBuiltins {
+		if v.builtinScope.types == nil {
+			v.builtinScope.types = make(typing.TypeMap)
+		}
+		v.builtinScope.types[name] = typ
 	} else {
-		//	fmt.Println("declaring type", name)
-		v.scope.types[name] = t
+		if v.scope.types == nil {
+			v.scope.types = make(typing.TypeMap)
+		}
+		v.scope.types[name] = typ
 	}
 }
 
@@ -168,21 +91,23 @@ func (v *Validator) declareLifecycle(tk token.Type, l typing.Lifecycle) {
 
 func (v *Validator) getNamedType(search string) typing.Type {
 	if v.primitives != nil {
-		for k, typ := range v.primitives {
-			if k == search {
-				return typ
-			}
+		if t, ok := v.primitives[search]; ok {
+			return t
 		}
 	}
 	for s := v.scope; s != nil; s = s.parent {
 		if s.types != nil {
-			for k, typ := range s.types {
-				if k == search {
-					return typ
-				}
+			if t, ok := s.types[search]; ok {
+				return t
 			}
 		}
-
+	}
+	for s := v.builtinScope; s != nil; s = s.parent {
+		if s.types != nil {
+			if t, ok := s.types[search]; ok {
+				return t
+			}
+		}
 	}
 	return typing.Unknown()
 }

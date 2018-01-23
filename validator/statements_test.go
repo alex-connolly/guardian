@@ -54,7 +54,7 @@ func TestValidateAssignmentToFuncInvalid(t *testing.T) {
 func TestValidateAssignmentToFuncLiteralValid(t *testing.T) {
 
 	scope, _ := parser.ParseString(`
-			x func(int, int) string
+			var x func(int, int) string
 			x = func(a int, b int) string {
 				return "hello"
 			}

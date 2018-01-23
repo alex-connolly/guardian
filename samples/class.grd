@@ -18,8 +18,8 @@ class Dog {
 
     var name string
 
-    constructor(name string){
-        this.name = name
+    constructor(n string){
+        this.name = n
     }
 
     func makeNoise() string {
@@ -38,6 +38,6 @@ class Pupper inherits Dog {
 func main(){
     d = new Dog("Cookie")
     io.Printf("%s: %s", d.getName(), d.makeNoise())
-    p = new Pupper("Biscuit")
+    p = new Pupper()
     io.Printf("%s: %s", p.getName(), p.makeNoise())
 }

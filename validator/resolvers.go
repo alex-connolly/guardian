@@ -140,8 +140,8 @@ func resolveIdentifier(v *Validator, e ast.ExpressionNode) typing.Type {
 	}
 
 	// look up the identifier in scope
-	t := v.findVariable(i.Start(), i.Name)
-	if t == typing.Unknown() {
+	t, ok := v.isVarVisible(i.Name)
+	if t == typing.Unknown() || !ok {
 		t = v.getNamedType(i.Name)
 		if t != nil {
 			typing.AddModifier(t, "static")

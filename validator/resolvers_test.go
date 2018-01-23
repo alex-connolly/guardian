@@ -28,7 +28,7 @@ func TestResolveCallExpression(t *testing.T) {
 	fn := new(typing.Func)
 	fn.Params = typing.NewTuple(typing.Boolean(), typing.Boolean())
 	fn.Results = typing.NewTuple(typing.Boolean())
-	v.DeclareVarOfType(util.Location{}, "hello", &typing.Func{
+	v.declareContextualVar(util.Location{}, "hello", &typing.Func{
 		Params:  typing.NewTuple(),
 		Results: typing.NewTuple(typing.Boolean()),
 	})
@@ -43,7 +43,7 @@ func TestResolveCallExpression(t *testing.T) {
 
 func TestResolveArrayLiteralExpression(t *testing.T) {
 	v := NewValidator(NewTestVM())
-	v.DeclareType(util.Location{}, "dog", typing.Unknown())
+	v.declareContextualType(util.Location{}, "dog", typing.Unknown())
 	p := parser.ParseExpression("[]dog{}")
 	goutil.AssertNow(t, p.Type() == ast.ArrayLiteral, "wrong expression type")
 	a := p.(*ast.ArrayLiteralNode)
@@ -53,7 +53,7 @@ func TestResolveArrayLiteralExpression(t *testing.T) {
 
 func TestResolveArrayLiteralSliceExpressionCopy(t *testing.T) {
 	v := NewValidator(NewTestVM())
-	v.DeclareType(util.Location{}, "dog", typing.Unknown())
+	v.declareContextualType(util.Location{}, "dog", typing.Unknown())
 	p := parser.ParseExpression("[]dog{}[:]")
 	goutil.AssertNow(t, p.Type() == ast.SliceExpression, "wrong expression type")
 	_, ok := v.resolveExpression(p).(*typing.Array)
@@ -62,7 +62,7 @@ func TestResolveArrayLiteralSliceExpressionCopy(t *testing.T) {
 
 func TestResolveArrayLiteralSliceExpressionLower(t *testing.T) {
 	v := NewValidator(NewTestVM())
-	v.DeclareType(util.Location{}, "dog", typing.Unknown())
+	v.declareContextualType(util.Location{}, "dog", typing.Unknown())
 	p := parser.ParseExpression("[]dog{}[6:]")
 	goutil.AssertNow(t, p.Type() == ast.SliceExpression, "wrong expression type")
 	_, ok := v.resolveExpression(p).(*typing.Array)
@@ -71,7 +71,7 @@ func TestResolveArrayLiteralSliceExpressionLower(t *testing.T) {
 
 func TestResolveArrayLiteralSliceExpressionUpper(t *testing.T) {
 	v := NewValidator(NewTestVM())
-	v.DeclareType(util.Location{}, "dog", typing.Unknown())
+	v.declareContextualType(util.Location{}, "dog", typing.Unknown())
 	p := parser.ParseExpression("[]dog{}[:10]")
 	goutil.AssertNow(t, p.Type() == ast.SliceExpression, "wrong expression type")
 	_, ok := v.resolveExpression(p).(*typing.Array)
@@ -80,7 +80,7 @@ func TestResolveArrayLiteralSliceExpressionUpper(t *testing.T) {
 
 func TestResolveArrayLiteralSliceExpressionBoth(t *testing.T) {
 	v := NewValidator(NewTestVM())
-	v.DeclareType(util.Location{}, "dog", typing.Unknown())
+	v.declareContextualType(util.Location{}, "dog", typing.Unknown())
 	p := parser.ParseExpression("[]dog{}[6:10]")
 	goutil.AssertNow(t, p.Type() == ast.SliceExpression, "wrong expression type")
 	_, ok := v.resolveExpression(p).(*typing.Array)
@@ -89,8 +89,8 @@ func TestResolveArrayLiteralSliceExpressionBoth(t *testing.T) {
 
 func TestResolveMapLiteralExpression(t *testing.T) {
 	v := NewValidator(NewTestVM())
-	v.DeclareType(util.Location{}, "dog", typing.Unknown())
-	v.DeclareType(util.Location{}, "cat", typing.Unknown())
+	v.declareContextualType(util.Location{}, "dog", typing.Unknown())
+	v.declareContextualType(util.Location{}, "cat", typing.Unknown())
 	p := parser.ParseExpression("map[dog]cat{}")
 	goutil.AssertNow(t, p.Type() == ast.MapLiteral, "wrong expression type")
 	m, ok := v.resolveExpression(p).(*typing.Map)
@@ -101,7 +101,7 @@ func TestResolveMapLiteralExpression(t *testing.T) {
 
 func TestResolveIndexExpressionArrayLiteral(t *testing.T) {
 	v := NewValidator(NewTestVM())
-	v.DeclareVarOfType(util.Location{}, "cat", typing.Boolean())
+	v.declareContextualVar(util.Location{}, "cat", typing.Boolean())
 	p := parser.ParseExpression("[]cat{}[0]")
 	goutil.AssertNow(t, p.Type() == ast.IndexExpression, "wrong expression type")
 	b := p.(*ast.IndexExpressionNode)
@@ -111,8 +111,8 @@ func TestResolveIndexExpressionArrayLiteral(t *testing.T) {
 
 func TestResolveIndexExpressionMapLiteral(t *testing.T) {
 	v := NewValidator(NewTestVM())
-	v.DeclareType(util.Location{}, "dog", typing.Unknown())
-	v.DeclareType(util.Location{}, "cat", typing.Unknown())
+	v.declareContextualType(util.Location{}, "dog", typing.Unknown())
+	v.declareContextualType(util.Location{}, "cat", typing.Unknown())
 	p := parser.ParseExpression(`map[dog]cat{}["hi"]`)
 	goutil.AssertNow(t, p.Type() == ast.IndexExpression, "wrong expression type")
 	ok := v.resolveExpression(p).Compare(v.getNamedType("cat"))

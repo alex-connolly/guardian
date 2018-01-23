@@ -49,4 +49,8 @@ const (
 	errDuplicateVarDeclaration           = "Duplicate var declaration %s"
 	errDuplicateTypeDeclaration          = "Duplicate type declaration %s"
 	errInvalidTypeType                   = "Type %s does not have sub-type %s"
+	errInvalidArrayLiteralValue          = "Invalid array literal value %s, required %s"
+	errInvalidMapLiteralKey              = "Invalid map literal key %s, required %s"
+	errInvalidMapLiteralValue            = "Invalid map literal value %s, required %s"
+	errInvalidArrayLiteralLength         = "Cannot use %d expressions in literal of fixed length %d"
 )

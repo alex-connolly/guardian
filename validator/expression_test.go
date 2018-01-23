@@ -102,3 +102,47 @@ func TestOnlyExpressionResolved(t *testing.T) {
 	_, errs := ValidateExpression(NewTestVM(), "5 < 4")
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
+
+func TestMapLiteralInvalidKeysAndValues(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		var m map[string]string
+		m = map[string]string {
+			1: 2,
+			3: 5,
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 4, errs.Format())
+}
+
+func TestMapLiteralInvalidKeys(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		var m map[string]string
+		m = map[string]string {
+			1: "hi",
+			3: "hi",
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 2, errs.Format())
+}
+
+func TestMapLiteralInvalidValues(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		var m map[string]string
+		m = map[string]string {
+			"hi": 1,
+			"hi": 3,
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 2, errs.Format())
+}
+
+func TestMapLiteralValidValues(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		var m map[string]string
+		m = map[string]string {
+			"hi": "bye",
+			"hi": "bye",
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}

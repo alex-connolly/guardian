@@ -105,21 +105,35 @@ func (v *Validator) validateScope(context ast.Node, scope *ast.ScopeNode,
 		scope:   scope,
 	}
 
+	bts := &TypeScope{
+		context: context,
+		parent:  v.builtinScope,
+		scope:   scope,
+	}
+
 	for k, val := range toDeclare {
 		v.declareContextualVar(atLocs[k], k, val)
 	}
 
 	v.scope = ts
+	v.builtinScope = bts
 
 	v.validateDeclarations(scope)
 
 	v.validateSequence(scope)
 
-	types = v.scope.types
-	properties = v.scope.variables
-	lifecycles = v.scope.lifecycles
+	if v.isParsingBuiltins {
+		types = v.builtinScope.types
+		properties = v.builtinScope.variables
+		lifecycles = v.builtinScope.lifecycles
+	} else {
+		types = v.scope.types
+		properties = v.scope.variables
+		lifecycles = v.scope.lifecycles
+	}
 
 	v.scope = v.scope.parent
+	v.builtinScope = v.builtinScope.parent
 
 	return types, properties, lifecycles
 }
@@ -159,14 +173,14 @@ type Validator struct {
 	inFile            bool
 	packageName       string
 	context           typing.Type
-	builtinScope      *ast.ScopeNode
+	builtinAST        *ast.ScopeNode
+	builtinScope      *TypeScope
 	scope             *TypeScope
+	primitives        typing.TypeMap
 	errs              util.Errors
 	isParsingBuiltins bool
 	literals          LiteralMap
 	operators         OperatorMap
-	primitives        map[string]typing.Type
-	builtinVariables  map[string]typing.Type
 	modifierGroups    []*ModifierGroup
 	finishedImports   bool
 	// for passing to imported files
@@ -180,36 +194,44 @@ type TypeScope struct {
 	context    ast.Node
 	scope      *ast.ScopeNode
 	lifecycles typing.LifecycleMap
-	variables  map[string]typing.Type
-	types      map[string]typing.Type
+	variables  typing.TypeMap
+	types      typing.TypeMap
 }
 
 func (v *Validator) importVM(vm VM) {
 	v.literals = vm.Literals()
 	v.operators = operators()
 	v.primitives = vm.Primitives()
-	v.builtinScope = vm.Builtins()
+	v.builtinAST = vm.Builtins()
 	v.modifierGroups = defaultGroups
 	v.modifierGroups = append(v.modifierGroups, vm.Modifiers()...)
 
-	v.DeclareBuiltinType(util.Location{}, vm.BooleanName(), typing.Boolean())
+	if v.primitives == nil {
+		v.primitives = make(typing.TypeMap)
+	}
+
+	v.primitives[vm.BooleanName()] = typing.Boolean()
 
 	v.parseBuiltins()
 
 }
 
 func (v *Validator) parseBuiltins() {
-	if v.builtinScope != nil {
+	v.builtinScope = &TypeScope{
+		context: nil,
+		parent:  nil,
+		scope:   v.builtinAST,
+	}
+	if v.builtinAST != nil {
 		v.isParsingBuiltins = true
-		if v.builtinScope.Declarations != nil {
+		if v.builtinAST.Declarations != nil {
 			// order shouldn't matter
-			for _, i := range v.builtinScope.Declarations.Array() {
-
+			for _, i := range v.builtinAST.Declarations.Array() {
 				v.validateDeclaration(i.(ast.Node))
 			}
 		}
-		if v.builtinScope.Sequence != nil {
-			for _, node := range v.builtinScope.Sequence {
+		if v.builtinAST.Sequence != nil {
+			for _, node := range v.builtinAST.Sequence {
 				v.validate(node)
 			}
 		}
