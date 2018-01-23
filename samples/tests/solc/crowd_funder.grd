@@ -58,7 +58,7 @@ contract CrowdFunder {
     // Wait 1 hour after final contract state before allowing contract destruction
     func atEndOfLifecycle(){
         require(state == State.ExpiredRefund or state == State.Successful)
-        require(completeAt + 60 < now)
+        require(completeAt + 60 < now())
     }
 
     constructor(timeInHoursForFundraising uint, campaignUrl string,

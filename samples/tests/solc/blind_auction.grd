@@ -1,3 +1,5 @@
+package solc guardian 0.0.1
+
 contract BlindAuction {
 
     class Bid {
@@ -47,11 +49,11 @@ contract BlindAuction {
         onlyAfter(biddingEnd)
         onlyBefore(revealEnd)
 
-        length = bids[msg.sender].length
+        length = len(bids[msg.sender])
 
-        assert(values.length == length)
-        assert(fake.length == length)
-        assert(secret.length == length)
+        assert(len(values) == length)
+        assert(len(fake) == length)
+        assert(len(secret) == length)
 
         var refund uint
         for i = 0; i < length; i++ {

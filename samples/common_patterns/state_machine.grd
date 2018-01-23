@@ -27,11 +27,11 @@ contract StateMachine {
     func timedTransitions() {
         exclusive switch stage {
             case Stage.AcceptingBlindedBids:
-                if now() >= creationTime + 10 * time.Day {
+                if now() >= creationTime + 10 /** time.Day*/ {
                     nextStage()
                 }
             case Stage.RevealBids:
-                if now() >= creationTime + 12 * time.Day {
+                if now() >= creationTime + 12 /* time.Day*/ {
                     nextStage()
                 }
         }

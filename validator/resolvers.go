@@ -3,6 +3,8 @@ package validator
 import (
 	"fmt"
 
+	"github.com/end-r/guardian/token"
+
 	"github.com/end-r/guardian/util"
 
 	"github.com/end-r/guardian/typing"
@@ -77,45 +79,71 @@ func (v *Validator) resolveExpression(e ast.ExpressionNode) typing.Type {
 	if e == nil {
 		return typing.Invalid()
 	}
-	resolvers := map[ast.NodeType]resolver{
-		ast.Literal:          resolveLiteralExpression,
-		ast.MapLiteral:       resolveMapLiteralExpression,
-		ast.ArrayLiteral:     resolveArrayLiteralExpression,
-		ast.FuncLiteral:      resolveFuncLiteralExpression,
-		ast.IndexExpression:  resolveIndexExpression,
-		ast.CallExpression:   resolveCallExpression,
-		ast.SliceExpression:  resolveSliceExpression,
-		ast.BinaryExpression: resolveBinaryExpression,
-		ast.UnaryExpression:  resolveUnaryExpression,
-		ast.Reference:        resolveReference,
-		ast.Identifier:       resolveIdentifier,
-		ast.CompositeLiteral: resolveCompositeLiteral,
-		ast.Keyword:          resolveKeyword,
-		ast.PlainType:        resolveUnknown,
-		ast.FuncType:         resolveUnknown,
-		ast.ArrayType:        resolveUnknown,
-		ast.MapType:          resolveUnknown,
+	switch n := e.(type) {
+	case *ast.LiteralNode:
+		return v.resolveLiteralExpression(n)
+	case *ast.BinaryExpressionNode:
+		return v.resolveBinaryExpression(n)
+	case *ast.UnaryExpressionNode:
+		return v.resolveUnaryExpression(n)
+	case *ast.CallExpressionNode:
+		return v.resolveCallExpression(n)
+	case *ast.ArrayLiteralNode:
+		return v.resolveArrayLiteral(n)
+	case *ast.MapLiteralNode:
+		return v.resolveMapLiteral(n)
+	case *ast.CompositeLiteralNode:
+		return v.resolveCompositeLiteral(n)
+	case *ast.ReferenceNode:
+		return v.resolveReference(n)
+	case *ast.IdentifierNode:
+		return v.resolveIdentifier(n)
+	case *ast.IndexExpressionNode:
+		return v.resolveIndexExpression(n)
+	case *ast.FuncLiteralNode:
+		return v.resolveFuncLiteralExpression(n)
+	case *ast.SliceExpressionNode:
+		return v.resolveSliceExpression(n)
+	case *ast.KeywordNode:
+		return v.resolveKeywordExpression(n)
 	}
-	r, ok := resolvers[e.Type()]
-	if !ok {
-		v.addError(e.Start(), errUnknownExpressionType)
-		return typing.Invalid()
-	}
-	return r(v, e)
+	v.addError(e.Start(), errUnknownExpressionType)
+	return typing.Invalid()
 }
 
-type resolver func(v *Validator, e ast.ExpressionNode) typing.Type
-
-func resolveUnknown(v *Validator, e ast.ExpressionNode) typing.Type {
-	return typing.Unknown()
-}
-
-func resolveKeyword(v *Validator, e ast.ExpressionNode) typing.Type {
-	i := e.(*ast.KeywordNode)
-	// look up the identifier in scope
-	t := v.resolveType(i.TypeNode)
-	i.Resolved = t
-	return t
+func (v *Validator) resolveKeywordExpression(n *ast.KeywordNode) typing.Type {
+	t := v.validateType(n.TypeNode)
+	args := v.ExpressionTuple(n.Arguments)
+	switch a := t.(type) {
+	case *typing.Class:
+		constructors := a.Lifecycles[token.Constructor]
+		if typing.NewTuple().Compare(args) && len(constructors) == 0 {
+			return t
+		}
+		for _, c := range constructors {
+			paramTuple := typing.NewTuple(c.Parameters...)
+			if paramTuple.Compare(args) {
+				return t
+			}
+		}
+		v.addError(n.Start(), errInvalidConstructorCall, typing.WriteType(a), typing.WriteType(args))
+		return t
+	case *typing.Contract:
+		constructors := a.Lifecycles[token.Constructor]
+		if typing.NewTuple().Compare(args) && len(constructors) == 0 {
+			return t
+		}
+		for _, c := range constructors {
+			paramTuple := typing.NewTuple(c.Parameters...)
+			if paramTuple.Compare(args) {
+				return t
+			}
+		}
+		v.addError(n.Start(), errInvalidConstructorCall, typing.WriteType(a), typing.WriteType(args))
+		break
+	}
+	// TODO: error here?
+	return typing.Invalid()
 }
 
 func (v *Validator) resolveThis(node *ast.IdentifierNode) (typing.Type, map[string]typing.Type) {
@@ -131,228 +159,198 @@ func (v *Validator) resolveThis(node *ast.IdentifierNode) (typing.Type, map[stri
 	return typing.Invalid(), nil
 }
 
-func resolveIdentifier(v *Validator, e ast.ExpressionNode) typing.Type {
-	i := e.(*ast.IdentifierNode)
+func (v *Validator) resolveIdentifier(n *ast.IdentifierNode) typing.Type {
 
-	if i.Name == "this" {
-		t, _ := v.resolveThis(i)
+	if n.Name == "this" {
+		t, _ := v.resolveThis(n)
 		return t
 	}
 
 	// look up the identifier in scope
-	t, ok := v.isVarVisible(i.Name)
+	t, ok := v.isVarVisible(n.Name)
 	if t == typing.Unknown() || !ok {
-		t = v.getNamedType(i.Name)
+		t = v.getNamedType(n.Name)
 		if t != nil {
 			typing.AddModifier(t, "static")
 		}
 	}
-	i.Resolved = t
+	n.Resolved = t
 	return t
 }
 
-func resolveLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Type {
-	l := e.(*ast.LiteralNode)
-	if literalResolver, ok := v.literals[l.LiteralType]; ok {
-		t := literalResolver(v, l.Data)
-		l.Resolved = t
-		return l.Resolved
+func (v *Validator) resolveLiteralExpression(n *ast.LiteralNode) typing.Type {
+	if literalResolver, ok := v.literals[n.LiteralType]; ok {
+		t := literalResolver(v, n.Data)
+		n.Resolved = t
+		return n.Resolved
 	}
-	l.Resolved = typing.Invalid()
-	return l.Resolved
+	n.Resolved = typing.Invalid()
+	return n.Resolved
 }
 
-func resolveArrayLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Type {
-	m := e.(*ast.ArrayLiteralNode)
-	keyType := v.resolveType(m.Signature.Value)
+func (v *Validator) resolveArrayLiteral(n *ast.ArrayLiteralNode) typing.Type {
+	if n.Signature.Length > 0 {
+		if n.Signature.Length != len(n.Data) {
+			v.addError(n.Signature.Start(), errInvalidArrayLiteralLength, len(n.Data), n.Signature.Length)
+		}
+	}
+	value := v.validateType(n.Signature.Value)
+	for _, val := range n.Data {
+		valueType := v.validateType(val)
+		if typing.AssignableTo(value, valueType, false) {
+			v.addError(val.Start(), errInvalidArrayLiteralValue, typing.WriteType(valueType), typing.WriteType(value))
+		}
+	}
 	arrayType := &typing.Array{
-		Value:    keyType,
-		Length:   m.Signature.Length,
-		Variable: m.Signature.Variable,
+		Value:    value,
+		Length:   n.Signature.Length,
+		Variable: n.Signature.Variable,
 	}
 	return arrayType
 }
 
-func resolveCompositeLiteral(v *Validator, e ast.ExpressionNode) typing.Type {
-	c := e.(*ast.CompositeLiteralNode)
-	c.Resolved = v.resolvePlainType(c.TypeName)
-	if c.Resolved == typing.Unknown() {
-		c.Resolved = v.getDeclarationNode(e.Start(), c.TypeName.Names)
+func (v *Validator) resolveCompositeLiteral(n *ast.CompositeLiteralNode) typing.Type {
+	n.Resolved = v.resolvePlainType(n.TypeName)
+	if n.Resolved == typing.Unknown() {
+		n.Resolved = v.getDeclarationNode(n.Start(), n.TypeName.Names)
 	}
-	return c.Resolved
+	for f, exp := range n.Fields {
+		switch cType := n.Resolved.(type) {
+		case *typing.Class:
+			if t, ok := v.getClassProperty(n.Start(), cType, f); ok {
+				r := v.resolveExpression(exp)
+				if !typing.AssignableTo(t, r, false) {
+					v.addError(n.Start(), errInvalidCompositeLiteralFieldValue, typing.WriteType(n.Resolved), f, typing.WriteType(t), typing.WriteType(r))
+				}
+			} else {
+				v.addError(n.Start(), errInvalidCompositeLiteralFieldName, typing.WriteType(cType), f)
+			}
+			break
+		case *typing.Contract:
+			if t, ok := v.getContractProperty(n.Start(), cType, f); ok {
+				r := v.resolveExpression(exp)
+				if !typing.AssignableTo(t, r, false) {
+					v.addError(n.Start(), errInvalidCompositeLiteralFieldValue, typing.WriteType(n.Resolved), f, typing.WriteType(t), typing.WriteType(r))
+				}
+			} else {
+				v.addError(n.Start(), errInvalidCompositeLiteralFieldName, typing.WriteType(cType), f)
+			}
+			break
+		}
+	}
+	return n.Resolved
 }
 
-func resolveFuncLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Type {
-	// must be func literal
-	f := e.(*ast.FuncLiteralNode)
-	var params, results []typing.Type
-	for _, p := range f.Parameters {
-		typ := v.resolveType(p.DeclaredType)
-		for _ = range p.Identifiers {
+func (v *Validator) resolveFuncLiteralExpression(n *ast.FuncLiteralNode) typing.Type {
+
+	toDeclare := make(typing.TypeMap)
+	atLocs := make(map[string]util.Location)
+	params := make([]typing.Type, 0)
+	for _, p := range n.Parameters {
+		typ := v.validateType(p.DeclaredType)
+		for _, i := range p.Identifiers {
+			toDeclare[i] = typ
+			atLocs[i] = p.Start()
 			params = append(params, typ)
 		}
 	}
-
-	for _, r := range f.Results {
-		results = append(results, v.resolveType(r))
+	results := make([]typing.Type, 0)
+	for _, p := range n.Results {
+		switch n := p.(type) {
+		case *ast.ExplicitVarDeclarationNode:
+			dec := v.validateType(n.DeclaredType)
+			for _ = range n.Identifiers {
+				// TODO: declare results?
+				results = append(results, dec)
+			}
+			break
+		default:
+			typ := v.validateType(p)
+			results = append(results, typ)
+			break
+		}
 	}
-	f.Resolved = &typing.Func{
+
+	n.Resolved = &typing.Func{
 		Params:  typing.NewTuple(params...),
 		Results: typing.NewTuple(results...),
 	}
+	v.validateScope(n, n.Scope, toDeclare, atLocs)
 
-	return f.Resolved
+	return n.Resolved
 }
 
-func resolveMapLiteralExpression(v *Validator, e ast.ExpressionNode) typing.Type {
+func (v *Validator) resolveMapLiteral(n *ast.MapLiteralNode) typing.Type {
 	// must be literal
-	m := e.(*ast.MapLiteralNode)
-	keyType := v.resolveType(m.Signature.Key)
-	valueType := v.resolveType(m.Signature.Value)
-	mapType := &typing.Map{Key: keyType, Value: valueType}
-	m.Resolved = mapType
-	return m.Resolved
+	key := v.validateType(n.Signature.Key)
+	value := v.validateType(n.Signature.Value)
+	for k, val := range n.Data {
+		keyType := v.validateType(k)
+		valueType := v.validateType(val)
+		if typing.AssignableTo(key, keyType, false) {
+			v.addError(val.Start(), errInvalidMapLiteralKey, typing.WriteType(valueType), typing.WriteType(value))
+		}
+		if typing.AssignableTo(value, valueType, false) {
+			v.addError(val.Start(), errInvalidMapLiteralValue, typing.WriteType(valueType), typing.WriteType(value))
+		}
+	}
+	mapType := &typing.Map{Key: key, Value: value}
+	n.Resolved = mapType
+	return n.Resolved
 }
 
-func resolveIndexExpression(v *Validator, e ast.ExpressionNode) typing.Type {
+func (v *Validator) resolveIndexExpression(n *ast.IndexExpressionNode) typing.Type {
 	// must be literal
-	i := e.(*ast.IndexExpressionNode)
-	exprType := v.resolveExpression(i.Expression)
+	exprType := v.resolveExpression(n.Expression)
 	// enforce that this must be an array/map type
 	switch t := exprType.(type) {
 	case *typing.Array:
-		i.Resolved = t.Value
+		n.Resolved = t.Value
 		break
 	case *typing.Map:
-		i.Resolved = t.Value
+		n.Resolved = t.Value
 		break
 	default:
-		i.Resolved = typing.Invalid()
+		n.Resolved = typing.Invalid()
 		break
 	}
-	return i.Resolved
+	return n.Resolved
 }
 
-/*
-// attempts to resolve an expression component as a type name
-// used in constructors e.g. Dog()
-func (v *Validator) attemptToFindType(e ast.ExpressionNode) typing.Type {
-	var names []string
-	switch res := e.(type) {
-	case ast.IdentifierNode:
-		names = append(names, res.Name)
-	case ast.ReferenceNode:
-		var current ast.ExpressionNode
-		for current = res; current != nil; current = res.Reference {
-			switch a := current.(type) {
-			case ast.ReferenceNode:
-				if p, ok := a.Parent.(ast.IdentifierNode); ok {
-					names = append(names, p.Name)
-				} else {
-					return typing.Unknown()
-				}
-				break
-			case ast.IdentifierNode:
-				names = append(names, a.Name)
-				break
-			default:
-				return typing.Unknown()
-			}
-		}
-		break
-	default:
-		return typing.Unknown()
-	}
-	return v.getNamedType(names...)
-}*/
-/*
-func (v *Validator) resolveInContext(t typing.Type, property string) typing.Type {
-	switch r := t.(type) {
-	case typing.Class:
-		t, ok := r.Types[property]
-		if ok {
-			return t
-		}
-		t, ok = r.Properties[property]
-		if ok {
-			return t
-		}
-		break
-	case typing.Contract:
-		t, ok := r.Types[property]
-		if ok {
-			return t
-		}
-		t, ok = r.Properties[property]
-		if ok {
-			return t
-		}
-		break
-	case typing.Interface:
-		t, ok := r.Funcs[property]
-		if ok {
-			return t
-		}
-		break
-	case typing.Enum:
-		for _, item := range r.Items {
-			if item == property {
-				return v.SmallestNumericType(typing.BitsNeeded(len(r.Items)), false)
-			}
-		}
-		break
-	}
-	return typing.Unknown()
-}*/
-
-func resolveCallExpression(v *Validator, e ast.ExpressionNode) typing.Type {
-	// must be call expression
-	c := e.(*ast.CallExpressionNode)
-	// return type of a call expression is always a tuple
-	// tuple may be empty or single-valued
-	call := v.resolveExpression(c.Call)
-	var under typing.Type
-	if call.Compare(typing.Unknown()) {
-		// try to resolve as a type name
-		switch n := c.Call.(type) {
-		case *ast.IdentifierNode:
-			under = v.getNamedType(n.Name)
-		}
-
-	} else {
-		under = typing.ResolveUnderlying(call)
-	}
-	switch ctwo := under.(type) {
+func (v *Validator) resolveCallExpression(n *ast.CallExpressionNode) typing.Type {
+	exprType := v.resolveExpression(n.Call)
+	args := v.ExpressionTuple(n.Arguments)
+	switch a := exprType.(type) {
 	case *typing.Func:
-		c.Resolved = ctwo.Results
-		return c.Resolved
-	case *typing.Class:
-		c.Resolved = ctwo
-		return c.Resolved
+		if !typing.AssignableTo(a.Params, args, false) {
+			v.addError(n.Start(), errInvalidFuncCall, typing.WriteType(args), typing.WriteType(a))
+		}
+		return a.Results
+	case *typing.Event:
+		if !typing.AssignableTo(a.Parameters, args, false) {
+			v.addError(n.Start(), errInvalidFuncCall, typing.WriteType(args), typing.WriteType(a))
+		}
+		return typing.NewTuple()
+	default:
+		v.addError(n.Start(), errInvalidCall, typing.WriteType(exprType))
 	}
-	v.addError(e.Start(), errCallExpressionNoFunc, typing.WriteType(call))
-	c.Resolved = typing.Invalid()
-	return c.Resolved
-
+	return typing.Invalid()
 }
 
-func resolveSliceExpression(v *Validator, e ast.ExpressionNode) typing.Type {
+func (v *Validator) resolveSliceExpression(n *ast.SliceExpressionNode) typing.Type {
 	// must be literal
-	s := e.(*ast.SliceExpressionNode)
-	exprType := v.resolveExpression(s.Expression)
+	exprType := v.resolveExpression(n.Expression)
 	// must be an array
 	switch t := exprType.(type) {
 	case *typing.Array:
-		s.Resolved = t
-		return s.Resolved
+		n.Resolved = t
+		return n.Resolved
 	}
-	s.Resolved = typing.Invalid()
-	return s.Resolved
+	n.Resolved = typing.Invalid()
+	return n.Resolved
 }
 
-func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
-	// must be literal
-	b := e.(*ast.BinaryExpressionNode)
+func (v *Validator) resolveBinaryExpression(b *ast.BinaryExpressionNode) typing.Type {
 	// rules for binary Expressions
 	leftType := v.resolveExpression(b.Left)
 	rightType := v.resolveExpression(b.Right)
@@ -366,10 +364,9 @@ func resolveBinaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
 	return b.Resolved
 }
 
-func resolveUnaryExpression(v *Validator, e ast.ExpressionNode) typing.Type {
-	m := e.(*ast.UnaryExpressionNode)
-	operandType := v.resolveExpression(m.Operand)
-	m.Resolved = operandType
+func (v *Validator) resolveUnaryExpression(n *ast.UnaryExpressionNode) typing.Type {
+	operandType := v.resolveExpression(n.Operand)
+	n.Resolved = operandType
 	return operandType
 }
 
@@ -428,13 +425,12 @@ func (v *Validator) resolveContextualReference(context typing.Type, parent, exp 
 	return typing.Invalid()
 }
 
-func resolveReference(v *Validator, e ast.ExpressionNode) typing.Type {
+func (v *Validator) resolveReference(n *ast.ReferenceNode) typing.Type {
 	// must be reference
-	m := e.(*ast.ReferenceNode)
-	context := v.resolveExpression(m.Parent)
-	t := v.resolveContextualReference(context, m.Parent, m.Reference)
-	m.Resolved = t
-	return m.Resolved
+	context := v.resolveExpression(n.Parent)
+	t := v.resolveContextualReference(context, n.Parent, n.Reference)
+	n.Resolved = t
+	return n.Resolved
 }
 
 func getIdentifier(exp ast.ExpressionNode) (string, bool) {
@@ -458,18 +454,6 @@ func getIdentifier(exp ast.ExpressionNode) (string, bool) {
 		return "", false
 	}
 }
-
-/*
-func (v *Validator) getPropertiesType(expt typing.Type, names []string) (resolved typing.Type) {
-	var working bool
-	for _, name := range names {
-		if !working {
-			break
-		}
-		t, working = v.getTypeProperty(exp, t, name)
-	}
-	return t
-}*/
 
 func (v *Validator) isCurrentContext(context typing.Type) bool {
 	for c := v.scope; c != nil; c = c.parent {

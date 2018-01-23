@@ -45,10 +45,6 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 	// 2. types of left assignable to right
 	// 3. right all valid expressions
 
-	for _, r := range node.Right {
-		v.validateExpression(r)
-	}
-
 	for _, l := range node.Left {
 		if l == nil {
 			v.addError(node.Start(), errUnknown)
@@ -113,9 +109,6 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 
 func (v *Validator) validateAssignmentWithoutDeclaring(node *ast.AssignmentStatementNode) (types typing.TypeMap, locations map[string]util.Location) {
 	types = make(typing.TypeMap)
-	for _, r := range node.Right {
-		v.validateExpression(r)
-	}
 
 	for _, l := range node.Left {
 		if l == nil {

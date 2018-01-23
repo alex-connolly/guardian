@@ -1,3 +1,5 @@
+package examples guardian 0.0.1
+
 contract CreatorBalanceChecker {
 
     var creator address
@@ -5,11 +7,11 @@ contract CreatorBalanceChecker {
 
     constructor(){
         creator = msg.sender
-        creatorbalance = creator.balance
+        creatorbalance = balance(creator)
     }
 
     func getContractAddress() address {
-        return address()
+        return address{}
     }
 
     func getCreatorBalance() uint {
@@ -17,12 +19,12 @@ contract CreatorBalanceChecker {
     }
 
     func getCreatorCurrentBalance() uint {
-        return creator.balance()
+        return balance(creator)
     }
 
     func kill(){
         if msg.sender == creator {
-            suicide(creator)
+            selfDestruct(creator)
         }
     }
 

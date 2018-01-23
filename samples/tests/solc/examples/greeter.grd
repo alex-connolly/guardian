@@ -1,3 +1,5 @@
+package examples guardian 0.0.1
+
 contract Greeter {
 
     var creator address
@@ -22,7 +24,7 @@ contract Greeter {
 
      func kill(){
          if msg.sender == creator {
-             suicide(creator)
+             selfDestruct(creator)
          }
      }
 

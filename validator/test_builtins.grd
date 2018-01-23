@@ -3,6 +3,7 @@ type int int256
 type byte int8
 type string []byte
 type address [20]byte
+type bytes32 [32]byte
 
 const (
 	wei = 1

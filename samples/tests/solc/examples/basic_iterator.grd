@@ -24,7 +24,7 @@ contract BasicIterator {
 
     func kill(){
         if msg.sender == creator {
-            suicide(creator)
+            selfDestruct(creator)
         }
     }
 

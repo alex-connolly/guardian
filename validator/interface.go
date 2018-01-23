@@ -19,7 +19,6 @@ import (
 func ValidateExpression(vm VM, text string) (ast.ExpressionNode, util.Errors) {
 	expr := parser.ParseExpression(text)
 	v := NewValidator(vm)
-	v.validateExpression(expr)
 	// have to resolve as well so that bytecode generators can process
 	v.resolveExpression(expr)
 	return expr, v.errs
@@ -162,7 +161,7 @@ func (v *Validator) validateSequence(scope *ast.ScopeNode) {
 
 func (v *Validator) validate(node ast.Node) {
 	if node.Type() == ast.CallExpression {
-		v.validateCallExpression(node.(*ast.CallExpressionNode))
+		v.resolveCallExpression(node.(*ast.CallExpressionNode))
 	} else {
 		v.validateStatement(node)
 	}

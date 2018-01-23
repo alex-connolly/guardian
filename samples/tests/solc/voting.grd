@@ -1,3 +1,5 @@
+package solc guardian 0.0.1
+
 contract Ballot {
 
     class Voter {
@@ -26,7 +28,7 @@ contract Ballot {
     }
 
     external func vote(proposal uint) {
-        //storage sender = voters[msg.sender]
+        sender = voters[msg.sender]
         assert(!sender.voted)
 
         sender.voted = true
@@ -48,7 +50,7 @@ contract Ballot {
 
 
     external func delegate(to address){
-        //storage sender = voters[msg.sender]
+        sender = voters[msg.sender]
         assert(!sender.voted)
         assert(to != msg.sender)
 
@@ -69,7 +71,7 @@ contract Ballot {
     }
 
 
-    external func winnerName() bytes32 {
+    external func winnerName() string {
         return proposals[winningProposal()].name
     }
 

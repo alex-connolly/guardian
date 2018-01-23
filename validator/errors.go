@@ -53,4 +53,6 @@ const (
 	errInvalidMapLiteralKey              = "Invalid map literal key %s, required %s"
 	errInvalidMapLiteralValue            = "Invalid map literal value %s, required %s"
 	errInvalidArrayLiteralLength         = "Cannot use %d expressions in literal of fixed length %d"
+	errInvalidCompositeLiteralFieldName  = "Type %s has no property %s which can be set in composite literal"
+	errInvalidCompositeLiteralFieldValue = "Property %s in type %s is of type %s, found %s"
 )
