@@ -69,11 +69,11 @@ func TestValidateAssignmentToFuncLiteralValid(t *testing.T) {
 				return "hello"
 			}
 			x = z
-			a = func(a int, b int) string {
+			a = func(c int, b int) string {
 				return "hello"
 			}
 			x = a
-			b = func(a, b int) string {
+			b = func(a, c int) string {
 				return "hello"
 			}
 			x = b

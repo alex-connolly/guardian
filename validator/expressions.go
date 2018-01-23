@@ -31,6 +31,11 @@ func (v *Validator) validateExpression(node ast.ExpressionNode) {
 }
 
 func (v *Validator) validateArrayLiteral(n *ast.ArrayLiteralNode) {
+	if n.Signature.Length > 0 {
+		if n.Signature.Length != len(n.Data) {
+			v.addError(n.Signature.Start(), errInvalidArrayLiteralLength, len(n.Data), n.Signature.Length)
+		}
+	}
 	value := v.validateType(n.Signature.Value)
 	for _, val := range n.Data {
 		valueType := v.validateType(val)
@@ -58,12 +63,35 @@ func (v *Validator) validateMapLiteral(n *ast.MapLiteralNode) {
 func (v *Validator) validateFuncLiteral(n *ast.FuncLiteralNode) {
 	toDeclare := make(typing.TypeMap)
 	atLocs := make(map[string]util.Location)
+	params := make([]typing.Type, 0)
 	for _, p := range n.Parameters {
 		typ := v.validateType(p.DeclaredType)
 		for _, i := range p.Identifiers {
 			toDeclare[i] = typ
 			atLocs[i] = p.Start()
+			params = append(params, typ)
 		}
+	}
+	results := make([]typing.Type, 0)
+	for _, p := range n.Results {
+		switch n := p.(type) {
+		case *ast.ExplicitVarDeclarationNode:
+			dec := v.validateType(n.DeclaredType)
+			for _ = range n.Identifiers {
+				// TODO: declare results?
+				results = append(results, dec)
+			}
+			break
+		default:
+			typ := v.validateType(p)
+			results = append(results, typ)
+			break
+		}
+	}
+
+	n.Resolved = &typing.Func{
+		Params:  typing.NewTuple(params...),
+		Results: typing.NewTuple(results...),
 	}
 	v.validateScope(n, n.Scope, toDeclare, atLocs)
 }

@@ -45,7 +45,7 @@ contract AccessRestriction {
     // This was dangerous before Solidity version 0.4.0,
     // where it was possible to skip the part after `_;`.
     func costs(amount uint){
-        require(call.value >= amount)
+        require(msg.value >= amount)
     }
 
     func forceOwnerChange(newOwner address){

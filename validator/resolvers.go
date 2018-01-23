@@ -643,7 +643,6 @@ func (v *Validator) checkThisProperty(parent ast.ExpressionNode, name string) (t
 		switch p := parent.(type) {
 		case *ast.IdentifierNode:
 			if p.Name == "this" {
-				fmt.Println("here")
 				_, vars := v.resolveThis(p)
 				if t, ok := vars[name]; ok {
 					return t, ok

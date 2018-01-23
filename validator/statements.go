@@ -199,7 +199,13 @@ func (v *Validator) validateIfStatement(node *ast.IfStatementNode) {
 
 func (v *Validator) validateSwitchStatement(node *ast.SwitchStatementNode) {
 
-	switchType := v.resolveExpression(node.Target)
+	// no switch expression --> booleans
+	switchType := typing.Boolean()
+
+	if node.Target != nil {
+		switchType = v.resolveExpression(node.Target)
+	}
+
 	// target must be matched by all cases
 	for _, node := range node.Cases.Sequence {
 		if node.Type() == ast.CaseStatement {
@@ -229,6 +235,17 @@ func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
 				}
 				if !typing.AssignableTo(results, returned, false) {
 					v.addError(node.Start(), errInvalidReturn, typing.WriteType(returned), a.Signature.Identifier, typing.WriteType(results))
+				}
+				return
+			case *ast.FuncLiteralNode:
+				results := a.Resolved.(*typing.Func).Results
+				returned := v.ExpressionTuple(node.Results)
+				if (results == nil || len(results.Types) == 0) && len(returned.Types) > 0 {
+					v.addError(node.Start(), errInvalidReturnFromVoid, typing.WriteType(returned), "literal")
+					return
+				}
+				if !typing.AssignableTo(results, returned, false) {
+					v.addError(node.Start(), errInvalidReturn, typing.WriteType(returned), "literal", typing.WriteType(results))
 				}
 				return
 			}

@@ -559,7 +559,7 @@ func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationN
 
 	funcs := map[string]*typing.Func{}
 	for _, function := range node.Signatures {
-		f, ok := v.validateContextualType(function).(*typing.Func)
+		f, ok := v.validateType(function).(*typing.Func)
 		if ok {
 			funcs[function.Identifier] = f
 		} else {
@@ -583,10 +583,6 @@ func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationN
 
 }
 
-func (v *Validator) validateContextualType(node ast.Node) typing.Type {
-	return v.validateType(node)
-}
-
 func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
 	toDeclare := make(typing.TypeMap)
@@ -601,7 +597,7 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 		// todo: check here?
 		p := node.(*ast.ExplicitVarDeclarationNode)
 		for _, id := range p.Identifiers {
-			typ := v.validateContextualType(p.DeclaredType)
+			typ := v.validateType(p.DeclaredType)
 			toDeclare[id] = typ
 			atLocs[id] = p.Start()
 			params = append(params, typ)
@@ -625,7 +621,6 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 	node.Resolved = funcType
 	v.declareContextualVar(node.Signature.Start(), node.Signature.Identifier, funcType)
 	v.validateScope(node, node.Body, toDeclare, atLocs)
-
 }
 
 func (v *Validator) validateAnnotations(typ ast.NodeType, annotations []*typing.Annotation) {

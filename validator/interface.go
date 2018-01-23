@@ -111,12 +111,12 @@ func (v *Validator) validateScope(context ast.Node, scope *ast.ScopeNode,
 		scope:   scope,
 	}
 
+	v.scope = ts
+	v.builtinScope = bts
+
 	for k, val := range toDeclare {
 		v.declareContextualVar(atLocs[k], k, val)
 	}
-
-	v.scope = ts
-	v.builtinScope = bts
 
 	v.validateDeclarations(scope)
 
