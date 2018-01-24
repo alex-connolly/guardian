@@ -34,8 +34,8 @@ contract AccessRestriction {
     /// the contract has been created.
     func disown(){
         onlyBy(owner)
-        onlyAfter(creationTime + 6 * time.Week)
-        delete(owner)
+        onlyAfter(creationTime + 6 /* time.Week */)
+        // ? delete(owner)
     }
 
     // This modifier requires a certain
@@ -49,7 +49,7 @@ contract AccessRestriction {
     }
 
     func forceOwnerChange(newOwner address){
-        costs(200 * eth.Ether)
+        costs(200 * ether)
         owner = newOwner
     }
 

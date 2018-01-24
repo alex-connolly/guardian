@@ -23,24 +23,24 @@ contract Token {
 
 interface ERC20 {
     /// Get the total amount of tokens in the system.
-	func totalSupply() constant returns (uint256 total);
+	func totalSupply() (total uint256)
 
 	/// @param _owner The address from which the balance will be retrieved
 	/// @return The balance
-	func balanceOf(address _owner) constant returns (uint256 balance);
+	func balanceOf(owner address) (balance uint256)
 
 	/// @notice send `_value` token to `_to` from `msg.sender`
 	/// @param _to The address of the recipient
 	/// @param _value The amount of token to be transferred
 	/// @return Whether the transfer was successful or not
-	func transfer(address _to, uint256 _value) returns (bool success);
+	func transfer(to address, value uint256) (success bool)
 
 	/// @notice send `_value` token to `_to` from `_from` on the condition it is approved by `_from`
 	/// @param _from The address of the sender
 	/// @param _to The address of the recipient
 	/// @param _value The amount of token to be transferred
 	/// @return Whether the transfer was successful or not
-	func transferFrom(address _from, address _to, uint256 _value) returns (bool success);
+	func transferFrom(from, to address, value uint256) (success bool)
 
 	/// @notice `msg.sender` approves `_addr` to spend `_value` tokens
 	/// @param _spender The address of the account able to transfer the tokens
@@ -56,6 +56,26 @@ interface ERC20 {
 
 }
 
+contract GavCoin inherits Token is ERC20 {
+
+    // don't need the other two - inherit them
+    event Buyin(address indexed buyer, uint indexed price, uint indexed amount);
+	event Refund(address indexed buyer, uint indexed price, uint indexed amount);
+	event NewTranch(uint indexed price);
+
+
+    class Receipt {
+        units uint
+        activation uint32
+    }
+
+    class Account {
+        balance uint
+        receipts map[uint]Receipt
+        allowanceOf map[address]uint
+    }
+}
+
 contract GavCoin {
 	struct Receipt {
 		uint units;
@@ -69,9 +89,6 @@ contract GavCoin {
 
 	event Transfer(address indexed from, address indexed to, uint256 value);
 	event Approval(address indexed owner, address indexed spender, uint256 value);
-	event Buyin(address indexed buyer, uint indexed price, uint indexed amount);
-	event Refund(address indexed buyer, uint indexed price, uint indexed amount);
-	event NewTranch(uint indexed price);
 
 	modifier when_owns(address _owner, uint _amount) { if (accounts[_owner].balance < _amount) return; _; }
 	modifier when_has_allowance(address _owner, address _spender, uint _amount) { if (accounts[_owner].allowanceOf[_spender] < _amount) return; _; }

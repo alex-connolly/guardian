@@ -170,6 +170,9 @@ func (v *Validator) resolveIdentifier(n *ast.IdentifierNode) typing.Type {
 	t, ok := v.isVarVisible(n.Name)
 	if t == typing.Unknown() || !ok {
 		t = v.getNamedType(n.Name)
+		if t == nil {
+			t = v.getDeclarationNode(n.Start(), n.Name)
+		}
 		if t != nil {
 			typing.AddModifier(t, "static")
 		}
@@ -211,9 +214,6 @@ func (v *Validator) resolveArrayLiteral(n *ast.ArrayLiteralNode) typing.Type {
 
 func (v *Validator) resolveCompositeLiteral(n *ast.CompositeLiteralNode) typing.Type {
 	n.Resolved = v.resolvePlainType(n.TypeName)
-	if n.Resolved == typing.Unknown() {
-		n.Resolved = v.getDeclarationNode(n.Start(), n.TypeName.Names)
-	}
 	for f, exp := range n.Fields {
 		switch cType := n.Resolved.(type) {
 		case *typing.Class:
@@ -280,9 +280,23 @@ func (v *Validator) resolveFuncLiteralExpression(n *ast.FuncLiteralNode) typing.
 	return n.Resolved
 }
 
+func isValidMapKey(key typing.Type) bool {
+	switch t := typing.ResolveUnderlying(key).(type) {
+	// numeric types
+	case *typing.NumericType:
+		return true
+	case *typing.Array:
+		return isValidMapKey(t.Value)
+	}
+	return false
+}
+
 func (v *Validator) resolveMapLiteral(n *ast.MapLiteralNode) typing.Type {
-	// must be literal
+
 	key := v.validateType(n.Signature.Key)
+	if isValidMapKey(key) {
+		v.addError(n.Signature.Key.Start(), errInvalidMapKey, typing.WriteType(key))
+	}
 	value := v.validateType(n.Signature.Value)
 	for k, val := range n.Data {
 		keyType := v.validateType(k)

@@ -67,7 +67,7 @@ contract CrowdFunder {
         creator = msg.sender
         fundRecipient = recipient
         minimumToRaise = minRaise * 1000000000000000000 // convert to wei
-        raiseBy = now + timeInHoursForFundraising * 60
+        raiseBy = now() + timeInHoursForFundraising * 60
         currentBalance = 0
         LogFunderInitialized(
             creator,

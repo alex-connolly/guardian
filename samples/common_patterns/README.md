@@ -1,1 +1,1 @@
-Re-implementation of the Solidity common patterns.
+Re-implementation of the Solidity 'common patterns'.

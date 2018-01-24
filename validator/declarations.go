@@ -29,10 +29,13 @@ func (v *Validator) validateType(destination ast.Node) typing.Type {
 
 func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 	// start the validating process for another node
-	typ := v.getNamedType(node.Names[0])
-	if typ == typing.Unknown() {
-		typ = v.getDeclarationNode(node.Start(), node.Names)
+	typ, ok := v.isTypeVisible(node.Names[0])
+
+	if !ok {
+		v.addError(node.Start(), errTypeNotVisible, makeName(node.Names))
+		return typing.Unknown()
 	}
+
 	// validate parameters if necessary
 	switch a := typ.(type) {
 	case *typing.Class:
@@ -179,33 +182,24 @@ func (v *Validator) validateDeclaration(node ast.Node) {
 
 }
 
-func (v *Validator) getDeclarationNode(loc util.Location, names []string) typing.Type {
+func (v *Validator) getDeclarationNode(loc util.Location, name string) typing.Type {
 	if v.isParsingBuiltins {
 		if v.builtinScope != nil {
-			decl := v.builtinAST.GetDeclaration(names[0])
+			decl := v.builtinAST.GetDeclaration(name)
 			if decl != nil {
 				v.validateDeclaration(decl)
 			}
 		}
 	} else {
 		for scope := v.scope; scope != nil; scope = scope.parent {
-			decl := scope.scope.GetDeclaration(names[0])
+			decl := scope.scope.GetDeclaration(name)
 			if decl != nil {
 				v.validateDeclaration(decl)
 				break
 			}
 		}
 	}
-	return v.requireValidType(loc, names)
-}
-
-func (v *Validator) requireValidType(loc util.Location, names []string) typing.Type {
-	typ := v.getNamedType(names[0])
-	if typ == typing.Unknown() {
-		v.addError(loc, errTypeNotVisible, makeName(names))
-	}
-
-	return typ
+	return v.getNamedType(name)
 }
 
 func (v *Validator) validateVarDeclaration(node *ast.ExplicitVarDeclarationNode) {
