@@ -19,6 +19,7 @@ contract BasicIterator {
         for x = 0; x < len(integers); x++ {
             sum += integers[x]
         }
+        return sum
     }
 
     func kill(){

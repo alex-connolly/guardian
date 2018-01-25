@@ -67,14 +67,13 @@ func (v *Validator) isVarVisibleInScope(ts *TypeScope, name string) (typing.Type
 	if ts.scope != nil {
 		decl := ts.scope.GetDeclaration(name)
 		if decl != nil {
-			saved := *v.scope
+			saved := v.scope
 			v.scope = ts
 			v.validateDeclaration(decl)
+			v.scope = saved
 			if t, ok := ts.variables[name]; ok {
-				*v.scope = saved
 				return t, true
 			}
-			*v.scope = saved
 		}
 	}
 	if ts.parent != nil {
@@ -84,22 +83,24 @@ func (v *Validator) isVarVisibleInScope(ts *TypeScope, name string) (typing.Type
 }
 
 func (v *Validator) isVarDeclared(name string) (typing.Type, bool) {
-	if t, ok := v.isVarDeclaredInScope(v.scope, name); ok {
-		return t, ok
-	}
 	if v.builtinScope != nil {
 		if t, ok := v.builtinScope.variables[name]; ok {
 			return t, ok
 		}
 	}
+	if t, ok := v.isVarDeclaredInScope(v.scope, name); ok {
+		return t, ok
+	}
 	return typing.Unknown(), false
 }
 
 func (v *Validator) isVarVisible(name string) (typing.Type, bool) {
-	if t, ok := v.isVarVisibleInScope(v.scope, name); ok {
-		return t, ok
+	if v.builtinScope != nil {
+		if t, ok := v.builtinScope.variables[name]; ok {
+			return t, ok
+		}
 	}
-	if t, ok := v.builtinScope.variables[name]; ok {
+	if t, ok := v.isVarVisibleInScope(v.scope, name); ok {
 		return t, ok
 	}
 	return typing.Unknown(), false
@@ -161,14 +162,13 @@ func (v *Validator) isTypeVisibleInScope(ts *TypeScope, name string) (typing.Typ
 	}
 	decl := ts.scope.GetDeclaration(name)
 	if decl != nil {
-		saved := *v.scope
+		saved := v.scope
 		v.scope = ts
 		v.validateDeclaration(decl)
+		v.scope = saved
 		if t, ok := ts.types[name]; ok {
-			*v.scope = saved
 			return t, true
 		}
-		*v.scope = saved
 	}
 	if ts.parent != nil {
 		return v.isTypeVisibleInScope(ts.parent, name)
@@ -177,26 +177,32 @@ func (v *Validator) isTypeVisibleInScope(ts *TypeScope, name string) (typing.Typ
 }
 
 func (v *Validator) isTypeDeclared(name string) (typing.Type, bool) {
-	if t, ok := v.primitives[name]; ok {
-		return t, ok
-	}
-	if t, ok := v.isTypeDeclaredInScope(v.scope, name); ok {
-		return t, ok
+	if v.primitives != nil {
+		if t, ok := v.primitives[name]; ok {
+			return t, ok
+		}
 	}
 	if v.builtinScope != nil {
 		if t, ok := v.builtinScope.types[name]; ok {
 			return t, ok
 		}
 	}
+	if t, ok := v.isTypeDeclaredInScope(v.scope, name); ok {
+		return t, ok
+	}
 	return typing.Unknown(), false
 }
 
 func (v *Validator) isTypeVisible(name string) (typing.Type, bool) {
-	if t, ok := v.primitives[name]; ok {
-		return t, ok
+	if v.primitives != nil {
+		if t, ok := v.primitives[name]; ok {
+			return t, ok
+		}
 	}
-	if t, ok := v.builtinScope.types[name]; ok {
-		return t, ok
+	if v.builtinScope != nil {
+		if t, ok := v.builtinScope.types[name]; ok {
+			return t, ok
+		}
 	}
 	if t, ok := v.isTypeVisibleInScope(v.scope, name); ok {
 		return t, ok
@@ -215,8 +221,8 @@ func (v *Validator) declareVar(loc util.Location, name string, typ typing.Type) 
 	v.scope.variables[name] = typ
 }
 
-func (v *Validator) declareContextualType(loc util.Location, name string, typ typing.Type) {
-	if _, ok := v.isTypeDeclared(name); !ok {
+func (v *Validator) declareType(loc util.Location, name string, typ typing.Type) {
+	if _, ok := v.isTypeDeclared(name); ok {
 		v.addError(loc, errDuplicateTypeDeclaration, name)
 	}
 	if v.scope.types == nil {

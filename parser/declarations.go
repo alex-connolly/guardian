@@ -492,7 +492,13 @@ func parseFuncDeclaration(p *Parser) {
 
 	signature := p.parseFuncSignature()
 
-	body := p.parseBracesScope(ast.ExplicitVarDeclaration, ast.FuncDeclaration)
+	mods := p.getModifiers()
+
+	var body *ast.ScopeNode
+	if mods.Annotation("Builtin") == nil {
+		// Builtins don't need bodies
+		body = p.parseBracesScope(ast.ExplicitVarDeclaration, ast.FuncDeclaration)
+	}
 
 	node := ast.FuncDeclarationNode{
 		Begin:     start,

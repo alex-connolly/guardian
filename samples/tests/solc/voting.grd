@@ -39,7 +39,7 @@ contract Ballot {
 
     external func winningProposal() uint {
         winningVoteCount = 0 as uint
-        for p = 0; p < proposals.length; p++ {
+        for p = 0; p < len(proposals); p++ {
             if proposals[p].voteCount > winningVoteCount {
                 winningVoteCount = proposals[p].voteCount
                 winningProposal = p

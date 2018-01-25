@@ -920,3 +920,14 @@ func TestParseParameterIdentifiers(t *testing.T) {
 	goutil.AssertNow(t, len(params[0].Identifiers) == 1, "wrong id length")
 	goutil.AssertNow(t, params[0].Identifiers[0] == "age", fmt.Sprintf("wrong param name: %s", params[0].Identifiers[0]))
 }
+
+func TestParseUnimplementedFuncDeclaration(t *testing.T) {
+	_, errs := ParseString(`@Builtin("a") func add(a, b int) int`)
+	goutil.AssertNow(t, len(errs) == 0, "wrong error length")
+}
+
+func TestParseUnimplementedFuncDeclarationNoBuiltin(t *testing.T) {
+	_, errs := ParseString(`func add(a, b int) int`)
+	// one for each missing bracket
+	goutil.AssertNow(t, len(errs) == 2, "wrong error length")
+}

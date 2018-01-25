@@ -119,9 +119,7 @@ class Liger inherits Lion, Tiger {
 }
 ```
 
-All EXPORTED methods and fields will be available in the subclass. The introduction of a ```protected``` keyword, or some other mechanism for allowing inheritance of imported methods, is currently under consideration.
-
-However, in cases where a class inherits two methods with identical names and parameters, the methods will 'cancel' and neither will be available in the subclass.
+In cases where a class inherits two methods with identical names and parameters, the methods will 'cancel' and neither will be available in the subclass. 
 
 ### Interfaces
 

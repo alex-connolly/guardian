@@ -89,7 +89,7 @@ func Validate(scope *ast.ScopeNode, typeScope *TypeScope, vm VM) util.Errors {
 
 	v.validateScope(nil, scope, nil, nil)
 
-	v.scope = typeScope
+	//v.scope = typeScope
 
 	return v.errs
 }
@@ -117,7 +117,9 @@ func (v *Validator) validateScope(context ast.Node, scope *ast.ScopeNode,
 	properties = v.scope.variables
 	lifecycles = v.scope.lifecycles
 
-	v.scope = v.scope.parent
+	if v.scope.parent != nil {
+		v.scope = v.scope.parent
+	}
 
 	return types, properties, lifecycles
 }
@@ -197,16 +199,17 @@ func (v *Validator) importVM(vm VM) {
 
 	v.builtinScope = v.scope
 
-	v.scope = nil
-
 }
 
 // NewValidator creates a new validator
 func NewValidator(vm VM) *Validator {
 	v := Validator{
-		scope: new(TypeScope),
+		scope: &TypeScope{
+			scope:   new(ast.ScopeNode),
+			context: nil,
+			parent:  nil,
+		},
 	}
-	v.scope.scope = new(ast.ScopeNode)
 
 	v.importVM(vm)
 

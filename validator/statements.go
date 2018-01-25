@@ -332,9 +332,9 @@ func (v *Validator) validateImportStatement(node *ast.ImportStatementNode) {
 		v.addError(node.Start(), errFinishedImports)
 	}
 	if node.Alias != "" {
-		v.declareContextualType(node.Start(), node.Alias, v.createPackageType(node.Path))
+		v.declareType(node.Start(), node.Alias, v.createPackageType(node.Path))
 	} else {
-		v.declareContextualType(node.Start(), trimPath(node.Path), v.createPackageType(node.Path))
+		v.declareType(node.Start(), trimPath(node.Path), v.createPackageType(node.Path))
 	}
 }
 

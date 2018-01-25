@@ -73,7 +73,7 @@ func TestValidateAssignmentToFuncLiteralValid(t *testing.T) {
 				return "hello"
 			}
 			x = a
-			b = func(a, c int) string {
+			b = func(q, c int) string {
 				return "hello"
 			}
 			x = b

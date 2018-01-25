@@ -180,6 +180,7 @@ func (v *Validator) resolveIdentifier(n *ast.IdentifierNode) typing.Type {
 }
 
 func (v *Validator) resolveLiteralExpression(n *ast.LiteralNode) typing.Type {
+
 	if literalResolver, ok := v.literals[n.LiteralType]; ok {
 		t := literalResolver(v, n.Data)
 		n.Resolved = t
@@ -297,8 +298,8 @@ func (v *Validator) resolveMapLiteral(n *ast.MapLiteralNode) typing.Type {
 	}
 	value := v.validateType(n.Signature.Value)
 	for k, val := range n.Data {
-		keyType := v.validateType(k)
-		valueType := v.validateType(val)
+		keyType := v.resolveExpression(k)
+		valueType := v.resolveExpression(val)
 		if !typing.AssignableTo(key, keyType, false) {
 			v.addError(val.Start(), errInvalidMapLiteralKey, typing.WriteType(valueType), typing.WriteType(value))
 		}
@@ -620,10 +621,9 @@ func (v *Validator) getEnumProperty(loc util.Location, c *typing.Enum, name stri
 
 	for _, s := range c.Items {
 		if s == name {
-			t := v.SmallestNumericType(len(c.Items), false)
 			// so that it can be referenced Day.Mon
-			typing.AddModifier(t, "static")
-			return t, true
+			typing.AddModifier(c, "static")
+			return c, true
 		}
 	}
 	for _, s := range c.Supers {

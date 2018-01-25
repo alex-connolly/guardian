@@ -20,35 +20,35 @@ const (
 	ether = 1000 * milliether
 )
 
-@Builtin("now") var now func() uint
-@Builtin("length") var len func <Key>([]Key)
+@Builtin("now") func now() uint
+@Builtin("length") func <Key> len([]Key)
+@Builtin("append") func <Key> append([]Key, Key)
 
 // account functions
-@Builtin("balance") var balance func(a address) uint256
-@Builtin("transfer") var transfer func(a address, amount uint256) uint
-@Builtin("call") var call func(a address, gas uint, value uint, signature string) bool
-@Builtin("delegate") var delegate func(a address)
+@Builtin("balance") func balance(a address) uint256
+@Builtin("transfer") func transfer(a address, amount uint256) uint
+@Builtin("call") func call(a address, gas uint, value uint, signature string) bool
+@Builtin("delegate") func delegate(a address)
 
 // cryptographic functions
-@Builtin("addmod") var addmod func(x, y, k uint) uint
-@Builtin("mulmod") var mulmod func(x, y, k uint) uint
-@Builtin("keccak256") var keccak256 func()
-@Builtin("sha256") var sha256 func(text []byte)
-@Builtin("sha3") var sha3 func(text []byte)
-@Builtin("ripemd160") var ripemd160 func()
-@Builtin("ecrecover") var ecrecover func (v uint8, h, r, s []byte) address
+@Builtin("addmod") func addmod(x, y, k uint) uint
+@Builtin("mulmod") func mulmod(x, y, k uint) uint
+@Builtin("keccak256") func keccak256(a string) string
+@Builtin("sha256") func sha256(text string) string
+@Builtin("sha3") func sha3(text string) string
+@Builtin("ripemd160") func ripemd160()
+@Builtin("ecrecover") func ecrecover(v uint8, h, r, s []byte) address
 
-@Builtin("require") var require func(that bool)
-@Builtin("assert") var assert func(that bool)
+@Builtin("require") func require(that bool)
+@Builtin("assert") func assert(that bool)
 
-@Builtin("revert") var revert func()
-@Builtin("throw") var throw func()
+@Builtin("revert") func revert()
+@Builtin("throw") func throw()
 
 // contract functions
 // NO THIS KEYWORD: confusing for most programmers, unintentional bugs etc
 
-@Builtin("selfDestruct") var selfDestruct func(recipient address) uint256
-
+@Builtin("selfDestruct") func selfDestruct(recipient address) uint256
 
 class BuiltinMessage {
 	@Builtin("calldata") var data []byte
@@ -65,7 +65,7 @@ class BuiltinBlock {
 	@Builtin("number") var number uint
 	@Builtin("coinbase") var coinbase address
 	@Builtin("gasLimit") var gasLimit uint
-	@Builtin("blockhash") var blockhash func(blockNumber uint) [32]byte
+	@Builtin("blockhash") func blockhash(blockNumber uint) [32]byte
 }
 
 var block BuiltinBlock

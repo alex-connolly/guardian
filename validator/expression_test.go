@@ -150,10 +150,7 @@ func TestMapLiteralValidValues(t *testing.T) {
 func TestArrayLiteralValidValues(t *testing.T) {
 	_, errs := ValidateString(NewTestVM(), `
 		var m []string
-		m = map[string]string {
-			"hi": "bye",
-			"hi": "bye",
-		}
+		m = []string { "hi", "bye" }
 	`)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }

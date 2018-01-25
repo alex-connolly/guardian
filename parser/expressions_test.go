@@ -889,3 +889,33 @@ func TestParseBinaryExpressionUnmatchedCloseBracket(t *testing.T) {
 	expr := ParseExpression(`5 + )`)
 	goutil.AssertNow(t, expr == nil, "should be nil")
 }
+
+func TestParseMapLiteralMultipleLinesNoTrailingComma(t *testing.T) {
+	expr := ParseExpression(`map[string]int {
+		"hi": 1,
+		"bye": 2
+	}`)
+	goutil.AssertNow(t, expr != nil, "should not be nil")
+	goutil.AssertNow(t, expr.Type() == ast.MapLiteral, "wrong node type")
+	m := expr.(*ast.MapLiteralNode)
+	goutil.AssertNow(t, len(m.Data) == 2, "wrong data length")
+}
+
+func TestParseMapLiteralMultipleLinesTrailingComma(t *testing.T) {
+	expr := ParseExpression(`map[string]int {
+		"hi": 1,
+		"bye": 2,
+	}`)
+	goutil.AssertNow(t, expr != nil, "should not be nil")
+	goutil.AssertNow(t, expr.Type() == ast.MapLiteral, "wrong node type")
+	m := expr.(*ast.MapLiteralNode)
+	goutil.AssertNow(t, len(m.Data) == 2, "wrong data length")
+}
+
+func TestParseMapLiteralSingleLine(t *testing.T) {
+	expr := ParseExpression(`map[string]int { "hi": 1, "bye": 2 }`)
+	goutil.AssertNow(t, expr != nil, "should not be nil")
+	goutil.AssertNow(t, expr.Type() == ast.MapLiteral, "wrong node type")
+	m := expr.(*ast.MapLiteralNode)
+	goutil.AssertNow(t, len(m.Data) == 2, "wrong data length")
+}

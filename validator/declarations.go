@@ -202,7 +202,7 @@ func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*
 
 		g := new(typing.Generic)
 
-		v.declareContextualType(node.Start(), node.Identifier, g)
+		v.declareType(node.Start(), node.Identifier, g)
 
 		var interfaces []*typing.Interface
 		for _, ifc := range node.Implements {
@@ -358,7 +358,7 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 
 	v.validateClassInterfaces(node, classType)
 
-	v.declareContextualType(node.Start(), node.Identifier, classType)
+	v.declareType(node.Start(), node.Identifier, classType)
 }
 
 func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
@@ -390,7 +390,7 @@ func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
 
 	node.Resolved = enumType
 
-	v.declareContextualType(node.Start(), node.Identifier, enumType)
+	v.declareType(node.Start(), node.Identifier, enumType)
 }
 
 func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNode) {
@@ -446,7 +446,7 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 
 	v.validateContractInterfaces(node, contractType)
 
-	v.declareContextualType(node.Start(), node.Identifier, contractType)
+	v.declareType(node.Start(), node.Identifier, contractType)
 }
 
 func (v *Validator) validateContractInterfaces(node *ast.ContractDeclarationNode, contract *typing.Contract) {
@@ -553,7 +553,7 @@ func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationN
 
 	node.Resolved = interfaceType
 
-	v.declareContextualType(node.Start(), node.Identifier, interfaceType)
+	v.declareType(node.Start(), node.Identifier, interfaceType)
 
 }
 
@@ -662,7 +662,7 @@ func (v *Validator) validateTypeDeclaration(node *ast.TypeDeclarationNode) {
 
 	typ := v.validateType(node.Value)
 	node.Resolved = typ
-	v.declareContextualType(node.Start(), node.Identifier, typ)
+	v.declareType(node.Start(), node.Identifier, typ)
 }
 
 func (v *Validator) validateLifecycleDeclaration(node *ast.LifecycleDeclarationNode) {

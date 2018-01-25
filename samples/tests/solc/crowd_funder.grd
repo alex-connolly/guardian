@@ -91,7 +91,7 @@ contract CrowdFunder {
         LogFundingReceived(msg.sender, msg.value, totalRaised)
 
         checkIfFundingCompleteOrExpired()
-        return contributions.length - 1 // return id
+        return len(contributions) - 1 // return id
     }
 
     public func getRefund(id uint) bool {

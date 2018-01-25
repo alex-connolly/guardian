@@ -30,8 +30,8 @@ contract BlindAuction {
         assert(now() > time)
     }
 
-    constructor(biddingTime, revealTime uint, beneficiary address){
-        this.beneficiary = beneficiary
+    constructor(biddingTime, revealTime uint, ben address){
+        this.beneficiary = ben
         this.biddingEnd = now() + biddingTime
         this.revealEnd = this.biddingEnd + revealTime
     }
@@ -57,18 +57,18 @@ contract BlindAuction {
 
         var refund uint
         for i = 0; i < length; i++ {
-
+            b = bids[msg.sender][i]
             v, f, s = values[i], fake[i], secret[i]
-            if bid.blindedBid != keccak256(v, f, s) {
+            if b.blindedBid != keccak256(v, f, s) {
                 continue
             }
-            refund += bid.deposit
-            if !fake and bid.deposit >= value {
+            refund += b.deposit
+            if !fake and b.deposit >= value {
                 if placeBid(msg.sender, value) {
                     refund -= value
                 }
             }
-            bid.blindedBid = 0 as bytes32
+            b.blindedBid = 0 as bytes32
         }
         transfer(msg.sender, refund)
 
@@ -90,7 +90,7 @@ contract BlindAuction {
     func withdraw() {
         amount = pendingReturns[msg.sender]
         if amount > 0 {
-            pendingReturns[msg.sender] = 0
+            pendingReturns[msg.sender] = 0 as uint256
             transfer(msg.sender, amount)
         }
     }
