@@ -182,26 +182,6 @@ func (v *Validator) validateDeclaration(node ast.Node) {
 
 }
 
-func (v *Validator) getDeclarationNode(loc util.Location, name string) typing.Type {
-	if v.isParsingBuiltins {
-		if v.builtinScope != nil {
-			decl := v.builtinAST.GetDeclaration(name)
-			if decl != nil {
-				v.validateDeclaration(decl)
-			}
-		}
-	} else {
-		for scope := v.scope; scope != nil; scope = scope.parent {
-			decl := scope.scope.GetDeclaration(name)
-			if decl != nil {
-				v.validateDeclaration(decl)
-				break
-			}
-		}
-	}
-	return v.getNamedType(name)
-}
-
 func (v *Validator) validateVarDeclaration(node *ast.ExplicitVarDeclarationNode) {
 
 	v.validateModifiers(node, node.Modifiers.Modifiers)
@@ -210,7 +190,7 @@ func (v *Validator) validateVarDeclaration(node *ast.ExplicitVarDeclarationNode)
 	typ.SetModifiers(&node.Modifiers)
 
 	for _, id := range node.Identifiers {
-		v.declareContextualVar(node.Start(), id, typ)
+		v.declareVar(node.Start(), id, typ)
 		//fmt.Printf("Declared: %s as %s\n", id, WriteType(typ))
 	}
 	node.Resolved = typ
@@ -613,7 +593,7 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 	}
 
 	node.Resolved = funcType
-	v.declareContextualVar(node.Signature.Start(), node.Signature.Identifier, funcType)
+	v.declareVar(node.Signature.Start(), node.Signature.Identifier, funcType)
 	v.validateScope(node, node.Body, toDeclare, atLocs)
 }
 
@@ -673,7 +653,7 @@ func (v *Validator) validateEventDeclaration(node *ast.EventDeclarationNode) {
 		Mods:       &node.Modifiers,
 	}
 	node.Resolved = eventType
-	v.declareContextualVar(node.Start(), node.Identifier, eventType)
+	v.declareVar(node.Start(), node.Identifier, eventType)
 }
 
 func (v *Validator) validateTypeDeclaration(node *ast.TypeDeclarationNode) {

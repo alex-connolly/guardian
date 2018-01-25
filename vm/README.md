@@ -35,16 +35,16 @@ func (v MyVM) Builtins() ast.ScopeNode {
         type byte uint8
         type address [20]byte
         class BMessage {
-            data []byte
-            sender address
+            var data []byte
+            var sender address
             // unimplemented funcs should be variables
             // will be able to implement them at bytecode generation time
-            getSender func() address
+            var getSender func() address
             func implementedGetSender() address {
                 return sender
             }
         }
-        msg BMessage
+        var msg BMessage
     `)
     return scope
 }

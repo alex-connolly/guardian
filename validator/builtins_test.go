@@ -33,7 +33,8 @@ func TestImportVM(t *testing.T) {
 	v.importVM(tvm)
 	goutil.AssertNow(t, len(v.errs) == 0, v.errs.Format())
 	goutil.AssertNow(t, v.primitives != nil, "primitives should not be nil")
-	goutil.AssertNow(t, v.getNamedType("address") != typing.Unknown(), "addr unrecognised")
+	typ, _ := v.isTypeVisible("address")
+	goutil.AssertNow(t, typ != typing.Unknown(), "addr unrecognised")
 }
 
 func TestCastingValidToUnsigned(t *testing.T) {

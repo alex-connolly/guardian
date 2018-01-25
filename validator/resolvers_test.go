@@ -28,7 +28,7 @@ func TestResolveCallExpression(t *testing.T) {
 	fn := new(typing.Func)
 	fn.Params = typing.NewTuple(typing.Boolean(), typing.Boolean())
 	fn.Results = typing.NewTuple(typing.Boolean())
-	v.declareContextualVar(util.Location{}, "hello", &typing.Func{
+	v.declareVar(util.Location{}, "hello", &typing.Func{
 		Params:  typing.NewTuple(),
 		Results: typing.NewTuple(typing.Boolean()),
 	})
@@ -101,12 +101,13 @@ func TestResolveMapLiteralExpression(t *testing.T) {
 
 func TestResolveIndexExpressionArrayLiteral(t *testing.T) {
 	v := NewValidator(NewTestVM())
-	v.declareContextualVar(util.Location{}, "cat", typing.Boolean())
+	v.declareVar(util.Location{}, "cat", typing.Boolean())
 	p := parser.ParseExpression("[]cat{}[0]")
 	goutil.AssertNow(t, p.Type() == ast.IndexExpression, "wrong expression type")
 	b := p.(*ast.IndexExpressionNode)
 	resolved := v.resolveExpression(b)
-	goutil.AssertNow(t, resolved.Compare(v.getNamedType("cat")), "wrong expression type")
+	typ, _ := v.isTypeVisible("cat")
+	goutil.AssertNow(t, resolved.Compare(typ), "wrong expression type")
 }
 
 func TestResolveIndexExpressionMapLiteral(t *testing.T) {
@@ -115,7 +116,8 @@ func TestResolveIndexExpressionMapLiteral(t *testing.T) {
 	v.declareContextualType(util.Location{}, "cat", typing.Unknown())
 	p := parser.ParseExpression(`map[dog]cat{}["hi"]`)
 	goutil.AssertNow(t, p.Type() == ast.IndexExpression, "wrong expression type")
-	ok := v.resolveExpression(p).Compare(v.getNamedType("cat"))
+	typ, _ := v.isTypeVisible("cat")
+	ok := v.resolveExpression(p).Compare(typ)
 	goutil.AssertNow(t, ok, "wrong type returned")
 
 }
@@ -135,7 +137,8 @@ func TestResolveBinaryExpressionConcatenation(t *testing.T) {
 	b := p.(*ast.BinaryExpressionNode)
 	v := NewValidator(NewTestVM())
 	resolved := v.resolveExpression(b)
-	goutil.AssertNow(t, resolved.Compare(v.getNamedType("string")), "wrong expression type")
+	typ, _ := v.isTypeVisible("string")
+	goutil.AssertNow(t, resolved.Compare(typ), "wrong expression type")
 }
 
 func TestResolveBinaryExpressionEql(t *testing.T) {
@@ -189,7 +192,8 @@ func TestResolveBinaryExpressionCast(t *testing.T) {
 	v := NewValidator(NewTestVM())
 	resolved := v.resolveExpression(p)
 	goutil.AssertNow(t, len(v.errs) == 0, v.errs.Format())
-	goutil.AssertNow(t, resolved.Compare(v.getNamedType("uint8")), fmt.Sprintf("wrong resolved expression type: %s", typing.WriteType(resolved)))
+	typ, _ := v.isTypeVisible("uint8")
+	goutil.AssertNow(t, resolved.Compare(typ), fmt.Sprintf("wrong resolved expression type: %s", typing.WriteType(resolved)))
 }
 
 func TestResolution(t *testing.T) {
@@ -485,4 +489,23 @@ func TestValidThisContractConstructor(t *testing.T) {
 		}
 	`)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestIsValidMapKey(t *testing.T) {
+	a := typing.Boolean()
+	goutil.AssertNow(t, !isValidMapKey(a), "boolean valid")
+	a = typing.Unknown()
+	goutil.AssertNow(t, !isValidMapKey(a), "unknown valid")
+	a = typing.Invalid()
+	goutil.AssertNow(t, !isValidMapKey(a), "invalid valid")
+	a = &typing.NumericType{BitSize: 8, Signed: true}
+	goutil.AssertNow(t, isValidMapKey(a), "int8 invalid")
+	a = &typing.NumericType{BitSize: 8, Signed: false}
+	goutil.AssertNow(t, isValidMapKey(a), "uint8 invalid")
+	a = &typing.Array{Value: &typing.NumericType{BitSize: 8, Signed: false}}
+	goutil.AssertNow(t, isValidMapKey(a), "uint8 array invalid")
+	a = &typing.Array{Value: &typing.NumericType{BitSize: 8, Signed: true}}
+	goutil.AssertNow(t, isValidMapKey(a), "int8 array invalid")
+	b := &typing.Aliased{Alias: "string", Underlying: a}
+	goutil.AssertNow(t, isValidMapKey(b), "aliased int8 array invalid")
 }

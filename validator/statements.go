@@ -76,7 +76,7 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 					id.Resolved.SetModifiers(nil)
 					ignored := "_"
 					if id.Name != ignored {
-						v.declareContextualVar(id.Start(), id.Name, id.Resolved)
+						v.declareVar(id.Start(), id.Name, id.Resolved)
 					}
 
 				}
@@ -98,7 +98,7 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 						id.Resolved = rightTuple.Types[i]
 						if id.Name != "_" {
 							//fmt.Printf("Declaring %s as %s\n", id.Name, typing.WriteType(rightTuple.Types[i]))
-							v.declareContextualVar(id.Start(), id.Name, rightTuple.Types[i])
+							v.declareVar(id.Start(), id.Name, rightTuple.Types[i])
 						}
 					}
 				}
@@ -161,7 +161,7 @@ func (v *Validator) validateAssignmentWithoutDeclaring(node *ast.AssignmentState
 					if id, ok := left.(*ast.IdentifierNode); ok {
 						id.Resolved = rightTuple.Types[i]
 						if id.Name != "_" {
-							v.declareContextualVar(id.Start(), id.Name, rightTuple.Types[i])
+							v.declareVar(id.Start(), id.Name, rightTuple.Types[i])
 						}
 					}
 				}

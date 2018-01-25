@@ -243,7 +243,7 @@ func operatorAdd(v *Validator, types []typing.Type, expressions []ast.Expression
 	case *typing.NumericType:
 		return BinaryNumericOperator(v, types, expressions)
 	}
-	strType := v.getNamedType("string")
+	strType, _ := v.isTypeVisible("string")
 	if types[0].Compare(strType) {
 		return strType
 	}

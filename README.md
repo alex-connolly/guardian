@@ -99,6 +99,16 @@ x = "hello" // will not compile (x has type int)
 y = 5.5 //  will not compile (y has type int)
 ```
 
+Common types are declared as follows:
+```go
+var a int
+// type inside a package
+var b pkg.Dog
+var c map[string]int
+var d []string
+var e func(string) string
+```
+
 ### Inheritance
 
 Guardian allows for multiple inheritence, such that the following is a valid class:
@@ -169,6 +179,26 @@ contract Purchase<T is Sellable> {
     }
 }
 ```
+
+To declare several generics at once, use the ```|``` character:
+
+```
+class Dog <T|S|R> {
+
+}
+```
+
+Generics can also be restricted:
+
+```
+class Dog<T inherits Tiger, Lion | S is Cat> {
+
+}
+```
+
+
+
+
 ### Iteration
 
 Many languages (such as Go) only provide for randomised map iteration. Clearly, this is not deterministic, as demonstrated by the following example:

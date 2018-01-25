@@ -30,9 +30,10 @@ func (v *Validator) resolveType(node ast.Node) typing.Type {
 }
 
 func (v *Validator) resolvePlainType(node *ast.PlainTypeNode) typing.Type {
-	typ := v.getNamedType(node.Names[0])
+	typ, _ := v.isTypeVisible(node.Names[0])
 	if typ == typing.Unknown() {
 		v.addError(node.Start(), errTypeNotVisible, makeName(node.Names))
+		return typ
 	}
 	for _, n := range node.Names[1:] {
 
@@ -169,10 +170,7 @@ func (v *Validator) resolveIdentifier(n *ast.IdentifierNode) typing.Type {
 	// look up the identifier in scope
 	t, ok := v.isVarVisible(n.Name)
 	if t == typing.Unknown() || !ok {
-		t = v.getNamedType(n.Name)
-		if t == nil {
-			t = v.getDeclarationNode(n.Start(), n.Name)
-		}
+		t, ok = v.isTypeVisible(n.Name)
 		if t != nil {
 			typing.AddModifier(t, "static")
 		}
@@ -294,17 +292,17 @@ func isValidMapKey(key typing.Type) bool {
 func (v *Validator) resolveMapLiteral(n *ast.MapLiteralNode) typing.Type {
 
 	key := v.validateType(n.Signature.Key)
-	if isValidMapKey(key) {
+	if !isValidMapKey(key) {
 		v.addError(n.Signature.Key.Start(), errInvalidMapKey, typing.WriteType(key))
 	}
 	value := v.validateType(n.Signature.Value)
 	for k, val := range n.Data {
 		keyType := v.validateType(k)
 		valueType := v.validateType(val)
-		if typing.AssignableTo(key, keyType, false) {
+		if !typing.AssignableTo(key, keyType, false) {
 			v.addError(val.Start(), errInvalidMapLiteralKey, typing.WriteType(valueType), typing.WriteType(value))
 		}
-		if typing.AssignableTo(value, valueType, false) {
+		if !typing.AssignableTo(value, valueType, false) {
 			v.addError(val.Start(), errInvalidMapLiteralValue, typing.WriteType(valueType), typing.WriteType(value))
 		}
 	}

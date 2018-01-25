@@ -25,7 +25,8 @@ func (v *Validator) validateBuiltinSequence(scope *ast.ScopeNode) {
 
 func SimpleLiteral(typeName string) LiteralFunc {
 	return func(v *Validator, data string) typing.Type {
-		return v.getNamedType(typeName)
+		t, _ := v.isTypeVisible(typeName)
+		return t
 	}
 }
 
@@ -42,7 +43,8 @@ func (m OperatorMap) Add(function OperatorFunc, types ...token.Type) {
 
 func SimpleOperator(typeName string) OperatorFunc {
 	return func(v *Validator, types []typing.Type, exprs []ast.ExpressionNode) typing.Type {
-		return v.getNamedType(typeName)
+		t, _ := v.isTypeVisible(typeName)
+		return t
 	}
 }
 func BinaryNumericOperator(v *Validator, types []typing.Type, exprs []ast.ExpressionNode) typing.Type {
