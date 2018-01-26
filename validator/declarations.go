@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/end-r/guardian/util"
+
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/typing"
@@ -372,17 +374,17 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 
 	v.validateClassesCancellation(classType, supers)
 
+	v.declareTypeInParent(node.Start(), node.Identifier, classType)
+
 	types, properties, lifecycles := v.validateScope(node, node.Body)
 
 	classType.Types = types
 	classType.Properties = properties
 	classType.Lifecycles = lifecycles
 
-	v.validateClassInterfaces(node, classType)
-
 	v.closeScope()
 
-	v.declareType(node.Start(), node.Identifier, classType)
+	v.validateClassInterfaces(node, classType)
 
 }
 
@@ -457,25 +459,20 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 		Generics:   generics,
 		Supers:     supers,
 		Interfaces: interfaces,
-
-		Mods: &node.Modifiers,
+		Mods:       &node.Modifiers,
 	}
 
 	node.Resolved = contractType
 
 	v.validateContractsCancellation(contractType, supers)
 
-	types, properties, lifecycles := v.validateScope(node, node.Body)
+	v.declareTypeInParent(node.Start(), node.Identifier, contractType)
+
+	contractType.Types, contractType.Properties, contractType.Lifecycles = v.validateScope(node, node.Body)
 
 	v.closeScope()
 
-	contractType.Types = types
-	contractType.Properties = properties
-	contractType.Lifecycles = lifecycles
-
 	v.validateContractInterfaces(node, contractType)
-
-	v.declareType(node.Start(), node.Identifier, contractType)
 
 }
 
@@ -587,6 +584,20 @@ func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationN
 
 }
 
+func (v *Validator) declareVarInParent(loc util.Location, name string, t typing.Type) {
+	saved := v.scope
+	v.scope = v.scope.parent
+	v.declareVar(loc, name, t)
+	v.scope = saved
+}
+
+func (v *Validator) declareTypeInParent(loc util.Location, name string, t typing.Type) {
+	saved := v.scope
+	v.scope = v.scope.parent
+	v.declareType(loc, name, t)
+	v.scope = saved
+}
+
 func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
 	v.openScope(nil, nil)
@@ -617,8 +628,6 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
 	// have to declare in outer scope
 
-	saved := v.scope
-	v.scope = v.scope.parent
 	funcType := &typing.Func{
 		Generics: generics,
 		Params:   typing.NewTuple(params...),
@@ -626,14 +635,14 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 		Mods:     &node.Modifiers,
 	}
 	node.Resolved = funcType
-	v.declareVar(node.Signature.Start(), node.Signature.Identifier, funcType)
-	v.scope = saved
 
-	v.closeScope()
+	v.declareVarInParent(node.Signature.Start(), node.Signature.Identifier, funcType)
 
 	if node.Body != nil {
 		v.validateScope(node, node.Body)
 	}
+
+	v.closeScope()
 
 }
 

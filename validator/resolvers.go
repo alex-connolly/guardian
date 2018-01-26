@@ -1,8 +1,6 @@
 package validator
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/util"
@@ -450,6 +448,51 @@ func (v *Validator) determineType(t typing.Type, parent, exp ast.ExpressionNode)
 	return typing.Invalid()
 }
 
+func (v *Validator) findProperty(parent typing.Type, name string) (typing.Type, bool) {
+	// we know the parent must be visible in scope
+	var parentName string
+	switch t := parent.(type) {
+	case *typing.Func:
+		parentName = t.Name
+		break
+	case *typing.Class:
+		parentName = t.Name
+		break
+	case *typing.Contract:
+		parentName = t.Name
+		break
+	default:
+		return typing.Unknown(), false
+	}
+	var penultimate, ultimate *TypeScope
+	for s := v.scope; s != nil; s = s.parent {
+		if _, ok := s.types[parentName]; ok {
+			if ultimate != nil {
+				if ultimate.scope != nil {
+					decl := ultimate.scope.GetDeclaration(name)
+					if decl != nil {
+						saved := v.scope
+						v.scope = ultimate
+						v.validateDeclaration(decl)
+						v.scope = saved
+						if t, ok := ultimate.variables[name]; ok {
+							return t, ok
+						}
+						if t, ok := ultimate.types[name]; ok {
+							typing.AddModifier(t, "static")
+							return t, ok
+						}
+						return typing.Invalid(), false
+					}
+				}
+			}
+		}
+		ultimate = penultimate
+		penultimate = s
+	}
+	return typing.Unknown(), false
+}
+
 func (v *Validator) resolveContextualReference(context typing.Type, parent, exp ast.ExpressionNode) typing.Type {
 	if name, ok := getIdentifier(exp); ok {
 		if t, ok := v.getTypeProperty(parent, exp, context, name); ok {
@@ -458,11 +501,11 @@ func (v *Validator) resolveContextualReference(context typing.Type, parent, exp 
 			}
 			return v.determineType(typing.ResolveUnderlying(t), parent, exp)
 		} else {
-			if context == nil {
-				fmt.Println("NIL CONTEXT")
-			} else {
-				v.addError(exp.Start(), errPropertyNotFound, typing.WriteType(context), name)
+			// TODO: what if the property just hasn't been discovered yet
+			if t, ok := v.findProperty(context, name); ok {
+				return t
 			}
+			v.addError(exp.Start(), errPropertyNotFound, typing.WriteType(context), name)
 		}
 	} else {
 		v.addError(exp.Start(), errUnnamedReference)

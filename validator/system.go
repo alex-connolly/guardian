@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/util"
 
 	"github.com/end-r/guardian/token"
@@ -232,6 +234,7 @@ func (v *Validator) declareType(loc util.Location, name string, typ typing.Type)
 	if v.scope.types == nil {
 		v.scope.types = make(typing.TypeMap)
 	}
+	fmt.Println("declaring", name)
 	v.scope.types[name] = typ
 }
 
