@@ -21,8 +21,8 @@ const (
 )
 
 @Builtin("now") func now() uint
-@Builtin("length") func <Key> len([]Key)
-@Builtin("append") func <Key> append([]Key, Key)
+@Builtin("length") func <Key> len(array []Key) []Key
+@Builtin("append") func <Key> append(array []Key, item Key)
 
 @Builtin("balance") var balance uint256
 

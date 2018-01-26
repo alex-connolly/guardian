@@ -243,11 +243,13 @@ func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*
 		}
 		// enforce that all inheritors are the same type
 
-		*g = typing.Generic{
+		g = &typing.Generic{
 			Identifier: node.Identifier,
 			Interfaces: interfaces,
 			Inherits:   inherits,
 		}
+
+		v.declareType(node.Start(), node.Identifier, g)
 		genericTypes = append(genericTypes, g)
 	}
 

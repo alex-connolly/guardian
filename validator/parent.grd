@@ -1,0 +1,8 @@
+
+/* Parent contract from which all contracts inherit */
+// cannot be used in any contract
+contract Base {
+
+    var balance uint
+
+}

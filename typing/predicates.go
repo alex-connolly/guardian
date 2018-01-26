@@ -3,6 +3,10 @@ package typing
 // AssignableTo checks whether a value of type 'right' can be assigned to a variable of type 'left'
 func AssignableTo(left, right Type, allowUnknown bool) bool {
 
+	if left == Unknown() && allowUnknown {
+		return true
+	}
+
 	// assignable if the two types are equal
 	if left.Compare(right) {
 		return true
@@ -13,10 +17,6 @@ func AssignableTo(left, right Type, allowUnknown bool) bool {
 	}
 	// assignable if t is a superclass of o
 	if left.inherits(right) {
-		return true
-	}
-
-	if left == Unknown() && allowUnknown {
 		return true
 	}
 

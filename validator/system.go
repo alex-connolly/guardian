@@ -1,8 +1,6 @@
 package validator
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/util"
 
 	"github.com/end-r/guardian/token"
@@ -234,7 +232,6 @@ func (v *Validator) declareType(loc util.Location, name string, typ typing.Type)
 	if v.scope.types == nil {
 		v.scope.types = make(typing.TypeMap)
 	}
-	fmt.Println("declaring", name)
 	v.scope.types[name] = typ
 }
 
@@ -246,7 +243,8 @@ func (v *Validator) declareLifecycle(tk token.Type, l typing.Lifecycle) {
 }
 
 func (v *Validator) requireType(loc util.Location, expected, actual typing.Type) bool {
-	if typing.ResolveUnderlying(expected) != typing.ResolveUnderlying(actual) {
+	if !typing.ResolveUnderlying(expected).Compare(typing.ResolveUnderlying(actual)) {
+
 		v.addError(loc, errRequiredType, typing.WriteType(expected), typing.WriteType(actual))
 		return false
 	}

@@ -16,8 +16,8 @@ contract SimpleAuction {
     event HighestBidIncreased(bidder address, amount uint)
     event AuctionEnded(winner address, amount uint)
 
-    constructor(biddingTime uint, beneficiary address) {
-        this.beneficiary = beneficiary
+    constructor(biddingTime uint, ben address) {
+        this.beneficiary = ben
         this.auctionEnd = now() + biddingTime
     }
 
@@ -37,9 +37,8 @@ contract SimpleAuction {
         func withdraw() bool {
             amount = pendingReturns[msg.sender]
             if amount > 0 {
-                pendingReturns[msg.sender] = 0
-
-                if !send(msg.sender, amount) {
+                pendingReturns[msg.sender] = uint(0)
+                if !transfer(msg.sender, amount) {
                     pendingReturns[msg.sender] = amount
                     return false
                 }
