@@ -720,7 +720,7 @@ func TestExplicitVarAssignment(t *testing.T) {
 
 func TestExplicitVarAssignmentGrouped(t *testing.T) {
 	p := createParser(`const (
-		a = 5 as uint
+		a = uint(5)
 	)`)
 	goutil.AssertNow(t, isExplicitVarDeclaration(p), "not recognised")
 	parseExplicitVarDeclaration(p)

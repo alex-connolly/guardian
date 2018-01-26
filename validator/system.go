@@ -160,16 +160,20 @@ func (v *Validator) isTypeVisibleInScope(ts *TypeScope, name string) (typing.Typ
 			break
 		}
 	}
-	decl := ts.scope.GetDeclaration(name)
-	if decl != nil {
-		saved := v.scope
-		v.scope = ts
-		v.validateDeclaration(decl)
-		v.scope = saved
-		if t, ok := ts.types[name]; ok {
-			return t, true
+	if ts.scope != nil {
+		decl := ts.scope.GetDeclaration(name)
+		if decl != nil {
+			saved := v.scope
+			v.scope = ts
+			v.validateDeclaration(decl)
+			v.scope = saved
+
+			if t, ok := ts.types[name]; ok {
+				return t, true
+			}
 		}
 	}
+
 	if ts.parent != nil {
 		return v.isTypeVisibleInScope(ts.parent, name)
 	}

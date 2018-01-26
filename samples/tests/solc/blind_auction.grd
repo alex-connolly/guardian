@@ -63,12 +63,12 @@ contract BlindAuction {
                 continue
             }
             refund += b.deposit
-            if !fake and b.deposit >= value {
-                if placeBid(msg.sender, value) {
-                    refund -= value
+            if !fake and b.deposit >= v {
+                if placeBid(msg.sender, v) {
+                    refund -= v
                 }
             }
-            b.blindedBid = 0 as bytes32
+            b.blindedBid = bytes32(0)
         }
         transfer(msg.sender, refund)
 
@@ -90,7 +90,7 @@ contract BlindAuction {
     func withdraw() {
         amount = pendingReturns[msg.sender]
         if amount > 0 {
-            pendingReturns[msg.sender] = 0 as uint256
+            pendingReturns[msg.sender] = uint256(0)
             transfer(msg.sender, amount)
         }
     }

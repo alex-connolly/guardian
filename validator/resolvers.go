@@ -107,6 +107,12 @@ func (v *Validator) resolveExpression(e ast.ExpressionNode) typing.Type {
 		return v.resolveSliceExpression(n)
 	case *ast.KeywordNode:
 		return v.resolveKeywordExpression(n)
+		// resolve types as well - for casting purposes
+	}
+	switch e.(type) {
+	case *ast.PlainTypeNode, *ast.FuncTypeNode, *ast.ArrayTypeNode, *ast.MapTypeNode:
+		return v.resolveType(e)
+
 	}
 	v.addError(e.Start(), errUnknownExpressionType)
 	return typing.Invalid()
@@ -242,17 +248,17 @@ func (v *Validator) resolveCompositeLiteral(n *ast.CompositeLiteralNode) typing.
 
 func (v *Validator) resolveFuncLiteralExpression(n *ast.FuncLiteralNode) typing.Type {
 
-	toDeclare := make(typing.TypeMap)
-	atLocs := make(map[string]util.Location)
+	v.openScope(nil, nil)
+
 	params := make([]typing.Type, 0)
 	for _, p := range n.Parameters {
 		typ := v.validateType(p.DeclaredType)
 		for _, i := range p.Identifiers {
-			toDeclare[i] = typ
-			atLocs[i] = p.Start()
+			v.declareVar(p.Start(), i, typ)
 			params = append(params, typ)
 		}
 	}
+
 	results := make([]typing.Type, 0)
 	for _, p := range n.Results {
 		switch n := p.(type) {
@@ -270,11 +276,9 @@ func (v *Validator) resolveFuncLiteralExpression(n *ast.FuncLiteralNode) typing.
 		}
 	}
 
-	n.Resolved = &typing.Func{
-		Params:  typing.NewTuple(params...),
-		Results: typing.NewTuple(results...),
-	}
-	v.validateScope(n, n.Scope, toDeclare, atLocs)
+	v.validateScope(n, n.Scope)
+
+	v.closeScope()
 
 	return n.Resolved
 }
@@ -330,7 +334,36 @@ func (v *Validator) resolveIndexExpression(n *ast.IndexExpressionNode) typing.Ty
 	return n.Resolved
 }
 
+func (v *Validator) resolveAsPlainType(e ast.ExpressionNode) (typing.Type, bool) {
+	switch n := e.(type) {
+	case *ast.IdentifierNode:
+		return v.isTypeVisible(n.Name)
+	case *ast.ReferenceNode:
+		switch a := n.Parent.(type) {
+		case *ast.IdentifierNode:
+			if typ, ok := v.isTypeVisible(a.Name); ok {
+				return v.resolveContextualReference(typ, n.Parent, n.Reference), true
+			}
+		}
+	}
+	return typing.Invalid(), false
+}
+
 func (v *Validator) resolveCallExpression(n *ast.CallExpressionNode) typing.Type {
+
+	// attempt to resolve as if cast
+	if t, ok := v.resolveAsPlainType(n.Call); ok {
+		return t
+	}
+
+	switch n.Call.Type() {
+	case ast.Reference:
+
+		break
+	case ast.Identifier:
+
+		break
+	}
 	exprType := v.resolveExpression(n.Call)
 	args := v.ExpressionTuple(n.Arguments)
 	switch a := exprType.(type) {
@@ -418,7 +451,6 @@ func (v *Validator) determineType(t typing.Type, parent, exp ast.ExpressionNode)
 }
 
 func (v *Validator) resolveContextualReference(context typing.Type, parent, exp ast.ExpressionNode) typing.Type {
-
 	if name, ok := getIdentifier(exp); ok {
 		if t, ok := v.getTypeProperty(parent, exp, context, name); ok {
 			if typing.HasModifier(context, "static") && !typing.HasModifier(t, "static") {

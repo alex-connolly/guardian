@@ -87,27 +87,33 @@ func Validate(scope *ast.ScopeNode, typeScope *TypeScope, vm VM) util.Errors {
 
 	v.importVM(vm)
 
-	v.validateScope(nil, scope, nil, nil)
+	v.scope = nil
+
+	v.validateScope(nil, scope)
 
 	//v.scope = typeScope
 
 	return v.errs
 }
 
-func (v *Validator) validateScope(context ast.Node, scope *ast.ScopeNode,
-	toDeclare typing.TypeMap, atLocs map[string]util.Location) (types map[string]typing.Type, properties map[string]typing.Type, lifecycles typing.LifecycleMap) {
-
+func (v *Validator) openScope(context ast.Node, scope *ast.ScopeNode) {
 	ts := &TypeScope{
 		context: context,
 		parent:  v.scope,
 		scope:   scope,
 	}
-
 	v.scope = ts
+}
 
-	for k, val := range toDeclare {
-		v.declareVar(atLocs[k], k, val)
+func (v *Validator) closeScope() {
+	if v.scope.parent != nil {
+		v.scope = v.scope.parent
 	}
+}
+
+func (v *Validator) validateScope(context ast.Node, scope *ast.ScopeNode) (types map[string]typing.Type, properties map[string]typing.Type, lifecycles typing.LifecycleMap) {
+
+	v.openScope(context, scope)
 
 	v.validateDeclarations(scope)
 
@@ -117,9 +123,7 @@ func (v *Validator) validateScope(context ast.Node, scope *ast.ScopeNode,
 	properties = v.scope.variables
 	lifecycles = v.scope.lifecycles
 
-	if v.scope.parent != nil {
-		v.scope = v.scope.parent
-	}
+	v.closeScope()
 
 	return types, properties, lifecycles
 }
@@ -195,25 +199,22 @@ func (v *Validator) importVM(vm VM) {
 
 	v.primitives[vm.BooleanName()] = typing.Boolean()
 
-	v.validateScope(nil, vm.Builtins(), nil, nil)
+	v.validateScope(nil, vm.Builtins())
 
 	v.builtinScope = v.scope
-
 }
 
 // NewValidator creates a new validator
 func NewValidator(vm VM) *Validator {
-	v := Validator{
-		scope: &TypeScope{
-			scope:   new(ast.ScopeNode),
-			context: nil,
-			parent:  nil,
-		},
-	}
+	v := new(Validator)
 
 	v.importVM(vm)
 
-	return &v
+	v.scope = &TypeScope{
+		scope: new(ast.ScopeNode),
+	}
+
+	return v
 }
 
 func (v *Validator) addError(loc util.Location, err string, data ...interface{}) {

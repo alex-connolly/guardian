@@ -8,8 +8,8 @@ contract Strings {
 
     // Default 80..BF range
     internal const (
-        DL = 0x80 as uint
-        DH = 0xBF as uint
+        DL = uint(0x80)
+        DH = uint(0xBF)
 
 
         // Row - number of bytes
@@ -66,7 +66,7 @@ contract Strings {
         if len == 0 {
             return
         }
-        bytePos = 0 as uint
+        bytePos = uint(0)
         for bytePos < len {
             bytePos += parseRune(addr + bytePos)
         }
@@ -81,7 +81,7 @@ contract Strings {
         var val uint
         val = bytePos // not sure why this is mloaded
         val >>= 224
-        v0 = (val >> 24) as uint
+        v0 = uint(val >> 24)
         if v0 <= B11H {
             len = 1
         } elif B21L <= v0 and v0 <= B21H { // Check a 2 byte character.

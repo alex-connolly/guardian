@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/end-r/guardian/util"
-
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/typing"
@@ -28,8 +26,15 @@ func (v *Validator) validateType(destination ast.Node) typing.Type {
 }
 
 func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
-	// start the validating process for another node
-	typ, ok := v.isTypeVisible(node.Names[0])
+	return v.validatePlainTypeInContext(node, nil)
+}
+
+func (v *Validator) validatePlainTypeInContext(node *ast.PlainTypeNode, context typing.TypeMap) typing.Type {
+
+	// first, check for generics
+	id := node.Names[0]
+
+	typ, ok := v.isTypeVisible(id)
 
 	if !ok {
 		v.addError(node.Start(), errTypeNotVisible, makeName(node.Names))
@@ -43,7 +48,16 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 			v.addError(node.Start(), errWrongParameterLength)
 		}
 		for i, p := range node.Parameters {
-			t := v.validateType(p)
+			var t typing.Type
+			var found bool
+			if p.Type() == ast.PlainType {
+				pt := p.(*ast.PlainTypeNode)
+				t, found = context[pt.Names[0]]
+			}
+			if !found {
+				t = v.validateType(p)
+			}
+
 			if !a.Generics[i].Accepts(t) {
 				v.addError(node.Parameters[i].Start(), errInvalidParameter, typing.WriteType(t))
 			}
@@ -64,8 +78,10 @@ func (v *Validator) validatePlainType(node *ast.PlainTypeNode) typing.Type {
 		if len(node.Parameters) != len(a.Generics) {
 			v.addError(node.Start(), errWrongParameterLength)
 		}
+
 		for i, p := range node.Parameters {
-			if !a.Generics[i].Accepts(v.validateType(p)) {
+			t := v.validateType(p)
+			if !a.Generics[i].Accepts(t) {
 				v.addError(node.Parameters[i].Start(), errInvalidParameter)
 			}
 		}
@@ -186,7 +202,13 @@ func (v *Validator) validateVarDeclaration(node *ast.ExplicitVarDeclarationNode)
 
 	v.validateModifiers(node, node.Modifiers.Modifiers)
 
-	typ := v.validateType(node.DeclaredType)
+	var typ typing.Type
+	if node.DeclaredType == nil {
+		typ = v.resolveExpression(node.Value)
+	} else {
+		typ = v.validateType(node.DeclaredType)
+	}
+
 	typ.SetModifiers(&node.Modifiers)
 
 	for _, id := range node.Identifiers {
@@ -201,8 +223,6 @@ func (v *Validator) validateGenerics(generics []*ast.GenericDeclarationNode) []*
 	for _, node := range generics {
 
 		g := new(typing.Generic)
-
-		v.declareType(node.Start(), node.Identifier, g)
 
 		var interfaces []*typing.Interface
 		for _, ifc := range node.Implements {
@@ -312,6 +332,8 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 
 	v.validateAnnotations(ast.ClassDeclaration, node.Modifiers.Annotations)
 
+	v.openScope(nil, nil)
+
 	generics := v.validateGenerics(node.Generics)
 
 	var supers []*typing.Class
@@ -350,7 +372,7 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 
 	v.validateClassesCancellation(classType, supers)
 
-	types, properties, lifecycles := v.validateScope(node, node.Body, nil, nil)
+	types, properties, lifecycles := v.validateScope(node, node.Body)
 
 	classType.Types = types
 	classType.Properties = properties
@@ -358,7 +380,10 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 
 	v.validateClassInterfaces(node, classType)
 
+	v.closeScope()
+
 	v.declareType(node.Start(), node.Identifier, classType)
+
 }
 
 func (v *Validator) validateEnumDeclaration(node *ast.EnumDeclarationNode) {
@@ -399,6 +424,10 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 
 	v.validateAnnotations(ast.ContractDeclaration, node.Modifiers.Annotations)
 
+	v.openScope(nil, nil)
+
+	generics := v.validateGenerics(node.Generics)
+
 	var supers []*typing.Contract
 	for _, super := range node.Supers {
 		t := v.validatePlainType(super)
@@ -423,8 +452,6 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 		}
 	}
 
-	generics := v.validateGenerics(node.Generics)
-
 	contractType := &typing.Contract{
 		Name:       node.Identifier,
 		Generics:   generics,
@@ -438,7 +465,9 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 
 	v.validateContractsCancellation(contractType, supers)
 
-	types, properties, lifecycles := v.validateScope(node, node.Body, nil, nil)
+	types, properties, lifecycles := v.validateScope(node, node.Body)
+
+	v.closeScope()
 
 	contractType.Types = types
 	contractType.Properties = properties
@@ -447,6 +476,7 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 	v.validateContractInterfaces(node, contractType)
 
 	v.declareType(node.Start(), node.Identifier, contractType)
+
 }
 
 func (v *Validator) validateContractInterfaces(node *ast.ContractDeclarationNode, contract *typing.Contract) {
@@ -559,8 +589,9 @@ func (v *Validator) validateInterfaceDeclaration(node *ast.InterfaceDeclarationN
 
 func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
-	toDeclare := make(typing.TypeMap)
-	atLocs := make(map[string]util.Location)
+	v.openScope(nil, nil)
+
+	generics := v.validateGenerics(node.Generics)
 
 	v.validateModifiers(node, node.Modifiers.Modifiers)
 
@@ -568,13 +599,14 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
 	var params []typing.Type
 	for _, node := range node.Signature.Parameters {
-		// todo: check here?
-		p := node.(*ast.ExplicitVarDeclarationNode)
-		for _, id := range p.Identifiers {
-			typ := v.validateType(p.DeclaredType)
-			toDeclare[id] = typ
-			atLocs[id] = p.Start()
-			params = append(params, typ)
+		switch p := node.(type) {
+		case *ast.ExplicitVarDeclarationNode:
+			for _, id := range p.Identifiers {
+				typ := v.validateType(p.DeclaredType)
+				v.declareVar(p.Start(), id, typ)
+				params = append(params, typ)
+			}
+			break
 		}
 	}
 
@@ -583,18 +615,26 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 		results = append(results, v.validateType(r))
 	}
 
-	generics := v.validateGenerics(node.Generics)
+	// have to declare in outer scope
 
+	saved := v.scope
+	v.scope = v.scope.parent
 	funcType := &typing.Func{
 		Generics: generics,
 		Params:   typing.NewTuple(params...),
 		Results:  typing.NewTuple(results...),
 		Mods:     &node.Modifiers,
 	}
-
 	node.Resolved = funcType
 	v.declareVar(node.Signature.Start(), node.Signature.Identifier, funcType)
-	v.validateScope(node, node.Body, toDeclare, atLocs)
+	v.scope = saved
+
+	v.closeScope()
+
+	if node.Body != nil {
+		v.validateScope(node, node.Body)
+	}
+
 }
 
 func (v *Validator) validateAnnotations(typ ast.NodeType, annotations []*typing.Annotation) {
@@ -641,7 +681,10 @@ func (v *Validator) validateEventDeclaration(node *ast.EventDeclarationNode) {
 
 	var params []typing.Type
 	for _, n := range node.Parameters {
-		params = append(params, v.validateType(n.DeclaredType))
+		typ := v.validateType(n.DeclaredType)
+		for _ = range n.Identifiers {
+			params = append(params, typ)
+		}
 	}
 
 	generics := v.validateGenerics(node.Generics)
@@ -667,23 +710,25 @@ func (v *Validator) validateTypeDeclaration(node *ast.TypeDeclarationNode) {
 
 func (v *Validator) validateLifecycleDeclaration(node *ast.LifecycleDeclarationNode) {
 
-	toDeclare := make(typing.TypeMap)
-	atLocs := make(map[string]util.Location)
+	v.openScope(nil, nil)
 	// TODO: enforce location
 	var types []typing.Type
 	for _, p := range node.Parameters {
 		typ := v.validateType(p.DeclaredType)
 		for _, i := range p.Identifiers {
-			toDeclare[i] = typ
-			atLocs[i] = p.Start()
+			v.declareVar(p.Start(), i, typ)
 			types = append(types, typ)
 		}
 	}
-	v.validateScope(node, node.Body, toDeclare, atLocs)
+	v.validateScope(node, node.Body)
+
+	v.closeScope()
+
 	l := typing.Lifecycle{
 		Type:       node.Category,
 		Parameters: types,
 	}
 
 	v.declareLifecycle(node.Category, l)
+
 }

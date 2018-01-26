@@ -10,7 +10,7 @@ contract CrowdFunder {
 
     var url string
     const (
-        v = 1 as byte
+        v = byte(1)
     )
 
     // Data structures
@@ -103,7 +103,7 @@ contract CrowdFunder {
         amountToRefund = contributions[id].amount
         contributions[id].amount = 0
 
-        if !send(contributions[id].contributor, amountToRefund) {
+        if !transfer(contributions[id].contributor, amountToRefund) {
             contributions[id].amount = amountToRefund
             return false
         } else {
@@ -115,7 +115,7 @@ contract CrowdFunder {
 
     func payOut(){
         inState(State.Successful)
-        if !send(fundRecipient, this.balance) {
+        if !transfer(fundRecipient, this.balance) {
             throw()
         }
         state = State.Closed

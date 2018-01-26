@@ -2,6 +2,6 @@ package sample guardian 0.0.1
 
 func main(){
     x = 5 // type = int
-    y = x as uint8 // type = uint8
+    y = uint8(x) // type = uint8
     // y += 5 // type = uint8
 }

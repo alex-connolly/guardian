@@ -38,7 +38,7 @@ contract Ballot {
     }
 
     external func winningProposal() uint {
-        winningVoteCount = 0 as uint
+        winningVoteCount = uint(0)
         for p = 0; p < len(proposals); p++ {
             if proposals[p].voteCount > winningVoteCount {
                 winningVoteCount = proposals[p].voteCount
@@ -54,7 +54,7 @@ contract Ballot {
         assert(!sender.voted)
         assert(to != msg.sender)
 
-        for voters[to].delegate != 0 as address {
+        for voters[to].delegate != address(0) {
             to = voters[to].delegate
             assert(to != msg.sender)
         }
@@ -69,7 +69,6 @@ contract Ballot {
         }
 
     }
-
 
     external func winnerName() string {
         return proposals[winningProposal()].name

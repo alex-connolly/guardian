@@ -173,21 +173,23 @@ func (v *Validator) validateAssignmentWithoutDeclaring(node *ast.AssignmentState
 
 func (v *Validator) validateIfStatement(node *ast.IfStatementNode) {
 
-	var types typing.TypeMap
-	var locs map[string]util.Location
+	v.openScope(nil, nil)
+
 	if node.Init != nil {
-		types, locs = v.validateAssignmentWithoutDeclaring(node.Init.(*ast.AssignmentStatementNode))
+		v.validateAssignment(node.Init.(*ast.AssignmentStatementNode))
 	}
 
 	for _, cond := range node.Conditions {
 		// condition must be of type bool
 		v.requireType(cond.Condition.Start(), typing.Boolean(), v.resolveExpression(cond.Condition))
-		v.validateScope(node, cond.Body, types, locs)
+		v.validateScope(node, cond.Body)
 	}
 
 	if node.Else != nil {
-		v.validateScope(node, node.Else, types, locs)
+		v.validateScope(node, node.Else)
 	}
+
+	v.closeScope()
 }
 
 func (v *Validator) validateSwitchStatement(node *ast.SwitchStatementNode) {
@@ -212,7 +214,7 @@ func (v *Validator) validateCaseStatement(switchType typing.Type, clause *ast.Ca
 	for _, expr := range clause.Expressions {
 		v.requireType(expr.Start(), switchType, v.resolveExpression(expr))
 	}
-	v.validateScope(clause, clause.Block, nil, nil)
+	v.validateScope(clause, clause.Block)
 }
 
 func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
@@ -249,8 +251,9 @@ func (v *Validator) validateReturnStatement(node *ast.ReturnStatementNode) {
 
 func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
 	// get type of
-	vars := make(typing.TypeMap)
-	locs := make(map[string]util.Location)
+
+	v.openScope(nil, nil)
+
 	gen := v.resolveExpression(node.Producer)
 	var req int
 	switch a := gen.(type) {
@@ -260,10 +263,8 @@ func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
 		if len(node.Variables) != req {
 			v.addError(node.Begin, errInvalidForEachVariables, len(node.Variables), req)
 		} else {
-			vars[node.Variables[0]] = a.Key
-			locs[node.Variables[0]] = node.Start()
-			vars[node.Variables[1]] = a.Value
-			locs[node.Variables[1]] = node.Start()
+			v.declareVar(node.Start(), node.Variables[0], a.Key)
+			v.declareVar(node.Start(), node.Variables[1], a.Value)
 		}
 		break
 	case *typing.Array:
@@ -272,27 +273,24 @@ func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
 		if len(node.Variables) != req {
 			v.addError(node.Start(), errInvalidForEachVariables, len(node.Variables), req)
 		} else {
-			vars[node.Variables[0]] = v.LargestNumericType(false)
-			locs[node.Variables[0]] = node.Start()
-			vars[node.Variables[1]] = a.Value
-			locs[node.Variables[1]] = node.Start()
+			v.declareVar(node.Start(), node.Variables[0], v.LargestNumericType(false))
+			v.declareVar(node.Start(), node.Variables[1], a.Value)
 		}
 		break
 	default:
 		v.addError(node.Start(), errInvalidForEachType, typing.WriteType(gen))
 	}
 
-	v.validateScope(node, node.Block, vars, locs)
+	v.validateScope(node, node.Block)
 
 }
 
 func (v *Validator) validateForStatement(node *ast.ForStatementNode) {
 
-	var vars typing.TypeMap
-	var locs map[string]util.Location
+	v.openScope(nil, nil)
 
 	if node.Init != nil {
-		vars, locs = v.validateAssignmentWithoutDeclaring(node.Init)
+		v.validateAssignment(node.Init)
 	}
 
 	// cond statement must be a boolean
@@ -303,7 +301,9 @@ func (v *Validator) validateForStatement(node *ast.ForStatementNode) {
 		v.validateStatement(node.Post)
 	}
 
-	v.validateScope(node, node.Block, vars, locs)
+	v.validateScope(node, node.Block)
+
+	v.closeScope()
 }
 
 func (v *Validator) createPackageType(path string) *typing.Package {

@@ -7,7 +7,7 @@ contract BasicIterator {
 
     constructor(){
         creator = msg.sender
-        x = 0
+        x = uint8(0)
         for x < len(integers) {
             integers[x] = x
             x++

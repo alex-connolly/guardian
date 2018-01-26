@@ -10,11 +10,11 @@ import (
 
 func TestCallExpressionValid(t *testing.T) {
 	scope, _ := parser.ParseString(`
-        func call(a, b int8) int8 {
+        func f(a, b int8) int8 {
 			if a == 0 or b == 0 {
                 return 0
             }
-            return call(a - 1, b - 1)
+            return f(a - 1, b - 1)
         }
     `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
@@ -78,7 +78,7 @@ func TestCallExpressionMultipleArgumentConstructorValid(t *testing.T) {
             }
         }
 
-        d = new Dog("alan", 10 as int8)
+        d = new Dog("alan", int8(10))
         `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	errs := Validate(scope, nil, NewTestVM())

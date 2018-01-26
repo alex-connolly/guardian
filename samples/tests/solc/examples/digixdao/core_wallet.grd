@@ -20,9 +20,9 @@ contract CoreWallet {
 
         public owner address
         requests map[uint]Request
+        requestCount = uint(0)
     )
 
-    requestCount = 0 as uint
 
     func isOwner(){
         require(owner == msg.sender)
@@ -63,21 +63,22 @@ contract CoreWallet {
     }
 
     func authorizeManager(user address) bool {
-        ifOwner()
-        manager[user] = true
+        isOwner()
+        managers[user] = true
         return true
     }
 
     func unauthorizeUser(user address) bool {
-        ifOnwer()
-        manager[user] = false
+        isOwner()
+        managers[user] = false
         return true
     }
 
     func withdraw(recipient address, amount uint) bool {
         ifManager()
+        var success bool
         if send(recipient, amount) {
-            Withdraw(recipient, amount, msg.sender)
+            Withdraw(amount, recipient, msg.sender)
             success = true
         } else {
             success = false
@@ -87,7 +88,8 @@ contract CoreWallet {
 
     func request(recipient address, amount uint) bool {
         ifApproved()
-        if amount < balance() {
+        var success bool
+        if amount < balance(recipient) {
             success = false
         } else {
             requestCount++
@@ -103,8 +105,9 @@ contract CoreWallet {
     func approve(requestID uint) bool {
         ifManager()
         ifStatus(RequestStatus.Pending, requestID)
+        var success bool
         r = requests[requestID]
-        if send(r.recipient, r.amount) {
+        if transfer(r.recipient, r.amount) {
             success = true
             Approve(requestID)
         } else {

@@ -814,7 +814,7 @@ func TestParseCallExpressionSequential(t *testing.T) {
 }
 
 func TestParseCastExpressionPlainType(t *testing.T) {
-	expr := ParseExpression(`5 as a.b`)
+	expr := ParseExpression(`a.b(5)`)
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong node type")
 	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left != nil, "left is nil")
@@ -822,7 +822,7 @@ func TestParseCastExpressionPlainType(t *testing.T) {
 }
 
 func TestParseCastExpressionMapType(t *testing.T) {
-	expr := ParseExpression(`a.b as map[string]string`)
+	expr := ParseExpression(`map[string]string(a.b)`)
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong node type")
 	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left != nil, "left is nil")
@@ -830,7 +830,7 @@ func TestParseCastExpressionMapType(t *testing.T) {
 }
 
 func TestParseCastExpressionArrayType(t *testing.T) {
-	expr := ParseExpression(`a[b] as []string`)
+	expr := ParseExpression(`[]string(a[b])`)
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong node type")
 	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left != nil, "left is nil")
@@ -838,17 +838,17 @@ func TestParseCastExpressionArrayType(t *testing.T) {
 }
 
 func TestParseCastExpressionInvalidType(t *testing.T) {
-	expr := ParseExpression(`5 as 6`)
+	expr := ParseExpression(`6(5)`)
 	goutil.AssertNow(t, expr == nil, "should be nil")
 }
 
 func TestParseCastExpressionInvalidTypeChained(t *testing.T) {
-	expr := ParseExpression(`5 as 6 + 1`)
+	expr := ParseExpression(`6 + 1(5)`)
 	goutil.AssertNow(t, expr == nil, "should be nil")
 }
 
 func TestParseCastExpressionPlainTypeChained(t *testing.T) {
-	expr := ParseExpression(`5 as a.b + 1`)
+	expr := ParseExpression(`a.b + 1(5)`)
 	goutil.AssertNow(t, expr.Type() == ast.BinaryExpression, "wrong node type")
 	b := expr.(*ast.BinaryExpressionNode)
 	goutil.AssertNow(t, b.Left != nil, "left is nil")

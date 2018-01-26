@@ -24,11 +24,13 @@ const (
 @Builtin("length") func <Key> len([]Key)
 @Builtin("append") func <Key> append([]Key, Key)
 
+@Builtin("balance") var balance uint256
+
 // account functions
 @Builtin("balance") func balance(a address) uint256
 @Builtin("transfer") func transfer(a address, amount uint256) uint
 @Builtin("call") func call(a address, gas uint, value uint, signature string) bool
-@Builtin("delegate") func delegate(a address)
+@Builtin("delegateCall") func delegateCall(a address)
 
 // cryptographic functions
 @Builtin("addmod") func addmod(x, y, k uint) uint

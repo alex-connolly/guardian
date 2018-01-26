@@ -22,7 +22,7 @@ package parity guardian ^0.4.6;
 contract Bounty {
 
     /// Simple constant to denote no active claim.
-    const NO_CLAIM = 0 as address
+    const NO_CLAIM = address(0)
 
 
 	// State
@@ -95,7 +95,7 @@ contract Bounty {
         }
         Withdrawal(msg.sender, amount);
 		balance[msg.sender] -= amount;
-        if send(msg.sender, amount) {
+        if transfer(msg.sender, amount) {
             throw()
         }
     }
@@ -119,7 +119,7 @@ contract Bounty {
             return
         }
         Payout(claimant, this.balance);
-        if !send(claimant, this.balance) {
+        if !transfer(claimant, this.balance) {
             throw()
         }
 		selfDestruct(0)

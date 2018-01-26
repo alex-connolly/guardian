@@ -20,19 +20,16 @@ contract StateMachine {
         require(stage == s);
     }
 
-    func nextStage() {
-        stage++
-    }
 
     func timedTransitions() {
         exclusive switch stage {
             case Stage.AcceptingBlindedBids:
                 if now() >= creationTime + 10 /** time.Day*/ {
-                    nextStage()
+                    stage = Stage.RevealBids
                 }
             case Stage.RevealBids:
                 if now() >= creationTime + 12 /* time.Day*/ {
-                    nextStage()
+                    stage = Stage.AnotherStage
                 }
         }
     }
@@ -50,13 +47,13 @@ contract StateMachine {
     func g(){
         timedTransitions()
         requireStage(Stage.AnotherStage)
-        nextStage()
+        stage = Stage.AreWeDoneYet
     }
 
     func h(){
         timedTransitions()
         requireStage(Stage.AreWeDoneYet)
-        nextStage()
+        stage = Stage.Finished
     }
 
     func i(){

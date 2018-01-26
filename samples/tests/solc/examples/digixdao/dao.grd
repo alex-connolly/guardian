@@ -32,7 +32,7 @@ contract Dao {
 
   internal func iPropose(document []byte, weibudget uint256, dissolve bool) (success bool, proposal address){
 
-      require(Badge(this.badgeLedger).balanceOf(ms.sender) > 0)
+      require(Badge(this.badgeLedger).balanceOf(msg.sender) > 0)
       require(funds() >= weibudget)
       proposal = new Proposal(config, badgeLedger, tokenLedger, environment, dissolve)
       proposals[proposal].budget = weibudget
@@ -58,7 +58,7 @@ contract Dao {
   }
 
   func proposeDissolve(document []byte) (success bool, proposal address){
-      if Badge(this.badgeLedger).balanceOf(msg.sender) <= 0{
+      if Badge(this.badgeLedger).balanceOf(msg.sender) <= 0 {
           return false, burn
       }
       weibudget = funds()

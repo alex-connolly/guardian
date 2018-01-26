@@ -1,4 +1,4 @@
-package examples version 0.0.1
+package examples guardian 0.0.1
 
 contract Strings {
 
@@ -8,8 +8,8 @@ contract Strings {
 
     // Default 80..BF range
     internal const (
-        DL = 0x80 as uint
-        DH = 0xBF as uint
+        DL = uint(0x80)
+        DH = uint(0xBF)
 
 
         // Row - number of bytes
@@ -66,7 +66,7 @@ contract Strings {
         if len == 0 {
             return
         }
-        bytePos = 0 as uint
+        bytePos = uint(0)
         for bytePos < len {
             bytePos += parseRune(addr + bytePos)
         }
@@ -76,11 +76,7 @@ contract Strings {
 
     private func validateWithNextTwoDefault(val, low, high uint) {
         b = (val & 0xFF0000) >> 16
-        require(low <= b and b <= high)
-        b = (val & 0x00FF00) >> 8
-        require(DL <= b and b <= DH)
-        b = val & 0x0000FF
-        require(DL <= b and b <= DH)
+
     }
 
 }

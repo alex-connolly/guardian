@@ -5,9 +5,9 @@ contract Greeter {
     var creator address
     var greeting string
 
-    constructor(greeting string){
+    constructor(g string){
         this.creator = msg.sender
-        this.greeting = greeting
+        this.greeting = g
     }
 
     func greet() string {

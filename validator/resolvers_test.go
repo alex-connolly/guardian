@@ -187,7 +187,7 @@ func TestResolveBinaryExpressionGtr(t *testing.T) {
 }
 
 func TestResolveBinaryExpressionCast(t *testing.T) {
-	p := parser.ParseExpression("5 as uint8")
+	p := parser.ParseExpression("uint8(5)")
 	goutil.AssertNow(t, p.Type() == ast.BinaryExpression, "wrong expression type")
 	_ = p.(*ast.BinaryExpressionNode)
 	v := NewValidator(NewTestVM())
@@ -470,8 +470,8 @@ func TestValidThisClassConstructor(t *testing.T) {
 
 			var name string
 
-			constructor(name string){
-				this.name = name
+			constructor(n string){
+				this.name = n
 			}
 		}
 	`)
@@ -484,8 +484,8 @@ func TestValidThisContractConstructor(t *testing.T) {
 
 			var name string
 
-			constructor(name string){
-				this.name = name
+			constructor(n string){
+				this.name = n
 			}
 		}
 	`)
@@ -509,4 +509,10 @@ func TestIsValidMapKey(t *testing.T) {
 	goutil.AssertNow(t, isValidMapKey(a), "int8 array invalid")
 	b := &typing.Aliased{Alias: "string", Underlying: a}
 	goutil.AssertNow(t, isValidMapKey(b), "aliased int8 array invalid")
+}
+
+func TestValidateSimpleCast(t *testing.T) {
+	exp, errs := ValidateExpression(NewTestVM(), `uint(0)`)
+	goutil.AssertNow(t, exp != nil, "exp isn't nil")
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }

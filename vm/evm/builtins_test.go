@@ -55,7 +55,7 @@ func TestBuiltinArrayLength(t *testing.T) {
 
 func TestBuiltinAddmod(t *testing.T) {
 	e := NewVM()
-	a, errs := validator.ValidateExpression(e, "addmod(1 as uint, 2  as uint, 3 as uint)")
+	a, errs := validator.ValidateExpression(e, "addmod(uint(1), uint(2), uint(3))")
 	goutil.AssertNow(t, errs == nil, errs.Format())
 	code := e.traverseExpression(a)
 	expected := []string{
@@ -69,7 +69,7 @@ func TestBuiltinAddmod(t *testing.T) {
 
 func TestBuiltinMulmod(t *testing.T) {
 	e := NewVM()
-	a, errs := validator.ValidateExpression(e, "mulmod(1 as uint, 2 as uint, 3 as uint)")
+	a, errs := validator.ValidateExpression(e, "mulmod(uint(1), uint(2), uint(3))")
 	goutil.AssertNow(t, errs == nil, errs.Format())
 	code := e.traverseExpression(a)
 	expected := []string{
