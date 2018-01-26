@@ -598,3 +598,15 @@ func TestFuncDeclarationVoidSingleInvalidReturn(t *testing.T) {
 	`)
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
+
+func TestAccessBaseContractProperty(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		contract A {
+			var b uint256
+			constructor(){
+				this.balance = this.b
+			}
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}

@@ -433,6 +433,9 @@ func (v *Validator) validateContractDeclaration(node *ast.ContractDeclarationNod
 	generics := v.validateGenerics(node.Generics)
 
 	var supers []*typing.Contract
+	if v.baseContract != nil {
+		supers = append(supers, v.baseContract)
+	}
 	for _, super := range node.Supers {
 		t := v.validatePlainType(super)
 		if t != typing.Unknown() {

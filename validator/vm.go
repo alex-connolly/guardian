@@ -136,7 +136,7 @@ type LiteralMap map[token.Type]LiteralFunc
 type VM interface {
 	Traverse(ast.Node) (vmgen.Bytecode, util.Errors)
 	Builtins() *ast.ScopeNode
-	BaseContract() *ast.ContractDeclarationNode
+	BaseContract() (*ast.ContractDeclarationNode, util.Errors)
 	Primitives() map[string]typing.Type
 	Literals() LiteralMap
 	BooleanName() string
@@ -155,10 +155,10 @@ func NewTestVM() TestVM {
 	return TestVM{}
 }
 
-func (v TestVM) BaseContract() *ast.ContractDeclarationNode {
-	s, _ := parser.ParseFile("parent.grd")
+func (v TestVM) BaseContract() (*ast.ContractDeclarationNode, util.Errors) {
+	s, errs := parser.ParseFile("parent.grd")
 	c := s.Declarations.Next().(*ast.ContractDeclarationNode)
-	return c
+	return c, errs
 }
 
 func (v TestVM) Annotations() []*typing.Annotation {

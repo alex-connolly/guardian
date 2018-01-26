@@ -7,7 +7,7 @@ contract CreatorBalanceChecker {
 
     constructor(){
         creator = msg.sender
-        creatorbalance = balance(creator)
+        creatorbalance = balanceOf(creator)
     }
 
     func getContractAddress() address {
@@ -19,7 +19,7 @@ contract CreatorBalanceChecker {
     }
 
     func getCreatorCurrentBalance() uint {
-        return balance(creator)
+        return balanceOf(creator)
     }
 
     func kill(){

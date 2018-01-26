@@ -23,7 +23,7 @@ contract WithdrawalContract {
 
     func withdraw() {
         amount = pendingWithdrawals[msg.sender]
-        pendingWithdrawals[msg.sender] = 0
+        pendingWithdrawals[msg.sender] = uint256(0)
         transfer(msg.sender, amount)
     }
 }

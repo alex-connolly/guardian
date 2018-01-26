@@ -91,9 +91,62 @@ func Validate(scope *ast.ScopeNode, typeScope *TypeScope, vm VM) util.Errors {
 
 	v.validateScope(nil, scope)
 
-	//v.scope = typeScope
-
 	return v.errs
+}
+
+func (v *Validator) validateBaseContract(node *ast.ContractDeclarationNode) *typing.Contract {
+	c := new(typing.Contract)
+	c.Name = node.Identifier
+
+	v.validateModifiers(node, node.Modifiers.Modifiers)
+
+	v.validateAnnotations(ast.ContractDeclaration, node.Modifiers.Annotations)
+
+	v.openScope(nil, nil)
+
+	generics := v.validateGenerics(node.Generics)
+
+	var supers []*typing.Contract
+	for _, super := range node.Supers {
+		t := v.validatePlainType(super)
+		if t != typing.Unknown() {
+			if c, ok := t.(*typing.Contract); ok {
+				supers = append(supers, c)
+			} else {
+				v.addError(super.Start(), errTypeRequired, makeName(super.Names), "contract")
+			}
+		}
+	}
+
+	var interfaces []*typing.Interface
+	for _, ifc := range node.Interfaces {
+		t := v.validatePlainType(ifc)
+		if t != typing.Unknown() {
+			if c, ok := t.(*typing.Interface); ok {
+				interfaces = append(interfaces, c)
+			} else {
+				v.addError(ifc.Start(), errTypeRequired, makeName(ifc.Names), "interface")
+			}
+		}
+	}
+
+	c.Supers = supers
+	c.Interfaces = interfaces
+	c.Generics = generics
+	c.Mods = &node.Modifiers
+
+	node.Resolved = c
+
+	v.validateContractsCancellation(c, supers)
+
+	//v.declareTypeInParent(node.Start(), node.Identifier, contractType)
+
+	c.Types, c.Properties, c.Lifecycles = v.validateScope(node, node.Body)
+
+	v.closeScope()
+
+	v.validateContractInterfaces(node, c)
+	return c
 }
 
 func (v *Validator) openScope(context ast.Node, scope *ast.ScopeNode) {
@@ -171,6 +224,7 @@ type Validator struct {
 	operators       OperatorMap
 	modifierGroups  []*ModifierGroup
 	finishedImports bool
+	baseContract    *typing.Contract
 	// for passing to imported files
 	// don't access properties through this
 	vm VM
@@ -202,6 +256,14 @@ func (v *Validator) importVM(vm VM) {
 	v.validateScope(nil, vm.Builtins())
 
 	v.builtinScope = v.scope
+
+	c, errs := vm.BaseContract()
+	if errs != nil {
+		v.errs = append(v.errs, errs...)
+	}
+
+	v.baseContract = v.validateBaseContract(c)
+
 }
 
 // NewValidator creates a new validator
