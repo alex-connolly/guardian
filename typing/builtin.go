@@ -9,6 +9,22 @@ type NumericType struct {
 	Integer bool
 }
 
+func (nt *NumericType) AcceptsLiteral(t Type) bool {
+	if other, ok := t.(*NumericType); ok {
+		if !nt.Signed && other.Signed {
+			return false
+		}
+		if nt.Integer && !other.Integer {
+			return false
+		}
+		if nt.BitSize < other.BitSize {
+			return false
+		}
+		return true
+	}
+	return false
+}
+
 type VoidType struct {
 	Mods *Modifiers
 }

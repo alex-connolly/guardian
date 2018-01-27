@@ -1,3 +1,5 @@
+package digixdao guardian 0.0.1
+
 contract CoreWallet {
 
     // indexed modifier on event makes all params indexed

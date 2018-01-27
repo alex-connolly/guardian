@@ -1,257 +1,255 @@
-mport "./Interfaces.sol";
+package digixdao guardian 0.0.1
 
 contract Badge  {
-  mapping (address => uint256) balances;
-  mapping (address => mapping (address => uint256)) allowed;
 
-  address public owner;
-  bool public locked;
+    var (
+        balances map[address]uint
+        allowed map[address]map[address]uint256
+    )
 
-  /// @return total amount of tokens
-  uint256 public totalSupply;
+    public var (
+        owner address
+        locked bool
+        /// @return total amount of tokens
+        totalSupply uint
+    )
 
-  modifier ifOwner() {
-    if (msg.sender != owner) {
-      throw;
-    } else {
-      _
+    func onlyOwner() {
+        require(msg.sender == owner)
     }
-  }
 
+    event Transfer(indexed from address, indexed to address, value uint)
+    indexed event Mint(recipient address, amount uint)
+    event Approval(indexed owner address, indexed spender address, value uint)
 
-  event Transfer(address indexed _from, address indexed _to, uint256 _value);
-  event Mint(address indexed _recipient, uint256 indexed _amount);
-  event Approval(address indexed _owner, address indexed _spender, uint256  _value);
-
-  function Badge() {
-    owner = msg.sender;
-  }
-
-  function safeToAdd(uint a, uint b) returns (bool) {
-    return (a + b >= a);
-  }
-
-  function addSafely(uint a, uint b) returns (uint result) {
-    if (!safeToAdd(a, b)) {
-      throw;
-    } else {
-      result = a + b;
-      return result;
+    constructor(){
+        owner = msg.sender;
     }
-  }
 
-  function safeToSubtract(uint a, uint b) returns (bool) {
-    return (b <= a);
-  }
-
-  function subtractSafely(uint a, uint b) returns (uint) {
-    if (!safeToSubtract(a, b)) throw;
-    return a - b;
-  }
-
-  function balanceOf(address _owner) constant returns (uint256 balance) {
-    return balances[_owner];
-  }
-
-  function transfer(address _to, uint256 _value) returns (bool success) {
-    if (balances[msg.sender] >= _value && _value > 0) {
-      balances[msg.sender] = subtractSafely(balances[msg.sender], _value);
-      balances[_to] = addSafely(_value, balances[_to]);
-      Transfer(msg.sender, _to, _value);
-      success = true;
-    } else {
-      success = false;
+    func safeToAdd(a, b uint) bool {
+        return (a + b >= a)
     }
-    return success;
-  }
 
-  function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {
-    if (balances[_from] >= _value && allowed[_from][msg.sender] >= _value && _value > 0) {
-      balances[_to] = addSafely(balances[_to], _value);
-      balances[_from] = subtractSafely(balances[_from], _value);
-      allowed[_from][msg.sender] = subtractSafely(allowed[_from][msg.sender], _value);
-      Transfer(_from, _to, _value);
-      return true;
-    } else {
-      return false;
+    func addSafely(a, b uint) uint {
+        require(safeToAdd(a, b))
+        return a + b
     }
-  }
 
-  function approve(address _spender, uint256 _value) returns (bool success) {
-    allowed[msg.sender][_spender] = _value;
-    Approval(msg.sender, _spender, _value);
-    success = true;
-    return success;
-  }
+    func safeToSubtract(a, b uint) bool {
+        return (b <= a)
+    }
 
-  function allowance(address _owner, address _spender) constant returns (uint256 remaining) {
-    remaining = allowed[_owner][_spender];
-    return remaining;
-  }
+    func subtractSafely(a, b uint) uint {
+        require(safeToSubtract(a, b))
+        return a - b
+    }
 
-  function mint(address _owner, uint256 _amount) ifOwner returns (bool success) {
-    totalSupply = addSafely(totalSupply, _amount);
-    balances[_owner] = addSafely(balances[_owner], _amount);
-    Mint(_owner, _amount);
-    return true;
-  }
+    func getBalance(o address) (bal uint) {
+        return balances[o]
+    }
 
-  function setOwner(address _owner) ifOwner returns (bool success) {
-    owner = _owner;
-    return true;
-  }
+    func transfer(to address, value uint) (success bool) {
+        if balances[msg.sender] >= value and value > 0 {
+            balances[msg.sender] = subtractSafely(balances[msg.sender], value)
+            balances[to] = addSafely(value, balances[to])
+            Transfer(msg.sender, to, value)
+            success = true
+        } else {
+            success = false
+        }
+        return success
+    }
+
+    func transferFrom(from address, to address, value uint) (success bool) {
+        if balances[from] >= value and allowed[from][msg.sender] >= value and value > 0 {
+            balances[to] = addSafely(balances[to], value)
+            balances[from] = subtractSafely(balances[from], value);
+            allowed[from][msg.sender] = subtractSafely(allowed[from][msg.sender], value);
+            Transfer(from, to, value);
+            return true;
+        }
+        return false
+    }
+
+    func approve(spender address, value uint) (success bool){
+        allowed[msg.sender][spender] = value;
+        Approval(msg.sender, spender, value);
+        success = true
+        return success
+    }
+
+    func allowance(owner address, spender address) (remaining uint) {
+        remaining = allowed[owner][spender];
+        return remaining
+    }
+
+    func mint(owner address, amount uint) (success bool) {
+        totalSupply = addSafely(totalSupply, amount);
+        balances[owner] = addSafely(balances[owner], amount);
+        Mint(owner, amount)
+        return true
+    }
+
+    func setOwner(o address) (success bool){
+        onlyOwner()
+        this.owner = o
+        return true
+    }
 
 }
 
 contract Token {
 
-  address public owner;
-  address public config;
-  bool public locked;
-  address public dao;
-  address public badgeLedger;
-  uint256 public totalSupply;
+    public var (
+        owner address
+        config address
+        locked bool
+        dao address
+        badgeLedger address
+        totalSupply uint256
+    )
 
-  mapping (address => uint256) balances;
-  mapping (address => mapping (address => uint256)) allowed;
-  mapping (address => bool) seller;
+    var (
+        balances map[address]uint256
+        allowed map[address]map[address]uint256
+        seller map[address]bool
+    )
 
-  /// @return total amount of tokens
-
-  modifier ifSales() {
-    if (!seller[msg.sender]) throw;
-    _
-  }
-
-  modifier ifOwner() {
-    if (msg.sender != owner) throw;
-    _
-  }
-
-  modifier ifDao() {
-    if (msg.sender != dao) throw;
-    _
-  }
-
-  event Transfer(address indexed _from, address indexed _to, uint256 _value);
-  event Mint(address indexed _recipient, uint256  _amount);
-  event Approval(address indexed _owner, address indexed _spender, uint256  _value);
-
-  function Token(address _config) {
-    config = _config;
-    owner = msg.sender;
-    address _initseller = ConfigInterface(_config).getConfigAddress("sale1:address");
-    seller[_initseller] = true;
-    badgeLedger = new Badge();
-    locked = false;
-  }
-
-  function safeToAdd(uint a, uint b) returns (bool) {
-    return (a + b >= a);
-  }
-
-  function addSafely(uint a, uint b) returns (uint result) {
-    if (!safeToAdd(a, b)) {
-      throw;
-    } else {
-      result = a + b;
-      return result;
+    func onlySales(){
+        require(seller[msg.sender])
     }
-  }
 
-  function safeToSubtract(uint a, uint b) returns (bool) {
-    return (b <= a);
-  }
-
-  function subtractSafely(uint a, uint b) returns (uint) {
-    if (!safeToSubtract(a, b)) throw;
-    return a - b;
-  }
-
-  function balanceOf(address _owner) constant returns (uint256 balance) {
-    return balances[_owner];
-  }
-
-  function transfer(address _to, uint256 _value) returns (bool success) {
-    if (balances[msg.sender] >= _value && _value > 0) {
-      balances[msg.sender] = subtractSafely(balances[msg.sender], _value);
-      balances[_to] = addSafely(balances[_to], _value);
-      Transfer(msg.sender, _to, _value);
-      success = true;
-    } else {
-      success = false;
+    func onlyOwner(){
+        require(msg.sender == this.owner)
     }
-    return success;
-  }
 
-  function transferFrom(address _from, address _to, uint256 _value) returns (bool success) {
-    if (balances[_from] >= _value && allowed[_from][msg.sender] >= _value && _value > 0) {
-      balances[_to] = addSafely(balances[_to], _value);
-      balances[_from] = subtractSafely(balances[_from], _value);
-      allowed[_from][msg.sender] = subtractSafely(allowed[_from][msg.sender], _value);
-      Transfer(_from, _to, _value);
-      return true;
-    } else {
-      return false;
+    func onlyDao(){
+        require(msg.sender == this.dao)
     }
-  }
 
-  function approve(address _spender, uint256 _value) returns (bool success) {
-    allowed[msg.sender][_spender] = _value;
-    Approval(msg.sender, _spender, _value);
-    success = true;
-    return success;
-  }
+    event Transfer(indexed from address, indexed to address, value uint)
+    event Mint(indexed recipient address, amount uint)
+    event Approval(indexed owner address, indexed spender address, value uint)
 
-  function allowance(address _owner, address _spender) constant returns (uint256 remaining) {
-    remaining = allowed[_owner][_spender];
-    return remaining;
-  }
-  function mint(address _owner, uint256 _amount) ifSales returns (bool success) {
-    totalSupply = addSafely(_amount, totalSupply);
-    balances[_owner] = addSafely(balances[_owner], _amount);
-    return true;
-  }
-
-  function mintBadge(address _owner, uint256 _amount) ifSales returns (bool success) {
-    if (!Badge(badgeLedger).mint(_owner, _amount)) return false;
-    return true;
-  }
-
-  function registerDao(address _dao) ifOwner returns (bool success) {
-    if (locked == true) return false;
-    dao = _dao;
-    locked = true;
-    return true;
-  }
-
-  function setDao(address _newdao) ifDao returns (bool success) {
-    dao = _newdao;
-    return true;
-  }
-
-  function isSeller(address _query) returns (bool isseller) {
-    return seller[_query];
-  }
-
-  function registerSeller(address _tokensales) ifDao returns (bool success) {
-    seller[_tokensales] = true;
-    return true;
-  }
-
-  function unregisterSeller(address _tokensales) ifDao returns (bool success) {
-    seller[_tokensales] = false;
-    return true;
-  }
-
-  function setOwner(address _newowner) ifDao returns (bool success) {
-    if(Badge(badgeLedger).setOwner(_newowner)) {
-      owner = _newowner;
-      success = true;
-    } else {
-      success = false;
+    constructor(cfg address){
+        this.config = cfg
+        this.owner = msg.sender
+        initSeller = ConfigInterface(config).getConfigAddress("sale1:address")
+        seller[initSeller] = true
+        this.badgeLedger = new Badge()
+        this.locked = false
     }
-    return success;
-  }
+
+    func safeToAdd(a, b uint) bool {
+        return (a + b >= a)
+    }
+
+    func addSafely(a, b uint) uint {
+        require(safeToAdd(a, b))
+        return a + b
+    }
+
+    func safeToSubtract(a, b uint) bool {
+        return (b <= a)
+    }
+
+    func subtractSafely(a, b uint) uint {
+        require(safeToSubtract(a, b))
+        return a - b
+    }
+
+    func getBalance(o address) (bal uint256) {
+        return balances[o]
+    }
+
+    func transfer(to address, value uint) (success bool) {
+        if balances[msg.sender] >= value and value > 0 {
+            balances[msg.sender] = subtractSafely(balances[msg.sender], value)
+            balances[to] = addSafely(value, balances[to])
+            Transfer(msg.sender, to, value)
+            success = true
+        } else {
+            success = false
+        }
+        return success
+    }
+
+    func transferFrom(from address, to address, value uint) (success bool) {
+        if balances[from] >= value and allowed[from][msg.sender] >= value and value > 0 {
+            balances[to] = addSafely(balances[to], value)
+            balances[from] = subtractSafely(balances[from], value);
+            allowed[from][msg.sender] = subtractSafely(allowed[from][msg.sender], value);
+            Transfer(from, to, value);
+            return true;
+        }
+        return false
+    }
+
+    func approve(spender address, value uint) (success bool){
+        allowed[msg.sender][spender] = value;
+        Approval(msg.sender, spender, value);
+        success = true
+        return success
+    }
+
+    func allowance(owner address, spender address) (remaining uint) {
+        remaining = allowed[owner][spender];
+        return remaining
+    }
+
+    func mint(own address, amount uint) (success bool) {
+        totalSupply = addSafely(totalSupply, amount);
+        balances[own] = addSafely(balances[own], amount);
+        Mint(own, amount)
+        return true
+    }
+
+    func mintBadge(o address, amount uint256) (success bool) {
+        onlySales()
+        if !Badge(badgeLedger).mint(o, amount) {
+            return false
+        }
+        return true
+    }
+
+    func registerDao(dao address) (success bool) {
+        onlyOwner()
+        if locked {
+            return false
+        }
+        this.dao = d
+        locked = true
+        return true
+    }
+
+    func setDao(newDao address) (success bool) {
+        onlyDao()
+        this.dao = newDao
+        return true
+    }
+
+    func isSeller(query address) (isSeller bool) {
+        return seller[query]
+    }
+
+    func registerSeller(tokenSales address) (success bool) {
+        onlyDao()
+        seller[tokenSales] = true
+        return true
+    }
+
+    func registerSeller(tokenSales address) (success bool) {
+        onlyDao()
+        seller[tokenSales] = false
+        return true
+    }
+
+    func setOwner(newOwner address) (success bool) {
+        if Badge(this.badgeLedger).setOwner(newOwner) {
+            this.owner = newOwner
+            return true
+        }
+        return false
+    }
 
 }

@@ -1,8 +1,6 @@
 package validator
 
 import (
-	"github.com/end-r/guardian/util"
-
 	"github.com/end-r/guardian/typing"
 
 	"github.com/end-r/guardian/ast"
@@ -84,8 +82,27 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 		}
 
 	} else {
+
 		if !leftTuple.Compare(rightTuple) {
-			v.addError(node.Left[0].Start(), errInvalidAssignment, typing.WriteType(leftTuple), typing.WriteType(rightTuple))
+			if leftTuple.Size() == rightTuple.Size() {
+				for i, left := range leftTuple.Types {
+					switch t := typing.ResolveUnderlying(left).(type) {
+					case *typing.NumericType:
+						if node.Right[i].Type() == ast.Literal && left.AcceptsLiteral(rightTuple.Types[i]) {
+							break
+						}
+						// fallthrough
+					default:
+						if !typing.AssignableTo(left, rightTuple.Types[i], true) {
+							v.addError(node.Left[0].Start(), errInvalidAssignment, typing.WriteType(leftTuple), typing.WriteType(rightTuple))
+						}
+						break
+					}
+				}
+			} else {
+				v.addError(node.Left[0].Start(), errInvalidAssignment, typing.WriteType(leftTuple), typing.WriteType(rightTuple))
+			}
+
 		}
 
 		// length of left tuple should always equal length of left
@@ -105,70 +122,6 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 			}
 		}
 	}
-}
-
-func (v *Validator) validateAssignmentWithoutDeclaring(node *ast.AssignmentStatementNode) (types typing.TypeMap, locations map[string]util.Location) {
-	types = make(typing.TypeMap)
-
-	for _, l := range node.Left {
-		if l == nil {
-			v.addError(node.Start(), errUnknown)
-			return
-		} else {
-			switch l.Type() {
-			case ast.CallExpression, ast.Literal, ast.MapLiteral,
-				ast.ArrayLiteral, ast.SliceExpression, ast.FuncLiteral:
-				v.addError(l.Start(), errInvalidExpressionLeft)
-			}
-		}
-	}
-
-	leftTuple := v.ExpressionTuple(node.Left)
-	rightTuple := v.ExpressionTuple(node.Right)
-	if len(leftTuple.Types) > len(rightTuple.Types) && len(rightTuple.Types) == 1 {
-		right := rightTuple.Types[0]
-		for _, left := range leftTuple.Types {
-			if !typing.AssignableTo(right, left, true) {
-				v.addError(node.Left[0].Start(), errInvalidAssignment, typing.WriteType(left), typing.WriteType(right))
-			}
-		}
-
-		for i, left := range node.Left {
-			if leftTuple.Types[i] == typing.Unknown() {
-				if id, ok := left.(*ast.IdentifierNode); ok {
-					ty := rightTuple.Types[0]
-					id.Resolved = ty
-					id.Resolved.SetModifiers(nil)
-					ignored := "_"
-					if id.Name != ignored {
-						types[id.Name] = id.Resolved
-						locations[id.Name] = left.Start()
-					}
-				}
-			}
-		}
-	} else {
-		if !leftTuple.Compare(rightTuple) {
-			v.addError(node.Left[0].Start(), errInvalidAssignment, typing.WriteType(leftTuple), typing.WriteType(rightTuple))
-		}
-
-		// length of left tuple should always equal length of left
-		// this is because tuples are not first class types
-		// cannot assign to tuple expressions
-		if len(node.Left) == len(rightTuple.Types) {
-			for i, left := range node.Left {
-				if leftTuple.Types[i] == typing.Unknown() {
-					if id, ok := left.(*ast.IdentifierNode); ok {
-						id.Resolved = rightTuple.Types[i]
-						if id.Name != "_" {
-							v.declareVar(id.Start(), id.Name, rightTuple.Types[i])
-						}
-					}
-				}
-			}
-		}
-	}
-	return types, locations
 }
 
 func (v *Validator) validateIfStatement(node *ast.IfStatementNode) {

@@ -15,7 +15,7 @@ contract BasicIterator {
     }
 
     func getSum() uint {
-        sum = 0
+        sum = uint(0)
         for x = 0; x < len(integers); x++ {
             sum += integers[x]
         }

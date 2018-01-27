@@ -628,7 +628,18 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 
 	var results []typing.Type
 	for _, r := range node.Signature.Results {
-		results = append(results, v.validateType(r))
+		switch p := r.(type) {
+		case *ast.ExplicitVarDeclarationNode:
+			typ := v.validateType(p.DeclaredType)
+			for _, id := range p.Identifiers {
+				v.declareVar(p.Start(), id, typ)
+				params = append(params, typ)
+			}
+			break
+		default:
+			results = append(results, v.validateType(r))
+			break
+		}
 	}
 
 	// have to declare in outer scope

@@ -1,5 +1,4 @@
-import "token.sol"
-import "interfaces.grd"
+package digixdao guardian 0.0.1
 
 contract Collector {
 

@@ -188,8 +188,7 @@ func TestResolveBinaryExpressionGtr(t *testing.T) {
 
 func TestResolveBinaryExpressionCast(t *testing.T) {
 	p := parser.ParseExpression("uint8(5)")
-	goutil.AssertNow(t, p.Type() == ast.BinaryExpression, "wrong expression type")
-	_ = p.(*ast.BinaryExpressionNode)
+	goutil.AssertNow(t, p.Type() == ast.CallExpression, "wrong expression type")
 	v := NewValidator(NewTestVM())
 	resolved := v.resolveExpression(p)
 	goutil.AssertNow(t, len(v.errs) == 0, v.errs.Format())

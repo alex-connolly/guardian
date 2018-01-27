@@ -80,3 +80,9 @@ func TestParseGoldTxFeePool(t *testing.T) {
 	goutil.Assert(t, p != nil, "parser should not be nil")
 	goutil.Assert(t, errs == nil, errs.Format())
 }
+
+func TestParseDigixToken(t *testing.T) {
+	p, errs := ValidateFile(NewTestVM(), nil, "../samples/tests/solc/examples/digixdao/token.grd")
+	goutil.Assert(t, p != nil, "parser should not be nil")
+	goutil.Assert(t, errs == nil, errs.Format())
+}

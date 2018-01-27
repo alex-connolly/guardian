@@ -61,11 +61,11 @@ contract Ballot {
 
         sender.vote = true
         sender.delegate = to
-        //storage delegate = voters[to]
-        if delegate.voted {
-            proposals[delegate.vote].voteCount += sender.weight
+        d = voters[to]
+        if d.voted {
+            proposals[d.vote].voteCount += sender.weight
         } else {
-            delegate.weight += sender.weight
+            d.weight += sender.weight
         }
 
     }

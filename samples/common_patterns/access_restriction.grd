@@ -6,7 +6,7 @@ contract AccessRestriction {
     // creating this contract.
     var (
         owner = msg.sender
-        creationTime = now
+        creationTime = now()
     )
 
     // Modifiers can be used to change
@@ -49,7 +49,7 @@ contract AccessRestriction {
     }
 
     func forceOwnerChange(newOwner address){
-        costs(200 * ether)
+        costs(uint(200 * ether))
         owner = newOwner
     }
 
