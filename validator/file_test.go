@@ -37,11 +37,6 @@ func TestSampleIterator(t *testing.T) {
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
-func TestSampleToken(t *testing.T) {
-	_, errs := ValidateFile(NewTestVM(), nil, "../samples/token.grd")
-	goutil.AssertNow(t, len(errs) == 0, errs.Format())
-}
-
 func TestSampleKV(t *testing.T) {
 	_, errs := ValidateFile(NewTestVM(), nil, "../samples/kv.grd")
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())

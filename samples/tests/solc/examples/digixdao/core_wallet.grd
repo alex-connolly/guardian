@@ -18,11 +18,12 @@ contract CoreWallet {
         approved map[address]bool
         managers map[address]bool
 
-        public owner address
         requests map[uint]Request
         requestCount = uint(0)
     )
 
+    // TODO: declaring things as var public ??
+    public var owner address
 
     func isOwner(){
         require(owner == msg.sender)
@@ -46,7 +47,7 @@ contract CoreWallet {
         owner = msg.sender
     }
 
-    public func balance() uint {
+    public func getBalance() uint {
         return this.balance
     }
 
@@ -77,7 +78,7 @@ contract CoreWallet {
     func withdraw(recipient address, amount uint) bool {
         ifManager()
         var success bool
-        if send(recipient, amount) {
+        if transfer(recipient, amount) {
             Withdraw(amount, recipient, msg.sender)
             success = true
         } else {
@@ -89,7 +90,7 @@ contract CoreWallet {
     func request(recipient address, amount uint) bool {
         ifApproved()
         var success bool
-        if amount < balance(recipient) {
+        if amount < balanceOf(recipient) {
             success = false
         } else {
             requestCount++

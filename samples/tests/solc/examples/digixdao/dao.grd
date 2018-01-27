@@ -49,7 +49,7 @@ contract Dao {
       }
       success, proposal = iPropose(document, weibudget, false)
       if success {
-          send(proposal, weibudget)
+          transfer(proposal, weibudget)
           return success, proposal
       } else {
           success = false
@@ -63,7 +63,7 @@ contract Dao {
       }
       weibudget = funds()
       if success {
-          if send(proposal, weibudget) {
+          if transfer(proposal, weibudget) {
               return success, proposal
           }
       } else {

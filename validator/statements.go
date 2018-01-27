@@ -283,6 +283,8 @@ func (v *Validator) validateForEachStatement(node *ast.ForEachStatementNode) {
 
 	v.validateScope(node, node.Block)
 
+	v.closeScope()
+
 }
 
 func (v *Validator) validateForStatement(node *ast.ForStatementNode) {

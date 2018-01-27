@@ -354,21 +354,44 @@ func (v *Validator) resolveCallExpression(n *ast.CallExpressionNode) typing.Type
 		return t
 	}
 
-	switch n.Call.Type() {
-	case ast.Reference:
-
-		break
-	case ast.Identifier:
-
-		break
-	}
 	exprType := v.resolveExpression(n.Call)
 	args := v.ExpressionTuple(n.Arguments)
+
 	switch a := exprType.(type) {
 	case *typing.Func:
-		if !typing.AssignableTo(a.Params, args, false) {
-			v.addError(n.Start(), errInvalidFuncCall, typing.WriteType(args), typing.WriteType(a))
+		genDecs := make(typing.TypeMap)
+
+		if len(a.Generics) > 0 {
+			// implicit generics (takes first type)
+			if len(a.Params.Types) != len(args.Types) {
+				v.addError(n.Start(), errInvalidFuncCall, typing.WriteType(args), typing.WriteType(a))
+			} else {
+				for i, p := range a.Params.Types {
+					switch g := p.(type) {
+					case *typing.Generic:
+						if t, ok := genDecs[g.Identifier]; ok {
+							if !t.Compare(args.Types[i]) {
+								v.addError(n.Start(), errInvalidFuncCall, typing.WriteType(args), typing.WriteType(a))
+								return a.Results
+							}
+						}
+						if !g.Accepts(args.Types[i]) {
+							v.addError(n.Start(), errInvalidFuncCall, typing.WriteType(args), typing.WriteType(a))
+							return a.Results
+						}
+						genDecs[g.Identifier] = args.Types[i]
+						break
+					default:
+						break
+					}
+				}
+			}
+		} else {
+			if !typing.AssignableTo(a.Params, args, false) {
+				v.addError(n.Start(), errInvalidFuncCall, typing.WriteType(args), typing.WriteType(a))
+			}
 		}
+
 		return a.Results
 	case *typing.Event:
 		if !typing.AssignableTo(a.Parameters, args, false) {
