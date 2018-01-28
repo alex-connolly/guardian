@@ -15,6 +15,36 @@ import (
 	"github.com/end-r/guardian/ast"
 )
 
+// Validator ...
+type Validator struct {
+	inFile          bool
+	packageName     string
+	scopes          []*ast.ScopeNode
+	context         typing.Type
+	builtinScope    *TypeScope
+	scope           *TypeScope
+	primitives      typing.TypeMap
+	errs            util.Errors
+	literals        LiteralMap
+	operators       OperatorMap
+	modifierGroups  []*ModifierGroup
+	finishedImports bool
+	baseContract    *typing.Contract
+	// for passing to imported files
+	// don't access properties through this
+	vm VM
+}
+
+// TypeScope ...
+type TypeScope struct {
+	parent     *TypeScope
+	context    ast.Node
+	scopes     []*ast.ScopeNode
+	lifecycles typing.LifecycleMap
+	variables  typing.TypeMap
+	types      typing.TypeMap
+}
+
 // ValidateExpression ...
 func ValidateExpression(vm VM, text string) (ast.ExpressionNode, util.Errors) {
 	expr := parser.ParseExpression(text)
@@ -39,8 +69,30 @@ func ValidateFile(vm VM, packageScope *TypeScope, name string) (*ast.ScopeNode, 
 	if errs != nil {
 		return a, errs
 	}
-	es := Validate(a, packageScope, vm)
+	es := Validate(vm, a, packageScope)
 	return a, es
+}
+
+func ValidateScopes(vm VM, pkgScope *TypeScope) (errors util.Errors) {
+	for _, s := range pkgScope.scopes {
+		es := Validate(vm, s, pkgScope)
+		errors = append(errors, es...)
+	}
+	return errors
+}
+
+func ValidateFileData(vm VM, data [][]byte) (errors util.Errors) {
+	pkgScope := new(TypeScope)
+	pkgScope.scopes = make([]*ast.ScopeNode, 0)
+	for _, d := range data {
+		s, errs := parser.ParseBytes(d)
+		pkgScope.scopes = append(pkgScope.scopes, s)
+		errors = append(errors, errs...)
+	}
+	if errors == nil {
+		errors = append(errors, ValidateScopes(vm, pkgScope)...)
+	}
+	return errors
 }
 
 // ValidatePackage ...
@@ -55,15 +107,21 @@ func ValidatePackage(vm VM, path string) (*TypeScope, util.Errors) {
 	defer file.Close()
 
 	list, _ := file.Readdirnames(0) // 0 to read all files and folders
-	var pkgScope *TypeScope
+	pkgScope := new(TypeScope)
 	var errors util.Errors
+	pkgScope.scopes = make([]*ast.ScopeNode, 0)
 	for _, name := range list {
 		if isGuardianFile(name) {
-			_, es := ValidateFile(vm, pkgScope, fmt.Sprintf("%s/%s", path, name))
-			errors = append(errors, es...)
+			s, errs := parser.ParseFile(fmt.Sprintf("%s/%s", path, name))
+			pkgScope.scopes = append(pkgScope.scopes, s)
+			errors = append(errors, errs...)
 		}
 	}
+	if errors == nil {
+		errors = append(errors, ValidateScopes(vm, pkgScope)...)
+	}
 	return pkgScope, errors
+
 }
 
 func isGuardianFile(name string) bool {
@@ -73,22 +131,20 @@ func isGuardianFile(name string) bool {
 // ValidateString ...
 func ValidateString(vm VM, text string) (*ast.ScopeNode, util.Errors) {
 	a, errs := parser.ParseString(text)
-	ts := &TypeScope{parent: nil, scope: a}
-	es := Validate(a, ts, vm)
+	ts := &TypeScope{parent: nil, scopes: []*ast.ScopeNode{a}}
+	es := Validate(vm, a, ts)
 	es = append(es, errs...)
 	return a, es
 }
 
 // Validate ...
-func Validate(scope *ast.ScopeNode, typeScope *TypeScope, vm VM) util.Errors {
+func Validate(vm VM, scope *ast.ScopeNode, typeScope *TypeScope) util.Errors {
 	v := new(Validator)
-
 	v.vm = vm
 
 	v.importVM(vm)
 
 	v.scope = nil
-
 	v.validateScope(nil, scope)
 
 	return v.errs
@@ -153,7 +209,7 @@ func (v *Validator) openScope(context ast.Node, scope *ast.ScopeNode) {
 	ts := &TypeScope{
 		context: context,
 		parent:  v.scope,
-		scope:   scope,
+		scopes:  []*ast.ScopeNode{scope},
 	}
 	v.scope = ts
 }
@@ -211,35 +267,6 @@ func (v *Validator) validate(node ast.Node) {
 	}
 }
 
-// Validator ...
-type Validator struct {
-	inFile          bool
-	packageName     string
-	context         typing.Type
-	builtinScope    *TypeScope
-	scope           *TypeScope
-	primitives      typing.TypeMap
-	errs            util.Errors
-	literals        LiteralMap
-	operators       OperatorMap
-	modifierGroups  []*ModifierGroup
-	finishedImports bool
-	baseContract    *typing.Contract
-	// for passing to imported files
-	// don't access properties through this
-	vm VM
-}
-
-// TypeScope ...
-type TypeScope struct {
-	parent     *TypeScope
-	context    ast.Node
-	scope      *ast.ScopeNode
-	lifecycles typing.LifecycleMap
-	variables  typing.TypeMap
-	types      typing.TypeMap
-}
-
 func (v *Validator) importVM(vm VM) {
 	v.literals = vm.Literals()
 	v.operators = operators()
@@ -273,7 +300,7 @@ func NewValidator(vm VM) *Validator {
 	v.importVM(vm)
 
 	v.scope = &TypeScope{
-		scope: new(ast.ScopeNode),
+		scopes: []*ast.ScopeNode{new(ast.ScopeNode)},
 	}
 
 	return v

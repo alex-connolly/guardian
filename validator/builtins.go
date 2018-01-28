@@ -65,15 +65,16 @@ func BinaryIntegerOperator(v *Validator, types []typing.Type, exprs []ast.Expres
 	if na, ok := types[0].(*typing.NumericType); ok && na.Integer {
 		if nb, ok := types[1].(*typing.NumericType); ok && nb.Integer {
 			if na.BitSize > nb.BitSize {
-				return v.SmallestNumericType(na.BitSize, false)
+				return na
 			}
-			return v.SmallestNumericType(nb.BitSize, false)
+			return nb
 		}
 	}
 	return typing.Invalid()
 }
 
 func CastOperator(v *Validator, types []typing.Type, exprs []ast.ExpressionNode) typing.Type {
+
 	left := types[0]
 	t := v.validateType(exprs[1])
 	if t == typing.Unknown() || t == typing.Invalid() || t == nil {

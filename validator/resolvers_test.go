@@ -196,34 +196,6 @@ func TestResolveBinaryExpressionCast(t *testing.T) {
 	goutil.AssertNow(t, resolved.Compare(typ), fmt.Sprintf("wrong resolved expression type: %s", typing.WriteType(resolved)))
 }
 
-func TestResolution(t *testing.T) {
-	v := NewValidator(NewTestVM())
-	expr := parser.ParseExpression("hi")
-	v.resolveExpression(expr)
-	goutil.Assert(t, expr.ResolvedType() != nil, "nil resolved")
-	expr = parser.ParseExpression("a+b")
-	v.resolveExpression(expr)
-	goutil.Assert(t, expr.ResolvedType() != nil, "nil resolved")
-	expr = parser.ParseExpression("a[b]")
-	v.resolveExpression(expr)
-	goutil.Assert(t, expr.ResolvedType() != nil, "nil resolved")
-	expr = parser.ParseExpression("a()")
-	v.resolveExpression(expr)
-	goutil.Assert(t, expr.ResolvedType() != nil, "nil resolved")
-	expr = parser.ParseExpression("a{}")
-	v.resolveExpression(expr)
-	goutil.Assert(t, expr.ResolvedType() != nil, "nil resolved")
-	expr = parser.ParseExpression("a[:]")
-	v.resolveExpression(expr)
-	goutil.Assert(t, expr.ResolvedType() != nil, "nil resolved")
-	expr = parser.ParseExpression("a.b")
-	v.resolveExpression(expr)
-	goutil.Assert(t, expr.ResolvedType() != nil, "nil resolved")
-	expr = parser.ParseExpression("!a")
-	v.resolveExpression(expr)
-	goutil.Assert(t, expr.ResolvedType() != nil, "nil resolved")
-}
-
 func TestReferenceCallResolution(t *testing.T) {
 	_, errs := ValidateString(NewTestVM(), `
 		class A {

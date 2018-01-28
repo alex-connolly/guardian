@@ -530,21 +530,23 @@ func (v *Validator) findProperty(parent typing.Type, name string) (typing.Type, 
 	for s := v.scope; s != nil; s = s.parent {
 		if _, ok := s.types[parentName]; ok {
 			if ultimate != nil {
-				if ultimate.scope != nil {
-					decl := ultimate.scope.GetDeclaration(name)
-					if decl != nil {
-						saved := v.scope
-						v.scope = ultimate
-						v.validateDeclaration(decl)
-						v.scope = saved
-						if t, ok := ultimate.variables[name]; ok {
-							return t, ok
+				if ultimate.scopes != nil {
+					for _, s := range ultimate.scopes {
+						decl := s.GetDeclaration(name)
+						if decl != nil {
+							saved := v.scope
+							v.scope = ultimate
+							v.validateDeclaration(decl)
+							v.scope = saved
+							if t, ok := ultimate.variables[name]; ok {
+								return t, ok
+							}
+							if t, ok := ultimate.types[name]; ok {
+								typing.AddModifier(t, "static")
+								return t, ok
+							}
+							return typing.Invalid(), false
 						}
-						if t, ok := ultimate.types[name]; ok {
-							typing.AddModifier(t, "static")
-							return t, ok
-						}
-						return typing.Invalid(), false
 					}
 				}
 			}

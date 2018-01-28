@@ -156,7 +156,11 @@ func NewTestVM() TestVM {
 }
 
 func (v TestVM) BaseContract() (*ast.ContractDeclarationNode, util.Errors) {
-	s, errs := parser.ParseFile("parent.grd")
+	s, errs := parser.ParseString(`
+		contract Base {
+		    var balance uint
+		}
+	`)
 	c := s.Declarations.Next().(*ast.ContractDeclarationNode)
 	return c, errs
 }
@@ -216,6 +220,12 @@ var mods = []*ModifierGroup{
 		Name:      "Visibility",
 		Modifiers: []string{"external", "internal", "global"},
 		AllowedOn: []ast.NodeType{ast.FuncDeclaration},
+		Maximum:   1,
+	},
+	&ModifierGroup{
+		Name:      "Indexed",
+		Modifiers: []string{"indexed"},
+		AllowedOn: []ast.NodeType{ast.EventDeclaration, ast.ExplicitVarDeclaration},
 		Maximum:   1,
 	},
 }

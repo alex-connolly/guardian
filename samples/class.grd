@@ -10,7 +10,6 @@ abstract class Animal is Noisy {
         return ""
     }
 
-
 }
 
 // must implement the interface

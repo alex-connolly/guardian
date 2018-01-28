@@ -18,7 +18,7 @@ func TestCallExpressionValid(t *testing.T) {
         }
     `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
@@ -31,7 +31,7 @@ func TestCallExpressionInvalid(t *testing.T) {
         Open(5, 5)
     `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
 
@@ -44,7 +44,7 @@ func TestCallExpressionEmptyConstructorValid(t *testing.T) {
         d = new Dog()
         `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
@@ -62,7 +62,7 @@ func TestCallExpressionSingleArgumentConstructorValid(t *testing.T) {
         d = new Dog(10)
         `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
@@ -81,7 +81,7 @@ func TestCallExpressionMultipleArgumentConstructorValid(t *testing.T) {
         d = new Dog("alan", int8(10))
         `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
@@ -94,7 +94,7 @@ func TestCallExpressionConstructorInvalid(t *testing.T) {
         d = new Dog(6, 6)
         `)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
 

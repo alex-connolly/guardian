@@ -17,7 +17,7 @@ func TestValidateAssignmentValid(t *testing.T) {
 			a = 5 + 6
 		`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
@@ -33,7 +33,7 @@ func TestValidateAssignmentToFuncValid(t *testing.T) {
 			a = x()
 		`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
@@ -47,7 +47,7 @@ func TestValidateAssignmentToFuncInvalid(t *testing.T) {
 			a = x()
 		`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
 
@@ -79,7 +79,7 @@ func TestValidateAssignmentToFuncLiteralValid(t *testing.T) {
 			x = b
 		`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
@@ -92,7 +92,7 @@ func TestValidateAssignmentMultipleLeft(t *testing.T) {
 			a, b = 2
 		`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
@@ -110,7 +110,7 @@ func TestValidateAssignmentMultipleLeftMixedTuple(t *testing.T) {
 			c, a, b, d = x(), x()
 		`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
@@ -121,7 +121,7 @@ func TestValidateAssignmentInvalid(t *testing.T) {
 			a = 5 > 6
 		`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 2, errs.Format())
 }
 
@@ -129,7 +129,7 @@ func TestValidateForStatementValidCond(t *testing.T) {
 	scope, _ := parser.ParseString("for a = 0; a < 5 {}")
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, len(scope.Sequence) == 1, "wrong sequence length")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
@@ -137,7 +137,7 @@ func TestValidateForStatementInvalidCond(t *testing.T) {
 	scope, _ := parser.ParseString("for a = 0; a + 5 {}")
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, len(scope.Sequence) == 1, "wrong sequence length")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
 
@@ -146,7 +146,7 @@ func TestValidateIfStatementValidInit(t *testing.T) {
 	scope, _ := parser.ParseString("if x = 0; x < 5 {}")
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, len(scope.Sequence) == 1, "wrong sequence length")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }*/
 
@@ -154,7 +154,7 @@ func TestValidateIfStatementValidCondition(t *testing.T) {
 	scope, _ := parser.ParseString("if true {}")
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, len(scope.Sequence) == 1, "wrong sequence length")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
@@ -168,7 +168,7 @@ func TestValidateIfStatementValidElse(t *testing.T) {
 	`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, len(scope.Sequence) == 1, "wrong sequence length")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
@@ -181,7 +181,7 @@ func TestValidateSwitchStatementValidEmpty(t *testing.T) {
 	`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, len(scope.Sequence) == 2, "wrong sequence length")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
@@ -196,7 +196,7 @@ func TestValidateSwitchStatementValidCases(t *testing.T) {
 	`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, len(scope.Sequence) == 2, "wrong sequence length")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
@@ -214,7 +214,7 @@ func TestValidateClassAssignmentStatement(t *testing.T) {
 	`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, len(scope.Sequence) == 2, "wrong sequence length")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
@@ -237,7 +237,7 @@ func TestValidateSuperClassAssignmentStatement(t *testing.T) {
 	`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, len(scope.Sequence) == 3, "wrong sequence length")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
@@ -252,7 +252,7 @@ func TestValidateInterfaceAssignmentStatement(t *testing.T) {
 	`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, len(scope.Sequence) == 1, "wrong sequence length")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 
 }
@@ -268,7 +268,7 @@ func TestValidateInterfaceWrongTypeAssignmentStatement(t *testing.T) {
 	`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, len(scope.Sequence) == 1, "wrong sequence length")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
 
@@ -286,7 +286,7 @@ func TestValidateClassAssignmentStatementInvalid(t *testing.T) {
 	`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, len(scope.Sequence) == 2, "wrong sequence length")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
 
@@ -299,7 +299,7 @@ func TestValidateForEachStatementValid(t *testing.T) {
 	`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
 	goutil.AssertNow(t, len(scope.Sequence) == 2, fmt.Sprintf("wrong sequence length: %d", len(scope.Sequence)))
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 
@@ -316,7 +316,7 @@ func TestTripleReferenceIdentifiers(t *testing.T) {
 		x = c.a.b
 	`)
 	goutil.AssertNow(t, scope != nil, "scope should not be nil")
-	errs := Validate(scope, nil, NewTestVM())
+	errs := Validate(NewTestVM(), scope, nil)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
 

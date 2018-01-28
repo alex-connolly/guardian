@@ -85,17 +85,16 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 		if !leftTuple.Compare(rightTuple) {
 			if len(leftTuple.Types) == len(rightTuple.Types) {
 				for i, left := range leftTuple.Types {
-					switch t := typing.ResolveUnderlying(left).(type) {
-					case *typing.NumericType:
-						if node.Right[i].Type() == ast.Literal && t.AcceptsLiteral(rightTuple.Types[i]) {
-							break
+					if t, ok := typing.ResolveUnderlying(left).(*typing.NumericType); ok {
+						if li, ok := node.Right[i].(*ast.LiteralNode); ok {
+							hasSign := (li.Data[0] == '-')
+							if t.AcceptsLiteral(rightTuple.Types[i], hasSign) {
+								continue
+							}
 						}
-						// fallthrough
-					default:
-						if !typing.AssignableTo(left, rightTuple.Types[i], true) {
-							v.addError(node.Left[0].Start(), errInvalidAssignment, typing.WriteType(leftTuple), typing.WriteType(rightTuple))
-						}
-						break
+					}
+					if !typing.AssignableTo(left, rightTuple.Types[i], true) {
+						v.addError(node.Left[0].Start(), errInvalidAssignment, typing.WriteType(leftTuple), typing.WriteType(rightTuple))
 					}
 				}
 			} else {

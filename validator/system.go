@@ -64,15 +64,19 @@ func (v *Validator) isVarVisibleInScope(ts *TypeScope, name string) (typing.Type
 			break
 		}
 	}
-	if ts.scope != nil {
-		decl := ts.scope.GetDeclaration(name)
-		if decl != nil {
-			saved := v.scope
-			v.scope = ts
-			v.validateDeclaration(decl)
-			v.scope = saved
-			if t, ok := ts.variables[name]; ok {
-				return t, true
+	if ts.scopes != nil {
+		for _, s := range ts.scopes {
+			if s != nil {
+				decl := s.GetDeclaration(name)
+				if decl != nil {
+					saved := v.scope
+					v.scope = ts
+					v.validateDeclaration(decl)
+					v.scope = saved
+					if t, ok := ts.variables[name]; ok {
+						return t, true
+					}
+				}
 			}
 		}
 	}
@@ -160,16 +164,19 @@ func (v *Validator) isTypeVisibleInScope(ts *TypeScope, name string) (typing.Typ
 			break
 		}
 	}
-	if ts.scope != nil {
-		decl := ts.scope.GetDeclaration(name)
-		if decl != nil {
-			saved := v.scope
-			v.scope = ts
-			v.validateDeclaration(decl)
-			v.scope = saved
-
-			if t, ok := ts.types[name]; ok {
-				return t, true
+	if ts.scopes != nil {
+		for _, s := range ts.scopes {
+			if s != nil {
+				decl := s.GetDeclaration(name)
+				if decl != nil {
+					saved := v.scope
+					v.scope = ts
+					v.validateDeclaration(decl)
+					v.scope = saved
+					if t, ok := ts.types[name]; ok {
+						return t, true
+					}
+				}
 			}
 		}
 	}
@@ -246,6 +253,7 @@ func (v *Validator) requireType(loc util.Location, expected, actual typing.Type)
 	e := typing.ResolveUnderlying(expected)
 	a := typing.ResolveUnderlying(actual)
 	if !e.Compare(a) {
+		// bool and (bool) are equivalent, for example
 		if t, ok := a.(*typing.Tuple); ok && len(t.Types) == 1 {
 			if e.Compare(t.Types[0]) {
 				return true

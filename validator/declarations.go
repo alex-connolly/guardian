@@ -386,7 +386,9 @@ func (v *Validator) validateClassDeclaration(node *ast.ClassDeclarationNode) {
 
 	v.closeScope()
 
-	v.validateClassInterfaces(node, classType)
+	if !classType.Mods.HasModifier("abstract") {
+		v.validateClassInterfaces(node, classType)
+	}
 
 }
 
