@@ -41,6 +41,42 @@ func parseInterfaceDeclaration(p *Parser) {
 
 }
 
+func (p *Parser) parseInterfaceFuncSignature() *ast.FuncTypeNode {
+
+	f := new(ast.FuncTypeNode)
+
+	if !p.isNextToken(token.Identifier) {
+		return nil
+	}
+
+	names := make([]string, 0)
+	names = append(names, p.parseIdentifier())
+	for !p.parseOptional(token.OpenBracket) {
+		names = append(names, p.parseIdentifier())
+	}
+
+	f.Identifier = names[len(names)-1]
+	names = names[:len(names)-1]
+	for _, n := range names {
+		f.Mods.AddModifier(n)
+	}
+
+	//p.parseRequired(token.OpenBracket)
+	if !p.parseOptional(token.CloseBracket) {
+		f.Parameters = p.parseFuncTypeParameters()
+		p.parseRequired(token.CloseBracket)
+	}
+
+	if p.parseOptional(token.OpenBracket) {
+		f.Results = p.parseFuncTypeParameters()
+		p.parseRequired(token.CloseBracket)
+	} else if !p.isNextToken(token.OpenBrace, token.NewLine) && p.hasTokens(1) {
+		f.Results = p.parseFuncTypeParameters()
+	}
+
+	return f
+}
+
 func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
 
 	p.parseRequired(token.OpenBrace)
@@ -52,11 +88,11 @@ func (p *Parser) parseInterfaceSignatures() []*ast.FuncTypeNode {
 	if p.parseOptional(token.CloseBrace) {
 		return sigs
 	}
-	sigs = append(sigs, p.parseFuncSignature())
-	p.ignoreNewLines()
 
+	sigs = append(sigs, p.parseInterfaceFuncSignature())
+	p.ignoreNewLines()
 	for !p.parseOptional(token.CloseBrace) {
-		sig := p.parseFuncSignature()
+		sig := p.parseInterfaceFuncSignature()
 		if sig != nil {
 			sigs = append(sigs, sig)
 		} else {
@@ -290,7 +326,12 @@ func (p *Parser) parseGroupable(id token.Type, declarator func(*Parser)) {
 		for !p.parseOptional(token.CloseBracket) {
 			p.ignoreNewLines()
 			parseIgnored(p)
+			start := p.index
 			declarator(p)
+			if p.index == start {
+				// prevent infinite loop
+				p.next()
+			}
 			parseIgnored(p)
 			p.ignoreNewLines()
 		}
@@ -731,6 +772,8 @@ func processVarDeclaration(constant bool) func(p *Parser) {
 		if p.parseOptional(token.Assign) {
 			e.Value = p.parseExpression()
 		}
+
+		p.parseOptional(token.Semicolon)
 
 		e.Final = p.getLastTokenLocation()
 

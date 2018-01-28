@@ -109,6 +109,8 @@ func (n *PlainTypeNode) Type() NodeType            { return PlainType }
 func (n *PlainTypeNode) ResolvedType() typing.Type { return typing.Unknown() }
 
 type FuncTypeNode struct {
+	// mods for interfaces
+	Mods         typing.Modifiers
 	Begin, Final util.Location
 	Variable     bool
 	Identifier   string

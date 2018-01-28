@@ -1,3 +1,5 @@
+package digixdao guardian 0.0.1
+
 /// @title DigixDAO Contract Interfaces
 
 contract ConfigBase {

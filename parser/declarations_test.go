@@ -931,3 +931,21 @@ func TestParseUnimplementedFuncDeclarationNoBuiltin(t *testing.T) {
 	// one for each missing bracket
 	goutil.AssertNow(t, len(errs) == 2, "wrong error length")
 }
+
+func TestParseVarDeclarationWithValue(t *testing.T) {
+	_, errs := ParseString(`var (
+        WEIPERETH uint256  = 1000000000000000000
+    )`)
+	// one for each missing bracket
+	goutil.AssertNow(t, len(errs) == 0, "wrong error length")
+}
+
+func TestParseInterfaceDeclarationWithModifiers(t *testing.T) {
+	_, errs := ParseString(`interface Switchable {
+			global on()
+			internal off()
+			external ok(a, b string) (a int)
+		}`)
+	// one for each missing bracket
+	goutil.AssertNow(t, len(errs) == 0, "wrong error length")
+}

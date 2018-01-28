@@ -15,7 +15,6 @@ contract ProxyPayment {
     // add fallback func
 
 }
-
 contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
 
     func onlyOwner(){
@@ -33,6 +32,8 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
     )
 
     var proxyPayouts map[address]address
+
+
 
     constructor(cfg address) {
         this.owner = msg.sender
@@ -88,7 +89,7 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
     weis = amount;
     var modifier uint256
     period = getPeriod();
-    if (period == 0) || (cents == 0) {
+    if (period == 0) or (cents == 0) {
       return false;
     } else {
         exclusive switch period {
@@ -157,7 +158,7 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
   }
 
   func claimFor(user address) (success bool) {
-    if (now < saleConfig.endDate) || (buyers[user].claimed == true) {
+    if (now < saleConfig.endDate) or (buyers[user].claimed == true) {
       return true
     }
 
@@ -212,7 +213,7 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
   }
 
   global func getPeriod() (saleperiod uint) {
-    if (now() > saleConfig.endDate) || (now() < saleConfig.startDate) {
+    if (now() > saleConfig.endDate) or (now() < saleConfig.startDate) {
       saleperiod = 0;
       return saleperiod;
     }
