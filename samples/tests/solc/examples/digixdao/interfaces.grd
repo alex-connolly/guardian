@@ -1,227 +1,247 @@
 /// @title DigixDAO Contract Interfaces
 
+contract ConfigBase {
+    global var owner address
+
+    var (
+        admins map[address]bool
+        addressMap map[bytes32]address
+        boolMap map[bytes32]bool
+        bytesMap map[bytes32]bytes32
+        uintMap map[bytes32]uint256
+    )
+}
+
 contract ConfigInterface {
-  address public owner;
-  mapping (address => bool) admins;
-  mapping (bytes32 => address) addressMap;
-  mapping (bytes32 => bool) boolMap;
-  mapping (bytes32 => bytes32) bytesMap;
-  mapping (bytes32 => uint256) uintMap;
 
-  /// @notice setConfigAddress sets configuration `_key` to `_val`
-  /// @param _key The key name of the configuration.
-  /// @param _val The value of the configuration.
+  /// @notice setConfigAddress sets configuration `key` to `val`
+  /// @param key The key name of the configuration.
+  /// @param val The value of the configuration.
   /// @return Whether the configuration setting was successful or not.
-  function setConfigAddress(bytes32 _key, address _val) returns (bool success);
+  func setConfigAddress(key bytes32, val address) (success bool);
 
-  /// @notice setConfigBool sets configuration `_key` to `_val`
-  /// @param _key The key name of the configuration.
-  /// @param _val The value of the configuration.
+  /// @notice setConfigBool sets configuration `key` to `val`
+  /// @param key The key name of the configuration.
+  /// @param val The value of the configuration.
   /// @return Whether the configuration setting was successful or not.
-  function setConfigBool(bytes32 _key, bool _val) returns (bool success);
+  func setConfigBool(key bytes32, val bool) (success bool);
 
-  /// @notice setConfigBytes sets configuration `_key` to `_val`
-  /// @param _key The key name of the configuration.
-  /// @param _val The value of the configuration.
+  /// @notice setConfigBytes sets configuration `key` to `val`
+  /// @param key The key name of the configuration.
+  /// @param val The value of the configuration.
   /// @return Whether the configuration setting was successful or not.
-  function setConfigBytes(bytes32 _key, bytes32 _val) returns (bool success);
+  func setConfigBytes(key bytes32, bytes32 val) (success bool);
 
-  /// @notice setConfigUint `_key` to `_val`
-  /// @param _key The key name of the configuration.
-  /// @param _val The value of the configuration.
+  /// @notice setConfigUint `key` to `val`
+  /// @param key The key name of the configuration.
+  /// @param val The value of the configuration.
   /// @return Whether the configuration setting was successful or not.
-  function setConfigUint(bytes32 _key, uint256 _val) returns (bool success);
+  func setConfigUint(key bytes32, uint256 val) (success bool);
 
-  /// @notice getConfigAddress gets configuration `_key`'s value
-  /// @param _key The key name of the configuration.
+  /// @notice getConfigAddress gets configuration `key`'s value
+  /// @param key The key name of the configuration.
   /// @return The configuration value
-  function getConfigAddress(bytes32 _key) returns (address val);
+  func getConfigAddress(key bytes32) (val address);
 
-  /// @notice getConfigBool gets configuration `_key`'s value
-  /// @param _key The key name of the configuration.
+  /// @notice getConfigBool gets configuration `key`'s value
+  /// @param key The key name of the configuration.
   /// @return The configuration value
-  function getConfigBool(bytes32 _key) returns (bool val);
+  func getConfigBool(key bytes32) (val bool);
 
-  /// @notice getConfigBytes gets configuration `_key`'s value
-  /// @param _key The key name of the configuration.
+  /// @notice getConfigBytes gets configuration `key`'s value
+  /// @param key The key name of the configuration.
   /// @return The configuration value
-  function getConfigBytes(bytes32 _key) returns (bytes32 val);
+  func getConfigBytes(key bytes32) (bytes32 val);
 
-  /// @notice getConfigUint gets configuration `_key`'s value
-  /// @param _key The key name of the configuration.
+  /// @notice getConfigUint gets configuration `key`'s value
+  /// @param key The key name of the configuration.
   /// @return The configuration value
-  function getConfigUint(bytes32 _key) returns (uint256 val);
+  func getConfigUint(key bytes32) (uint256 val);
 
-  /// @notice addAdmin sets `_admin` as configuration admin
+  /// @notice addAdmin sets `admin` as configuration admin
   /// @return Whether the configuration setting was successful or not.
-  function addAdmin(address _admin) returns (bool success);
+  func addAdmin(admin address) (success bool);
 
-  /// @notice removeAdmin removes  `_admin`'s rights
-  /// @param _admin The key name of the configuration.
+  /// @notice removeAdmin removes  `admin`'s rights
+  /// @param admin The key name of the configuration.
   /// @return Whether the configuration setting was successful or not.
-  function removeAdmin(address _admin) returns (bool success);
+  func removeAdmin(admin address) (success bool);
 
 }
 
-contract TokenInterface {
+contract TokenBase {
 
-  mapping (address => uint256) balances;
-  mapping (address => mapping (address => uint256)) allowed;
-  mapping (address => bool) seller;
+    var (
+        balances map[address]uint256
+        allowed map[address]map[address]uint256
+        seller map[address]bool
+    )
 
-  address config;
-  address owner;
-  address dao;
-  address public badgeLedger;
-  bool locked;
+    var config address
+    var dao address
+    var owner address
+    global var badgeLedger address
+    var locked bool
 
-  /// @return total amount of tokens
-  uint256 public totalSupply;
+    /// @return total amount of tokens
+    global var totalSupply uint256
+}
 
-  /// @param _owner The address from which the balance will be retrieved
+interface TokenInterface {
+
+  /// @param owner The address from which the balance will be retrieved
   /// @return The balance
-  function balanceOf(address _owner) constant returns (uint256 balance);
+  func getBalance(owner address) (balance uint256);
 
-  /// @notice send `_value` tokens to `_to` from `msg.sender`
-  /// @param _to The address of the recipient
-  /// @param _value The amount of tokens to be transfered
+  /// @notice send `value` tokens to `to` from `msg.sender`
+  /// @param to The address of the recipient
+  /// @param value The amount of tokens to be transfered
   /// @return Whether the transfer was successful or not
-  function transfer(address _to, uint256 _value) returns (bool success);
+  func transfer(address to, uint256 value) (success bool);
 
-  /// @notice send `_value` tokens to `_to` from `_from` on the condition it is approved by `_from`
-  /// @param _from The address of the sender
-  /// @param _to The address of the recipient
-  /// @param _value The amount of tokens to be transfered
+  /// @notice send `value` tokens to `to` from `from` on the condition it is approved by `from`
+  /// @param from The address of the sender
+  /// @param to The address of the recipient
+  /// @param value The amount of tokens to be transfered
   /// @return Whether the transfer was successful or not
-  function transferFrom(address _from, address _to, uint256 _value) returns (bool success);
+  func transferFrom(address from, address to, uint256 value) (success bool);
 
-  /// @notice `msg.sender` approves `_spender` to spend `_value` tokens on its behalf
-  /// @param _spender The address of the account able to transfer the tokens
-  /// @param _value The amount of tokens to be approved for transfer
+  /// @notice `msg.sender` approves `spender` to spend `value` tokens on its behalf
+  /// @param spender The address of the account able to transfer the tokens
+  /// @param value The amount of tokens to be approved for transfer
   /// @return Whether the approval was successful or not
-  function approve(address _spender, uint256 _value) returns (bool success);
+  func approve(spender address, value uint256) (success bool);
 
-  /// @param _owner The address of the account owning tokens
-  /// @param _spender The address of the account able to transfer the tokens
-  /// @return Amount of remaining tokens of _owner that _spender is allowed to spend
-  function allowance(address _owner, address _spender) constant returns (uint256 remaining);
+  /// @param owner The address of the account owning tokens
+  /// @param spender The address of the account able to transfer the tokens
+  /// @return Amount of remaining tokens of owner that spender is allowed to spend
+  func allowance(owner address, spender address) (remaining uint256);
 
-  /// @notice mint `_amount` of tokens to `_owner`
-  /// @param _owner The address of the account receiving the tokens
-  /// @param _amount The amount of tokens to mint
+  /// @notice mint `amount` of tokens to `owner`
+  /// @param owner The address of the account receiving the tokens
+  /// @param amount The amount of tokens to mint
   /// @return Whether or not minting was successful
-  function mint(address _owner, uint256 _amount) returns (bool success);
+  func mint(owner address, amount uint256) (success bool);
 
-  /// @notice mintBadge Mint `_amount` badges to `_owner`
-  /// @param _owner The address of the account receiving the tokens
-  /// @param _amount The amount of tokens to mint
+  /// @notice mintBadge Mint `amount` badges to `owner`
+  /// @param owner The address of the account receiving the tokens
+  /// @param amount The amount of tokens to mint
   /// @return Whether or not minting was successful
-  function mintBadge(address _owner, uint256 _amount) returns (bool success);
+  func mintBadge(owner address, amount uint256) (success bool);
 
-  function registerDao(address _dao) returns (bool success);
-  function registerSeller(address _tokensales) returns (bool success);
+  func registerDao(dao address) (success bool);
+  func registerSeller(tokensales address) (success bool);
 
-  event Transfer(address indexed _from, address indexed _to, uint256 indexed _value);
-  event Mint(address indexed _recipient, uint256 indexed _amount);
-  event Approval(address indexed _owner, address indexed _spender, uint256 indexed _value);
+  indexed event Transfer(from, to address, value uint256);
+  indexed event Mint(recipient address, amount uint256);
+  indexed event Approval(owner, spender address, value uint256);
 }
 
-contract TokenSalesInterface {
+contract TokenSalesBase {
 
-  struct SaleProxy {
-    address payout;
-    bool isProxy;
-  }
+    class SaleProxy {
+        var payout address
+        var isProxy bool
+    }
 
-  struct SaleStatus {
-    bool founderClaim;
-    uint256 releasedTokens;
-    uint256 releasedBadges;
-    uint256 claimers;
-  }
+    class SaleStatus {
+        var founderClaim bool
+        var releasedTokens uint
+        var releasedBadges uint
+        var claimers uint
+    }
 
-  struct Info {
-    uint256 totalWei;
-    uint256 totalCents;
-    uint256 realCents;
-    uint256 amount;
-  }
+    class Info {
+        var totalWei uint
+        var totalCents uint
+        var realCents uint
+        var amount uint
+    }
 
-  struct SaleConfig {
-    uint256 startDate;
-    uint256 periodTwo;
-    uint256 periodThree;
-    uint256 endDate;
-    uint256 goal;
-    uint256 cap;
-    uint256 badgeCost;
-    uint256 founderAmount;
-    address founderWallet;
-  }
+    class SaleConfig {
+        var startDate uint
+        var periodTwo uint
+        var periodThree uint
+        var endDate uint
+        var goal uint
+        var cap uint
+        var badgeCost uint
+        var founderAmount uint
+        var founderWallet address
+    }
 
-  struct Buyer {
-    uint256 centsTotal;
-    uint256 weiTotal;
-    bool claimed;
-  }
+    class Buyer {
+        var centsTotal uint
+        var weiTotal uint
+        var claimed bool
+    }
 
-  Info saleInfo;
-  SaleConfig saleConfig;
-  SaleStatus saleStatus;
+    var saleInfo Info
+    var saleConfig SaleConfig
+    var saleStatus SaleStatus
 
-  address config;
-  address owner;
-  bool locked;
+    var config address
+    var owner address
+    var locked bool
 
-  uint256 public ethToCents;
+    global var ethToCents uint
 
-  mapping (address => Buyer) buyers;
-  mapping (address => SaleProxy) proxies;
+    var buyers map[address]Buyer
+    var proxies map[address]SaleProxy
 
-  /// @notice Calculates the parts per billion 1⁄1,000,000,000 of `_a` to `_b`
-  /// @param _a The antecedent
-  /// @param _c The consequent
+    global var ethToCents uint256
+
+    indexed event Purchase(exchange uint256, rate uint256, cents uint256)
+    indexed event Claim(user address, amount uint256, badges uint256)
+
+
+}
+
+interface TokenSalesInterface {
+
+  /// @notice Calculates the parts per billion 1⁄1,000,000,000 of `a` to `b`
+  /// @param a The antecedent
+  /// @param c The consequent
   /// @return Part per billion value
-  function ppb(uint256 _a, uint256 _c) public constant returns (uint256 b);
+  global func ppb(a, c uint) (b uint)
 
-
-  /// @notice Calculates the share from `_total` based on `_contrib`
-  /// @param _contrib The contributed amount in USD
-  /// @param _total The total amount raised in USD
+  /// @notice Calculates the share from `total` based on `contrib`
+  /// @param contrib The contributed amount in USD
+  /// @param total The total amount raised in USD
   /// @return Total number of shares
-  function calcShare(uint256 _contrib, uint256 _total) public constant returns (uint256 share);
+  global func calcShare(contrib, total uint256) (share uint256);
 
-  /// @notice Calculates the current USD cents value of `_wei`
-  /// @param _wei the amount of wei
+  /// @notice Calculates the current USD cents value of `wei`
+  /// @param wei the amount of wei
   /// @return The USD cents value
-  function weiToCents(uint256 _wei) public constant returns (uint256 centsvalue);
+  global func weiToCents(wei uint256) (centsvalue uint256 );
 
-  function proxyPurchase(address _user) returns (bool success);
+  func proxyPurchase(user address) (success bool);
 
-  /// @notice Send msg.value purchase for _user.
-  /// @param _user The account to be credited
+  /// @notice Send msg.value purchase for user.
+  /// @param user The account to be credited
   /// @return Success if purchase was accepted
-  function purchase(address _user, uint256 _amount) private returns (bool success);
+  internal func purchase(user address, amount uint256) private (success bool);
 
-  /// @notice Get crowdsale information for `_user`
-  /// @param _user The account to be queried
+  /// @notice Get crowdsale information for `user`
+  /// @param user The account to be queried
   /// @return `centstotal` the total amount of USD cents contributed
   /// @return `weitotal` the total amount in wei contributed
   /// @return `share` the current token shares earned
   /// @return `badges` the number of proposer badges earned
   /// @return `claimed` is true if the tokens and badges have been claimed
-  function userInfo(address _user) public constant returns (uint256 centstotal, uint256 weitotal, uint256 share, uint badges, bool claimed);
+  global func userInfo(user address)  (uint256 centstotal, uint256 weitotal, uint256 share, uint badges, bool claimed);
 
   /// @notice Get the crowdsale information from msg.sender (see userInfo)
-  function myInfo() public constant returns (uint256 centstotal, uint256 weitotal, uint256 share, uint badges, bool claimed);
+  global func myInfo()  (uint256 centstotal, uint256 weitotal, uint256 share, uint badges, bool claimed);
 
   /// @notice get the total amount of wei raised for the crowdsale
   /// @return The amount of wei raised
-  function totalWei() public constant returns (uint);
+  global func totalWei() uint;
 
   /// @notice get the total USD value in cents raised for the crowdsale
   /// @return the amount USD cents
-  function totalCents() public constant returns (uint);
+  global func totalCents() uint;
 
   /// @notice get the current crowdsale information
   /// @return `startsale` The unix timestamp for the start of the crowdsale and the first period modifier
@@ -234,63 +254,58 @@ contract TokenSalesInterface {
   /// @return `goal` The USD value goal for the crowdsale
   /// @return `famount` Founders endowment
   /// @return `faddress` Founder wallet address
-  /*function getSaleInfo() public constant returns (uint256 startsale, uint256 two, uint256 three, uint256 endsale, uint256 totalwei, uint256 totalcents, uint256 amount, uint256 goal, uint256 famount, address faddress);*/
+  /*func getSaleInfo()  (uint256 startsale, uint256 two, uint256 three, uint256 endsale, uint256 totalwei, uint256 totalcents, amount uint256, uint256 goal, uint256 famount, address faddress);*/
 
-  function claimFor(address _user) returns (bool success);
+  func claimFor(user address) (success bool);
 
   /// @notice Allows msg.sender to claim the DGD tokens and badges if the goal is reached or refunds the ETH contributed if goal is not reached at the end of the crowdsale
-  function claim() returns (bool success);
+  func claim() (success bool);
 
-  function claimFounders() returns (bool success);
+  func claimFounders() (success bool);
 
   /// @notice See if the crowdsale goal has been reached
-  function goalReached() public constant returns (bool reached);
+  global func goalReached() (reached bool );
 
   /// @notice Get the current sale period
   /// @return `saleperiod` 0 = Outside of the crowdsale period, 1 = First reward period, 2 = Second reward period, 3 = Final crowdsale period.
-  function getPeriod() public constant returns (uint saleperiod);
+  global func getPeriod() (saleperiod uint);
 
   /// @notice Get the date for the start of the crowdsale
   /// @return `date` The unix timestamp for the start
-  function startDate() public constant returns (uint date);
+  global func startDate() (date uint);
 
   /// @notice Get the date for the second reward period of the crowdsale
   /// @return `date` The unix timestamp for the second period
-  function periodTwo() public constant returns (uint date);
+  global func periodTwo() (date uint);
 
   /// @notice Get the date for the final period of the crowdsale
   /// @return `date` The unix timestamp for the final period
-  function periodThree() public constant returns (uint date);
+  global func periodThree() (date uint);
 
   /// @notice Get the date for the end of the crowdsale
   /// @return `date` The unix timestamp for the end of the crowdsale
-  function endDate() public constant returns (uint date);
+  global func endDate() (date uint);
 
   /// @notice Check if crowdsale has ended
   /// @return `ended` If the crowdsale has ended
-
-  function isEnded() public constant returns (bool ended);
+  global func isEnded() (ended bool);
 
   /// @notice Send raised funds from the crowdsale to the DAO
   /// @return `success` if the send succeeded
-  function sendFunds() public returns (bool success);
+  global func sendFunds() (success bool);
 
-  //function regProxy(address _payment, address _payout) returns (bool success);
-  function regProxy(address _payout) returns (bool success);
+  //func regProxy(address payment, address payout) (success bool);
+  func regProxy(payout address) (success bool);
 
-  function getProxy(address _payout) public returns (address proxy);
+  global func getProxy(payout address) (proxy address);
 
-  function getPayout(address _proxy) public returns (address payout, bool isproxy);
+  global func getPayout(proxy address) (payout address, isProxy bool);
 
-  function unlock() public returns (bool success);
+  global func unlock() (success bool);
 
-  function getSaleStatus() public constant returns (bool fclaim, uint256 reltokens, uint256 relbadges, uint256 claimers);
+  global func getSaleStatus() (fclaim bool, reltokens, relbadges, claimers uint256)
 
-  function getSaleInfo() public constant returns (uint256 weiamount, uint256 cents, uint256 realcents, uint256 amount);
+  global func getSaleInfo() (weiamount, cents, realCents, amount uint256)
 
-  function getSaleConfig() public constant returns (uint256 start, uint256 two, uint256 three, uint256 end, uint256 goal, uint256 cap, uint256 badgecost, uint256 famount, address fwallet);
-
-  event Purchase(uint256 indexed _exchange, uint256 indexed _rate, uint256 indexed _cents);
-  event Claim(address indexed _user, uint256 indexed _amount, uint256 indexed _badges);
-
+  global func getSaleConfig() (start, two, three, end, goal, cap, badgeCost, fAmount, fWallet uint256)
 }

@@ -59,7 +59,7 @@ func ValidatePackage(vm VM, path string) (*TypeScope, util.Errors) {
 	var errors util.Errors
 	for _, name := range list {
 		if isGuardianFile(name) {
-			_, es := ValidateFile(vm, pkgScope, name)
+			_, es := ValidateFile(vm, pkgScope, fmt.Sprintf("%s/%s", path, name))
 			errors = append(errors, es...)
 		}
 	}

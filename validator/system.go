@@ -243,8 +243,14 @@ func (v *Validator) declareLifecycle(tk token.Type, l typing.Lifecycle) {
 }
 
 func (v *Validator) requireType(loc util.Location, expected, actual typing.Type) bool {
-	if !typing.ResolveUnderlying(expected).Compare(typing.ResolveUnderlying(actual)) {
-
+	e := typing.ResolveUnderlying(expected)
+	a := typing.ResolveUnderlying(actual)
+	if !e.Compare(a) {
+		if t, ok := a.(*typing.Tuple); ok && len(t.Types) == 1 {
+			if e.Compare(t.Types[0]) {
+				return true
+			}
+		}
 		v.addError(loc, errRequiredType, typing.WriteType(expected), typing.WriteType(actual))
 		return false
 	}

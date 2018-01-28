@@ -82,13 +82,12 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 		}
 
 	} else {
-
 		if !leftTuple.Compare(rightTuple) {
-			if leftTuple.Size() == rightTuple.Size() {
+			if len(leftTuple.Types) == len(rightTuple.Types) {
 				for i, left := range leftTuple.Types {
 					switch t := typing.ResolveUnderlying(left).(type) {
 					case *typing.NumericType:
-						if node.Right[i].Type() == ast.Literal && left.AcceptsLiteral(rightTuple.Types[i]) {
+						if node.Right[i].Type() == ast.Literal && t.AcceptsLiteral(rightTuple.Types[i]) {
 							break
 						}
 						// fallthrough

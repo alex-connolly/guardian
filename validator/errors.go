@@ -56,4 +56,6 @@ const (
 	errInvalidCompositeLiteralFieldName  = "Type %s has no property %s which can be set in composite literal"
 	errInvalidCompositeLiteralFieldValue = "Property %s in type %s is of type %s, found %s"
 	errInvalidMapKey                     = "Cannot use type %s as map key"
+	errMultipleCast                      = "Cannot cast more than one value"
+	errUnknownModifier                   = "Unknown modifier %s"
 )

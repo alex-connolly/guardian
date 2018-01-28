@@ -441,3 +441,19 @@ func TestLastSlash(t *testing.T) {
 	path = "x/dog/a"
 	goutil.AssertNow(t, trimPath(path) == "a", "wrong path")
 }
+
+func TestLiteralValidAssignment(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		func main(){
+			var a int
+			a = 5
+			var b uint
+			b = 5
+			var c int8
+			c = 5
+			var d uint8
+			d = 5
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}

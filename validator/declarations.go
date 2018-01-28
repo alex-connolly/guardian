@@ -633,11 +633,12 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 			typ := v.validateType(p.DeclaredType)
 			for _, id := range p.Identifiers {
 				v.declareVar(p.Start(), id, typ)
-				params = append(params, typ)
+				results = append(results, typ)
 			}
 			break
 		default:
-			results = append(results, v.validateType(r))
+			ty := v.validateType(r)
+			results = append(results, ty)
 			break
 		}
 	}
@@ -650,6 +651,7 @@ func (v *Validator) validateFuncDeclaration(node *ast.FuncDeclarationNode) {
 		Results:  typing.NewTuple(results...),
 		Mods:     &node.Modifiers,
 	}
+
 	node.Resolved = funcType
 
 	v.declareVarInParent(node.Signature.Start(), node.Signature.Identifier, funcType)
@@ -670,16 +672,23 @@ func (v *Validator) validateModifiers(node ast.Node, modifiers []string) {
 	for _, mg := range v.modifierGroups {
 		mg.reset()
 	}
+
 	for _, mod := range modifiers {
+		found := false
 		for _, mg := range v.modifierGroups {
 			if mg.has(mod) {
+				found = true
 				if len(mg.selected) == mg.Maximum {
 					v.addError(node.Start(), errMutuallyExclusiveModifiers)
 				}
 				mg.selected = append(mg.selected, mod)
 			}
 		}
+		if !found {
+			v.addError(node.Start(), errUnknownModifier, mod)
+		}
 	}
+
 	for _, mg := range v.modifierGroups {
 		if mg.requiredOn(node.Type()) {
 			if mg.selected == nil {

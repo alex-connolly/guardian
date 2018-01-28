@@ -244,7 +244,7 @@ func TestValidateModifiersInvalidNodeType(t *testing.T) {
 }
 
 func TestValidateModifiersInvalidUnrecognised(t *testing.T) {
-	_, errs := ValidateString(NewTestVM(), "elephant name string")
+	_, errs := ValidateString(NewTestVM(), "elephant var name string")
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
 

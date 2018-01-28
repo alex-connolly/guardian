@@ -37,7 +37,7 @@ contract SimpleAuction {
         func withdraw() bool {
             amount = pendingReturns[msg.sender]
             if amount > 0 {
-                pendingReturns[msg.sender] = uint(0)
+                pendingReturns[msg.sender] = 0
                 if !transfer(msg.sender, amount) {
                     pendingReturns[msg.sender] = amount
                     return false

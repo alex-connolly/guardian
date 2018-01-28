@@ -9,9 +9,9 @@ type NumericType struct {
 	Integer bool
 }
 
-func (nt *NumericType) AcceptsLiteral(t Type) bool {
+func (nt *NumericType) AcceptsLiteral(t Type, hasSign bool) bool {
 	if other, ok := t.(*NumericType); ok {
-		if !nt.Signed && other.Signed {
+		if !nt.Signed && hasSign {
 			return false
 		}
 		if nt.Integer && !other.Integer {

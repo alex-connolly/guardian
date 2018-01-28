@@ -37,19 +37,19 @@ contract Ballot {
         proposals[proposal].voteCount += sender.weight
     }
 
-    external func winningProposal() uint {
+    external func winningProposal() (winner uint) {
         winningVoteCount = uint(0)
         for p = 0; p < len(proposals); p++ {
             if proposals[p].voteCount > winningVoteCount {
                 winningVoteCount = proposals[p].voteCount
-                winningProposal = p
+                winner = p
             }
         }
-        return winningProposal
+        return winner
     }
 
 
-    external func delegate(to address){
+    external func delegateTo(to address){
         sender = voters[msg.sender]
         assert(!sender.voted)
         assert(to != msg.sender)

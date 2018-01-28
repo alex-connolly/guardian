@@ -26,7 +26,7 @@ const (
 
 // account functions
 @Builtin("balanceOf") func balanceOf(a address) uint256
-@Builtin("transfer") func transfer(a address, amount uint256) uint
+@Builtin("transfer") func transfer(a address, amount uint256) bool
 @Builtin("call") func call(a address, gas uint, value uint, signature string) bool
 @Builtin("delegateCall") func delegateCall(a address)
 

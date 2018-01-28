@@ -211,8 +211,17 @@ func getIntegerTypes() map[string]typing.Type {
 	return m
 }
 
+var mods = []*ModifierGroup{
+	&ModifierGroup{
+		Name:      "Visibility",
+		Modifiers: []string{"external", "internal", "global"},
+		AllowedOn: []ast.NodeType{ast.FuncDeclaration},
+		Maximum:   1,
+	},
+}
+
 func (v TestVM) Modifiers() []*ModifierGroup {
-	return nil
+	return mods
 }
 
 func (v TestVM) Primitives() map[string]typing.Type {

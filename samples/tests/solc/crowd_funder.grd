@@ -80,7 +80,7 @@ contract CrowdFunder {
 
     public func contribute() uint {
         inState(State.Fundraising)
-        contributions.push(
+        contributions = append(contributions,
             Contribution {
                 amount: msg.value,
                 contributor: msg.sender,

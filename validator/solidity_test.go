@@ -63,26 +63,8 @@ func TestParseStrings(t *testing.T) {
 	goutil.Assert(t, errs == nil, errs.Format())
 }*/
 
-func TestParseDao(t *testing.T) {
-	p, errs := ValidateFile(NewTestVM(), nil, "../samples/tests/solc/examples/digixdao/dao.grd")
-	goutil.Assert(t, p != nil, "parser should not be nil")
-	goutil.Assert(t, errs == nil, errs.Format())
-}
-
-func TestParseCoreWallet(t *testing.T) {
-	ast, errs := ValidateFile(NewTestVM(), nil, "../samples/tests/solc/examples/digixdao/core_wallet.grd")
-	goutil.Assert(t, ast != nil, "ast should not be nil")
-	goutil.Assert(t, errs == nil, errs.Format())
-}
-
-func TestParseGoldTxFeePool(t *testing.T) {
-	p, errs := ValidateFile(NewTestVM(), nil, "../samples/tests/solc/examples/digixdao/gold_tx_fee_pool.grd")
-	goutil.Assert(t, p != nil, "parser should not be nil")
-	goutil.Assert(t, errs == nil, errs.Format())
-}
-
-func TestParseDigixToken(t *testing.T) {
-	p, errs := ValidateFile(NewTestVM(), nil, "../samples/tests/solc/examples/digixdao/token.grd")
-	goutil.Assert(t, p != nil, "parser should not be nil")
+func TestParseDigixDao(t *testing.T) {
+	p, errs := ValidatePackage(NewTestVM(), "../samples/tests/solc/examples/digixdao")
+	goutil.Assert(t, p != nil, "ast should not be nil")
 	goutil.Assert(t, errs == nil, errs.Format())
 }

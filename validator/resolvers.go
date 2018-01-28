@@ -262,8 +262,8 @@ func (v *Validator) resolveFuncLiteralExpression(n *ast.FuncLiteralNode) typing.
 		switch n := p.(type) {
 		case *ast.ExplicitVarDeclarationNode:
 			dec := v.validateType(n.DeclaredType)
-			for _ = range n.Identifiers {
-				// TODO: declare results?
+			for _, i := range n.Identifiers {
+				v.declareVar(p.Start(), i, dec)
 				results = append(results, dec)
 			}
 			break
@@ -272,6 +272,11 @@ func (v *Validator) resolveFuncLiteralExpression(n *ast.FuncLiteralNode) typing.
 			results = append(results, typ)
 			break
 		}
+	}
+
+	n.Resolved = &typing.Func{
+		Params:  typing.NewTuple(params...),
+		Results: typing.NewTuple(results...),
 	}
 
 	v.validateScope(n, n.Scope)
@@ -350,8 +355,32 @@ func (v *Validator) resolveAsPlainType(e ast.ExpressionNode) (typing.Type, bool)
 func (v *Validator) resolveCallExpression(n *ast.CallExpressionNode) typing.Type {
 
 	// attempt to resolve as if cast
-	if t, ok := v.resolveAsPlainType(n.Call); ok {
-		return t
+	if left, ok := v.resolveAsPlainType(n.Call); ok {
+		if len(n.Arguments) > 1 {
+			v.addError(n.Call.Start(), errMultipleCast)
+			return left
+		}
+		t := v.resolveExpression(n.Arguments[0])
+		if t == typing.Unknown() || t == typing.Invalid() || t == nil {
+			//TODO: change this error?
+			v.addError(n.Arguments[0].Start(), errImpossibleCastToNonType)
+			return left
+		}
+
+		if !typing.AssignableTo(left, t, false) {
+			if n.Arguments[0].Type() == ast.Literal {
+				l := n.Arguments[0].(*ast.LiteralNode)
+				hasSign := (l.Data[0] == '-')
+				if nt, ok := typing.ResolveUnderlying(left).(*typing.NumericType); ok {
+					if nt.AcceptsLiteral(t, hasSign) {
+						return left
+					}
+				}
+			}
+			v.addError(n.Arguments[0].Start(), errImpossibleCast, typing.WriteType(t), typing.WriteType(left))
+			return left
+		}
+		return left
 	}
 
 	exprType := v.resolveExpression(n.Call)
@@ -389,6 +418,16 @@ func (v *Validator) resolveCallExpression(n *ast.CallExpressionNode) typing.Type
 		} else {
 			if !typing.AssignableTo(a.Params, args, false) {
 				v.addError(n.Start(), errInvalidFuncCall, typing.WriteType(args), typing.WriteType(a))
+			}
+		}
+
+		for i, r := range a.Results.Types {
+			if g, ok := r.(*typing.Generic); ok {
+				if t, ok := genDecs[g.Identifier]; ok {
+					a.Results.Types = append(a.Results.Types, nil)
+					copy(a.Results.Types[i+1:], a.Results.Types[i:])
+					a.Results.Types[i] = t
+				}
 			}
 		}
 
