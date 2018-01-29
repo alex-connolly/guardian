@@ -105,13 +105,8 @@ func (p *Parser) parseRequired(types ...token.Type) token.Type {
 			return t
 		}
 	}
-	for _, t := range types {
-		if p.isNextToken(t) {
-			p.next()
-			return t
-		}
-	}
 	p.addError(p.getCurrentTokenLocation(), fmt.Sprintf(errRequiredType, listTypes(types), p.current().Name()))
+	p.next()
 	// correct return type
 	return token.Invalid
 }
@@ -160,6 +155,7 @@ func (p *Parser) parseIdentifier() string {
 	}
 	if p.current().Type != token.Identifier {
 		p.addError(p.getCurrentTokenLocation(), fmt.Sprintf(errRequiredType, "identifier", p.current().Name()))
+		p.next()
 		return ""
 	}
 	s := p.current().String(p.lexer)

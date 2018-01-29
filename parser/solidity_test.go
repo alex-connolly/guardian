@@ -87,6 +87,12 @@ func TestParseTokenSales(t *testing.T) {
 	goutil.Assert(t, errs == nil, errs.Format())
 }
 
+func TestParseDDInterfaces(t *testing.T) {
+	p, errs := ParseFile("../samples/tests/solc/examples/digixdao/interfaces.grd")
+	goutil.Assert(t, p != nil, "parser should not be nil")
+	goutil.Assert(t, errs == nil, errs.Format())
+}
+
 func TestParseParityBadgeReg(t *testing.T) {
 	p, errs := ParseFile("../samples/parity/badge_reg.grd")
 	goutil.Assert(t, p != nil, "parser should not be nil")

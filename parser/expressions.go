@@ -160,7 +160,7 @@ main:
 				} else {
 					if lastWasExpression {
 						*p = saved
-						p.addError(p.getCurrentTokenLocation(), fmt.Sprintf(errConsecutiveExpression))
+						p.addError(p.getCurrentTokenLocation(), fmt.Sprintf(errConsecutiveExpression, p.current().String(p.lexer)))
 						return p.finalise(expStack, opStack)
 					}
 				}

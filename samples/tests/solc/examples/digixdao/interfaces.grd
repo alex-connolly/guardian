@@ -14,60 +14,60 @@ contract ConfigBase {
     )
 }
 
-contract ConfigInterface {
+interface ConfigInterface {
 
   /// @notice setConfigAddress sets configuration `key` to `val`
   /// @param key The key name of the configuration.
   /// @param val The value of the configuration.
   /// @return Whether the configuration setting was successful or not.
-  func setConfigAddress(key bytes32, val address) (success bool);
+  setConfigAddress(key bytes32, val address) (success bool);
 
   /// @notice setConfigBool sets configuration `key` to `val`
   /// @param key The key name of the configuration.
   /// @param val The value of the configuration.
   /// @return Whether the configuration setting was successful or not.
-  func setConfigBool(key bytes32, val bool) (success bool);
+  setConfigBool(key bytes32, val bool) (success bool);
 
   /// @notice setConfigBytes sets configuration `key` to `val`
   /// @param key The key name of the configuration.
   /// @param val The value of the configuration.
   /// @return Whether the configuration setting was successful or not.
-  func setConfigBytes(key bytes32, bytes32 val) (success bool);
+  setConfigBytes(key bytes32,  val bytes32) (success bool);
 
   /// @notice setConfigUint `key` to `val`
   /// @param key The key name of the configuration.
   /// @param val The value of the configuration.
   /// @return Whether the configuration setting was successful or not.
-  func setConfigUint(key bytes32, uint256 val) (success bool);
+  setConfigUint(key bytes32, val uint256) (success bool);
 
   /// @notice getConfigAddress gets configuration `key`'s value
   /// @param key The key name of the configuration.
   /// @return The configuration value
-  func getConfigAddress(key bytes32) (val address);
+  getConfigAddress(key bytes32) (val address);
 
   /// @notice getConfigBool gets configuration `key`'s value
   /// @param key The key name of the configuration.
   /// @return The configuration value
-  func getConfigBool(key bytes32) (val bool);
+  getConfigBool(key bytes32) (val bool);
 
   /// @notice getConfigBytes gets configuration `key`'s value
   /// @param key The key name of the configuration.
   /// @return The configuration value
-  func getConfigBytes(key bytes32) (bytes32 val);
+  getConfigBytes(key bytes32) (bytes32 val);
 
   /// @notice getConfigUint gets configuration `key`'s value
   /// @param key The key name of the configuration.
   /// @return The configuration value
-  func getConfigUint(key bytes32) (uint256 val);
+  getConfigUint(key bytes32) (uint256 val);
 
   /// @notice addAdmin sets `admin` as configuration admin
   /// @return Whether the configuration setting was successful or not.
-  func addAdmin(admin address) (success bool);
+  addAdmin(admin address) (success bool);
 
   /// @notice removeAdmin removes  `admin`'s rights
   /// @param admin The key name of the configuration.
   /// @return Whether the configuration setting was successful or not.
-  func removeAdmin(admin address) (success bool);
+  removeAdmin(admin address) (success bool);
 
 }
 
@@ -87,56 +87,57 @@ contract TokenBase {
 
     /// @return total amount of tokens
     global var totalSupply uint256
+
+    indexed event Transfer(from, to address, value uint256);
+    indexed event Mint(recipient address, amount uint256);
+    indexed event Approval(owner, spender address, value uint256);
 }
 
 interface TokenInterface {
 
   /// @param owner The address from which the balance will be retrieved
   /// @return The balance
-  func getBalance(owner address) (balance uint256);
+  getBalance(owner address) (balance uint256);
 
   /// @notice send `value` tokens to `to` from `msg.sender`
   /// @param to The address of the recipient
   /// @param value The amount of tokens to be transfered
   /// @return Whether the transfer was successful or not
-  func transfer(address to, uint256 value) (success bool);
+  transfer(to address,  value uint256) (success bool);
 
   /// @notice send `value` tokens to `to` from `from` on the condition it is approved by `from`
   /// @param from The address of the sender
   /// @param to The address of the recipient
   /// @param value The amount of tokens to be transfered
   /// @return Whether the transfer was successful or not
-  func transferFrom(address from, address to, uint256 value) (success bool);
+  transferFrom(from, to address, value uint256) (success bool);
 
   /// @notice `msg.sender` approves `spender` to spend `value` tokens on its behalf
   /// @param spender The address of the account able to transfer the tokens
   /// @param value The amount of tokens to be approved for transfer
   /// @return Whether the approval was successful or not
-  func approve(spender address, value uint256) (success bool);
+  approve(spender address, value uint256) (success bool);
 
   /// @param owner The address of the account owning tokens
   /// @param spender The address of the account able to transfer the tokens
   /// @return Amount of remaining tokens of owner that spender is allowed to spend
-  func allowance(owner address, spender address) (remaining uint256);
+  allowance(owner address, spender address) (remaining uint256);
 
   /// @notice mint `amount` of tokens to `owner`
   /// @param owner The address of the account receiving the tokens
   /// @param amount The amount of tokens to mint
   /// @return Whether or not minting was successful
-  func mint(owner address, amount uint256) (success bool);
+  mint(owner address, amount uint256) (success bool);
 
   /// @notice mintBadge Mint `amount` badges to `owner`
   /// @param owner The address of the account receiving the tokens
   /// @param amount The amount of tokens to mint
   /// @return Whether or not minting was successful
-  func mintBadge(owner address, amount uint256) (success bool);
+  mintBadge(owner address, amount uint256) (success bool);
 
-  func registerDao(dao address) (success bool);
-  func registerSeller(tokensales address) (success bool);
+  registerDao(dao address) (success bool);
+  registerSeller(tokensales address) (success bool);
 
-  indexed event Transfer(from, to address, value uint256);
-  indexed event Mint(recipient address, amount uint256);
-  indexed event Approval(owner, spender address, value uint256);
 }
 
 contract TokenSalesBase {
@@ -191,11 +192,8 @@ contract TokenSalesBase {
     var buyers map[address]Buyer
     var proxies map[address]SaleProxy
 
-    global var ethToCents uint256
-
     indexed event Purchase(exchange uint256, rate uint256, cents uint256)
     indexed event Claim(user address, amount uint256, badges uint256)
-
 
 }
 
@@ -205,25 +203,25 @@ interface TokenSalesInterface {
   /// @param a The antecedent
   /// @param c The consequent
   /// @return Part per billion value
-  global func ppb(a, c uint) (b uint)
+  global ppb(a, c uint) (b uint)
 
   /// @notice Calculates the share from `total` based on `contrib`
   /// @param contrib The contributed amount in USD
   /// @param total The total amount raised in USD
   /// @return Total number of shares
-  global func calcShare(contrib, total uint256) (share uint256);
+  global calcShare(contrib, total uint256) (share uint256);
 
   /// @notice Calculates the current USD cents value of `wei`
   /// @param wei the amount of wei
   /// @return The USD cents value
-  global func weiToCents(wei uint256) (centsvalue uint256 );
+  global weiToCents(wei uint256) (centsvalue uint256 );
 
-  func proxyPurchase(user address) (success bool);
+  proxyPurchase(user address) (success bool);
 
   /// @notice Send msg.value purchase for user.
   /// @param user The account to be credited
   /// @return Success if purchase was accepted
-  internal func purchase(user address, amount uint256) private (success bool);
+  internal purchase(user address, amount uint256) (success bool);
 
   /// @notice Get crowdsale information for `user`
   /// @param user The account to be queried
@@ -232,18 +230,18 @@ interface TokenSalesInterface {
   /// @return `share` the current token shares earned
   /// @return `badges` the number of proposer badges earned
   /// @return `claimed` is true if the tokens and badges have been claimed
-  global func userInfo(user address)  (uint256 centstotal, uint256 weitotal, uint256 share, uint badges, bool claimed);
+  global userInfo(user address) (centstotal, weitotal, share, badges uint256, claimed bool);
 
   /// @notice Get the crowdsale information from msg.sender (see userInfo)
-  global func myInfo()  (uint256 centstotal, uint256 weitotal, uint256 share, uint badges, bool claimed);
+  global myInfo() (centstotal, weitotal, share, badges uint256, claimed bool);
 
   /// @notice get the total amount of wei raised for the crowdsale
   /// @return The amount of wei raised
-  global func totalWei() uint;
+  global totalWei() uint;
 
   /// @notice get the total USD value in cents raised for the crowdsale
   /// @return the amount USD cents
-  global func totalCents() uint;
+  global totalCents() uint;
 
   /// @notice get the current crowdsale information
   /// @return `startsale` The unix timestamp for the start of the crowdsale and the first period modifier
@@ -256,58 +254,58 @@ interface TokenSalesInterface {
   /// @return `goal` The USD value goal for the crowdsale
   /// @return `famount` Founders endowment
   /// @return `faddress` Founder wallet address
-  /*func getSaleInfo()  (uint256 startsale, uint256 two, uint256 three, uint256 endsale, uint256 totalwei, uint256 totalcents, amount uint256, uint256 goal, uint256 famount, address faddress);*/
+  /*getSaleInfo() (uint256 startsale, uint256 two, uint256 three, uint256 endsale, uint256 totalwei, uint256 totalcents, amount uint256, uint256 goal, uint256 famount, address faddress);*/
 
-  func claimFor(user address) (success bool);
+  claimFor(user address) (success bool);
 
   /// @notice Allows msg.sender to claim the DGD tokens and badges if the goal is reached or refunds the ETH contributed if goal is not reached at the end of the crowdsale
-  func claim() (success bool);
+  claim() (success bool);
 
-  func claimFounders() (success bool);
+  claimFounders() (success bool);
 
   /// @notice See if the crowdsale goal has been reached
-  global func goalReached() (reached bool );
+  global goalReached() (reached bool);
 
   /// @notice Get the current sale period
   /// @return `saleperiod` 0 = Outside of the crowdsale period, 1 = First reward period, 2 = Second reward period, 3 = Final crowdsale period.
-  global func getPeriod() (saleperiod uint);
+  global getPeriod() (saleperiod uint);
 
   /// @notice Get the date for the start of the crowdsale
   /// @return `date` The unix timestamp for the start
-  global func startDate() (date uint);
+  global startDate() (date uint);
 
   /// @notice Get the date for the second reward period of the crowdsale
   /// @return `date` The unix timestamp for the second period
-  global func periodTwo() (date uint);
+  global periodTwo() (date uint);
 
   /// @notice Get the date for the final period of the crowdsale
   /// @return `date` The unix timestamp for the final period
-  global func periodThree() (date uint);
+  global periodThree() (date uint);
 
   /// @notice Get the date for the end of the crowdsale
   /// @return `date` The unix timestamp for the end of the crowdsale
-  global func endDate() (date uint);
+  global endDate() (date uint);
 
   /// @notice Check if crowdsale has ended
   /// @return `ended` If the crowdsale has ended
-  global func isEnded() (ended bool);
+  global isEnded() (ended bool);
 
   /// @notice Send raised funds from the crowdsale to the DAO
   /// @return `success` if the send succeeded
-  global func sendFunds() (success bool);
+  global sendFunds() (success bool);
 
-  //func regProxy(address payment, address payout) (success bool);
-  func regProxy(payout address) (success bool);
+  //regProxy(address payment, address payout) (success bool);
+  regProxy(payout address) (success bool);
 
-  global func getProxy(payout address) (proxy address);
+  global getProxy(payout address) (proxy address);
 
-  global func getPayout(proxy address) (payout address, isProxy bool);
+  global getPayout(proxy address) (payout address, isProxy bool);
 
-  global func unlock() (success bool);
+  global unlock() (success bool);
 
-  global func getSaleStatus() (fclaim bool, reltokens, relbadges, claimers uint256)
+  global getSaleStatus() (fclaim bool, reltokens, relbadges, claimers uint256)
 
-  global func getSaleInfo() (weiamount, cents, realCents, amount uint256)
+  global getSaleInfo() (weiamount, cents, realCents, amount uint256)
 
-  global func getSaleConfig() (start, two, three, end, goal, cap, badgeCost, fAmount, fWallet uint256)
+  global getSaleConfig() (start, two, three, end, goal, cap, badgeCost, fAmount, fWallet uint256)
 }

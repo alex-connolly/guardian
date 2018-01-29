@@ -54,7 +54,7 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
         saleInfo.amount = ConfigInterface(config).getConfigUint("sale1:amount") * BILLION;
         saleInfo.totalWei = 0;
         saleInfo.totalCents = 0;
-        saleInfo.realCents;
+        //saleInfo.realCents; ?
         saleStatus.founderClaim = false;
         locked = true;
     }
@@ -76,7 +76,7 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
     }
   }
 
-  func proxyPurchase(address user) returns (success bool) {
+  func proxyPurchase(address user) (success bool) {
     return purchase(user, msg.value);
   }
 
@@ -120,12 +120,13 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
     return share
   }
 
-  func weiToCents(uint256 wei) public constant returns (uint256 centsvalue) {
+  global func weiToCents(wei uint256) (centsvalue uint256) {
     centsvalue = ((wei * 100000 / WEIPERETH) * ethToCents) / 100000;
     return centsvalue;
   }
 
-  func setEthToCents(uint256 eth) ifOwner returns (success bool) {
+  func setEthToCents(eth uint256) (success bool) {
+      onlyOwner()
     ethToCents = eth;
     success = true;
     return success;
@@ -133,7 +134,7 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
 
 
   global func getSaleStatus() (fclaim bool, reltokens, relbadgesuint256, claimers uint256) {
-    return (saleStatus.founderClaim, saleStatus.releasedTokens, saleStatus.releasedBadges, saleStatus.claimers);
+    return saleStatus.founderClaim, saleStatus.releasedTokens, saleStatus.releasedBadges, saleStatus.claimers;
   }
 
   global func getSaleInfo() (weiamount, cents, realcents, amount uint256) {
@@ -234,7 +235,7 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
   global func userInfo(user address) (centstotal, weitotal, share, badges uint256, claimed bool) {
     share = calcShare(buyers[user].centsTotal, saleInfo.totalCents);
     badges = buyers[user].centsTotal / saleConfig.badgeCost;
-    return (buyers[user].centsTotal, buyers[user].weiTotal, share, badges, buyers[user].claimed);
+    return buyers[user].centsTotal, buyers[user].weiTotal, share, badges, buyers[user].claimed;
   }
 
   global func myInfo() (centstotal, weitotal, share, badges uint256, claimed bool) {
@@ -269,17 +270,20 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
     return (now >= endDate());
   }
 
-  func sendFunds() public returns (success bool) {
-    if (locked) return false;
-    if (!goalReached()) return false;
-    if (!isEnded()) return false;
-    address dao = ConfigInterface(config).getConfigAddress("sale1:dao");
-    if (dao == 0x0000000000000000000000000000000000000000) return false;
-    return dao.send(totalWei());
+  global func sendFunds() (success bool) {
+    if locked {
+        return false
+    }
+    if !goalReached() { return false  }
+    if !isEnded() { return false  }
+    dao = ConfigInterface(config).getConfigAddress("sale1:dao")
+    if dao == 0x0000000000000000000000000000000000000000 { return false }
+    return transfer(dao, totalWei());
   }
 
-  func regProxy(address payout) ifOOrigin returns (success bool) {
-    address proxy = new ProxyPayment(payout, address(this));
+  func regProxy(payout address)  (success bool) {
+      onlyOrigin()
+    proxy = new ProxyPayment(payout, this.address);
     proxies[proxy].payout = payout;
     proxies[proxy].isProxy = true;
     proxyPayouts[payout] = proxy;

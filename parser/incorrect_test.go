@@ -13,7 +13,7 @@ func TestParseClassTerminating(t *testing.T) {
 
 func TestParseClassNoIdentifier(t *testing.T) {
 	_, errs := ParseString(`class {}`)
-	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+	goutil.AssertNow(t, len(errs) > 1, errs.Format())
 }
 
 func TestParseClassNoBraces(t *testing.T) {
@@ -23,7 +23,7 @@ func TestParseClassNoBraces(t *testing.T) {
 
 func TestParseClassNoOpenBrace(t *testing.T) {
 	_, errs := ParseString(`class Dog }`)
-	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+	goutil.AssertNow(t, len(errs) > 1, errs.Format())
 }
 
 func TestParseClassNoCloseBrace(t *testing.T) {

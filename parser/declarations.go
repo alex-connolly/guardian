@@ -45,6 +45,8 @@ func (p *Parser) parseInterfaceFuncSignature() *ast.FuncTypeNode {
 
 	f := new(ast.FuncTypeNode)
 
+	p.ignoreNewLines()
+
 	if !p.isNextToken(token.Identifier) {
 		return nil
 	}
@@ -52,7 +54,13 @@ func (p *Parser) parseInterfaceFuncSignature() *ast.FuncTypeNode {
 	names := make([]string, 0)
 	names = append(names, p.parseIdentifier())
 	for !p.parseOptional(token.OpenBracket) {
-		names = append(names, p.parseIdentifier())
+		if p.isNextToken(token.Identifier) {
+			names = append(names, p.parseIdentifier())
+		} else {
+			// knowingly error
+			p.parseRequired(token.Identifier)
+		}
+
 	}
 
 	f.Identifier = names[len(names)-1]
@@ -73,6 +81,8 @@ func (p *Parser) parseInterfaceFuncSignature() *ast.FuncTypeNode {
 	} else if !p.isNextToken(token.OpenBrace, token.NewLine) && p.hasTokens(1) {
 		f.Results = p.parseFuncTypeParameters()
 	}
+
+	p.parseOptional(token.Semicolon)
 
 	return f
 }
