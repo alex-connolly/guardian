@@ -59,7 +59,7 @@ contract Ballot {
             assert(to != msg.sender)
         }
 
-        sender.vote = true
+        sender.voted = true
         sender.delegate = to
         d = voters[to]
         if d.voted {

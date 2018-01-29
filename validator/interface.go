@@ -19,7 +19,6 @@ import (
 type Validator struct {
 	inFile          bool
 	packageName     string
-	scopes          []*ast.ScopeNode
 	context         typing.Type
 	builtinScope    *TypeScope
 	scope           *TypeScope
@@ -74,18 +73,23 @@ func ValidateFile(vm VM, packageScope *TypeScope, name string) (*ast.ScopeNode, 
 }
 
 func ValidateScopes(vm VM, pkgScope *TypeScope) (errors util.Errors) {
+	v := new(Validator)
+	v.vm = vm
+	v.importVM(vm)
+
+	v.scope = pkgScope
 	for _, s := range pkgScope.scopes {
-		es := Validate(vm, s, pkgScope)
-		errors = append(errors, es...)
+		v.validateScopeWithoutOpening(s)
 	}
-	return errors
+	return v.errs
 }
 
-func ValidateFileData(vm VM, data [][]byte) (errors util.Errors) {
+func ValidateFileData(vm VM, data []string) (errors util.Errors) {
 	pkgScope := new(TypeScope)
 	pkgScope.scopes = make([]*ast.ScopeNode, 0)
 	for _, d := range data {
-		s, errs := parser.ParseBytes(d)
+		s, errs := parser.ParseString(d)
+
 		pkgScope.scopes = append(pkgScope.scopes, s)
 		errors = append(errors, errs...)
 	}
@@ -220,7 +224,20 @@ func (v *Validator) closeScope() {
 	}
 }
 
-func (v *Validator) validateScope(context ast.Node, scope *ast.ScopeNode) (types map[string]typing.Type, properties map[string]typing.Type, lifecycles typing.LifecycleMap) {
+func (v *Validator) validateScopeWithoutOpening(scope *ast.ScopeNode) (types typing.TypeMap, properties typing.TypeMap, lifecycles typing.LifecycleMap) {
+
+	v.validateDeclarations(scope)
+
+	v.validateSequence(scope)
+
+	types = v.scope.types
+	properties = v.scope.variables
+	lifecycles = v.scope.lifecycles
+
+	return types, properties, lifecycles
+}
+
+func (v *Validator) validateScope(context ast.Node, scope *ast.ScopeNode) (types typing.TypeMap, properties typing.TypeMap, lifecycles typing.LifecycleMap) {
 
 	v.openScope(context, scope)
 
@@ -296,6 +313,8 @@ func (v *Validator) importVM(vm VM) {
 // NewValidator creates a new validator
 func NewValidator(vm VM) *Validator {
 	v := new(Validator)
+
+	v.vm = vm
 
 	v.importVM(vm)
 

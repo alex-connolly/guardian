@@ -2,6 +2,7 @@ package typing
 
 import (
 	"bytes"
+	"fmt"
 )
 
 // WriteType creates a string representation of a Guardian type
@@ -45,7 +46,11 @@ func (a *Aliased) write(b *bytes.Buffer) {
 }
 
 func (a *Array) write(b *bytes.Buffer) {
-	b.WriteString("[]")
+	b.WriteString("[")
+	if !a.Variable {
+		b.WriteString(fmt.Sprintf("%d", a.Length))
+	}
+	b.WriteString("]")
 	a.Value.write(b)
 }
 
@@ -57,7 +62,7 @@ func (m *Map) write(b *bytes.Buffer) {
 }
 
 func (f *Func) write(b *bytes.Buffer) {
-	b.WriteString("func")
+	b.WriteString("func ")
 	b.WriteString(f.Name)
 	f.Params.write(b)
 	f.Results.write(b)

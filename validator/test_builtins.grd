@@ -6,6 +6,8 @@ type address [20]byte
 type bytes32 [32]byte
 
 const (
+	burn = 0x0000000000000000000000000000000000000000
+
 	wei = 1
 	kwei = 1000 * wei
 	babbage = kwei

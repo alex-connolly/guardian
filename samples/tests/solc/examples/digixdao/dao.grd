@@ -26,15 +26,15 @@ contract Dao {
     constructor(config address) {
           this.config = config
           this.owner = msg.sender
-          this.tokenLedger = ConfigInterface(config).getConfigAddress("ledger")
-          this.environment = ConfigInterface(config).getConfigBytes("environment")
+          this.tokenLedger = ConfigBase(config).getConfigAddress("ledger")
+          this.environment = ConfigBase(config).getConfigBytes("environment")
           this.badgeLedger = Token(tokenLedger).badgeLedger()
           this.proposalsCount = 0
      }
 
   internal func iPropose(document []byte, weibudget uint256, dissolve bool) (success bool, proposal address){
 
-      require(Badge(this.badgeLedger).balanceOf(msg.sender) > 0)
+      require(Badge(this.badgeLedger).getBalance(msg.sender) > 0)
       require(funds() >= weibudget)
       proposal = new Proposal(config, badgeLedger, tokenLedger, environment, dissolve)
       proposals[proposal].budget = weibudget
@@ -46,7 +46,7 @@ contract Dao {
   }
 
   func propose(document []byte, weibudget uint256) (success bool, proposal address){
-      if Badge(this.badgeLedger).balanceOf(msg.sender) <= 0 {
+      if Badge(this.badgeLedger).getBalance(msg.sender) <= 0 {
           return false, burn
       }
       success, proposal = iPropose(document, weibudget, false)
@@ -60,7 +60,7 @@ contract Dao {
   }
 
   func proposeDissolve(document []byte) (success bool, proposal address){
-      if Badge(this.badgeLedger).balanceOf(msg.sender) <= 0 {
+      if Badge(this.badgeLedger).getBalance(msg.sender) <= 0 {
           return false, burn
       }
       weibudget = funds()

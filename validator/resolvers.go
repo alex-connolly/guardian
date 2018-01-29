@@ -366,19 +366,8 @@ func (v *Validator) resolveCallExpression(n *ast.CallExpressionNode) typing.Type
 			v.addError(n.Arguments[0].Start(), errImpossibleCastToNonType)
 			return left
 		}
-
-		if !typing.AssignableTo(left, t, false) {
-			if n.Arguments[0].Type() == ast.Literal {
-				l := n.Arguments[0].(*ast.LiteralNode)
-				hasSign := (l.Data[0] == '-')
-				if nt, ok := typing.ResolveUnderlying(left).(*typing.NumericType); ok {
-					if nt.AcceptsLiteral(t, hasSign) {
-						return left
-					}
-				}
-			}
+		if !v.vm.Castable(v, left, t, n.Arguments[0]) {
 			v.addError(n.Arguments[0].Start(), errImpossibleCast, typing.WriteType(t), typing.WriteType(left))
-			return left
 		}
 		return left
 	}
@@ -389,7 +378,6 @@ func (v *Validator) resolveCallExpression(n *ast.CallExpressionNode) typing.Type
 	switch a := exprType.(type) {
 	case *typing.Func:
 		genDecs := make(typing.TypeMap)
-
 		if len(a.Generics) > 0 {
 			// implicit generics (takes first type)
 			if len(a.Params.Types) != len(args.Types) {

@@ -3,6 +3,7 @@ package digixdao guardian 0.0.1
 /// @title DigixDAO Contract Interfaces
 
 contract ConfigBase {
+
     global var owner address
 
     var (
@@ -53,12 +54,12 @@ interface ConfigInterface {
   /// @notice getConfigBytes gets configuration `key`'s value
   /// @param key The key name of the configuration.
   /// @return The configuration value
-  getConfigBytes(key bytes32) (bytes32 val);
+  getConfigBytes(key bytes32) (val bytes32);
 
   /// @notice getConfigUint gets configuration `key`'s value
   /// @param key The key name of the configuration.
   /// @return The configuration value
-  getConfigUint(key bytes32) (uint256 val);
+  getConfigUint(key bytes32) (val uint256);
 
   /// @notice addAdmin sets `admin` as configuration admin
   /// @return Whether the configuration setting was successful or not.

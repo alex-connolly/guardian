@@ -146,6 +146,7 @@ type VM interface {
 	Modifiers() []*ModifierGroup
 	Annotations() []*typing.Annotation
 	BytecodeGenerators() map[string]BytecodeGenerator
+	Castable(val *Validator, to, from typing.Type, fromExpression ast.ExpressionNode) bool
 }
 
 type TestVM struct {
@@ -155,10 +156,34 @@ func NewTestVM() TestVM {
 	return TestVM{}
 }
 
+func (v TestVM) Castable(val *Validator, to, from typing.Type, fromExpression ast.ExpressionNode) bool {
+	// can cast all addresses to all contracts
+	t, _ := val.isTypeVisible("address")
+	if t.Compare(from) {
+		if _, ok := to.(*typing.Contract); ok {
+			return true
+		}
+	}
+	if typing.AssignableTo(to, from, false) {
+		return true
+	}
+	// any address can be cast to any contract
+	if l, ok := fromExpression.(*ast.LiteralNode); ok {
+		hasSign := (l.Data[0] == '-')
+		if nt, ok := typing.ResolveUnderlying(to).(*typing.NumericType); ok {
+			if nt.AcceptsLiteral(from, hasSign) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (v TestVM) BaseContract() (*ast.ContractDeclarationNode, util.Errors) {
 	s, errs := parser.ParseString(`
 		contract Base {
 		    var balance uint
+			var address address
 		}
 	`)
 	c := s.Declarations.Next().(*ast.ContractDeclarationNode)

@@ -48,7 +48,7 @@ contract Badge  {
         return balances[o]
     }
 
-    func transfer(to address, value uint) (success bool) {
+    func transferTo(to address, value uint) (success bool) {
         if balances[msg.sender] >= value and value > 0 {
             balances[msg.sender] = subtractSafely(balances[msg.sender], value)
             balances[to] = addSafely(value, balances[to])
@@ -78,15 +78,15 @@ contract Badge  {
         return success
     }
 
-    func allowance(owner address, spender address) (remaining uint) {
-        remaining = allowed[owner][spender];
+    func allowance(own address, spender address) (remaining uint) {
+        remaining = allowed[own][spender];
         return remaining
     }
 
-    func mint(owner address, amount uint) (success bool) {
+    func mint(own address, amount uint) (success bool) {
         totalSupply = addSafely(totalSupply, amount);
-        balances[owner] = addSafely(balances[owner], amount);
-        Mint(owner, amount)
+        balances[own] = addSafely(balances[own], amount);
+        Mint(own, amount)
         return true
     }
 
@@ -134,7 +134,7 @@ contract Token {
     constructor(cfg address){
         this.config = cfg
         this.owner = msg.sender
-        initSeller = ConfigInterface(config).getConfigAddress("sale1:address")
+        this.initSeller = ConfigBase(config).getConfigAddress("sale1:address")
         seller[initSeller] = true
         this.badgeLedger = new Badge()
         this.locked = false
@@ -162,7 +162,7 @@ contract Token {
         return balances[o]
     }
 
-    func transfer(to address, value uint) (success bool) {
+    func transferTo(to address, value uint) (success bool) {
         if balances[msg.sender] >= value and value > 0 {
             balances[msg.sender] = subtractSafely(balances[msg.sender], value)
             balances[to] = addSafely(value, balances[to])
@@ -192,8 +192,8 @@ contract Token {
         return success
     }
 
-    func allowance(owner address, spender address) (remaining uint) {
-        remaining = allowed[owner][spender];
+    func allowance(own address, spender address) (remaining uint) {
+        remaining = allowed[own][spender];
         return remaining
     }
 
@@ -212,12 +212,12 @@ contract Token {
         return true
     }
 
-    func registerDao(dao address) (success bool) {
+    func registerDao(newDao address) (success bool) {
         onlyOwner()
         if locked {
             return false
         }
-        this.dao = d
+        this.dao = newDao
         locked = true
         return true
     }

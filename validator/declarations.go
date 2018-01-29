@@ -140,10 +140,22 @@ func (v *Validator) validateFuncType(node *ast.FuncTypeNode) typing.Type {
 	var results []typing.Type
 	if node.Results != nil {
 		for _, r := range node.Results {
-			results = append(results, v.validateType(r))
+			switch a := r.(type) {
+			case *ast.ExplicitVarDeclarationNode:
+				typ := v.validateType(a.DeclaredType)
+				for _ = range a.Identifiers {
+					results = append(results, typ)
+				}
+				break
+			default:
+				results = append(results, v.validateType(r))
+				break
+			}
+
 		}
 	}
 	return &typing.Func{
+		Name:    node.Identifier,
 		Params:  typing.NewTuple(params...),
 		Results: typing.NewTuple(results...),
 	}

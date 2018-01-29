@@ -13,7 +13,7 @@ contract Collector {
         require(msg.sender == txFeePool)
     }
 
-    constructor(ownr, dgdtokens, address, period uint){
+    constructor(ownr, dgdtokens address, period uint){
         owner = ownr
         dgdTokens = dgdtokens
         txFeePool = msg.sender
@@ -21,12 +21,12 @@ contract Collector {
     }
 
     func collect() bool {
-        ifTxFeePool()
+        isTxFeePool()
         return true
     }
 
     func withdraw() bool {
-        ifTxFeePool()
+        isTxFeePool()
         return true
     }
 
@@ -51,14 +51,14 @@ contract GoldTxFeePool {
     )
 
     func afterRecent(){
-        require(now >= periods[periodCount].collectedEnd)
+        require(now >= periods[periodCount].collectionEnd)
     }
 
-    constructor(dgxTokens, dgdTokens address, env []byte){
-        this.dgxTokens = dgxTokens
-        this.dgdTokens = dgdTokens
+    constructor(dgxTokens, dgdtokens address, env []byte){
+        this.dgxTokens = dgxtokens
+        this.dgdTokens = dgdtokens
         this.environment = env
-        periodCount = 1
+        this.periodCount = 1
         exclusive switch env {
             case "testnet":
                 collectionDuration = 5

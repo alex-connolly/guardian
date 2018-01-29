@@ -1,14 +1,14 @@
 package digixdao guardian 0.0.1
 
-contract Config is ConfigInterface {
+contract Config inherits ConfigBase is ConfigInterface {
 
-  event ConfigChange(indexed configKey []byte, indexed user address);
+  event ConfigChange(indexed configKey []byte, indexed user address)
 
-  func isAdmin(){
+  func ifAdmin(){
       require(admins[msg.sender])
   }
 
-  func isOwner(){
+  func ifOwner(){
       require(msg.sender == owner)
   }
 
@@ -28,7 +28,7 @@ contract Config is ConfigInterface {
       return true
   }
 
-  func setConfigBool(key, val []byte) (success bool){
+  func setConfigBytes(key, val []byte) (success bool){
       bytesMap[key] = val
       return true
   }
@@ -38,10 +38,35 @@ contract Config is ConfigInterface {
       return true
   }
 
-
  func getConfigAddress(key []byte) (val address){
      return addressMap[key]
  }
 
- // rest are all the same
+ func getConfigBool(key bytes32) (val bool) {
+    val = boolMap[key];
+    return val;
+  }
+
+  func getConfigBytes(key bytes32) (val bytes32) {
+    val = bytesMap[key];
+    return val;
+  }
+
+  func getConfigUint(key bytes32) (val uint256) {
+    val = uintMap[key];
+    return val;
+  }
+
+  func addAdmin(admin address) (success bool) {
+      ifOwner()
+    admins[admin] = true;
+    return true;
+  }
+
+  func removeAdmin(admin address) (success bool) {
+      ifOwner()
+    admins[admin] = false;
+    return true;
+  }
+
 }

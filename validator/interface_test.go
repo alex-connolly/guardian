@@ -57,3 +57,16 @@ func TestDeclarationAndCall(t *testing.T) {
 	`)
 	goutil.AssertNow(t, errs == nil, errs.Format())
 }
+
+func TestValidatePackageFileData(t *testing.T) {
+	a := `
+	package x guardian 0.0.1
+	class Animal {}
+	`
+	b := `
+	package x guardian 0.0.1
+	class Dog inherits Animal {}
+	`
+	errs := ValidateFileData(NewTestVM(), []string{a, b})
+	goutil.AssertNow(t, errs == nil, errs.Format())
+}

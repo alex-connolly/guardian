@@ -36,7 +36,6 @@ func BooleanLiteral(v *Validator, data string) typing.Type {
 
 func (m OperatorMap) Add(function OperatorFunc, types ...token.Type) {
 	for _, t := range types {
-
 		m[t] = function
 	}
 }

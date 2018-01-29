@@ -39,19 +39,19 @@ func TestWriteTupleTypeMultiple(t *testing.T) {
 
 func TestWriteFuncEmptyParamsEmptyResults(t *testing.T) {
 	m := &Func{Params: NewTuple(), Results: NewTuple()}
-	expected := "func()()"
+	expected := "func ()()"
 	goutil.Assert(t, WriteType(m) == expected, fmt.Sprintf("wrong type written: %s\n", WriteType(m)))
 }
 
 func TestWriteFuncEmptyParamsSingleResults(t *testing.T) {
 	m := &Func{Params: NewTuple(), Results: NewTuple(standards[boolean])}
-	expected := "func()(bool)"
+	expected := "func ()(bool)"
 	goutil.Assert(t, WriteType(m) == expected, fmt.Sprintf("wrong type written: %s\n", WriteType(m)))
 }
 
 func TestWriteFuncMultipleParamsMultipleResults(t *testing.T) {
 	m := &Func{Params: NewTuple(standards[boolean], standards[unknown]), Results: NewTuple(standards[boolean], standards[unknown])}
-	expected := "func(bool, unknown)(bool, unknown)"
+	expected := "func (bool, unknown)(bool, unknown)"
 	goutil.Assert(t, WriteType(m) == expected, fmt.Sprintf("wrong type written: %s\n", WriteType(m)))
 }
 

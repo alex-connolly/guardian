@@ -299,6 +299,8 @@ func (v *Validator) validatePackageStatement(node *ast.PackageStatementNode) {
 	if v.packageName == "" {
 		v.packageName = node.Name
 	} else {
-		v.addError(node.Start(), errDuplicatePackageName, node.Name, v.packageName)
+		if v.packageName != node.Name {
+			v.addError(node.Start(), errDuplicatePackageName, node.Name, v.packageName)
+		}
 	}
 }
