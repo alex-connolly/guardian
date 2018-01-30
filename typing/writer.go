@@ -64,12 +64,26 @@ func (m *Map) write(b *bytes.Buffer) {
 func (f *Func) write(b *bytes.Buffer) {
 	b.WriteString("func ")
 	b.WriteString(f.Name)
+	if f.Generics != nil {
+		b.WriteString("<")
+		for _, g := range f.Generics {
+			b.WriteString(g.Identifier)
+		}
+		b.WriteString(">")
+	}
 	f.Params.write(b)
 	f.Results.write(b)
 }
 
 func (c *Class) write(b *bytes.Buffer) {
 	b.WriteString(c.Name)
+	if c.Generics != nil {
+		b.WriteString("<")
+		for _, g := range c.Generics {
+			b.WriteString(g.Identifier)
+		}
+		b.WriteString(">")
+	}
 }
 
 func (i *Interface) write(b *bytes.Buffer) {
@@ -82,6 +96,13 @@ func (e *Enum) write(b *bytes.Buffer) {
 
 func (c *Contract) write(b *bytes.Buffer) {
 	b.WriteString(c.Name)
+	if c.Generics != nil {
+		b.WriteString("<")
+		for _, g := range c.Generics {
+			b.WriteString(g.Identifier)
+		}
+		b.WriteString(">")
+	}
 }
 
 func (e *Event) write(b *bytes.Buffer) {

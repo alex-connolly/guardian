@@ -35,7 +35,7 @@ contract AccessRestriction {
     func disown(){
         onlyBy(owner)
         onlyAfter(creationTime + 6 /* time.Week */)
-        // ? delete(owner)
+        delete(owner)
     }
 
     // This modifier requires a certain

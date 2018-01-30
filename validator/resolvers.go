@@ -1,6 +1,8 @@
 package validator
 
 import (
+	"fmt"
+
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/util"
@@ -47,6 +49,8 @@ func (v *Validator) resolvePlainType(node *ast.PlainTypeNode) typing.Type {
 
 func (v *Validator) resolveArrayType(node *ast.ArrayTypeNode) *typing.Array {
 	a := new(typing.Array)
+	a.Length = node.Length
+	a.Variable = node.Variable
 	a.Value = v.resolveType(node.Value)
 	return a
 }
@@ -352,6 +356,31 @@ func (v *Validator) resolveAsPlainType(e ast.ExpressionNode) (typing.Type, bool)
 	return typing.Invalid(), false
 }
 
+func (v *Validator) replaceGeneric(t typing.Type, genDecs typing.TypeMap) typing.Type {
+	switch a := t.(type) {
+	case *typing.Generic:
+		if typ, ok := genDecs[a.Identifier]; ok {
+			return typ
+		}
+		return t
+	case *typing.Array:
+		a.Value = v.replaceGeneric(a.Value, genDecs)
+		return a
+	case *typing.Map:
+		a.Key = v.replaceGeneric(a.Key, genDecs)
+		a.Value = v.replaceGeneric(a.Value, genDecs)
+		break
+	case *typing.Func:
+		for i, p := range a.Params.Types {
+			a.Params.Types[i] = v.replaceGeneric(p, genDecs)
+		}
+		for i, p := range a.Results.Types {
+			a.Results.Types[i] = v.replaceGeneric(p, genDecs)
+		}
+	}
+	return t
+}
+
 func (v *Validator) resolveCallExpression(n *ast.CallExpressionNode) typing.Type {
 
 	// attempt to resolve as if cast
@@ -377,8 +406,10 @@ func (v *Validator) resolveCallExpression(n *ast.CallExpressionNode) typing.Type
 
 	switch a := exprType.(type) {
 	case *typing.Func:
+		fmt.Println("here")
 		genDecs := make(typing.TypeMap)
 		if len(a.Generics) > 0 {
+			fmt.Println("hi")
 			// implicit generics (takes first type)
 			if len(a.Params.Types) != len(args.Types) {
 				v.addError(n.Start(), errInvalidFuncCall, typing.WriteType(args), typing.WriteType(a))
@@ -410,13 +441,7 @@ func (v *Validator) resolveCallExpression(n *ast.CallExpressionNode) typing.Type
 		}
 
 		for i, r := range a.Results.Types {
-			if g, ok := r.(*typing.Generic); ok {
-				if t, ok := genDecs[g.Identifier]; ok {
-					a.Results.Types = append(a.Results.Types, nil)
-					copy(a.Results.Types[i+1:], a.Results.Types[i:])
-					a.Results.Types[i] = t
-				}
-			}
+			a.Results.Types[i] = v.replaceGeneric(r, genDecs)
 		}
 
 		return a.Results

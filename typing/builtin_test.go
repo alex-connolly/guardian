@@ -12,3 +12,7 @@ func TestConvertToBits(t *testing.T) {
 	goutil.Assert(t, BitsNeeded(2) == 2, "wrong 2")
 	goutil.Assert(t, BitsNeeded(10) == 4, "wrong 10")
 }
+
+func TestAcceptLiteral(t *testing.T) {
+
+}

@@ -42,16 +42,16 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
         saleStatus.releasedTokens = 0;
         saleStatus.releasedBadges = 0;
         saleStatus.claimers = 0;
-        saleConfig.startDate = ConfigBase(config).getConfigUint("sale1:period1");
-        saleConfig.periodTwo = ConfigBase(config).getConfigUint("sale1:period2");
-        saleConfig.periodThree = ConfigBase(config).getConfigUint("sale1:period3");
-        saleConfig.endDate = ConfigBase(config).getConfigUint("sale1:end");
-        saleConfig.founderAmount = ConfigBase(config).getConfigUint("sale1:famount") * BILLION;
-        saleConfig.founderWallet = ConfigBase(config).getConfigAddress("sale1:fwallet");
-        saleConfig.goal = ConfigBase(config).getConfigUint("sale1:goal") * CENTS;
-        saleConfig.cap = ConfigBase(config).getConfigUint("sale1:cap") * CENTS;
-        saleConfig.badgeCost = ConfigBase(config).getConfigUint("sale1:badgecost") * CENTS;
-        saleInfo.amount = ConfigBase(config).getConfigUint("sale1:amount") * BILLION;
+        saleConfig.startDate = ConfigInterface(config).getConfigUint("sale1:period1");
+        saleConfig.periodTwo = ConfigInterface(config).getConfigUint("sale1:period2");
+        saleConfig.periodThree = ConfigInterface(config).getConfigUint("sale1:period3");
+        saleConfig.endDate = ConfigInterface(config).getConfigUint("sale1:end");
+        saleConfig.founderAmount = ConfigInterface(config).getConfigUint("sale1:famount") * BILLION;
+        saleConfig.founderWallet = ConfigInterface(config).getConfigAddress("sale1:fwallet");
+        saleConfig.goal = ConfigInterface(config).getConfigUint("sale1:goal") * CENTS;
+        saleConfig.cap = ConfigInterface(config).getConfigUint("sale1:cap") * CENTS;
+        saleConfig.badgeCost = ConfigInterface(config).getConfigUint("sale1:badgecost") * CENTS;
+        saleInfo.amount = ConfigInterface(config).getConfigUint("sale1:amount") * BILLION;
         saleInfo.totalWei = 0;
         saleInfo.totalCents = 0;
         //saleInfo.realCents; ?
@@ -120,8 +120,8 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
     return share
   }
 
-  global func weiToCents(wei uint256) (centsvalue uint256) {
-    centsvalue = ((wei * 100000 / WEIPERETH) * ethToCents) / 100000;
+  global func weiToCents(weiAmount uint256) (centsvalue uint256) {
+    centsvalue = ((weiAmount * 100000 / WEIPERETH) * ethToCents) / 100000;
     return centsvalue;
   }
 
@@ -172,10 +172,10 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
     }
 
     if goalReached() {
-      tokenc = ConfigBase(config).getConfigAddress("ledger")
+      tokenc = ConfigInterface(config).getConfigAddress("ledger")
       tokens = calcShare(buyers[user].centsTotal, saleInfo.totalCents)
       badges = buyers[user].centsTotal / saleConfig.badgeCost
-      if (TokenBase(tokenc).mint(msg.sender, tokens)) and (TokenBase(tokenc).mintBadge(user, badges)) {
+      if (TokenInterface(tokenc).mint(msg.sender, tokens)) and (TokenInterface(tokenc).mintBadge(user, badges)) {
         saleStatus.releasedTokens += tokens
         saleStatus.releasedBadges += badges
         saleStatus.claimers += 1
@@ -198,11 +198,11 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
     if !goalReached() {
         return false
     }
-    tokenc = ConfigBase(config).getConfigAddress("ledger");
+    tokenc = ConfigInterface(config).getConfigAddress("ledger");
     tokens = saleConfig.founderAmount;
     badges = 4;
     faddr = saleConfig.founderWallet;
-    if (TokenBase(tokenc).mint(faddr, tokens)) and (TokenBase(tokenc).mintBadge(faddr, badges)) {
+    if (TokenInterface(tokenc).mint(faddr, tokens)) and (TokenInterface(tokenc).mintBadge(faddr, badges)) {
       saleStatus.founderClaim = true;
       saleStatus.releasedTokens += tokens;
       saleStatus.releasedBadges += badges;
@@ -262,7 +262,7 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
     return saleConfig.periodThree;
   }
 
-  global func endDate() (uint date) {
+  global func endDate() (date uint) {
     return saleConfig.endDate;
   }
 
@@ -276,7 +276,7 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
     }
     if !goalReached() { return false  }
     if !isEnded() { return false  }
-    dao = ConfigBase(config).getConfigAddress("sale1:dao")
+    dao = ConfigInterface(config).getConfigAddress("sale1:dao")
     if dao == 0x0000000000000000000000000000000000000000 { return false }
     return transfer(dao, totalWei());
   }
@@ -291,7 +291,7 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
   }
 
   global func getProxy(payout address) (proxy address) {
-      return proxies[proxy]
+      return proxies[proxy].address
   }
 
   global func getPayout(proxy address) (payout address, isProxy bool){

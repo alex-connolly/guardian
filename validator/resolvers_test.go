@@ -128,7 +128,7 @@ func TestResolveBinaryExpressionSimpleNumeric(t *testing.T) {
 	b := p.(*ast.BinaryExpressionNode)
 	v := NewValidator(NewTestVM())
 	resolved := v.resolveExpression(b)
-	goutil.AssertNow(t, resolved.Compare(v.SmallestNumericType(0, false)), fmt.Sprintf("wrong expression type: %s", typing.WriteType(resolved)))
+	goutil.AssertNow(t, resolved.Compare(v.SmallestInteger(0, false)), fmt.Sprintf("wrong expression type: %s", typing.WriteType(resolved)))
 }
 
 func TestResolveBinaryExpressionConcatenation(t *testing.T) {

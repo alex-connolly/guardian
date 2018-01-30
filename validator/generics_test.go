@@ -128,3 +128,56 @@ func TestTypesWithoutParameters(t *testing.T) {
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 	// one for each wrong type
 }
+
+func TestFunctionGenericParameter(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		func main(){
+			var a int
+			var b []int
+			a = len(b)
+			var c []string
+			a = len(c)
+		}
+
+		func <T> lengthOf(items []T) int {
+			return 0
+		}
+    `)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}
+
+func TestFunctionTwoGenericParameters(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		func main(){
+			var a []int
+			var b []int
+			merge(a, b)
+			var c []string
+			// should error
+			merge(a, c)
+		}
+
+		func <T> merge(items []T, others []T) {
+
+		}
+    `)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}
+
+func TestFunctionTwoGenericParametersReturnType(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		func main(){
+			var a []int
+			var b []int
+			a = thing(a, b)
+			var c []string
+			// should error
+			c = thing(a, b)
+		}
+
+		func <T> thing(items []T) []T {
+			return items
+		}
+    `)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}

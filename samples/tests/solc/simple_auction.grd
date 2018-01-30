@@ -46,7 +46,7 @@ contract SimpleAuction {
             return true
         }
 
-        func auctionEnd(){
+        func endAuction(){
             assert(now() >= auctionEnd)
             assert(!ended)
 

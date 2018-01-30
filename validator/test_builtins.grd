@@ -6,7 +6,7 @@ type address [20]byte
 type bytes32 [32]byte
 
 const (
-	burn = 0x0000000000000000000000000000000000000000
+	burn = address(0)
 
 	wei = 1
 	kwei = 1000 * wei
@@ -23,8 +23,9 @@ const (
 )
 
 @Builtin("now") func now() uint
-@Builtin("length") func <Key> len(array []Key) int
-@Builtin("append") func <Key> append(array []Key, item Key) []Key
+@Builtin("length") func <T> len(array []T) int
+@Builtin("append") func <T> append(array []T, item T) []T
+@Builtin("delete") func <T> delete(storageItem T)
 
 // account functions
 @Builtin("balanceOf") func balanceOf(a address) uint256

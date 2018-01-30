@@ -457,3 +457,13 @@ func TestLiteralValidAssignment(t *testing.T) {
 	`)
 	goutil.AssertNow(t, len(errs) == 0, errs.Format())
 }
+
+func TestGenericCallExpression(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		func main(){
+			var a []int
+			a = append(a, 0)
+		}
+	`)
+	goutil.AssertNow(t, len(errs) == 0, errs.Format())
+}

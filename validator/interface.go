@@ -74,7 +74,6 @@ func ValidateFile(vm VM, packageScope *TypeScope, name string) (*ast.ScopeNode, 
 
 func ValidateScopes(vm VM, pkgScope *TypeScope) (errors util.Errors) {
 	v := new(Validator)
-	v.vm = vm
 	v.importVM(vm)
 
 	v.scope = pkgScope
@@ -144,7 +143,6 @@ func ValidateString(vm VM, text string) (*ast.ScopeNode, util.Errors) {
 // Validate ...
 func Validate(vm VM, scope *ast.ScopeNode, typeScope *TypeScope) util.Errors {
 	v := new(Validator)
-	v.vm = vm
 
 	v.importVM(vm)
 
@@ -285,6 +283,7 @@ func (v *Validator) validate(node ast.Node) {
 }
 
 func (v *Validator) importVM(vm VM) {
+	v.vm = vm
 	v.literals = vm.Literals()
 	v.operators = operators()
 	v.primitives = vm.Primitives()
@@ -313,8 +312,6 @@ func (v *Validator) importVM(vm VM) {
 // NewValidator creates a new validator
 func NewValidator(vm VM) *Validator {
 	v := new(Validator)
-
-	v.vm = vm
 
 	v.importVM(vm)
 

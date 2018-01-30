@@ -160,8 +160,27 @@ func (v TestVM) Castable(val *Validator, to, from typing.Type, fromExpression as
 	// can cast all addresses to all contracts
 	t, _ := val.isTypeVisible("address")
 	if t.Compare(from) {
-		if _, ok := to.(*typing.Contract); ok {
+		switch to.(type) {
+		case *typing.Contract:
 			return true
+		case *typing.Interface:
+			return true
+		}
+	}
+	// can cast all uints to addresses
+	if t.Compare(to) {
+		switch a := typing.ResolveUnderlying(from).(type) {
+		case *typing.NumericType:
+			if !a.Signed {
+				// check size
+				return true
+			}
+			if l, ok := fromExpression.(*ast.LiteralNode); ok {
+				hasSign := (l.Data[0] == '-')
+				if !hasSign {
+					return true
+				}
+			}
 		}
 	}
 	if typing.AssignableTo(to, from, false) {
@@ -219,7 +238,7 @@ func (v TestVM) Literals() LiteralMap {
 
 func resolveIntegerLiteral(v *Validator, data string) typing.Type {
 	x := typing.BitsNeeded(len(data))
-	return v.SmallestNumericType(x, false)
+	return v.SmallestInteger(x, true)
 }
 
 func resolveFloatLiteral(v *Validator, data string) typing.Type {

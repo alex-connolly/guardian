@@ -98,22 +98,7 @@ contract Badge  {
 
 }
 
-contract Token {
-
-    public var (
-        owner address
-        config address
-        locked bool
-        dao address
-        badgeLedger address
-        totalSupply uint256
-    )
-
-    var (
-        balances map[address]uint256
-        allowed map[address]map[address]uint256
-        seller map[address]bool
-    )
+contract Token inherits TokenBase {
 
     func onlySales(){
         require(seller[msg.sender])
@@ -127,14 +112,10 @@ contract Token {
         require(msg.sender == this.dao)
     }
 
-    event Transfer(indexed from address, indexed to address, value uint)
-    event Mint(indexed recipient address, amount uint)
-    event Approval(indexed owner address, indexed spender address, value uint)
-
     constructor(cfg address){
         this.config = cfg
         this.owner = msg.sender
-        this.initSeller = ConfigBase(config).getConfigAddress("sale1:address")
+        this.initSeller = ConfigInterface(config).getConfigAddress("sale1:address")
         seller[initSeller] = true
         this.badgeLedger = new Badge()
         this.locked = false

@@ -23,11 +23,11 @@ contract Dao {
 
     indexed event NewProposal(proposal address, document []byte, budget uint256)
 
-    constructor(config address) {
-          this.config = config
+    constructor(cfg address) {
+          this.config = cfg
           this.owner = msg.sender
-          this.tokenLedger = ConfigBase(config).getConfigAddress("ledger")
-          this.environment = ConfigBase(config).getConfigBytes("environment")
+          this.tokenLedger = ConfigInterface(config).getConfigAddress("ledger")
+          this.environment = ConfigInterface(config).getConfigBytes("environment")
           this.badgeLedger = Token(tokenLedger).badgeLedger()
           this.proposalsCount = 0
      }

@@ -9,20 +9,17 @@ type NumericType struct {
 	Integer bool
 }
 
-func (nt *NumericType) AcceptsLiteral(t Type, hasSign bool) bool {
-	if other, ok := t.(*NumericType); ok {
-		if !nt.Signed && hasSign {
-			return false
-		}
-		if nt.Integer && !other.Integer {
-			return false
-		}
-		if nt.BitSize < other.BitSize {
-			return false
-		}
-		return true
+func (nt *NumericType) AcceptsLiteral(length int, integer, hasSign bool) bool {
+	if !nt.Signed && hasSign {
+		return false
 	}
-	return false
+	if nt.Integer && !integer {
+		return false
+	}
+	if nt.BitSize < length {
+		return false
+	}
+	return true
 }
 
 type VoidType struct {

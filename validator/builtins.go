@@ -46,15 +46,33 @@ func SimpleOperator(typeName string) OperatorFunc {
 		return t
 	}
 }
+
+// numeric operators:
+// uint + uint = uint
+// int + int = int
+// float + any = float
+
 func BinaryNumericOperator(v *Validator, types []typing.Type, exprs []ast.ExpressionNode) typing.Type {
 	left := typing.ResolveUnderlying(types[0])
 	right := typing.ResolveUnderlying(types[1])
 	if na, ok := left.(*typing.NumericType); ok {
 		if nb, ok := right.(*typing.NumericType); ok {
 			if na.BitSize > nb.BitSize {
-				return v.SmallestNumericType(na.BitSize, true)
+				if na.Integer && !nb.Integer {
+					return v.SmallestFloat(na.BitSize)
+				}
+				if !na.Signed && nb.Signed {
+					return v.SmallestInteger(na.BitSize, true)
+				}
+				return na
 			}
-			return v.SmallestNumericType(nb.BitSize, true)
+			if nb.Integer && !na.Integer {
+				return v.SmallestFloat(nb.BitSize)
+			}
+			if !nb.Signed && na.Signed {
+				return v.SmallestInteger(nb.BitSize, true)
+			}
+			return nb
 		}
 	}
 	return typing.Invalid()
@@ -64,7 +82,13 @@ func BinaryIntegerOperator(v *Validator, types []typing.Type, exprs []ast.Expres
 	if na, ok := types[0].(*typing.NumericType); ok && na.Integer {
 		if nb, ok := types[1].(*typing.NumericType); ok && nb.Integer {
 			if na.BitSize > nb.BitSize {
+				if !na.Signed && nb.Signed {
+					return v.SmallestInteger(na.BitSize, true)
+				}
 				return na
+			}
+			if !nb.Signed && na.Signed {
+				return v.SmallestInteger(nb.BitSize, true)
 			}
 			return nb
 		}
@@ -133,23 +157,44 @@ func (v *Validator) LargestNumericType(allowFloat bool) typing.Type {
 }
 
 // SmallestNumericType ...
-func (v *Validator) SmallestNumericType(bits int, allowFloat bool) typing.Type {
+func (v *Validator) SmallestFloat(bits int) typing.Type {
+	smallest := -1
+	smallestType := typing.Type(typing.Invalid())
+	for _, typ := range v.primitives {
+		n, ok := typ.(*typing.NumericType)
+		if ok {
+			if n.Integer {
+				continue
+			}
+			if smallest == -1 || n.BitSize < smallest {
+				if n.BitSize >= bits {
+					smallest = n.BitSize
+					smallestType = n
+				}
+			}
+		}
+	}
+	return smallestType
+}
+
+// SmallestNumericType ...
+func (v *Validator) SmallestInteger(bits int, isSigned bool) typing.Type {
 	smallest := -1
 	smallestType := typing.Type(typing.Unknown())
 	for _, typ := range v.primitives {
 		n, ok := typ.(*typing.NumericType)
 		if ok {
-			if !n.Integer && !allowFloat {
+			if !n.Integer {
+				continue
+			}
+			// must be both
+			if (n.Signed && !isSigned) || (!n.Signed && isSigned) {
 				continue
 			}
 			if smallest == -1 || n.BitSize < smallest {
 				if n.BitSize >= bits {
-					if n.Signed {
-						// TODO: only select signed?
-						smallest = n.BitSize
-						smallestType = n
-					}
-
+					smallest = n.BitSize
+					smallestType = n
 				}
 			}
 		}
