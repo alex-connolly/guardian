@@ -369,6 +369,8 @@ func (p *Parser) parseFuncLiteral() *ast.FuncLiteralNode {
 
 	p.parseRequired(token.Func)
 
+	n.Generics = p.parsePossibleGenerics()
+
 	n.Parameters = p.parseParameters()
 
 	n.Results = p.parseResults()

@@ -111,6 +111,7 @@ func (n *PlainTypeNode) ResolvedType() typing.Type { return typing.Unknown() }
 type FuncTypeNode struct {
 	// mods for interfaces
 	Mods         typing.Modifiers
+	Generics     []*GenericDeclarationNode
 	Begin, Final util.Location
 	Variable     bool
 	Identifier   string

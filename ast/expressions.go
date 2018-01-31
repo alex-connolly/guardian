@@ -122,6 +122,7 @@ func (n *MapLiteralNode) Type() NodeType            { return MapLiteral }
 func (n *MapLiteralNode) ResolvedType() typing.Type { return n.Resolved }
 
 type FuncLiteralNode struct {
+	Generics     []*GenericDeclarationNode
 	Begin, Final util.Location
 	Parameters   []*ExplicitVarDeclarationNode
 	Results      []Node

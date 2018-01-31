@@ -511,6 +511,8 @@ func (p *Parser) parseFuncSignature() *ast.FuncTypeNode {
 		return nil
 	}
 
+	f.Generics = p.parsePossibleGenerics()
+
 	if !p.isNextToken(token.Identifier) {
 		return nil
 	}

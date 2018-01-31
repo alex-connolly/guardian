@@ -1,3 +1,4 @@
+
 package digixdao guardian 0.0.1
 
 contract Badge  {
@@ -114,10 +115,10 @@ contract Token inherits TokenBase {
 
     constructor(cfg address){
         this.config = cfg
-        this.owner = msg.sender s
+        this.owner = msg.sender
         this.initSeller = ConfigInterface(config).getConfigAddress("sale1:address")
         seller[initSeller] = true
-        this.badgeLedger = new Badge() d
+        this.badgeLedger = new Badge()
         this.locked = false
     }
 

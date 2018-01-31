@@ -122,7 +122,7 @@ func (v *Validator) validateFuncType(node *ast.FuncTypeNode) typing.Type {
 		return typing.Invalid()
 	}
 
-	//generics := v.validateGenerics(node.Generics)
+	generics := v.validateGenerics(node.Generics)
 
 	if node.Parameters != nil {
 		for _, p := range node.Parameters {
@@ -158,10 +158,10 @@ func (v *Validator) validateFuncType(node *ast.FuncTypeNode) typing.Type {
 		}
 	}
 	return &typing.Func{
-		Name: node.Identifier,
-		//	Generics: generics,
-		Params:  typing.NewTuple(params...),
-		Results: typing.NewTuple(results...),
+		Name:     node.Identifier,
+		Generics: generics,
+		Params:   typing.NewTuple(params...),
+		Results:  typing.NewTuple(results...),
 	}
 }
 
