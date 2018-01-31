@@ -1,8 +1,6 @@
 package validator
 
 import (
-	"fmt"
-
 	"github.com/end-r/guardian/token"
 
 	"github.com/end-r/guardian/util"
@@ -252,6 +250,8 @@ func (v *Validator) resolveFuncLiteralExpression(n *ast.FuncLiteralNode) typing.
 
 	v.openScope(nil, nil)
 
+	// generics = v.validateGenerics(n.Generics)
+
 	params := make([]typing.Type, 0)
 	for _, p := range n.Parameters {
 		typ := v.validateType(p.DeclaredType)
@@ -279,6 +279,7 @@ func (v *Validator) resolveFuncLiteralExpression(n *ast.FuncLiteralNode) typing.
 	}
 
 	n.Resolved = &typing.Func{
+		//Generics: generics,
 		Params:  typing.NewTuple(params...),
 		Results: typing.NewTuple(results...),
 	}
@@ -387,17 +388,20 @@ func (v *Validator) resolveCallExpression(n *ast.CallExpressionNode) typing.Type
 	if left, ok := v.resolveAsPlainType(n.Call); ok {
 		if len(n.Arguments) > 1 {
 			v.addError(n.Call.Start(), errMultipleCast)
+			n.Resolved = left
 			return left
 		}
 		t := v.resolveExpression(n.Arguments[0])
 		if t == typing.Unknown() || t == typing.Invalid() || t == nil {
 			//TODO: change this error?
 			v.addError(n.Arguments[0].Start(), errImpossibleCastToNonType)
+			n.Resolved = left
 			return left
 		}
 		if !v.vm.Castable(v, left, t, n.Arguments[0]) {
 			v.addError(n.Arguments[0].Start(), errImpossibleCast, typing.WriteType(t), typing.WriteType(left))
 		}
+		n.Resolved = left
 		return left
 	}
 
@@ -406,10 +410,8 @@ func (v *Validator) resolveCallExpression(n *ast.CallExpressionNode) typing.Type
 
 	switch a := exprType.(type) {
 	case *typing.Func:
-		fmt.Println("here")
 		genDecs := make(typing.TypeMap)
 		if len(a.Generics) > 0 {
-			fmt.Println("hi")
 			// implicit generics (takes first type)
 			if len(a.Params.Types) != len(args.Types) {
 				v.addError(n.Start(), errInvalidFuncCall, typing.WriteType(args), typing.WriteType(a))
@@ -420,11 +422,13 @@ func (v *Validator) resolveCallExpression(n *ast.CallExpressionNode) typing.Type
 						if t, ok := genDecs[g.Identifier]; ok {
 							if !t.Compare(args.Types[i]) {
 								v.addError(n.Start(), errInvalidFuncCall, typing.WriteType(args), typing.WriteType(a))
+								n.Resolved = a.Results
 								return a.Results
 							}
 						}
 						if !g.Accepts(args.Types[i]) {
 							v.addError(n.Start(), errInvalidFuncCall, typing.WriteType(args), typing.WriteType(a))
+							n.Resolved = a.Results
 							return a.Results
 						}
 						genDecs[g.Identifier] = args.Types[i]
@@ -443,7 +447,7 @@ func (v *Validator) resolveCallExpression(n *ast.CallExpressionNode) typing.Type
 		for i, r := range a.Results.Types {
 			a.Results.Types[i] = v.replaceGeneric(r, genDecs)
 		}
-
+		n.Resolved = a.Results
 		return a.Results
 	case *typing.Event:
 		if !typing.AssignableTo(a.Parameters, args, false) {

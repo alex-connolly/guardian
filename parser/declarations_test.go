@@ -944,7 +944,7 @@ func TestParseInterfaceDeclarationWithModifiers(t *testing.T) {
 	_, errs := ParseString(`interface Switchable {
 			global on()
 			internal off()
-			external ok(a, b string) (a int)
+			internal external ok(a, b string) (a int)
 		}`)
 	// one for each missing bracket
 	goutil.AssertNow(t, len(errs) == 0, "wrong error length")

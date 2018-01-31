@@ -147,6 +147,7 @@ type VM interface {
 	Annotations() []*typing.Annotation
 	BytecodeGenerators() map[string]BytecodeGenerator
 	Castable(val *Validator, to, from typing.Type, fromExpression ast.ExpressionNode) bool
+	Assignable(val *Validator, to, from typing.Type, fromExpression ast.ExpressionNode) bool
 }
 
 type TestVM struct {
@@ -154,6 +155,36 @@ type TestVM struct {
 
 func NewTestVM() TestVM {
 	return TestVM{}
+}
+
+func literalAssignable(left, right typing.Type, fromExpression ast.ExpressionNode) bool {
+	if t, ok := typing.ResolveUnderlying(left).(*typing.NumericType); ok {
+		if li, ok := fromExpression.(*ast.LiteralNode); ok {
+			if li.LiteralType != token.Integer && li.LiteralType != token.Float {
+				return false
+			}
+			hasSign := (li.Data[0] == '-')
+			bitLen := len(li.Data)
+			if hasSign {
+				bitLen--
+			}
+			integer := li.LiteralType == token.Integer
+			if t.AcceptsLiteral(typing.BitsNeeded(bitLen), integer, hasSign) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (v TestVM) Assignable(val *Validator, left, right typing.Type, fromExpression ast.ExpressionNode) bool {
+	if !typing.AssignableTo(left, right, true) {
+		if literalAssignable(left, right, fromExpression) {
+			return true
+		}
+		return false
+	}
+	return true
 }
 
 func (v TestVM) Castable(val *Validator, to, from typing.Type, fromExpression ast.ExpressionNode) bool {
@@ -186,14 +217,8 @@ func (v TestVM) Castable(val *Validator, to, from typing.Type, fromExpression as
 	if typing.AssignableTo(to, from, false) {
 		return true
 	}
-	// any address can be cast to any contract
-	if l, ok := fromExpression.(*ast.LiteralNode); ok {
-		hasSign := (l.Data[0] == '-')
-		if nt, ok := typing.ResolveUnderlying(to).(*typing.NumericType); ok {
-			if nt.AcceptsLiteral(from, hasSign) {
-				return true
-			}
-		}
+	if literalAssignable(to, from, fromExpression) {
+		return true
 	}
 	return false
 }

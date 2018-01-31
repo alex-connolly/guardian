@@ -64,7 +64,7 @@ func (m *Map) write(b *bytes.Buffer) {
 func (f *Func) write(b *bytes.Buffer) {
 	b.WriteString("func ")
 	b.WriteString(f.Name)
-	if f.Generics != nil {
+	if f.Generics != nil && len(f.Generics) > 0 {
 		b.WriteString("<")
 		for _, g := range f.Generics {
 			b.WriteString(g.Identifier)
@@ -77,7 +77,7 @@ func (f *Func) write(b *bytes.Buffer) {
 
 func (c *Class) write(b *bytes.Buffer) {
 	b.WriteString(c.Name)
-	if c.Generics != nil {
+	if c.Generics != nil && len(c.Generics) > 0 {
 		b.WriteString("<")
 		for _, g := range c.Generics {
 			b.WriteString(g.Identifier)
@@ -96,7 +96,7 @@ func (e *Enum) write(b *bytes.Buffer) {
 
 func (c *Contract) write(b *bytes.Buffer) {
 	b.WriteString(c.Name)
-	if c.Generics != nil {
+	if c.Generics != nil && len(c.Generics) > 0 {
 		b.WriteString("<")
 		for _, g := range c.Generics {
 			b.WriteString(g.Identifier)

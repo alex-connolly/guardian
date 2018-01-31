@@ -37,11 +37,6 @@ func (v *Validator) validateStatement(node ast.Node) {
 }
 
 func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
-	// TODO: fundamental: define operator or not
-	// valid assignments must have
-	// 1. valid left hand expression (cannot be a call, literal, slice)
-	// 2. types of left assignable to right
-	// 3. right all valid expressions
 
 	for _, l := range node.Left {
 		if l == nil {
@@ -60,8 +55,9 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 	rightTuple := v.ExpressionTuple(node.Right)
 	if len(leftTuple.Types) > len(rightTuple.Types) && len(rightTuple.Types) == 1 {
 		right := rightTuple.Types[0]
+
 		for _, left := range leftTuple.Types {
-			if !typing.AssignableTo(right, left, true) {
+			if !v.vm.Assignable(v, left, right, node.Right[0]) {
 				v.addError(node.Left[0].Start(), errInvalidAssignment, typing.WriteType(left), typing.WriteType(right))
 			}
 		}
@@ -82,25 +78,37 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 		}
 
 	} else {
-		if !leftTuple.Compare(rightTuple) {
-			if len(leftTuple.Types) == len(rightTuple.Types) {
-				for i, left := range leftTuple.Types {
-					if t, ok := typing.ResolveUnderlying(left).(*typing.NumericType); ok {
-						if li, ok := node.Right[i].(*ast.LiteralNode); ok {
-							hasSign := (li.Data[0] == '-')
-							if t.AcceptsLiteral(rightTuple.Types[i], hasSign) {
-								continue
-							}
+		if len(leftTuple.Types) == len(rightTuple.Types) {
+			// count helps to handle: a, b, c, d = producesTwo(), 6, 7
+			// first two rely on the same expression
+			count := 0
+			remaining := 0
+			for i, left := range leftTuple.Types {
+				right := rightTuple.Types[i]
+				if !v.vm.Assignable(v, left, right, node.Right[count]) {
+					v.addError(node.Start(), errInvalidAssignment, typing.WriteType(leftTuple), typing.WriteType(rightTuple))
+					break
+				}
+				if remaining == 0 {
+					if node.Right[count] == nil {
+						count++
+					} else {
+						switch a := node.Right[count].ResolvedType().(type) {
+						case *typing.Tuple:
+							remaining = len(a.Types) - 1
+							break
+						default:
+							count++
 						}
 					}
-					if !typing.AssignableTo(left, rightTuple.Types[i], true) {
-						v.addError(node.Left[0].Start(), errInvalidAssignment, typing.WriteType(leftTuple), typing.WriteType(rightTuple))
-					}
-				}
-			} else {
-				v.addError(node.Left[0].Start(), errInvalidAssignment, typing.WriteType(leftTuple), typing.WriteType(rightTuple))
-			}
 
+				} else {
+					remaining--
+				}
+
+			}
+		} else {
+			v.addError(node.Start(), errInvalidAssignment, typing.WriteType(leftTuple), typing.WriteType(rightTuple))
 		}
 
 		// length of left tuple should always equal length of left
@@ -113,7 +121,7 @@ func (v *Validator) validateAssignment(node *ast.AssignmentStatementNode) {
 						id.Resolved = rightTuple.Types[i]
 						if id.Name != "_" {
 							//fmt.Printf("Declaring %s as %s\n", id.Name, typing.WriteType(rightTuple.Types[i]))
-							v.declareVar(id.Start(), id.Name, rightTuple.Types[i])
+							v.declareVar(id.Start(), id.Name, id.Resolved)
 						}
 					}
 				}

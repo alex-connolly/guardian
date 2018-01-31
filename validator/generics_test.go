@@ -181,3 +181,20 @@ func TestFunctionTwoGenericParametersReturnType(t *testing.T) {
     `)
 	goutil.AssertNow(t, len(errs) == 1, errs.Format())
 }
+
+func TestGenericFunctionLiteralAssignment(t *testing.T) {
+	_, errs := ValidateString(NewTestVM(), `
+		func main(){
+			var y func(int)int
+			x = func <T> (a T) {
+
+			}
+			x = y
+		}
+
+		func <T> thing(items []T) []T {
+			return items
+		}
+    `)
+	goutil.AssertNow(t, len(errs) == 1, errs.Format())
+}

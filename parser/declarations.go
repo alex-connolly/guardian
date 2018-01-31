@@ -732,6 +732,9 @@ func (p *Parser) parseArrayType() *ast.ArrayTypeNode {
 			p.next()
 		}
 		p.parseRequired(token.CloseSquare)
+	} else {
+		// no length specified
+		variable = true
 	}
 
 	typ := p.parseType()

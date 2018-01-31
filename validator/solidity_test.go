@@ -63,7 +63,7 @@ func TestParseStrings(t *testing.T) {
 	goutil.Assert(t, errs == nil, errs.Format())
 }*/
 
-func TestParseDigixDao(t *testing.T) {
+func TestParsePackageDigixDao(t *testing.T) {
 	p, errs := ValidatePackage(NewTestVM(), "../samples/tests/solc/examples/digixdao")
 	goutil.Assert(t, p != nil, "ast should not be nil")
 	goutil.Assert(t, errs == nil, errs.Format())

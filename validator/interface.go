@@ -88,7 +88,6 @@ func ValidateFileData(vm VM, data []string) (errors util.Errors) {
 	pkgScope.scopes = make([]*ast.ScopeNode, 0)
 	for _, d := range data {
 		s, errs := parser.ParseString(d)
-
 		pkgScope.scopes = append(pkgScope.scopes, s)
 		errors = append(errors, errs...)
 	}

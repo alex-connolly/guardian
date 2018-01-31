@@ -114,10 +114,10 @@ contract Token inherits TokenBase {
 
     constructor(cfg address){
         this.config = cfg
-        this.owner = msg.sender
+        this.owner = msg.sender s
         this.initSeller = ConfigInterface(config).getConfigAddress("sale1:address")
         seller[initSeller] = true
-        this.badgeLedger = new Badge()
+        this.badgeLedger = new Badge() d
         this.locked = false
     }
 

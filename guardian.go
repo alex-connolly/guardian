@@ -50,6 +50,10 @@ func CompileString(vm validator.VM, data string) vmgen.Bytecode {
 	return CompileBytes(vm, []byte(data))
 }
 
+func CompileFilesData(vm validator.VM, data [][]byte) (vmgen.Bytecode, util.Errors) {
+
+}
+
 /* EVM ...
 func EVM() Traverser {
 	return evm.NewTraverser()

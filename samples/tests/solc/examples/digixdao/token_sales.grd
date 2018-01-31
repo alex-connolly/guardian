@@ -33,8 +33,6 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
 
     var proxyPayouts map[address]address
 
-
-
     constructor(cfg address) {
         this.owner = msg.sender
         this.config = cfg
@@ -282,7 +280,7 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
   }
 
   func regProxy(payout address)  (success bool) {
-      onlyOrigin()
+    onlyOrigin()
     proxy = new ProxyPayment(payout, this.address);
     proxies[proxy].payout = payout;
     proxies[proxy].isProxy = true;
@@ -291,7 +289,7 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
   }
 
   global func getProxy(payout address) (proxy address) {
-      return proxies[proxy].address
+      return proxies[payout].address
   }
 
   global func getPayout(proxy address) (payout address, isProxy bool){

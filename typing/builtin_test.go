@@ -14,5 +14,10 @@ func TestConvertToBits(t *testing.T) {
 }
 
 func TestAcceptLiteral(t *testing.T) {
-
+	a := &NumericType{BitSize: 8, Signed: true, Integer: true}
+	goutil.AssertNow(t, a.AcceptsLiteral(8, true, true), "1 failed")
+	goutil.AssertNow(t, a.AcceptsLiteral(8, true, false), "2 failed")
+	goutil.AssertNow(t, a.AcceptsLiteral(7, true, true), "3 failed")
+	b := &NumericType{BitSize: 256, Signed: false, Integer: true}
+	goutil.AssertNow(t, b.AcceptsLiteral(8, true, false), "4 failed")
 }

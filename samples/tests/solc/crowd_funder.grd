@@ -89,7 +89,6 @@ contract CrowdFunder {
         totalRaised += msg.value
         currentBalance = totalRaised
         LogFundingReceived(msg.sender, msg.value, totalRaised)
-
         checkIfFundingCompleteOrExpired()
         return len(contributions) - 1 // return id
     }
