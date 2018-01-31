@@ -949,3 +949,15 @@ func TestParseInterfaceDeclarationWithModifiers(t *testing.T) {
 	// one for each missing bracket
 	goutil.AssertNow(t, len(errs) == 0, "wrong error length")
 }
+
+func TestParseEventDeclarationWithModifiers(t *testing.T) {
+	a, errs := ParseString(`
+		event Transfer(indexed from address, indexed to address, value uint)
+	`)
+	goutil.AssertNow(t, len(errs) == 0, "wrong error length")
+	e := a.NextDeclaration().(*ast.EventDeclarationNode)
+	goutil.AssertNow(t, len(e.Parameters) == 3, "wrong parameter length")
+	goutil.AssertNow(t, len(e.Parameters[0].Identifiers) == 1, "wrong parameter 0 length")
+	goutil.AssertNow(t, len(e.Parameters[1].Identifiers) == 1, "wrong parameter 1 length")
+	goutil.AssertNow(t, len(e.Parameters[2].Identifiers) == 1, "wrong parameter 2 length")
+}

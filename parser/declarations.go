@@ -423,7 +423,7 @@ func (p *Parser) parseIndividualParameter() *ast.ExplicitVarDeclarationNode {
 			}
 			possibleMods = nil
 		} else {
-			names = possibleMods[1:]
+			names = possibleMods[len(possibleMods)-1:]
 			possibleMods = possibleMods[:len(possibleMods)-2]
 			p.index -= 1
 		}

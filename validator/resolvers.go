@@ -250,7 +250,7 @@ func (v *Validator) resolveFuncLiteralExpression(n *ast.FuncLiteralNode) typing.
 
 	v.openScope(nil, nil)
 
-	generics = v.validateGenerics(n.Generics)
+	generics := v.validateGenerics(n.Generics)
 
 	params := make([]typing.Type, 0)
 	for _, p := range n.Parameters {

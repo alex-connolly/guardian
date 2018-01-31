@@ -54,7 +54,7 @@ contract GoldTxFeePool {
         require(now >= periods[periodCount].collectionEnd)
     }
 
-    constructor(dgxTokens, dgdtokens address, env []byte){
+    constructor(dgxtokens, dgdtokens address, env []byte){
         this.dgxTokens = dgxtokens
         this.dgdTokens = dgdtokens
         this.environment = env

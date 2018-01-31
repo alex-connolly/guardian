@@ -130,7 +130,7 @@ contract CrowdFunder {
         } elif now > raiseBy {
             state = State.ExpiredRefund // backers can now collect refunds by calling getRefund(id)
         }
-        completeAt = now
+        completeAt = now()
     }
 
     func removeContract(){
