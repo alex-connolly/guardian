@@ -113,6 +113,9 @@ contract Token inherits TokenBase {
         require(msg.sender == this.dao)
     }
 
+    // TODO: where'd this come from, just added in later
+    var initSeller address
+
     constructor(cfg address){
         this.config = cfg
         this.owner = msg.sender

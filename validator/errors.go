@@ -58,4 +58,5 @@ const (
 	errInvalidMapKey                     = "Cannot use type %s as map key"
 	errMultipleCast                      = "Cannot cast more than one value"
 	errUnknownModifier                   = "Unknown modifier %s"
+	errInvalidSwitchTarget               = "Invalid switch target: expected %s, found %s"
 )

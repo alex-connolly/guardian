@@ -57,6 +57,24 @@ func BinaryNumericOperator(v *Validator, types []typing.Type, exprs []ast.Expres
 	right := typing.ResolveUnderlying(types[1])
 	if na, ok := left.(*typing.NumericType); ok {
 		if nb, ok := right.(*typing.NumericType); ok {
+			// literals are handled differently
+			// uint = uint + 1
+			// should resolve to uint
+			if lit, ok := exprs[0].(*ast.LiteralNode); ok {
+				hasSign := (lit.Data[0] == '-')
+				integral := (lit.LiteralType == token.Integer)
+				if nb.AcceptsLiteral(na.BitSize, integral, hasSign) {
+					return nb
+				}
+			}
+			if lit, ok := exprs[1].(*ast.LiteralNode); ok {
+				hasSign := (lit.Data[0] == '-')
+				integral := (lit.LiteralType == token.Integer)
+				if na.AcceptsLiteral(nb.BitSize, integral, hasSign) {
+					return na
+				}
+			}
+
 			if na.BitSize > nb.BitSize {
 				if na.Integer && !nb.Integer {
 					return v.SmallestFloat(na.BitSize)

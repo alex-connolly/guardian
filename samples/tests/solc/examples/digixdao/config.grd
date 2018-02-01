@@ -17,28 +17,28 @@ contract Config inherits ConfigBase is ConfigInterface {
       admins[owner] = true
   }
 
-  func setConfigAddress(key []byte, val address) (success bool){
+  func setConfigAddress(key bytes32, val address) (success bool){
       ifAdmin()
       addressMap[key] = val
       return true
   }
 
-  func setConfigBool(key []byte, val bool) (success bool){
+  func setConfigBool(key bytes32, val bool) (success bool){
       boolMap[key] = val
       return true
   }
 
-  func setConfigBytes(key, val []byte) (success bool){
+  func setConfigBytes(key bytes32, val bytes32) (success bool){
       bytesMap[key] = val
       return true
   }
 
-  func setConfigUint(key []byte, val uint) (success bool) {
+  func setConfigUint(key bytes32, val uint) (success bool) {
       uintMap[key] = val
       return true
   }
 
- func getConfigAddress(key []byte) (val address){
+ func getConfigAddress(key bytes32) (val address){
      return addressMap[key]
  }
 

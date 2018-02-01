@@ -4,11 +4,13 @@ Guardian is a statically typed, object-oriented programming language for decentr
 
 Significantly, Guardian is virtual machine agnostic - the same syntax can be compiled into radically different bytecode for different virtual machines.
 
-Guardian currently supports the generation of bytecode for the following VMs:
 
-- Ethereum Virtual Machine
-- NEO Virtual Machine
-- FireVM
+| Name | Status/Release |
+|:-----------:|:----|
+| Guardian Core | In Progress |
+| EVM | In Progress |
+| NEO VM | Upcoming |
+| FireVM | Upcoming |
 
 ## Aims
 
@@ -119,7 +121,7 @@ class Liger inherits Lion, Tiger {
 }
 ```
 
-In cases where a class inherits two methods with identical names and parameters, the methods will 'cancel' and neither will be available in the subclass. 
+In cases where a class inherits two methods with identical names and parameters, the methods will 'cancel' and neither will be available in the subclass.
 
 ### Interfaces
 

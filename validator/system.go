@@ -86,6 +86,49 @@ func (v *Validator) isVarVisibleInScope(ts *TypeScope, name string) (typing.Type
 	return typing.Unknown(), false
 }
 
+func (v *Validator) isVarDirectlyVisibleInScope(ts *TypeScope, name string) (typing.Type, bool) {
+	if ts == nil {
+		return typing.Invalid(), false
+	}
+	if ts.variables != nil {
+		if t, ok := ts.variables[name]; ok {
+			return t, true
+		}
+	}
+	if ts.scopes != nil {
+		for _, s := range ts.scopes {
+			if s != nil {
+				decl := s.GetDeclaration(name)
+				if decl != nil {
+					saved := v.scope
+					v.scope = ts
+					v.validateDeclaration(decl)
+					v.scope = saved
+					if t, ok := ts.variables[name]; ok {
+						return t, true
+					}
+				}
+			}
+		}
+	}
+	if ts.parent != nil {
+		return v.isVarDirectlyVisibleInScope(ts.parent, name)
+	}
+	return typing.Unknown(), false
+}
+
+func (v *Validator) isVarDirectlyVisible(name string) (typing.Type, bool) {
+	if v.builtinScope != nil {
+		if t, ok := v.builtinScope.variables[name]; ok {
+			return t, ok
+		}
+	}
+	if t, ok := v.isVarDirectlyVisibleInScope(v.scope, name); ok {
+		return t, ok
+	}
+	return typing.Unknown(), false
+}
+
 func (v *Validator) isVarDeclared(name string) (typing.Type, bool) {
 	if v.builtinScope != nil {
 		if t, ok := v.builtinScope.variables[name]; ok {

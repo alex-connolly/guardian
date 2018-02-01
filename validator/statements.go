@@ -171,7 +171,11 @@ func (v *Validator) validateSwitchStatement(node *ast.SwitchStatementNode) {
 
 func (v *Validator) validateCaseStatement(switchType typing.Type, clause *ast.CaseStatementNode) {
 	for _, expr := range clause.Expressions {
-		v.requireType(expr.Start(), switchType, v.resolveExpression(expr))
+		t := v.resolveExpression(expr)
+		if !v.vm.Assignable(v, switchType, t, expr) {
+			v.addError(clause.Start(), errInvalidSwitchTarget, typing.WriteType(switchType), typing.WriteType(t))
+		}
+
 	}
 	v.validateScope(clause, clause.Block)
 }
