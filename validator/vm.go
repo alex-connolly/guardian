@@ -178,6 +178,15 @@ func literalAssignable(left, right typing.Type, fromExpression ast.ExpressionNod
 }
 
 func (v TestVM) Assignable(val *Validator, left, right typing.Type, fromExpression ast.ExpressionNode) bool {
+	t, _ := val.isTypeVisible("address")
+	if t.Compare(right) {
+		switch left.(type) {
+		case *typing.Contract:
+			return true
+		case *typing.Interface:
+			return true
+		}
+	}
 	if !typing.AssignableTo(left, right, true) {
 		if literalAssignable(left, right, fromExpression) {
 			return true

@@ -16,7 +16,7 @@ contract Dao {
         proposals map[address]ProposalData
         proposalIndex map[uint256]address
         proposalsCount uint256
-        environment []byte
+        environment bytes32
     )
 
     enum Status { Pledging, Voting, Completed }

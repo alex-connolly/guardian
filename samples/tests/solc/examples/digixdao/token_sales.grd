@@ -96,7 +96,7 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
             case 1: modifier = 130
         }
       creditwei = amount;
-      creditcents = (weiToCents(creditwei) * modifier * 10000) / 1000000 ;
+      creditcents = (weiToCents(creditwei) * modifier * 10000) / 1000000;
       buyers[user].centsTotal += creditcents;
       buyers[user].weiTotal += creditwei;
       saleInfo.totalCents += creditcents;
@@ -118,9 +118,9 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
     return share
   }
 
-  global func weiToCents(weiAmount uint256) (centsvalue uint256) {
-    centsvalue = ((weiAmount * 100000 / WEIPERETH) * ethToCents) / 100000;
-    return centsvalue;
+  global func weiToCents(weiAmount uint256) (cv uint256) {
+    cv = ((weiAmount * 100000 / WEIPERETH) * ethToCents) / 100000
+    return cv
   }
 
   func setEthToCents(eth uint256) (success bool) {
@@ -198,7 +198,7 @@ contract TokenSales inherits TokenSalesBase is TokenSalesInterface {
     }
     tokenc = ConfigInterface(config).getConfigAddress("ledger");
     tokens = saleConfig.founderAmount;
-    badges = 4;
+    badges = uint(4);
     faddr = saleConfig.founderWallet;
     if (TokenInterface(tokenc).mint(faddr, tokens)) and (TokenInterface(tokenc).mintBadge(faddr, badges)) {
       saleStatus.founderClaim = true;

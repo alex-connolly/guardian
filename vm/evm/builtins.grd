@@ -3,8 +3,11 @@ type int int256
 type byte int8
 type string []byte
 type address [20]byte
+type bytes32 [32]byte
 
 const (
+	burn = address(0)
+
 	wei = 1
 	kwei = 1000 * wei
 	babbage = kwei
@@ -19,82 +22,53 @@ const (
 	ether = 1000 * milliether
 )
 
-@Builtin("now") var func() uint
-@Builtin("length") var len func <Key>([]Key)
+@Builtin("now") func now() uint
+@Builtin("length") func <T> len(array []T) int
+@Builtin("append") func <T> append(array []T, item T) []T
+@Builtin("delete") func <T> delete(storageItem T)
 
 // account functions
-@Builtin("balance") var balance func(a address) uint256
-@Builtin("transfer") var transfer func(a address, amount uint256) uint
-@Builtin("call") var call func(a address, gas uint, value uint, signature string) bool
-@Builtin("delegate") var delegate func(a address)
+@Builtin("balanceOf") func balanceOf(a address) uint256
+@Builtin("transfer") func transfer(a address, amount uint256) bool
+@Builtin("call") func call(a address, gas uint, value uint, signature string) bool
+@Builtin("delegateCall") func delegateCall(a address)
 
 // cryptographic functions
-@Builtin("addmod") var addmod func(x, y, k uint) uint
-@Builtin("mulmod") var mulmod func(x, y, k uint) uint
-@Builtin("keccak256") var keccak256 func()
-@Builtin("sha256") var sha256 func(text []byte)
-@Builtin("sha3") var sha3 func(text []byte)
-@Builtin("ripemd160") var ripemd160 func()
-@Builtin("ecrecover") var ecrecover func (v uint8, h, r, s []byte) address
+@Builtin("addmod") func addmod(x, y, k uint) uint
+@Builtin("mulmod") func mulmod(x, y, k uint) uint
+@Builtin("keccak256") func keccak256(a string) string
+@Builtin("sha256") func sha256(text string) string
+@Builtin("sha3") func sha3(text string) string
+@Builtin("ripemd160") func ripemd160()
+@Builtin("ecrecover") func ecrecover(v uint8, h, r, s []byte) address
 
-@Builtin("require") var require func(that bool)
-@Builtin("assert") var assert func(that bool)
+@Builtin("require") func require(that bool)
+@Builtin("assert") func assert(that bool)
 
-@Builtin("revert") var revert func()
-@Builtin("throw") var throw func()
+@Builtin("revert") func revert()
+@Builtin("throw") func throw()
 
 // contract functions
 // NO THIS KEYWORD: confusing for most programmers, unintentional bugs etc
 
-@Builtin("selfDestruct") var selfDestruct func(recipient address) uint256
-
+@Builtin("selfDestruct") func selfDestruct(recipient address) uint256
 
 class BuiltinMessage {
 	@Builtin("calldata") var data []byte
 	@Builtin("gas") var gas uint
 	@Builtin("caller") var sender address
 	@Builtin("signature") var sig [4]byte
+	@Builtin("value") var value uint
 }
 
 var msg BuiltinMessage
-
-class Call {
-
-	private var (
-		base address
-		gas uint
-		value uint
-		signature [4]byte
-	)
-
-	constructor(a address){
-		base = a
-	}
-
-	func gas(b uint) Call {
-		this.gas = b
-		return this
-	}
-
-	func value(c uint) Call {
-		this.value = c
-		return this
-	}
-
-	func sig(c uint) Call {
-		this.value = c
-		return this
-	}
-
-	@Builtin("call") var call func()
-}
 
 class BuiltinBlock {
 	@Builtin("timestamp") var timestamp uint
 	@Builtin("number") var number uint
 	@Builtin("coinbase") var coinbase address
 	@Builtin("gasLimit") var gasLimit uint
-	@Builtin("blockhash") var blockhash func(blockNumber uint) [32]byte
+	@Builtin("blockhash") func blockhash(blockNumber uint) [32]byte
 }
 
 var block BuiltinBlock

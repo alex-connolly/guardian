@@ -6,10 +6,18 @@ VM implementations must conform to the following interface:
 type VM interface {
 	Traverse(ast.Node) (vmgen.Bytecode, util.Errors)
 	Builtins() *ast.ScopeNode
-	Primitives() map[string]Type
+	BaseContract() (*ast.ContractDeclarationNode, util.Errors)
+	Primitives() map[string]typing.Type
 	Literals() LiteralMap
-	Operators() OperatorMap
 	BooleanName() string
+	ValidExpressions() []ast.NodeType
+	ValidStatements() []ast.NodeType
+	ValidDeclarations() []ast.NodeType
+	Modifiers() []*ModifierGroup
+	Annotations() []*typing.Annotation
+	BytecodeGenerators() map[string]BytecodeGenerator
+	Castable(val *Validator, to, from typing.Type, fromExpression ast.ExpressionNode) bool
+	Assignable(val *Validator, to, from typing.Type, fromExpression ast.ExpressionNode) bool
 }
 ```
 
@@ -56,7 +64,11 @@ func literal(v *validator.Validator, data string) validator.Type {
 
 ## Primitives
 
-Primitive types are the fundamental building block of any Guardian VM.
+Primitive types are the fundamental building block of any Guardian VM. Generally speaking, you should only specify numeric types in this map.
+
+```go
+var type = &typing.NumericType{Size: 16, Signed: true}
+```
 
 ## Builtins
 
@@ -65,3 +77,5 @@ Primitive types are the fundamental building block of any Guardian VM.
 ```go
 
 ```
+
+## Castable and Assignable

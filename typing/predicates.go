@@ -7,6 +7,12 @@ func AssignableTo(left, right Type, allowUnknown bool) bool {
 		return true
 	}
 
+	if rg, ok := right.(*Generic); ok {
+		if rg.Accepts(left) {
+			return true
+		}
+	}
+
 	// assignable if the two types are equal
 	if left.Compare(right) {
 		return true

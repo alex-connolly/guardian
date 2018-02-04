@@ -327,19 +327,29 @@ func (e *GuardianEVM) traverseIndex(n *ast.IndexExpressionNode) (code vmgen.Byte
 	return code
 }
 
+const (
+	mapLiteralReserved   = "gevm_map_literal_%d"
+	arrayLiteralReserved = "gevm_array_literal_%d"
+)
+
+// reserve name for map literals: gevm_map_literal_{count}
+// if you try to name things it won't let you
 func (e *GuardianEVM) traverseMapLiteral(n *ast.MapLiteralNode) (code vmgen.Bytecode) {
 
-	/*fakeKey := e.currentlyAssigning
+	fakeKey := fmt.Sprintf(mapLiteralReserved, e.mapLiteralCount)
 
-	i := 0
-	 TODO: deterministic iteration
+	// must be deterministic iteration here
 	for _, v := range n.Data {
 		// each storage slot must be 32 bytes regardless of contents
 		slot := EncodeName(fakeKey + "key")
 		code.Concat(push(slot))
 		code.Add("SSTORE")
+
 		i++
-	}*/
+	}
+
+	e.mapLiteralCount++
+
 	return code
 }
 

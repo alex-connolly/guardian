@@ -9,6 +9,8 @@ import (
 	"github.com/end-r/vmgen"
 )
 
+type hookMap map[string]hook
+
 // GuardianEVM
 type GuardianEVM struct {
 	expression         ast.ExpressionNode
@@ -20,12 +22,14 @@ type GuardianEVM struct {
 	memoryCursor       uint
 	memory             map[string]*memoryBlock
 	currentlyAssigning string
-	internalHooks      map[string]hook
-	externalHooks      map[string]hook
-	globalHooks        map[string]hook
-	eventHooks         map[string]hook
-	lifecycleHooks     map[string]hook
+	internalHooks      hookMap
+	externalHooks      hookMap
+	globalHooks        hookMap
+	eventHooks         hookMap
+	lifecycleHooks     hookMap
 	inStorage          bool
+	mapLiteralCount    int
+	arrayLiteralCount  int
 }
 
 func push(data []byte) (code vmgen.Bytecode) {

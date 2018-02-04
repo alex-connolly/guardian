@@ -3,6 +3,8 @@ package evm
 import (
 	"fmt"
 
+	"github.com/end-r/guardian/util"
+
 	"github.com/end-r/guardian/ast"
 	"github.com/end-r/guardian/parser"
 	"github.com/end-r/guardian/token"
@@ -89,8 +91,104 @@ func (evm GuardianEVM) Modifiers() []*validator.ModifierGroup {
 	return mods
 }
 
-func (evm GuardianEVM) Annotations() []*ast.Annotation {
+func (evm GuardianEVM) Annotations() []*typing.Annotation {
 	return nil
+}
+
+func literalAssignable(left, right typing.Type, fromExpression ast.ExpressionNode) bool {
+	if t, ok := typing.ResolveUnderlying(left).(*typing.NumericType); ok {
+		if li, ok := fromExpression.(*ast.LiteralNode); ok {
+			if li.LiteralType != token.Integer && li.LiteralType != token.Float {
+				return false
+			}
+			hasSign := (li.Data[0] == '-')
+			bitLen := len(li.Data)
+			if hasSign {
+				bitLen--
+			}
+			integer := li.LiteralType == token.Integer
+			if t.AcceptsLiteral(typing.BitsNeeded(bitLen), integer, hasSign) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (evm GuardianEVM) Assignable(val *validator.Validator, left, right typing.Type, fromExpression ast.ExpressionNode) bool {
+	t, _ := val.isTypeVisible("address")
+	if t.Compare(right) {
+		switch left.(type) {
+		case *typing.Contract:
+			return true
+		case *typing.Interface:
+			return true
+		}
+	}
+	if !typing.AssignableTo(left, right, true) {
+		if literalAssignable(left, right, fromExpression) {
+			return true
+		}
+		return false
+	}
+	return true
+}
+
+func (evm GuardianEVM) Castable(val *validator.Validator, to, from typing.Type, fromExpression ast.ExpressionNode) bool {
+	// can cast all addresses to all contracts
+	t, _ := val.isTypeVisible("address")
+	if t.Compare(from) {
+		switch to.(type) {
+		case *typing.Contract:
+			return true
+		case *typing.Interface:
+			return true
+		}
+	}
+	// can cast all uints to addresses
+	if t.Compare(to) {
+		switch a := typing.ResolveUnderlying(from).(type) {
+		case *typing.NumericType:
+			if !a.Signed {
+				// check size
+				return true
+			}
+			if l, ok := fromExpression.(*ast.LiteralNode); ok {
+				hasSign := (l.Data[0] == '-')
+				if !hasSign {
+					return true
+				}
+			}
+		}
+	}
+	if typing.AssignableTo(to, from, false) {
+		return true
+	}
+	if literalAssignable(to, from, fromExpression) {
+		return true
+	}
+	return false
+}
+
+func (evm GuardianEVM) BaseContract() (*ast.ContractDeclarationNode, util.Errors) {
+	s, errs := parser.ParseString(`
+		contract Base {
+		    var balance uint
+			var address address
+		}
+	`)
+	c := s.Declarations.Next().(*ast.ContractDeclarationNode)
+	return c, errs
+}
+
+func (evm GuardianEVM) BaseClass() (*ast.ContractDeclarationNode, util.Errors) {
+	s, errs := parser.ParseString(`
+		class Object {
+
+		}
+	`)
+	c := s.Declarations.Next().(*ast.ContractDeclarationNode)
+	return c, errs
 }
 
 func (evm GuardianEVM) BytecodeGenerators() map[string]validator.BytecodeGenerator {
