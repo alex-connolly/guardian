@@ -157,7 +157,7 @@ func NewTestVM() TestVM {
 	return TestVM{}
 }
 
-func literalAssignable(left, right typing.Type, fromExpression ast.ExpressionNode) bool {
+func LiteralAssignable(left, right typing.Type, fromExpression ast.ExpressionNode) bool {
 	if t, ok := typing.ResolveUnderlying(left).(*typing.NumericType); ok {
 		if li, ok := fromExpression.(*ast.LiteralNode); ok {
 			if li.LiteralType != token.Integer && li.LiteralType != token.Float {
@@ -188,7 +188,7 @@ func (v TestVM) Assignable(val *Validator, left, right typing.Type, fromExpressi
 		}
 	}
 	if !typing.AssignableTo(left, right, true) {
-		if literalAssignable(left, right, fromExpression) {
+		if LiteralAssignable(left, right, fromExpression) {
 			return true
 		}
 		return false
@@ -226,7 +226,7 @@ func (v TestVM) Castable(val *Validator, to, from typing.Type, fromExpression as
 	if typing.AssignableTo(to, from, false) {
 		return true
 	}
-	if literalAssignable(to, from, fromExpression) {
+	if LiteralAssignable(to, from, fromExpression) {
 		return true
 	}
 	return false

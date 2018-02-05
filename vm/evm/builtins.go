@@ -145,3 +145,19 @@ func length(vm validator.VM) (code vmgen.Bytecode) {
 	}
 	return code
 }
+
+func append(vm validator.VM) (code vmgen.Bytecode) {
+	// must be an array
+	// array size is always at the first index
+	evm := vm.(*GuardianEVM)
+	if evm.inStorage {
+		code.Add()
+		code.Add("SLOAD")
+		code.Add(push(1))
+		code.Add("SSTORE")
+
+	} else {
+		code.Add("MLOAD")
+	}
+	return code
+}

@@ -77,11 +77,27 @@ func (evm GuardianEVM) ValidStatements() []ast.NodeType {
 	return ast.AllStatements
 }
 
+// TODO: context stacks
+// want to validate that a modifier can only be applied to a function in a contract
 var mods = []*validator.ModifierGroup{
 	&validator.ModifierGroup{
 		Name:       "Visibility",
 		Modifiers:  []string{"external", "internal", "global"},
 		RequiredOn: []ast.NodeType{ast.FuncDeclaration},
+		AllowedOn:  []ast.NodeType{ast.FuncDeclaration},
+		Maximum:    1,
+	},
+	&validator.ModifierGroup{
+		Name:       "Payable",
+		Modifiers:  []string{"payable", "nonpayable"},
+		RequiredOn: []ast.NodeType{},
+		AllowedOn:  []ast.NodeType{ast.FuncDeclaration},
+		Maximum:    1,
+	},
+	&validator.ModifierGroup{
+		Name:       "Payable",
+		Modifiers:  []string{"payable", "nonpayable"},
+		RequiredOn: []ast.NodeType{},
 		AllowedOn:  []ast.NodeType{ast.FuncDeclaration},
 		Maximum:    1,
 	},
@@ -95,26 +111,6 @@ func (evm GuardianEVM) Annotations() []*typing.Annotation {
 	return nil
 }
 
-func literalAssignable(left, right typing.Type, fromExpression ast.ExpressionNode) bool {
-	if t, ok := typing.ResolveUnderlying(left).(*typing.NumericType); ok {
-		if li, ok := fromExpression.(*ast.LiteralNode); ok {
-			if li.LiteralType != token.Integer && li.LiteralType != token.Float {
-				return false
-			}
-			hasSign := (li.Data[0] == '-')
-			bitLen := len(li.Data)
-			if hasSign {
-				bitLen--
-			}
-			integer := li.LiteralType == token.Integer
-			if t.AcceptsLiteral(typing.BitsNeeded(bitLen), integer, hasSign) {
-				return true
-			}
-		}
-	}
-	return false
-}
-
 func (evm GuardianEVM) Assignable(val *validator.Validator, left, right typing.Type, fromExpression ast.ExpressionNode) bool {
 	t, _ := val.isTypeVisible("address")
 	if t.Compare(right) {
@@ -126,7 +122,7 @@ func (evm GuardianEVM) Assignable(val *validator.Validator, left, right typing.T
 		}
 	}
 	if !typing.AssignableTo(left, right, true) {
-		if literalAssignable(left, right, fromExpression) {
+		if validator.LiteralAssignable(left, right, fromExpression) {
 			return true
 		}
 		return false

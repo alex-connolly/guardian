@@ -18,7 +18,7 @@ contract SimpleAuction {
 
     constructor(biddingTime uint, ben address) {
         this.beneficiary = ben
-        this.auctionEnd = now() + biddingTime
+        this.auctionEnd = now() 
     }
 
     external (
