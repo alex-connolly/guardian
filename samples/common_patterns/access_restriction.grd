@@ -49,6 +49,7 @@ contract AccessRestriction {
     }
 
     func forceOwnerChange(newOwner address){
+        onlyBy(this.owner)
         costs(uint(200 * ether))
         owner = newOwner
     }

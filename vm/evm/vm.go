@@ -112,7 +112,7 @@ func (evm GuardianEVM) Annotations() []*typing.Annotation {
 }
 
 func (evm GuardianEVM) Assignable(val *validator.Validator, left, right typing.Type, fromExpression ast.ExpressionNode) bool {
-	t, _ := val.isTypeVisible("address")
+	t, _ := val.IsTypeVisible("address")
 	if t.Compare(right) {
 		switch left.(type) {
 		case *typing.Contract:
@@ -132,7 +132,7 @@ func (evm GuardianEVM) Assignable(val *validator.Validator, left, right typing.T
 
 func (evm GuardianEVM) Castable(val *validator.Validator, to, from typing.Type, fromExpression ast.ExpressionNode) bool {
 	// can cast all addresses to all contracts
-	t, _ := val.isTypeVisible("address")
+	t, _ := val.IsTypeVisible("address")
 	if t.Compare(from) {
 		switch to.(type) {
 		case *typing.Contract:
@@ -160,7 +160,7 @@ func (evm GuardianEVM) Castable(val *validator.Validator, to, from typing.Type, 
 	if typing.AssignableTo(to, from, false) {
 		return true
 	}
-	if literalAssignable(to, from, fromExpression) {
+	if validator.LiteralAssignable(to, from, fromExpression) {
 		return true
 	}
 	return false

@@ -14,7 +14,7 @@ type hook struct {
 func (e *GuardianEVM) createFunctionBody(node *ast.FuncDeclarationNode) (body vmgen.Bytecode) {
 	// all function bodies look the same
 	// traverse the scope
-	body.Concat(e.traverse(node.Body))
+	body.Concat(e.traverseScope(node.Body))
 
 	// return address should be on top of the stack
 	body.Add("JUMP")

@@ -10,11 +10,51 @@ import (
 
 func (e *GuardianEVM) traverseSwitchStatement(n *ast.SwitchStatementNode) (code vmgen.Bytecode) {
 	// always traverse the target
+	var generatedExpressions []vmgen.Bytecode
 	if n.Target != nil {
 		e.traverse(n.Target)
-
+		for _, c := range n.Cases.Sequence {
+			switch cas := c.(type) {
+			case *ast.CaseStatementNode:
+				for _, exp := range cas.Expressions {
+					generatedExpressions = append(generatedExpressions, e.traverseExpression(exp))
+				}
+				break
+			}
+		}
+		sum := 0
+		for _, exp := range generatedExpressions {
+			sum += 1 // for duplicating the top of the stack
+			sum += exp.Length()
+			sum += 3 // for EQ, PUSH, JUMP
+		}
+		for _, exp := range generatedExpressions {
+			code.Concat(exp)
+			code.Concat(pushMarker(sum))
+			code.Add("EQ")
+			code.Add("JUMPI")
+		}
 	} else {
-
+		for _, c := range n.Cases.Sequence {
+			switch cas := c.(type) {
+			case *ast.CaseStatementNode:
+				for _, exp := range cas.Expressions {
+					generatedExpressions = append(generatedExpressions, e.traverseExpression(exp))
+				}
+				break
+			}
+		}
+		sum := 0
+		for _, exp := range generatedExpressions {
+			sum += 1 // for duplicating the top of the stack
+			sum += exp.Length()
+			sum += 3 // for EQ, PUSH, JUMP
+		}
+		for _, exp := range generatedExpressions {
+			code.Concat(exp)
+			code.Concat(pushMarker(sum))
+			code.Add("JUMPI")
+		}
 	}
 
 	// switch statements are implicitly converted to if statements
@@ -43,7 +83,7 @@ func (e *GuardianEVM) traverseForStatement(n *ast.ForStatementNode) (code vmgen.
 
 	cond := e.traverseExpression(n.Cond)
 
-	block := e.traverse(n.Block)
+	block := e.traverseScope(n.Block)
 
 	post := e.traverse(n.Post)
 
@@ -88,7 +128,7 @@ func (e *GuardianEVM) traverseForEachStatement(n *ast.ForEachStatementNode) (cod
 		e.allocateMemory(name, 10)
 		memloc := e.lookupMemory(name).offset
 		increment := e.increment(name)
-		block := e.traverse(n.Block)
+		block := e.traverseScope(n.Block)
 		code.Concat(push(encodeUint(0)))
 
 		code.Concat(push(encodeUint(memloc)))
@@ -134,7 +174,7 @@ func (e *GuardianEVM) traverseIfStatement(n *ast.IfStatementNode) (code vmgen.By
 	for _, c := range n.Conditions {
 		cond := e.traverse(c.Condition)
 		conds = append(conds, cond)
-		body := e.traverse(c.Body)
+		body := e.traverseScope(c.Body)
 		blocks = append(blocks, body)
 		end += cond.Length() + body.Length() + 3 + 1
 	}
@@ -148,7 +188,7 @@ func (e *GuardianEVM) traverseIfStatement(n *ast.IfStatementNode) (code vmgen.By
 		code.Concat(pushMarker(end))
 	}
 
-	code.Concat(e.traverse(n.Else))
+	code.Concat(e.traverseScope(n.Else))
 
 	return code
 }
@@ -162,7 +202,9 @@ func (e *GuardianEVM) traverseAssignmentStatement(n *ast.AssignmentStatementNode
 }
 
 func (e *GuardianEVM) assign(l, r ast.ExpressionNode, inStorage bool) (code vmgen.Bytecode) {
-	code.Concat(e.traverseExpression(l))
+	// get the location
+	//code.Concat(e.traverseExpression(l))
+	// do the calculation
 	code.Concat(e.traverseExpression(r))
 	if inStorage {
 		code.Add("SSTORE")

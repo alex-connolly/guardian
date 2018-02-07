@@ -341,11 +341,9 @@ func (e *GuardianEVM) traverseMapLiteral(n *ast.MapLiteralNode) (code vmgen.Byte
 	// must be deterministic iteration here
 	for _, v := range n.Data {
 		// each storage slot must be 32 bytes regardless of contents
-		slot := EncodeName(fakeKey + "key")
+		slot := EncodeName(fakeKey + e.traverse(n))
 		code.Concat(push(slot))
 		code.Add("SSTORE")
-
-		i++
 	}
 
 	e.mapLiteralCount++
@@ -365,7 +363,7 @@ func (e *GuardianEVM) traverseFuncLiteral(n *ast.FuncLiteralNode) (code vmgen.By
 		}
 	}
 
-	code.Concat(e.traverse(n.Scope))
+	code.Concat(e.traverseScope(n.Scope))
 
 	for _, p := range n.Parameters {
 		for _, i := range p.Identifiers {
@@ -398,7 +396,6 @@ func (e *GuardianEVM) traverseIdentifier(n *ast.IdentifierNode) (code vmgen.Byte
 		if m != nil {
 			return m.retrieve()
 		}
-
 	}
 	return code
 }
