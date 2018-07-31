@@ -113,7 +113,7 @@ func (evm *GuardianEVM) increment(varName string) (code vmgen.Bytecode) {
 	return code
 }
 
-func (e *GuardianEVM) traverseForEachStatement(n *ast.ForEachStatementNode) (code vmgen.Bytecode) {
+func (evm *GuardianEVM) traverseForEachStatement(n *ast.ForEachStatementNode) (code vmgen.Bytecode) {
 	// starting from index 0
 	// same for
 	// allocate memory for the index

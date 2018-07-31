@@ -11,7 +11,7 @@ import (
 
 type hookMap map[string]hook
 
-// GuardianEVM
+// GuardianEVM ...
 type GuardianEVM struct {
 	expression         ast.ExpressionNode
 	hooks              []hook
@@ -156,18 +156,19 @@ func (e GuardianEVM) traverse(n ast.Node) (code vmgen.Bytecode) {
 	return code
 }
 
-func (e *GuardianEVM) traverseScope(s *ast.ScopeNode) (code vmgen.Bytecode) {
+func (evm *GuardianEVM) traverseScope(s *ast.ScopeNode) (code vmgen.Bytecode) {
 	if s == nil {
 		return code
 	}
+
 	if s.Declarations != nil {
 		for _, d := range s.Declarations.Array() {
-			code.Concat(e.traverse(d.(ast.Node)))
+			code.Concat(evm.traverse(d.(ast.Node)))
 		}
 	}
 	if s.Sequence != nil {
 		for _, s := range s.Sequence {
-			code.Concat(e.traverse(s))
+			code.Concat(evm.traverse(s))
 		}
 	}
 

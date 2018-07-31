@@ -245,6 +245,7 @@ var distinct = map[string]ProtoToken{
 	"type":   distinctToken("type", KWType),
 
 	"in":    distinctToken("in", In),
+	"dmap":  distinctToken("dmap", DMap),
 	"map":   distinctToken("map", Map),
 	"macro": distinctToken("macro", Macro),
 
@@ -409,6 +410,7 @@ const (
 	KWType
 	TypeOf
 	In
+	DMap
 	Map
 	Macro
 	Package

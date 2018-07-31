@@ -49,7 +49,7 @@ func resolveFloatLiteral(v *validator.Validator, data string) typing.Type {
 	return typing.Unknown()
 }
 
-func (evm GuardianEVM) Primitives() map[string]typing.Type {
+func (evm *GuardianEVM) Primitives() map[string]typing.Type {
 
 	const maxSize = 256
 	m := map[string]typing.Type{}
@@ -69,7 +69,7 @@ func (evm GuardianEVM) ValidDeclarations() []ast.NodeType {
 	return ast.AllDeclarations
 }
 
-func (evm GuardianEVM) ValidExpressions() []ast.NodeType {
+func (evm *uardianEVM) ValidExpressions() []ast.NodeType {
 	return ast.AllExpressions
 }
 
@@ -111,7 +111,7 @@ func (evm GuardianEVM) Annotations() []*typing.Annotation {
 	return nil
 }
 
-func (evm GuardianEVM) Assignable(val *validator.Validator, left, right typing.Type, fromExpression ast.ExpressionNode) bool {
+func (evm *GuardianEVM) Assignable(val *validator.Validator, left, right typing.Type, fromExpression ast.ExpressionNode) bool {
 	t, _ := val.IsTypeVisible("address")
 	if t.Compare(right) {
 		switch left.(type) {
@@ -169,8 +169,9 @@ func (evm GuardianEVM) Castable(val *validator.Validator, to, from typing.Type, 
 func (evm GuardianEVM) BaseContract() (*ast.ContractDeclarationNode, util.Errors) {
 	s, errs := parser.ParseString(`
 		contract Base {
-		    var balance uint
-			var address address
+
+		    public var balance uint
+
 		}
 	`)
 	c := s.Declarations.Next().(*ast.ContractDeclarationNode)

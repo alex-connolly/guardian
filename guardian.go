@@ -3,12 +3,7 @@ package guardian
 import (
 	"fmt"
 
-	"github.com/end-r/vmgen"
-
-	"github.com/end-r/guardian/lexer"
-	"github.com/end-r/guardian/parser"
 	"github.com/end-r/guardian/util"
-	"github.com/end-r/guardian/validator"
 )
 
 func reportErrors(category string, errs util.Errors) {
@@ -17,21 +12,22 @@ func reportErrors(category string, errs util.Errors) {
 	fmt.Println(msg)
 }
 
+/*
 // CompileBytes ...
 func CompileBytes(vm validator.VM, bytes []byte) vmgen.Bytecode {
-	tokens, errs := lexer.Lex(bytes)
+	l := lexer.LexString(string(bytes))
 
-	if errs != nil {
-		reportErrors("Lexing", errs)
+	if l.Errors != nil {
+		reportErrors("Lexing", l.Errors)
 	}
 
-	ast, errs := parser.Parse(tokens, errs)
+	p := parser.Parse(l)
 
-	if errs != nil {
-		reportErrors("Parsing", errs)
+	if p.Errors != nil {
+		reportErrors("Parsing", p.Errors)
 	}
 
-	errs = validator.Validate(ast, vm)
+	errs := validator.ValidateString()
 
 	if errs != nil {
 		reportErrors("Type Validation", errs)
@@ -53,6 +49,7 @@ func CompileString(vm validator.VM, data string) vmgen.Bytecode {
 func CompileFilesData(vm validator.VM, data [][]byte) (vmgen.Bytecode, util.Errors) {
 
 }
+*/
 
 /* EVM ...
 func EVM() Traverser {

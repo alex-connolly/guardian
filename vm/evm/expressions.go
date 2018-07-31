@@ -334,19 +334,19 @@ const (
 
 // reserve name for map literals: gevm_map_literal_{count}
 // if you try to name things it won't let you
-func (e *GuardianEVM) traverseMapLiteral(n *ast.MapLiteralNode) (code vmgen.Bytecode) {
+func (evm *GuardianEVM) traverseMapLiteral(n *ast.MapLiteralNode) (code vmgen.Bytecode) {
 
-	fakeKey := fmt.Sprintf(mapLiteralReserved, e.mapLiteralCount)
+	fakeKey := fmt.Sprintf(mapLiteralReserved, evm.mapLiteralCount)
 
 	// must be deterministic iteration here
 	for _, v := range n.Data {
 		// each storage slot must be 32 bytes regardless of contents
-		slot := EncodeName(fakeKey + e.traverse(n))
+		slot := EncodeName(fakeKey + evm.traverse(n))
 		code.Concat(push(slot))
 		code.Add("SSTORE")
 	}
 
-	e.mapLiteralCount++
+	evm.mapLiteralCount++
 
 	return code
 }

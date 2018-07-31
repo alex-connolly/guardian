@@ -11,9 +11,9 @@ var builtins = map[string]validator.BytecodeGenerator{
 	// arithmetic
 	"addmod":  validator.SimpleInstruction("ADDMOD"),
 	"mulmod":  validator.SimpleInstruction("MULMOD"),
-	"balance": validator.SimpleInstruction("BALANCE"),
+	"balance": singleArgumentCall("BALANCE"),
 	// transactional
-	"transfer":     nil,
+	"transfer":     transfer,
 	"delegateCall": delegateCall,
 	"call":         call,
 	//"callcode": callCode,
@@ -23,13 +23,12 @@ var builtins = map[string]validator.BytecodeGenerator{
 	"require": require,
 	"assert":  assert,
 	// cryptographic
-	"sha3":      validator.SimpleInstruction("SHA3"),
-	"keccak256": nil,
+	"keccak256": validator.SimpleInstruction("SHA3"),
 	"sha256":    nil,
 	"ecrecover": nil,
 	"ripemd160": nil,
 	// ending
-	"selfDestruct": validator.SimpleInstruction("SELFDESTRUCT"),
+	"selfDestruct": singleArgumentCall("SELFDESTRUCT"),
 
 	// message
 	"calldata":  calldata,
@@ -99,13 +98,32 @@ func calldata(vm validator.VM) (code vmgen.Bytecode) {
 	return code
 }
 
+func singleArgumentCall(opcode string) validator.BytecodeGenerator {
+	return func(vm validator.VM) vmgen.Bytecode {
+		e := vm.(GuardianEVM)
+		call := e.expression.(*ast.CallExpressionNode)
+
+		code.Concat(e.traverse(call.Arguments[0]))
+		code.Add(opcode)
+	}
+}
+
 func blockhash(vm validator.VM) (code vmgen.Bytecode) {
-	code.Add("BLOCKHASH")
+	e := vm.(GuardianEVM)
+	call := e.expression.(*ast.CallExpressionNode)
+
+	code.Concat(e.traverse(call.Arguments[0]))
+	code.Add("BALANCE")
 	return code
 }
 
 func require(vm validator.VM) (code vmgen.Bytecode) {
-	code.Concat(pushMarker(2))
+	// code.Concat(pushMarker(2))
+
+	e := vm.(GuardianEVM)
+	call := e.expression.(*ast.CallExpressionNode)
+	code.Concat(e.traverse(call.Arguments[0]))
+
 	code.Add("JUMPI")
 	code.Add("REVERT")
 	return code

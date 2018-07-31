@@ -27,11 +27,20 @@ type StatementNode interface {
 }
 
 type ScopeNode struct {
+	Begin, Final util.Location
 	Parent       *ScopeNode
 	ValidTypes   []NodeType
 	Declarations *goutil.DMap
 	Sequence     []Node
 	index        int
+}
+
+func (n *ScopeNode) Start() util.Location {
+	return n.Begin
+}
+
+func (n *ScopeNode) End() util.Location {
+	return n.Final
 }
 
 func (n *ScopeNode) Next() Node {
